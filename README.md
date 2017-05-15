@@ -28,4 +28,4 @@ Please write me when you
 
 ### Who do I talk to? ###
 
-* Repo owner or admin: **[rajewicz+olt@gmail.com](mailto:rajewicz+olt@gmail.com)**
+* Repo owner and admin: **[rajewicz+olt@gmail.com](mailto:rajewicz+olt@gmail.com)**
