@@ -164,17 +164,17 @@ end;
 
 class operator OLBoolean.Implicit(a: Variant): OLBoolean;
 var
-  returnrec: OLBoolean;
+  OutPut: OLBoolean;
   b: Boolean;
 begin
   if VarIsNull(a) then
-    returnrec.HasValue := false
+    OutPut.HasValue := false
   else
   begin
     if TryStrToBool(a, b) then
     begin
-      returnrec.Value := b;
-      returnrec.HasValue := true;
+      OutPut.Value := b;
+      OutPut.HasValue := true;
     end
     else
     begin
@@ -182,26 +182,26 @@ begin
     end;
   end;
 
-  Result := returnrec;
+  Result := OutPut;
 end;
 
 class operator OLBoolean.Implicit(a: OLBoolean): Boolean;
 var
-  myBoolean: Boolean;
+  OutPut: Boolean;
 begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as Boolean value.');
-  myBoolean := a.Value;
-  Result := myBoolean;
+  OutPut := a.Value;
+  Result := OutPut;
 end;
 
 class operator OLBoolean.Implicit(a: Boolean): OLBoolean;
 var
-  returnrec: OLBoolean;
+  OutPut: OLBoolean;
 begin
-  returnrec.Value := a;
-  returnrec.HasValue := true;
-  Result := returnrec;
+  OutPut.Value := a;
+  OutPut.HasValue := true;
+  Result := OutPut;
 end;
 
 function OLBoolean.IsNull: Boolean;

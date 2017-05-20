@@ -129,7 +129,7 @@ type
     procedure LessEqualDateTime;
     procedure NotEqualDateTime;
     procedure SetDateTime;
-    procedure ToStringDateTime;
+    procedure OutPut;
     procedure MathOperatorsDateTime;
 
     procedure DateOfDateTime;
@@ -245,51 +245,51 @@ uses DateUtils, Math, Types, WinInet;
 
 procedure OLCurrencyTest.AbsCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := -5.1234;
-  Check(b.Abs() = 5.1234);
-  b := 0;
-  Check(b.Abs() = 0);
-  b := 1.1234;
-  Check(b.Abs() = 1.1234);
+  c := -5.1234;
+  Check(c.Abs() = 5.1234);
+  c := 0;
+  Check(c.Abs() = 0);
+  c := 1.1234;
+  Check(c.Abs() = 1.1234);
 end;
 
 procedure OLDoubleTest.AbsDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := -5.1234;
-  Check(b.Abs() = 5.1234);
-  b := 0;
-  Check(b.Abs() = 0);
-  b := 1.1234;
-  Check(b.Abs() = 1.1234);
+  d := -5.1234;
+  Check(d.Abs() = 5.1234);
+  d := 0;
+  Check(d.Abs() = 0);
+  d := 1.1234;
+  Check(d.Abs() = 1.1234);
 end;
 
 procedure OLIntegerTest.AbsInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := -5;
-  Check(b.Abs() = 5);
-  b := 0;
-  Check(b.Abs() = 0);
-  b := 1;
-  Check(b.Abs() = 1);
+  i := -5;
+  Check(i.Abs() = 5);
+  i := 0;
+  Check(i.Abs() = 0);
+  i := 1;
+  Check(i.Abs() = 1);
 end;
 
 procedure OLDateTimeTest.AMPMDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b := EncodeDateTime(2016,1,10,10,10,10,100);
-  Check(b.IsAM());
-  CheckFalse(b.IsPM);
+  dt := EncodeDateTime(2016,1,10,10,10,10,100);
+  Check(dt.IsAM());
+  CheckFalse(dt.IsPM);
 
-  b := EncodeDateTime(2017,1,10,23,10,10,100);
-  CheckFalse(b.IsAM());
-  Check(b.IsPM);
+  dt := EncodeDateTime(2017,1,10,23,10,10,100);
+  CheckFalse(dt.IsAM());
+  Check(dt.IsPM);
 end;
 
 procedure OLBooleanTest.AndBoolean;
@@ -303,209 +303,225 @@ end;
 
 procedure OLDoubleTest.CeilDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 123.149;
-  Check(b.Ceil() = 124);
+  d := 123.149;
+  Check(d.Ceil() = 124);
 
-  b := -123.149;
-  Check(b.Ceil() = -123);
+  d := -123.149;
+  Check(d.Ceil() = -123);
 end;
 
 
 procedure OLDateTest.CountDate;
 var
-  b, b2: OLDate;
+  d: OLDate;
 begin
-  b.SetToday();
+  d.SetToday();
 
-  Check(b.DayOfTheYear() = DayOfTheYear(b));
-  Check(b.DayOfTheWeek() = DayOfTheWeek(b));
+  Check(d.DayOfTheYear() = DayOfTheYear(d));
+  Check(d.DayOfTheWeek() = DayOfTheWeek(d));
 end;
 
 procedure OLDateTimeTest.CountDateTime;
 var
-  b, b2: OLDateTime;
+  dt, dt2: OLDateTime;
   i: OLInteger;
 begin
-  b.SetNow();
+  dt.SetNow();
 
-  Check(b.DayOfTheYear() = DayOfTheYear(b));
-  Check(b.HourOfTheYear() = HourOfTheYear(b));
-  Check(b.MinuteOfTheYear() = MinuteOfTheYear(b));
-  Check(b.SecondOfTheYear() = SecondOfTheYear(b));
-  Check(b.MilliSecondOfTheYear() = MilliSecondOfTheYear(b));
+  Check(dt.DayOfTheYear() = DayOfTheYear(dt));
+  Check(dt.HourOfTheYear() = HourOfTheYear(dt));
+  Check(dt.MinuteOfTheYear() = MinuteOfTheYear(dt));
+  Check(dt.SecondOfTheYear() = SecondOfTheYear(dt));
+  Check(dt.MilliSecondOfTheYear() = MilliSecondOfTheYear(dt));
 
-  Check(b.HourOfTheMonth() = HourOfTheMonth(b));
-  Check(b.MinuteOfTheMonth() = MinuteOfTheMonth(b));
-  Check(b.SecondOfTheMonth() = SecondOfTheMonth(b));
-  Check(b.MilliSecondOfTheMonth() = MilliSecondOfTheMonth(b));
+  Check(dt.HourOfTheMonth() = HourOfTheMonth(dt));
+  Check(dt.MinuteOfTheMonth() = MinuteOfTheMonth(dt));
+  Check(dt.SecondOfTheMonth() = SecondOfTheMonth(dt));
+  Check(dt.MilliSecondOfTheMonth() = MilliSecondOfTheMonth(dt));
 
-  Check(b.DayOfTheWeek() = DayOfTheWeek(b));
-  Check(b.HourOfTheWeek() = HourOfTheWeek(b));
-  Check(b.MinuteOfTheWeek() = MinuteOfTheWeek(b));
-  Check(b.SecondOfTheWeek() = SecondOfTheWeek(b));
-  Check(b.MilliSecondOfTheWeek() = MilliSecondOfTheWeek(b));
+  Check(dt.DayOfTheWeek() = DayOfTheWeek(dt));
+  Check(dt.HourOfTheWeek() = HourOfTheWeek(dt));
+  Check(dt.MinuteOfTheWeek() = MinuteOfTheWeek(dt));
+  Check(dt.SecondOfTheWeek() = SecondOfTheWeek(dt));
+  Check(dt.MilliSecondOfTheWeek() = MilliSecondOfTheWeek(dt));
 
-  Check(b.MinuteOfTheDay() = MinuteOfTheDay(b));
-  Check(b.SecondOfTheDay() = SecondOfTheDay(b));
-  Check(b.MilliSecondOfTheDay() = MilliSecondOfTheDay(b));
+  Check(dt.MinuteOfTheDay() = MinuteOfTheDay(dt));
+  Check(dt.SecondOfTheDay() = SecondOfTheDay(dt));
+  Check(dt.MilliSecondOfTheDay() = MilliSecondOfTheDay(dt));
 
-  Check(b.SecondOfTheHour() = SecondOfTheHour(b));
-  Check(b.MilliSecondOfTheHour() = MilliSecondOfTheHour(b));
+  Check(dt.SecondOfTheHour() = SecondOfTheHour(dt));
+  Check(dt.MilliSecondOfTheHour() = MilliSecondOfTheHour(dt));
 
-  Check(b.MilliSecondOfTheMinute() = MilliSecondOfTheMinute(b));
+  Check(dt.MilliSecondOfTheMinute() = MilliSecondOfTheMinute(dt));
 
-  b.SetNow();
-  b := b.RecodedMilliSecond(0);
+  dt.SetNow();
+  dt := dt.RecodedMilliSecond(0);
   i := OLDateTime.SecondCount();
-  b2 := OLDateTime.DateTimeFromSecondCount(i);
-  Check(b2 = b);
+  dt2 := OLDateTime.DateTimeFromSecondCount(i);
+  Check(dt2 = dt);
 end;
 
 procedure OLDateTimeTest.DateOfDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b := Now();
+  dt := Now();
 
-  Check(b.DateOf() = Date());
+  Check(dt.DateOf() = Date());
 end;
 
 procedure OLDateTest.DatePartsOfDate;
 var
-  b: OLDate;
+  d: OLDate;
 begin
-  b := EncodeDate(2017,1,10);
+  d := EncodeDate(2017,1,10);
 
-  Check(b.YearOf() = 2017);
-  Check(b.MonthOf() = 1);
-  Check(b.DayOf() = 10);
+  Check(d.Year = 2017);
+  Check(d.Month = 1);
+  Check(d.Day = 10);
 end;
 
 procedure OLDateTest.DateTimePartsDate;
 var
-  dtp: TDateTimeParts;
   d, d2: OLDate;
 begin
   d.SetToday;
+
   d2.SetToday;
+  d2.Year := 2000 ;
+  Check(d.RecodedYear(2000) = d2);
 
-  dtp := d.DateTimeParts;
-  dtp.Day := 6 ;
-  d2.DateTimeParts := dtp;
+  d2.SetToday;
+  d2.Month := 2 ;
+  Check(d.RecodedMonth(2) = d2);
 
+  d2.SetToday;
+  d2.Day := 6 ;
   Check(d.RecodedDay(6) = d2);
-
-  dtp.DateTime := Now();
-  d.DateTimeParts := dtp;
-  Check(d = dtp.DateTime);
 end;
 
 procedure OLDateTimeTest.DateTimePartsDateTime;
 var
-  dtp: TDateTimeParts;
-  d, d2: OLDateTime;
+  dt, dt2: OLDateTime;
 begin
-  d.SetNow;
-  d2.SetNow;
+  dt.SetToday;
 
-  dtp := d.DateTimeParts;
-  dtp.Hour := 4;
-  d2.DateTimeParts := dtp;
+  dt2.SetToday;
+  dt2.Year := 2000 ;
+  Check(dt.RecodedYear(2000) = dt2);
 
-  Check(d.RecodedHour(4) = d2);
+  dt2.SetToday;
+  dt2.Month := 2 ;
+  Check(dt.RecodedMonth(2) = dt2);
 
-  dtp.DateTime := Now();
-  d.DateTimeParts := dtp;
-  Check(d = dtp.DateTime);
+  dt2.SetToday;
+  dt2.Day := 6 ;
+  Check(dt.RecodedDay(6) = dt2);
+
+  dt2.SetToday;
+  dt2.Hour := 6 ;
+  Check(dt.RecodedHour(6) = dt2);
+
+  dt2.SetToday;
+  dt2.Minute := 15 ;
+  Check(dt.RecodedMinute(15) = dt2);
+
+  dt2.SetToday;
+  dt2.Second := 52 ;
+  Check(dt.RecodedSecond(52) = dt2);
+
+  dt2.SetToday;
+  dt2.MilliSecond := 572 ;
+  Check(dt.RecodedMilliSecond(572) = dt2);
 end;
 
 procedure OLDateTimeTest.DateTimePartsOfDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b := EncodeDateTime(2017,1,10,9,38,15,100);
+  dt := EncodeDateTime(2017,1,10,9,38,15,100);
 
-  Check(b.YearOf() = 2017);
-  Check(b.MonthOf() = 1);
-  Check(b.DayOf() = 10);
-  Check(b.HourOf() = 9);
-  Check(b.MinuteOf() = 38);
-  Check(b.SecondOf() = 15);
-  Check(b.MilliSecondOf() = 100);
+  Check(dt.Year = 2017);
+  Check(dt.Month = 1);
+  Check(dt.Day = 10);
+  Check(dt.Hour = 9);
+  Check(dt.Minute = 38);
+  Check(dt.Second = 15);
+  Check(dt.MilliSecond = 100);
 end;
 
 procedure OLDateTest.DaysInMonthDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
   i: integer;
 begin
-  d := EncodeDate(2017,1,10);
+  dt := EncodeDate(2017,1,10);
 
   for i := 1 to 20 do
   begin
-    d := IncMonth(d);
-    b := d;
-    Check(b.DaysInMonth = DaysInMonth(d));
+    dt := IncMonth(dt);
+    d := dt;
+    Check(d.DaysInMonth = DaysInMonth(dt));
   end;
 end;
 
 procedure OLDateTimeTest.DaysInMonthDateTime;
 var
-  b: OLDateTime;
-  dt: TDateTime;
+  dt: OLDateTime;
+  dtt: TDateTime;
   i: integer;
 begin
-  dt := EncodeDateTime(2017,1,10,10,10,10,100);
+  dtt := EncodeDateTime(2017,1,10,10,10,10,100);
 
   for i := 1 to 20 do
   begin
-    dt := IncMonth(dt);
-    b := dt;
-    Check(b.DaysInMonth = DaysInMonth(dt));
+    dtt := IncMonth(dtt);
+    dt := dtt;
+    Check(dt.DaysInMonth = DaysInMonth(dtt));
   end;
 end;
 
 procedure OLDateTest.DaysInYearDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
   i: integer;
 begin
   for i := 2000 to 2020 do
   begin
-    d := EncodeDate(i,1,10);
-    b := d;
-    Check(b.DaysInYear = DaysInYear(d));
+    dt := EncodeDate(i,1,10);
+    d := dt;
+    Check(d.DaysInYear = DaysInYear(dt));
   end;
 end;
 
 procedure OLDateTimeTest.DaysInYearDateTime;
 var
-  b: OLDateTime;
-  dt: TDateTime;
+  dt: OLDateTime;
+  dtt: TDateTime;
   i: integer;
 begin
   for i := 2000 to 2020 do
   begin
-    dt := EncodeDateTime(i,1,10,10,10,10,100);
-    b := dt;
-    Check(b.DaysInYear = DaysInYear(dt));
+    dtt := EncodeDateTime(i,1,10,10,10,10,100);
+    dt := dtt;
+    Check(dt.DaysInYear = DaysInYear(dtt));
   end;
 end;
 
 procedure OLDoubleTest.EnsureRangeDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 0;
-  b := b.EnsureRange(5.5, 10);
-  Check(b = 5.5);
+  d := 0;
+  d := d.EnsureRange(5.5, 10);
+  Check(d = 5.5);
 
-  b := b.EnsureRange(-100, -1.0001);
-  Check(b = -1.0001);
+  d := d.EnsureRange(-100, -1.0001);
+  Check(d = -1.0001);
 end;
 
 procedure OLBooleanTest.EqualsBoolean;
@@ -555,31 +571,31 @@ end;
 
 procedure OLIntegerTest.IdPrimeInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  CheckFalse(b.IsPrime());
+  CheckFalse(i.IsPrime());
 
-  b := 1984441079;
-  Check(b.IsPrime());
+  i := 1984441079;
+  Check(i.IsPrime());
 
-  b := 97496039;
-  Check(b.IsPrime());
+  i := 97496039;
+  Check(i.IsPrime());
 
-  b := 97496033;
-  CheckFalse(b.IsPrime());
+  i := 97496033;
+  CheckFalse(i.IsPrime());
 end;
 
 procedure OLIntegerTest.IfNullInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  Check(b.IfNull(1) = 1);
+  Check(i.IfNull(1) = 1);
 
-  b := -1;
-  Check(b.IfNull(1) = -1);
+  i := -1;
+  Check(i.IfNull(1) = -1);
 
-  b := null;
-  Check(b.IfNull(-5) = -5);
+  i := null;
+  Check(i.IfNull(-5) = -5);
 end;
 
 procedure OLBooleanTest.IfThenBoolean;
@@ -633,103 +649,103 @@ end;
 
 procedure OLDateTimeTest.IncDateTime;
 var
-  d, d2: OLDateTime;
+  dt, dt2: OLDateTime;
 begin
-  d.EncodeDateTime(2000, 1,2,3,45,25,400);
+  dt.EncodeDateTime(2000, 1,2,3,45,25,400);
 
-  d2.EncodeDateTime(2000, 1,2,3,45,25,500);
-  Check(d.IncMilliSecond(100) = d2);
+  dt2.EncodeDateTime(2000, 1,2,3,45,25,500);
+  Check(dt.IncMilliSecond(100) = dt2);
 
-  d2.EncodeDateTime(2000, 1,2,3,45,55,400);
-  Check(d.IncSecond(30) = d2);
+  dt2.EncodeDateTime(2000, 1,2,3,45,55,400);
+  Check(dt.IncSecond(30) = dt2);
 
-  d2.EncodeDateTime(2000, 1,2,3,40,25,400);
-  Check(d.IncMinute(-5) = d2);
+  dt2.EncodeDateTime(2000, 1,2,3,40,25,400);
+  Check(dt.IncMinute(-5) = dt2);
 
-  d2.EncodeDateTime(2000, 1,2,16,45,25,400);
-  Check(d.IncHour(13) = d2);
+  dt2.EncodeDateTime(2000, 1,2,16,45,25,400);
+  Check(dt.IncHour(13) = dt2);
 
-  d2.EncodeDateTime(2000, 1,8,3,45,25,400);
-  Check(d.IncDay(6) = d2);
+  dt2.EncodeDateTime(2000, 1,8,3,45,25,400);
+  Check(dt.IncDay(6) = dt2);
 
-  d2.EncodeDateTime(2000, 1,16,3,45,25,400);
-  Check(d.IncWeek(2) = d2);
+  dt2.EncodeDateTime(2000, 1,16,3,45,25,400);
+  Check(dt.IncWeek(2) = dt2);
 
-  d2.EncodeDateTime(2000, 3,2,3,45,25,400);
-  Check(d.IncMonth(2) = d2);
+  dt2.EncodeDateTime(2000, 3,2,3,45,25,400);
+  Check(dt.IncMonth(2) = dt2);
 
-  d2.EncodeDateTime(2004, 1,2,3,45,25,400);
-  Check(d.IncYear(4) = d2);
+  dt2.EncodeDateTime(2004, 1,2,3,45,25,400);
+  Check(dt.IncYear(4) = dt2);
 end;
 
 procedure OLDoubleTest.InRangeDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 0;
-  Check(b.InRange(0,100));
-  Check(b.InRange(-1,100));
-  CheckFalse(b.InRange(1,100));
+  d := 0;
+  Check(d.InRange(0,100));
+  Check(d.InRange(-1,100));
+  CheckFalse(d.InRange(1,100));
 
-  b := -0.9999;
-  Check(b.InRange(-1,100));
+  d := -0.9999;
+  Check(d.InRange(-1,100));
 end;
 
 procedure OLIntegerTest.IsDividableInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 5;
-  Check(b.IsDividableBy(5));
-  CheckFalse(b.IsDividableBy(3));
+  i := 5;
+  Check(i.IsDividableBy(5));
+  CheckFalse(i.IsDividableBy(3));
 
-  b := 6;
-  Check(b.IsDividableBy(2));
-  Check(b.IsDividableBy(3));
+  i := 6;
+  Check(i.IsDividableBy(2));
+  Check(i.IsDividableBy(3));
 end;
 
 procedure OLDoubleTest.IsInfiniteDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := Infinity;
-  Check(b.IsInfinite());
+  d := Infinity;
+  Check(d.IsInfinite());
 end;
 
 procedure OLDateTest.IsInLeapYearDate;
 var
-  b: OLDate;
+  d: OLDate;
 begin
-  b := EncodeDate(2016,1,10);
-  Check(b.IsInLeapYear());
+  d := EncodeDate(2016,1,10);
+  Check(d.IsInLeapYear());
 
-  b := EncodeDate(2017,1,10);
-  CheckFalse(b.IsInLeapYear());
+  d := EncodeDate(2017,1,10);
+  CheckFalse(d.IsInLeapYear());
 
-  b := EncodeDate(2020,1,10);
-  Check(b.IsInLeapYear());
+  d := EncodeDate(2020,1,10);
+  Check(d.IsInLeapYear());
 end;
 
 procedure OLDateTimeTest.IsInLeapYearDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b := EncodeDateTime(2016,1,10,10,10,10,100);
-  Check(b.IsInLeapYear());
+  dt := EncodeDateTime(2016,1,10,10,10,10,100);
+  Check(dt.IsInLeapYear());
 
-  b := EncodeDateTime(2017,1,10,10,10,10,100);
-  CheckFalse(b.IsInLeapYear());
+  dt := EncodeDateTime(2017,1,10,10,10,10,100);
+  CheckFalse(dt.IsInLeapYear());
 
-  b := EncodeDateTime(2020,1,10,10,10,10,100);
-  Check(b.IsInLeapYear());
+  dt := EncodeDateTime(2020,1,10,10,10,10,100);
+  Check(dt.IsInLeapYear());
 end;
 
 procedure OLDoubleTest.IsNanDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := NaN;
-  Check(b.IsNan());
+  d := NaN;
+  Check(d.IsNan());
 end;
 
 procedure OLBooleanTest.IsNullBoolean;
@@ -797,15 +813,15 @@ end;
 
 procedure OLIntegerTest.OddEvenInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 5;
-  Check(b.IsOdd());
-  CheckFalse(b.IsEven());
+  i := 5;
+  Check(i.IsOdd());
+  CheckFalse(i.IsEven());
 
-  b := 50000000;
-  Check(b.IsEven());
-  CheckFalse(b.IsOdd());
+  i := 50000000;
+  Check(i.IsEven());
+  CheckFalse(i.IsOdd());
 end;
 
 procedure OLBooleanTest.OrBolean;
@@ -824,101 +840,101 @@ end;
 
 procedure OLCurrencyTest.PositiveNegativeCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 5.0001;
-  Check(b.IsPositive());
-  CheckFalse(b.IsNegative());
-  Check(b.IsNonNegative());
+  c := 5.0001;
+  Check(c.IsPositive());
+  CheckFalse(c.IsNegative());
+  Check(c.IsNonNegative());
 
-  b := 0;
-  CheckFalse(b.IsPositive());
-  CheckFalse(b.IsNegative());
-  Check(b.IsNonNegative());
+  c := 0;
+  CheckFalse(c.IsPositive());
+  CheckFalse(c.IsNegative());
+  Check(c.IsNonNegative());
 
-  b := -5.0001;
-  CheckFalse(b.IsPositive());
-  Check(b.IsNegative());
-  CheckFalse(b.IsNonNegative());
+  c := -5.0001;
+  CheckFalse(c.IsPositive());
+  Check(c.IsNegative());
+  CheckFalse(c.IsNonNegative());
 end;
 
 procedure OLDoubleTest.PositiveNegativeDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 5.0001;
-  Check(b.IsPositive());
-  CheckFalse(b.IsNegative());
-  Check(b.IsNonNegative());
+  d := 5.0001;
+  Check(d.IsPositive());
+  CheckFalse(d.IsNegative());
+  Check(d.IsNonNegative());
 
-  b := 0;
-  CheckFalse(b.IsPositive());
-  CheckFalse(b.IsNegative());
-  Check(b.IsNonNegative());
+  d := 0;
+  CheckFalse(d.IsPositive());
+  CheckFalse(d.IsNegative());
+  Check(d.IsNonNegative());
 
-  b := -5.0001;
-  CheckFalse(b.IsPositive());
-  Check(b.IsNegative());
-  CheckFalse(b.IsNonNegative());
+  d := -5.0001;
+  CheckFalse(d.IsPositive());
+  Check(d.IsNegative());
+  CheckFalse(d.IsNonNegative());
 end;
 
 procedure OLIntegerTest.PositiveNegativeInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 5;
-  Check(b.IsPositive());
-  CheckFalse(b.IsNegative());
-  Check(b.IsNonNegative());
+  i := 5;
+  Check(i.IsPositive());
+  CheckFalse(i.IsNegative());
+  Check(i.IsNonNegative());
 
-  b := 0;
-  CheckFalse(b.IsPositive());
-  CheckFalse(b.IsNegative());
-  Check(b.IsNonNegative());
+  i := 0;
+  CheckFalse(i.IsPositive());
+  CheckFalse(i.IsNegative());
+  Check(i.IsNonNegative());
 
-  b := -5;
-  CheckFalse(b.IsPositive());
-  Check(b.IsNegative());
-  CheckFalse(b.IsNonNegative());
+  i := -5;
+  CheckFalse(i.IsPositive());
+  Check(i.IsNegative());
+  CheckFalse(i.IsNonNegative());
 end;
 
 procedure OLCurrencyTest.MathOperatorsCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 1.10;
+  c := 1.10;
 
-  b := b + 1.25;
-  Check(b = 2.35);
+  c := c + 1.25;
+  Check(c = 2.35);
 
-  b := b - 4.20;
-  Check(b = -1.85);
+  c := c - 4.20;
+  Check(c = -1.85);
 
-  b := b * -3;
+  c := c * -3;
 
-  Check(b = 5.55);
-  Check(b / 2 = 2.775);
-  Check(b / 4 = 1.3875);
-  Check(b / 1.11 = 5);
+  Check(c = 5.55);
+  Check(c / 2 = 2.775);
+  Check(c / 4 = 1.3875);
+  Check(c / 1.11 = 5);
 
-  b := -b;
-  Check(b = -5.55);
+  c := -c;
+  Check(c = -5.55);
 end;
 
 procedure OLDateTest.MathOperatorsDate;
 var
-  dt, dt2: OLDate;
+  d, d2: OLDate;
 begin
-  dt.SetToday();
-  dt2 := dt;
+  d.SetToday();
+  d2 := d;
 
-  dt := dt + 1;
-  dt2 := dt2.IncDay(1);
-  Check(dt = dt2);
+  d := d + 1;
+  d2 := d2.IncDay(1);
+  Check(d = d2);
 
-  dt := dt - 2;
-  dt2 := dt2.IncDay(-2);
-  Check(dt = dt2);
+  d := d - 2;
+  d2 := d2.IncDay(-2);
+  Check(d = d2);
 end;
 
 procedure OLDateTimeTest.MathOperatorsDateTime;
@@ -939,230 +955,229 @@ end;
 
 procedure OLDoubleTest.MathOperatorsDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 1.10;
+  d := 1.10;
 
-  b := b + 1.25;
-  Check(b = 2.35);
+  d := d + 1.25;
+  Check(d = 2.35);
 
-  b := b - 4.20;
-  Check(b = -1.85);
+  d := d - 4.20;
+  Check(d = -1.85);
 
-  b := b * -3;
+  d := d * -3;
 
-  Check(b = 5.55);
-  Check(b / 2 = 2.775);
-  Check(b / 4 = 1.3875);
-  Check(b / 1.11 = 5);
+  Check(d = 5.55);
+  Check(d / 2 = 2.775);
+  Check(d / 4 = 1.3875);
+  Check(d / 1.11 = 5);
 
-  b := -b;
-  Check(b = -5.55);
+  d := -d;
+  Check(d = -5.55);
 end;
 
 procedure OLIntegerTest.MathOperatorsInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 1;
+  i := 1;
 
-  b := b + 1;
-  Check(b = 2);
+  i := i + 1;
+  Check(i = 2);
 
-  b := b - 4;
-  Check(b = -2);
+  i := i - 4;
+  Check(i = -2);
 
-  b := b * -3;
+  i := i * -3;
 
-  Check(b = 6);
-  Check(b div 4 = 1);
-  Check(b / 2 = 3);
-  Check(b / 4 = 1.5);
-  Check(b / 1.5 = 4);
-  Check(b mod 4 = 2);
+  Check(i = 6);
+  Check(i div 4 = 1);
+  Check(i / 2 = 3);
+  Check(i / 4 = 1.5);
+  Check(i / 1.5 = 4);
+  Check(i mod 4 = 2);
 
-  Inc(b, 3);
-  Check(b = 9);
+  Inc(i, 3);
+  Check(i = 9);
 
-  Inc(b);
-  Check(b = 10);
+  Inc(i);
+  Check(i = 10);
 
-  Dec(b);
-  Check(b = 9);
+  Dec(i);
+  Check(i = 9);
 
-  Dec(b, 2);
-  Check(b = 7);
+  Dec(i, 2);
+  Check(i = 7);
 
-  b := -b;
-  Check(b = -7);
+  i := -i;
+  Check(i = -7);
 end;
 
 procedure OLStringTest.MatchString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'Three';
+  s := 'Three';
 
-  Check(b.MatchStr(['One', 'Two', 'Three']));
-  CheckFalse(b.MatchStr(['one', 'two', 'three']));
+  Check(s.MatchStr(['One', 'Two', 'Three']));
+  CheckFalse(s.MatchStr(['one', 'two', 'three']));
 
-  Check(b.MatchText(['one', 'two', 'three']));
+  Check(s.MatchText(['one', 'two', 'three']));
 end;
 
 procedure OLStringTest.MathOperatorsString;
 var
-  d: OLString;
+  s: OLString;
 begin
-  d := null;
+  s := null;
 
   //When OLString is NULL, adding a string to it results NULL
-  d := d + 'asd';
-  Check(d.IsNull());
+  s := s + 'asd';
+  Check(s.IsNull());
 
-  d := 'asd';
-  d := d + ' zxc';
+  s := 'asd';
+  s := s + ' zxc';
 
-  Check(d = 'asd zxc');
+  Check(s = 'asd zxc');
 end;
 
 procedure OLStringTest.MidStrString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'Three little mice.';
-  Check(b.MidStr(2,3) = 'hre');
-  Check(b.MidStr(7,6) = 'little');
+  s := 'Three little mice.';
+  Check(s.MidStr(2,3) = 'hre');
+  Check(s.MidStr(7,6) = 'little');
 end;
 
 procedure OLCurrencyTest.MaxCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 1.1234;
-  Check(b.Max(0) = 1.1234);
-  Check(b.Max(5.4321) = 5.4321);
+  c := 1.1234;
+  Check(c.Max(0) = 1.1234);
+  Check(c.Max(5.4321) = 5.4321);
 
-  b := -5.4321;
-  Check(b.Max(0) = 0);
-  Check(b.Max(-6.1) = -5.4321);
-  Check(b.Max(-4.201) = -4.201);
+  c := -5.4321;
+  Check(c.Max(0) = 0);
+  Check(c.Max(-6.1) = -5.4321);
+  Check(c.Max(-4.201) = -4.201);
 end;
 
 procedure OLDoubleTest.MaxDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 1.1234;
-  Check(b.Max(0) = 1.1234);
-  Check(b.Max(5.4321) = 5.4321);
+  d := 1.1234;
+  Check(d.Max(0) = 1.1234);
+  Check(d.Max(5.4321) = 5.4321);
 
-  b := -5.4321;
-  Check(b.Max(0) = 0);
-  Check(b.Max(-6.1) = -5.4321);
-  Check(b.Max(-4.201) = -4.201);
+  d := -5.4321;
+  Check(d.Max(0) = 0);
+  Check(d.Max(-6.1) = -5.4321);
+  Check(d.Max(-4.201) = -4.201);
 end;
 
 procedure OLIntegerTest.MaxInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 1;
-  Check(b.Max(0) = 1);
-  Check(b.Max(5) = 5);
+  i := 1;
+  Check(i.Max(0) = 1);
+  Check(i.Max(5) = 5);
 
-  b := -5;
-  Check(b.Max(0) = 0);
-  Check(b.Max(-6) = -5);
-  Check(b.Max(-4) = -4);
+  i := -5;
+  Check(i.Max(0) = 0);
+  Check(i.Max(-6) = -5);
+  Check(i.Max(-4) = -4);
 end;
 
 procedure OLCurrencyTest.MinCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 1.1234;
-  Check(b.Min(0) = 0);
-  Check(b.Min(5.4321) = 1.1234);
+  c := 1.1234;
+  Check(c.Min(0) = 0);
+  Check(c.Min(5.4321) = 1.1234);
 
-  b := -5.4321;
-  Check(b.Min(0) = -5.4321);
-  Check(b.Min(-6.1) = -6.1);
-  Check(b.Min(-4.201) = -5.4321);
+  c := -5.4321;
+  Check(c.Min(0) = -5.4321);
+  Check(c.Min(-6.1) = -6.1);
+  Check(c.Min(-4.201) = -5.4321);
 end;
 
 procedure OLDoubleTest.MinDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 1.1234;
-  Check(b.Min(0) = 0);
-  Check(b.Min(5.4321) = 1.1234);
+  d := 1.1234;
+  Check(d.Min(0) = 0);
+  Check(d.Min(5.4321) = 1.1234);
 
-  b := -5.4321;
-  Check(b.Min(0) = -5.4321);
-  Check(b.Min(-6.1) = -6.1);
-  Check(b.Min(-4.201) = -5.4321);
+  d := -5.4321;
+  Check(d.Min(0) = -5.4321);
+  Check(d.Min(-6.1) = -6.1);
+  Check(d.Min(-4.201) = -5.4321);
 end;
 
 procedure OLIntegerTest.MinInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 1;
-  Check(b.Min(0) = 0);
-  Check(b.Min(5) = 1);
+  i := 1;
+  Check(i.Min(0) = 0);
+  Check(i.Min(5) = 1);
 
-  b := -5;
-  Check(b.Min(0) = -5);
-  Check(b.Min(-6) = -6);
-  Check(b.Min(-4) = -5);
+  i := -5;
+  Check(i.Min(0) = -5);
+  Check(i.Min(-6) = -6);
+  Check(i.Min(-4) = -5);
 end;
 
 procedure OLCurrencyTest.PowerCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 5.1;
-  Check(b.Sqr = 26.01);
-  Check(b.Power(3) = 132.651);
+  c := 5.1;
+  Check(c.Sqr = 26.01);
+  Check(c.Power(3) = 132.651);
 
-  b := 0.5;
-  Check(b.Power(0) = 1);
-  Check(b.Power(-1) = 2);
+  c := 0.5;
+  Check(c.Power(0) = 1);
+  Check(c.Power(-1) = 2);
 end;
 
 procedure OLDoubleTest.PowerDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 5.1;
-  Check(b.Sqr = 26.01);
-  Check(b.Power(3) = 132.651);
+  d := 5.1;
+  Check(d.Sqr = 26.01);
+  Check(d.Power(3) = 132.651);
 
-  b := 0.5;
-  Check(b.Power(0) = 1);
-  Check(b.Power(-1) = 2);
+  d := 0.5;
+  Check(d.Power(0) = 1);
+  Check(d.Power(-1) = 2);
 
-  b := 0.81;
-  Check(b.Sqrt() = 0.9);
+  d := 0.81;
+  Check(d.Sqrt() = 0.9);
 end;
 
 procedure OLIntegerTest.PowerInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 5;
-  Check(b.Sqr = 25);
-  Check(b.Power(3) = 125);
+  i := 5;
+  Check(i.Sqr = 25);
+  Check(i.Power(3) = 125);
 
-  b := 2;
-  Check(b.Power(0) = 1);
-  Check(b.Power(-1) = 0.5);
+  i := 2;
+  Check(i.Power(0) = 1);
+  Check(i.Power(-1) = 0.5);
 end;
 
 procedure OLDateTest.RecodingDate;
 var
-  b: OLDate;
   d: OLDate;
 begin
   d := EncodeDate(2017,1,10);
@@ -1175,142 +1190,141 @@ end;
 
 procedure OLDateTimeTest.RecodingDateTime;
 var
-  b: OLDateTime;
-  d: OLDateTime;
-begin
-  d := EncodeDateTime(2017,1,10,10,10,10,100);
-
-  Check(d.RecodedYear(2016) = EncodeDateTime(2016,1,10,10,10,10,100));
-  Check(d.RecodedMonth(8) = EncodeDateTime(2017,8,10,10,10,10,100));
-  Check(d.RecodedDay(23) = EncodeDateTime(2017,1,23,10,10,10,100));
-  Check(d.RecodedHour(16) = EncodeDateTime(2017,1,10,16,10,10,100));
-  Check(d.RecodedMinute(45) = EncodeDateTime(2017,1,10,10,45,10,100));
-  Check(d.RecodedSecond(15) = EncodeDateTime(2017,1,10,10,10,15,100));
-  Check(d.RecodedMilliSecond(123) = EncodeDateTime(2017,1,10,10,10,10,123));
-end;
-
-procedure OLCurrencyTest.RoundCurrency;
-var
-  b: OLCurrency;
-begin
-  b := 123.149;
-  Check(b.Round(1) = 120);
-  Check(b.Round(2) = 100);
-
-  b := 155.155;
-  Check(b.Round(1) = 160);
-  Check(b.Round(2) = 200);
-
-  b := 123.149;
-  Check(b.Round(-1) = 123.1);
-  Check(b.Round(-2) = 123.15);
-
-  b := 155.155;
-  Check(b.Round(-1) = 155.2);
-  Check(b.Round(-2) = 155.16);
-end;
-
-procedure OLDoubleTest.RoundDouble;
-var
-  b: OLDouble;
-begin
-  b := 123.149;
-  Check(b.Round(1) = 120);
-  Check(b.Round(2) = 100);
-
-  b := 155.155;
-  Check(b.Round(1) = 160);
-  Check(b.Round(2) = 200);
-
-  b := 123.149;
-  Check(b.Round(-1) = 123.1);
-  Check(b.Round(-2) = 123.15);
-
-  b := 155.155;
-  Check(b.Round(-1) = 155.2);
-  Check(b.Round(-2) = 155.16);
-
-  b := 0.5;
-  Check(b.Round() = 0);
-  b := 1.5;
-  Check(b.Round() = 2);
-  b := 2.5;
-  Check(b.Round() = 2);
-  b := 3.5;
-  Check(b.Round() = 4);
-
-  b := -0.5;
-  Check(b.Round() = 0);
-  b := -1.5;
-  Check(b.Round() = -2);
-  b := -2.5;
-  Check(b.Round() = -2);
-end;
-
-procedure OLIntegerTest.RoundInteger;
-var
-  b: OLInteger;
-begin
-  b := 123;
-  Check(b.Round(1) = 120);
-  Check(b.Round(2) = 100);
-
-  b := 155;
-  Check(b.Round(1) = 160);
-  Check(b.Round(2) = 200);
-end;
-
-procedure OLDateTest.SameDayDate;
-var
-  b: OLDate;
-  dt: OLDate;
-begin
-  dt := EncodeDate(2017,1,10);
-
-  b := EncodeDate(2017,1,10);
-  Check(b.SameDay(dt));
-
-  b := EncodeDate(2017,1,11);
-  CheckFalse(b.SameDay(dt));
-end;
-
-procedure OLDateTimeTest.SameDayDateTime;
-var
-  b: OLDateTime;
   dt: OLDateTime;
 begin
   dt := EncodeDateTime(2017,1,10,10,10,10,100);
 
-  b := EncodeDateTime(2017,1,10,15,10,10,100);
-  Check(b.SameDay(dt));
+  Check(dt.RecodedYear(2016) = EncodeDateTime(2016,1,10,10,10,10,100));
+  Check(dt.RecodedMonth(8) = EncodeDateTime(2017,8,10,10,10,10,100));
+  Check(dt.RecodedDay(23) = EncodeDateTime(2017,1,23,10,10,10,100));
+  Check(dt.RecodedHour(16) = EncodeDateTime(2017,1,10,16,10,10,100));
+  Check(dt.RecodedMinute(45) = EncodeDateTime(2017,1,10,10,45,10,100));
+  Check(dt.RecodedSecond(15) = EncodeDateTime(2017,1,10,10,10,15,100));
+  Check(dt.RecodedMilliSecond(123) = EncodeDateTime(2017,1,10,10,10,10,123));
+end;
 
-  b := EncodeDateTime(2017,1,11,10,10,10,100);
-  CheckFalse(b.SameDay(dt));
+procedure OLCurrencyTest.RoundCurrency;
+var
+  c: OLCurrency;
+begin
+  c := 123.149;
+  Check(c.Round(1) = 120);
+  Check(c.Round(2) = 100);
+
+  c := 155.155;
+  Check(c.Round(1) = 160);
+  Check(c.Round(2) = 200);
+
+  c := 123.149;
+  Check(c.Round(-1) = 123.1);
+  Check(c.Round(-2) = 123.15);
+
+  c := 155.155;
+  Check(c.Round(-1) = 155.2);
+  Check(c.Round(-2) = 155.16);
+end;
+
+procedure OLDoubleTest.RoundDouble;
+var
+  d: OLDouble;
+begin
+  d := 123.149;
+  Check(d.Round(1) = 120);
+  Check(d.Round(2) = 100);
+
+  d := 155.155;
+  Check(d.Round(1) = 160);
+  Check(d.Round(2) = 200);
+
+  d := 123.149;
+  Check(d.Round(-1) = 123.1);
+  Check(d.Round(-2) = 123.15);
+
+  d := 155.155;
+  Check(d.Round(-1) = 155.2);
+  Check(d.Round(-2) = 155.16);
+
+  d := 0.5;
+  Check(d.Round() = 0);
+  d := 1.5;
+  Check(d.Round() = 2);
+  d := 2.5;
+  Check(d.Round() = 2);
+  d := 3.5;
+  Check(d.Round() = 4);
+
+  d := -0.5;
+  Check(d.Round() = 0);
+  d := -1.5;
+  Check(d.Round() = -2);
+  d := -2.5;
+  Check(d.Round() = -2);
+end;
+
+procedure OLIntegerTest.RoundInteger;
+var
+  i: OLInteger;
+begin
+  i := 123;
+  Check(i.Round(1) = 120);
+  Check(i.Round(2) = 100);
+
+  i := 155;
+  Check(i.Round(1) = 160);
+  Check(i.Round(2) = 200);
+end;
+
+procedure OLDateTest.SameDayDate;
+var
+  d: OLDate;
+  d2: OLDate;
+begin
+  d2 := EncodeDate(2017,1,10);
+
+  d := EncodeDate(2017,1,10);
+  Check(d.SameDay(d2));
+
+  d := EncodeDate(2017,1,11);
+  CheckFalse(d.SameDay(d2));
+end;
+
+procedure OLDateTimeTest.SameDayDateTime;
+var
+  dt: OLDateTime;
+  dtt: OLDateTime;
+begin
+  dtt := EncodeDateTime(2017,1,10,10,10,10,100);
+
+  dt := EncodeDateTime(2017,1,10,15,10,10,100);
+  Check(dt.SameDay(dtt));
+
+  dt := EncodeDateTime(2017,1,11,10,10,10,100);
+  CheckFalse(dt.SameDay(dtt));
 end;
 
 
 procedure OLDateTimeTest.SameTimeDateTime;
 var
-  b: OLDateTime;
   dt: OLDateTime;
+  dt2: OLDateTime;
 begin
-  dt := EncodeDateTime(2017,1,10,10,10,10,100);
+  dt2 := EncodeDateTime(2017,1,10,10,10,10,100);
 
-  b := EncodeDateTime(2017,1,15,10,10,10,100);
-  Check(b.SameTime(dt));
+  dt := EncodeDateTime(2017,1,15,10,10,10,100);
+  Check(dt.SameTime(dt2));
 
-  b := EncodeDateTime(2017,1,10,14,10,10,100);
-  CheckFalse(b.SameTime(dt));
+  dt := EncodeDateTime(2017,1,10,14,10,10,100);
+  CheckFalse(dt.SameTime(dt2));
 end;
 
 procedure OLDoubleTest.SameValueDouble;
 var
-  b, b2: OLDouble;
+  d: OLDouble;
 begin
-  b := 4.01;
-  Check(b.SameValue(4.01));
-  CheckFalse(b.SameValue(4.011));
-  Check(b.SameValue(4.011, 0.01));
+  d := 4.01;
+  Check(d.SameValue(4.01));
+  CheckFalse(d.SameValue(4.011));
+  Check(d.SameValue(4.011, 0.01));
 end;
 
 procedure OLBooleanTest.SetBoolean;
@@ -1356,77 +1370,77 @@ end;
 
 procedure OLDateTimeTest.SpanDateTime;
 var
-  d, d2: OLDateTime;
+  dt, dt2: OLDateTime;
 begin
-  d.EncodeDateTime(2000, 1,2,3,45,25,400);
-  d2 := d.RecodedYear(2004).RecodedMonth(7);
+  dt.EncodeDateTime(2000, 1,2,3,45,25,400);
+  dt2 := dt.RecodedYear(2004).RecodedMonth(7);
 
-  Check(d2.MilliSecondsBetween(d) = DateUtils.MilliSecondsBetween(d2, d));
-  Check(d2.SecondsBetween(d) = DateUtils.SecondsBetween(d2, d));
-  Check(d2.MinutesBetween(d) = DateUtils.MinutesBetween(d2, d));
-  Check(d2.HoursBetween(d) = DateUtils.HoursBetween(d2, d));
-  Check(d2.DaysBetween(d) = DateUtils.DaysBetween(d2, d));
-  Check(d2.WeeksBetween(d) = DateUtils.WeeksBetween(d2, d));
-  Check(d2.MonthsBetween(d) = DateUtils.MonthsBetween(d2, d));
-  Check(d2.YearsBetween(d) = DateUtils.YearsBetween(d2, d));
+  Check(dt2.MilliSecondsBetween(dt) = DateUtils.MilliSecondsBetween(dt2, dt));
+  Check(dt2.SecondsBetween(dt) = DateUtils.SecondsBetween(dt2, dt));
+  Check(dt2.MinutesBetween(dt) = DateUtils.MinutesBetween(dt2, dt));
+  Check(dt2.HoursBetween(dt) = DateUtils.HoursBetween(dt2, dt));
+  Check(dt2.DaysBetween(dt) = DateUtils.DaysBetween(dt2, dt));
+  Check(dt2.WeeksBetween(dt) = DateUtils.WeeksBetween(dt2, dt));
+  Check(dt2.MonthsBetween(dt) = DateUtils.MonthsBetween(dt2, dt));
+  Check(dt2.YearsBetween(dt) = DateUtils.YearsBetween(dt2, dt));
 
 
-  Check(d2.YearSpan(d) = DateUtils.YearSpan(d2, d));
-  Check(d2.MonthSpan(d) = DateUtils.MonthSpan(d2, d));
-  Check(d2.WeekSpan(d) = DateUtils.WeekSpan(d2, d));
-  Check(d2.DaySpan(d) = DateUtils.DaySpan(d2, d));
-  Check(d2.HourSpan(d) = DateUtils.HourSpan(d2, d));
-  Check(d2.MinuteSpan(d) = DateUtils.MinuteSpan(d2, d));
-  Check(d2.SecondSpan(d) = DateUtils.SecondSpan(d2, d));
-  Check(d2.MilliSecondSpan(d) = DateUtils.MilliSecondSpan(d2, d));
+  Check(dt2.YearSpan(dt) = DateUtils.YearSpan(dt2, dt));
+  Check(dt2.MonthSpan(dt) = DateUtils.MonthSpan(dt2, dt));
+  Check(dt2.WeekSpan(dt) = DateUtils.WeekSpan(dt2, dt));
+  Check(dt2.DaySpan(dt) = DateUtils.DaySpan(dt2, dt));
+  Check(dt2.HourSpan(dt) = DateUtils.HourSpan(dt2, dt));
+  Check(dt2.MinuteSpan(dt) = DateUtils.MinuteSpan(dt2, dt));
+  Check(dt2.SecondSpan(dt) = DateUtils.SecondSpan(dt2, dt));
+  Check(dt2.MilliSecondSpan(dt) = DateUtils.MilliSecondSpan(dt2, dt));
 end;
 
 procedure OLDateTest.StartOfEndOfDate;
 var
-  d: TDate;
-  b: OLDate;
+  dt: TDate;
+  d: OLDate;
 begin
-  d := EncodeDate(2017,1,10);
-  b := d;
+  dt := EncodeDate(2017,1,10);
+  d := dt;
 
-  Check(b.StartOfTheYear() = StartOfTheYear(d));
-  Check(b.EndOfTheYear() = EndOfTheYear(d));
+  Check(d.StartOfTheYear() = StartOfTheYear(dt));
+  Check(d.EndOfTheYear() = EndOfTheYear(dt));
 
-  Check(b.StartOfTheMonth() = StartOfTheMonth(d));
-  Check(b.EndOfTheMonth() = EndOfTheMonth(d));
+  Check(d.StartOfTheMonth() = StartOfTheMonth(dt));
+  Check(d.EndOfTheMonth() = EndOfTheMonth(dt));
 
-  Check(b.StartOfTheWeek() = StartOfTheWeek(d));
-  Check(b.EndOfTheWeek() = EndOfTheWeek(d));
+  Check(d.StartOfTheWeek() = StartOfTheWeek(dt));
+  Check(d.EndOfTheWeek() = EndOfTheWeek(dt));
 end;
 
 procedure OLDateTimeTest.StartOfEndOfDateTime;
 var
-  dt: TDateTime;
-  b: OLDateTime;
+  dtt: TDateTime;
+  dt: OLDateTime;
 begin
-  dt := EncodeDateTime(2017,1,10,9,38,15,100);
-  b := dt;
+  dtt := EncodeDateTime(2017,1,10,9,38,15,100);
+  dt := dtt;
 
-  Check(b.StartOfTheYear() = StartOfTheYear(dt));
-  Check(b.EndOfTheYear() = EndOfTheYear(dt));
+  Check(dt.StartOfTheYear() = StartOfTheYear(dtt));
+  Check(dt.EndOfTheYear() = EndOfTheYear(dtt));
 
-  Check(b.StartOfTheMonth() = StartOfTheMonth(dt));
-  Check(b.EndOfTheMonth() = EndOfTheMonth(dt));
+  Check(dt.StartOfTheMonth() = StartOfTheMonth(dtt));
+  Check(dt.EndOfTheMonth() = EndOfTheMonth(dtt));
 
-  Check(b.StartOfTheWeek() = StartOfTheWeek(dt));
-  Check(b.EndOfTheWeek() = EndOfTheWeek(dt));
+  Check(dt.StartOfTheWeek() = StartOfTheWeek(dtt));
+  Check(dt.EndOfTheWeek() = EndOfTheWeek(dtt));
 
-  Check(b.StartOfTheDay() = StartOfTheDay(dt));
-  Check(b.EndOfTheDay() = EndOfTheDay(dt));
+  Check(dt.StartOfTheDay() = StartOfTheDay(dtt));
+  Check(dt.EndOfTheDay() = EndOfTheDay(dtt));
 end;
 
 procedure OLDateTimeTest.TimeOfDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b := EncodeDateTime(2017,1,10,10,10,10,100);
+  dt := EncodeDateTime(2017,1,10,10,10,10,100);
 
-  Check(b.TimeOf() = EncodeTime(10,10,10,100));
+  Check(dt.TimeOf() = EncodeTime(10,10,10,100));
 end;
 
 procedure OLBooleanTest.ToStringBoolean;
@@ -1455,38 +1469,38 @@ end;
 
 procedure OLDateTest.YesterdayDate;
 var
-  b: OLDate;
+  d: OLDate;
 begin
-  b.SetYesterday();
-  Check(b = Yesterday());
+  d.SetYesterday();
+  Check(d = Yesterday());
 
   Check(OLDate.Yesterday() = Yesterday());
 end;
 
 procedure OLDateTimeTest.YesterdayDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b.SetYesterday();
-  Check(b = Yesterday());
+  dt.SetYesterday();
+  Check(dt = Yesterday());
 
   Check(OLDateTime.Yesterday = Yesterday());
 end;
 
 procedure OLIntegerTest.EqualsInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  CheckTrue(b = Null);
+  CheckTrue(i = Null);
 
-  b := 3;
+  i := 3;
 
-  CheckFalse(b = Null);
+  CheckFalse(i = Null);
 
-  CheckTrue(b = 3);
-  CheckFalse(b = 1);
-  CheckFalse(b = 1);
-  CheckFalse(b = 0);
+  CheckTrue(i = 3);
+  CheckFalse(i = 1);
+  CheckFalse(i = 1);
+  CheckFalse(i = 0);
 end;
 
 function OLStringTest.GetTemp: String;
@@ -1505,7 +1519,7 @@ var
   sl, sl2: TStringList;
   TempFileName, TempFileName2: string;
 
-  b: OLString;
+  s: OLString;
 begin
   TempFileName := GetTemp() + 'test.txt';
   TempFileName2 := GetTemp() + 'test2.txt';
@@ -1517,10 +1531,10 @@ begin
 
     sl.SaveToFile(TempFileName);
 
-    b.EndcodeBase64FromFile(TempFileName);
-    Check(b = 'VGVzdDENClRlc3QyDQo=');
+    s.EndcodeBase64FromFile(TempFileName);
+    Check(s = 'VGVzdDENClRlc3QyDQo=');
 
-    b.DecodeBase64ToFile(TempFileName2);
+    s.DecodeBase64ToFile(TempFileName2);
 
     sl2 := TStringList.Create;
     try
@@ -1541,236 +1555,248 @@ end;
 
 procedure OLStringTest.CompressionString;
 var
-  b, b2: OLString;
+  s, s2: OLString;
 const
   BondText = 'My name is Bond. My name is Bond. My name is Bond. My name is Bond.';
 begin
-  b := BondText;
+  s := BondText;
 
-  b := b.Compressed();
+  s := s.Compressed();
 
-  b2 := b;
+  s2 := s;
 
-  b2 := b2.Decompressed;
+  s2 := s2.Decompressed;
 
-  Check(b2 = BondText);
+  Check(s2 = BondText);
 end;
 
 procedure OLStringTest.ContainsString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'My name is Bond. James Bond.';
+  s := 'My name is Bond. James Bond.';
 
   //Case sensitive
-  Check(b.ContainsStr('Bond'));
-  CheckFalse(b.ContainsStr('bond'));
+  Check(s.ContainsStr('Bond'));
+  CheckFalse(s.ContainsStr('bond'));
 
   //Case insensitive
-  Check(b.ContainsText('bond'));
+  Check(s.ContainsText('bond'));
 end;
 
 procedure OLStringTest.CSVFieldValueString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b :='First Name;Last Name;City';
-  Check(b.CSVFieldCount() = 3);
-  Check(b.CSVFieldValue(0) = 'First Name');
-  Check(b.CSVFieldValue(1) = 'Last Name');
-  Check(b.CSVFieldValue(2) = 'City');
+  s :='First Name;Last Name;City';
+  Check(s.CSVFieldCount() = 3);
+  Check(s.CSVFieldValue(0) = 'First Name');
+  Check(s.CSVFieldValue(1) = 'Last Name');
+  Check(s.CSVFieldValue(2) = 'City');
 
-  b :='First Name|Last Name|City|Date';
-  Check(b.CSVFieldCount('|') = 4);
-  Check(b.CSVFieldValue(0, '|') = 'First Name');
-  Check(b.CSVFieldValue(1, '|') = 'Last Name');
-  Check(b.CSVFieldValue(2, '|') = 'City');
-  Check(b.CSVFieldValue(3, '|') = 'Date');
+  s.SetCSVFieldValue(2,'Town');
+  Check(s.CSVFieldValue(2) = 'Town');
+  Check(s.CSV[2] = 'Town');
+
+  s.CSV[3] := 'Email address';
+  Check(s.CSVFieldValue(3) = 'Email address');
+
+
+  s :='First Name|Last Name|City|Date';
+  Check(s.CSVFieldCount('|') = 4);
+  Check(s.CSVFieldValue(0, '|') = 'First Name');
+  Check(s.CSVFieldValue(1, '|') = 'Last Name');
+  Check(s.CSVFieldValue(2, '|') = 'City');
+  Check(s.CSVFieldValue(3, '|') = 'Date');
+
+  s.SetCSVFieldValue(5, 'Email address', '|');
+  Check(s.CSVFieldValue(4, '|') = '');
+  Check(s.CSVFieldValue(5, '|') = 'Email address');
 end;
 
 procedure OLStringTest.DigitsOnlyNoSpacesString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'One 23456';
+  s := 'One 23456';
 
-  Check(b.SpacesRemoved() = 'One23456');
-  Check(b.DigitsOnly() = '23456');
+  Check(s.SpacesRemoved() = 'One23456');
+  Check(s.DigitsOnly() = '23456');
 end;
 
 procedure OLStringTest.DupeString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'One ';
+  s := 'One ';
 
-  Check(b.RepeatedString(5) = 'One One One One One ');
+  Check(s.RepeatedString(5) = 'One One One One One ');
 end;
 
 procedure OLStringTest.EqualsString;
 var
-  b, b2: OLString;
-  s: string;
+  s: OLString;
+  str: string;
 begin
-  CheckFalse(b = Null);
+  CheckFalse(s = Null);
 
-  Check(b = '');
-  Check(b.IsEmptyStr());
+  Check(s = '');
+  Check(s.IsEmptyStr());
 
-  b := Null;
+  s := Null;
 
-  CheckTrue(b = Null);
+  CheckTrue(s = Null);
 
-  b := '';
+  s := '';
 
-  CheckFalse(b = Null);
+  CheckFalse(s = Null);
 
-  b := 'asd';
   s := 'asd';
+  str := 'asd';
 
-  CheckTrue(b = s);
-  CheckFalse(b = 'zxc');
+  CheckTrue(s = str);
+  CheckFalse(s = 'zxc');
 
-  b := Null;
-  CheckTrue(b = Null);
+  s := Null;
+  CheckTrue(s = Null);
 end;
 
 procedure OLStringTest.FilePathExtract;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'c:\temp\test.txt';
-  Check(b.ExtractedFileDriveString() = 'c:');
-  Check(b.ExtractedFileDir() = 'c:\temp');
-  Check(b.ExtractedFilePath() = 'c:\temp\');
-  Check(b.ExtractedFileName() = 'test.txt');
-  Check(b.ExtractedFileExt() = '.txt');
+  s := 'c:\temp\test.txt';
+  Check(s.ExtractedFileDriveString() = 'c:');
+  Check(s.ExtractedFileDir() = 'c:\temp');
+  Check(s.ExtractedFilePath() = 'c:\temp\');
+  Check(s.ExtractedFileName() = 'test.txt');
+  Check(s.ExtractedFileExt() = '.txt');
 end;
 
 procedure OLStringTest.FindPatternString;
 var
-  b: OLString;
+  s: OLString;
   pat: TStringPatternFind;
 begin
-  b := 'My name is Bond. My name is James Bond.';
+  s := 'My name is Bond. My name is James Bond.';
 
-  Check(b.FindPatternStr('name is ', '.') = 'Bond');
-  Check(b.FindPatternStr('name is ', '.', 15) = 'James Bond');
-  Check(b.FindPatternStr('NAME IS ', '.', 15, csCaseInsensitive) = 'James Bond');
+  Check(s.FindPatternStr('name is ', '.') = 'Bond');
+  Check(s.FindPatternStr('name is ', '.', 15) = 'James Bond');
+  Check(s.FindPatternStr('NAME IS ', '.', 15, csCaseInsensitive) = 'James Bond');
 
-  pat := b.FindPattern('NAME IS ', '.', 1, csCaseInsensitive);
+  pat := s.FindPattern('NAME IS ', '.', 1, csCaseInsensitive);
   Check(pat.Value = 'Bond');
   Check(pat.Position = 12);
 
-  b := '<head><title>JB Web Page</title></head>';
-  Check(b.FindPatternStr('TITLE') = 'JB Web Page'); //ignoring case as default
-  Check(b.FindPatternStr('title', 5, csCaseSensitive) = 'JB Web Page');
-  CheckFalse(b.FindPatternStr('TITLE', 5, csCaseSensitive) <> '');
+  s := '<head><title>JB Web Page</title></head>';
+  Check(s.FindPatternStr('TITLE') = 'JB Web Page'); //ignoring case as default
+  Check(s.FindPatternStr('title', 5, csCaseSensitive) = 'JB Web Page');
+  CheckFalse(s.FindPatternStr('TITLE', 5, csCaseSensitive) <> '');
 
-  pat := b.FindPattern('TITLE');
+  pat := s.FindPattern('TITLE');
   Check(pat.Value = 'JB Web Page');
   Check(pat.Position = 14);
 end;
 
 procedure OLStringTest.FormatString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'My name is %s and I am %d years old.';
-  b := b.Formated(['Agnieszka', 18]);
-  Check(b = 'My name is Agnieszka and I am 18 years old.');
+  s := 'My name is %s and I am %d years old.';
+  s := s.Formated(['Agnieszka', 18]);
+  Check(s = 'My name is Agnieszka and I am 18 years old.');
 end;
 
 procedure OLDoubleTest.FloorDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 123.149;
-  Check(b.Floor() = 123);
+  d := 123.149;
+  Check(d.Floor() = 123);
 
-  b := -123.149;
-  Check(b.Floor() = -124);
+  d := -123.149;
+  Check(d.Floor() = -124);
 end;
 
 procedure OLIntegerTest.ForLoopInteger;
 var
-  b: OLInteger;
-  i: integer;
+  i: OLInteger;
+  i2: integer;
 begin
-  i := 0;
-  b.ForLoop(1, 10, procedure
+  i2 := 0;
+  i.ForLoop(1, 10, procedure
   begin
-    Inc(i);
+    Inc(i2);
   end);
 
-  Check((i = 10) and (b = 10));
+  Check((i2 = 10) and (i = 10));
 
-  i := 0;
-  b.ForLoop(5, -5, procedure
+  i2 := 0;
+  i.ForLoop(5, -5, procedure
   begin
-    i := i + b;
+    i2 := i2 + i;
   end);
 
-  Check((i = 0) and (b = -5));
+  Check((i2 = 0) and (i = -5));
 end;
 
 procedure OLIntegerTest.GreaterInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 3;
+  i := 3;
 
-  CheckFalse(b > Null);
+  CheckFalse(i > Null);
 
-  CheckTrue(b > 2.1);
-  CheckFalse(b > 3);
-  CheckFalse(b > 4);
+  CheckTrue(i > 2.1);
+  CheckFalse(i > 3);
+  CheckFalse(i > 4);
 end;
 
 procedure OLStringTest.GreaterString;
 var
-  b: OLString;
-  s: string;
+  s: OLString;
+  str: string;
 begin
-  CheckFalse(b > Null);
+  CheckFalse(s > Null);
 
-  s := 'aaa';
-  b := 'bbb';
+  str := 'aaa';
+  s := 'bbb';
 
-  CheckFalse(b > Null);
+  CheckFalse(s > Null);
 
-  CheckTrue(b > s);
-  CheckFalse(b > b);
+  CheckTrue(s > str);
+  CheckFalse(s > s);
 end;
 
 procedure OLStringTest.HashString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'p@ssword753';
+  s := 'p@ssword753';
 
-  Check(b.Hash() = 732684085);
-  Check(b.HashStr() = '2BABDF35');
+  Check(s.Hash() = 732684085);
+  Check(s.HashStr() = '2BABDF35');
 
-  Check(b.Hash('s@It') = 3549827675);
-  Check(b.HashStr('s@It') = 'D396125B');
+  Check(s.Hash('s@It') = 3549827675);
+  Check(s.HashStr('s@It') = 'D396125B');
 end;
 
 procedure OLIntegerTest.GreaterEqualInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  CheckTrue(b >= Null);
+  CheckTrue(i >= Null);
 
-  b := 3;
+  i := 3;
 
-  CheckFalse(b >= Null);
+  CheckFalse(i >= Null);
 
-  CheckTrue(b >= 2.1);
-  CheckTrue(b >= 3);
+  CheckTrue(i >= 2.1);
+  CheckTrue(i >= 3);
 
-  b := -3;
-  CheckFalse(b >= -2);
+  i := -3;
+  CheckFalse(i >= -2);
 end;
 
 function OLStringTest.ConnectedToInternet : boolean;
@@ -1782,12 +1808,12 @@ end;
 
 procedure OLStringTest.GetFromURLString;
 var
-  b: OLString;
+  s: OLString;
 begin
   if ConnectedToInternet() then
   begin
-    b.GetFromUrl('https://www.google.com');
-    Check(b.FindPatternStr('title').ContainsText('google'));
+    s.GetFromUrl('https://www.google.com');
+    Check(s.FindPatternStr('title').ContainsText('google'));
   end
   else
     Fail('Cannot be testet without Internet connection.');
@@ -1795,539 +1821,547 @@ end;
 
 procedure OLStringTest.GetLineStartPositionString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b :='';
-  b.LineAdd('12345');
-  b.LineAdd('890123');
+  s :='';
+  s.LineAdd('12345');
+  s.LineAdd('890123');
 
-  Check(b.GetLineStartPosition(0) = 1);
-  Check(b.GetLineStartPosition(1) = 8);
+  Check(s.GetLineStartPosition(0) = 1);
+  Check(s.GetLineStartPosition(1) = 8);
 end;
 
 procedure OLStringTest.GreaterEqualString;
 var
-  b: OLString;
-  s, s2: string;
+  s: OLString;
+  str, str2: string;
 begin
-  b := Null;
+  s := Null;
 
-  Check(b >= Null);
+  Check(s >= Null);
 
-  s := 'aaa';
-  b := 'aab';
-  s2 := 'aac';
+  str := 'aaa';
+  s := 'aab';
+  str2 := 'aac';
 
-  CheckFalse(b >= Null);
+  CheckFalse(s >= Null);
 
-  CheckTrue(b >= s);
-  CheckTrue(b >= b);
-  CheckFalse(b >= s2);
+  CheckTrue(s >= str);
+  CheckTrue(s >= s);
+  CheckFalse(s >= str2);
 end;
 
 procedure OLIntegerTest.LessInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 3;
+  i := 3;
 
-  CheckFalse(b < 3);
-  CheckTrue(b < 3.1);
+  CheckFalse(i < 3);
+  CheckTrue(i < 3.1);
 end;
 
 procedure OLStringTest.LessString;
 var
-  b: OLString;
-  s: string;
+  s: OLString;
+  str: string;
 begin
-  CheckFalse(b > Null);
+  CheckFalse(s > Null);
 
-  b := 'asd';
-  CheckFalse(b > Null);
+  s := 'asd';
+  CheckFalse(s > Null);
 
-  b := 'ÆÆÆ';
-  s := 'DDD';
-  CheckFalse(b < s); //'ÆÆÆ' is greater then 'D' (!)
+  s := 'ÆÆÆ';
+  str := 'DDD';
+  CheckFalse(s < str); //'ÆÆÆ' is greater then 'D' (!)
 
-  b := 'CCC';
-  s := 'DDD';
-  Check(b < s);
+  s := 'CCC';
+  str := 'DDD';
+  Check(s < str);
 
-  CheckFalse(b < b);
+  CheckFalse(s < s);
 end;
 
 procedure OLStringTest.LinesString;
 var
-  b: OLString;
+  s, s2: OLString;
   TestFileName: string;
 begin
-  Check(b.LineCount = 1); //Empty string
+  Check(s.LineCount = 1); //Empty string
 
-  b.LineAdd('First line');
-  b.LineAdd('Some line');
-  Check(b.LineCount = 2);
+  s.LineAdd('First line');
+  s.LineAdd('Some line');
+  Check(s.LineCount = 2);
 
-  Check(b.Lines[1] = 'Some line');
+  Check(s.Lines[1] = 'Some line');
 
-  b.LineInsertAt(1, 'Second line');
+  s.LineInsertAt(1, 'Second line');
 
-  Check(b.Lines[0] = 'First line');
-  Check(b.Lines[1] = 'Second line');
-  Check(b.Lines[2] = 'Some line');
+  Check(s.Lines[0] = 'First line');
+  Check(s.Lines[1] = 'Second line');
+  Check(s.Lines[2] = 'Some line');
 
-  b.Lines[2] := 'Third line';
+  s.Lines[2] := 'Third line';
 
-  Check(b.Lines[2] = 'Third line');
+  Check(s.Lines[2] = 'Third line');
 
-  Check(b.LineIndexOf('Second line') = 1);
+  Check(s.LineIndexOf('Second line') = 1);
 
-  b.LineDelete(1);
-  Check(b.LineIndexOf('Second line') = -1);
+  s.LineDelete(1);
+  Check(s.LineIndexOf('Second line') = -1);
 
 
   TestFileName := GetTemp() + 'test.txt';
-  b.SaveToFile(TestFileName);
+  s.SaveToFile(TestFileName);
 
-  b := '';
+  s := '';
 
-  b.LoadFromFile(TestFileName);
-  DeleteFile(TestFileName);
+  s.LoadFromFile(TestFileName);
+  DeleteFile(TestFileName); //Clean up
 
-  Check(b.Lines[1] = 'Third line');
+  Check(s.Lines[1] = 'Third line');
 
-  b := '';
-  b.LineAdd('');
-  b.LineAdd('Second line');
-  Check(b.Lines[1] = 'Second line');
+  s := '';
+  s.LineAdd('');
+  s.LineAdd('Second line');
+  Check(s.Lines[1] = 'Second line');
 
-  b := '';
-  b.LineAdd('');
-  b.LineAdd('');
-  b.LineAdd('Third line');
-  Check(b.Lines[2] = 'Third line');
+  s := '';
+  s.LineAdd('');
+  s.LineAdd('');
+  s.LineAdd('Third line');
+  Check(s.Lines[2] = 'Third line');
 
-  b := Null;
+  s2 := s.LineAdded('Fourth line')
+         .LineAdded('Fifth line')
+         .LineAdded('Sixth line');
+  Check(s2.Lines[5] = 'Sixth line');
 
-  Check(b.LineCount.IsNull());
+  s := Null;
+  Check(s.LineCount.IsNull());
 end;
 
 procedure OLStringTest.LowerUpperCaseString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'James Bond';
+  s := 'James Bond';
 
-  Check(b.UpperCase() = 'JAMES BOND');
-  Check(b.LowerCase() = 'james bond');
+  Check(s.UpperCase() = 'JAMES BOND');
+  Check(s.LowerCase() = 'james bond');
 
-  b := 'james bond';
-  Check(b.InitCaps() = 'James Bond');
+  s := 'james bond';
+  Check(s.InitCaps() = 'James Bond');
 
-  b := 'jAMES boND';
-  Check(b.InitCaps() = 'James Bond');
+  s := 'jAMES boND';
+  Check(s.InitCaps() = 'James Bond');
 end;
 
 procedure OLIntegerTest.LessEqualInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  CheckTrue(b >= Null);
+  CheckTrue(i >= Null);
 
-  b := 3;
+  i := 3;
 
-  CheckFalse(b <= 2.5);
-  CheckTrue(b <= 3);
+  CheckFalse(i <= 2.5);
+  CheckTrue(i <= 3);
 
-  b := -2;
-  CheckTrue(b <= -2);
+  i := -2;
+  CheckTrue(i <= -2);
 end;
 
 procedure OLStringTest.LastDelimiterString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := '123_567_90';
-  Check(b.LastDelimiterPosition('_') = 8);
+  s := '123_567_90';
+  Check(s.LastDelimiterPosition('_') = 8);
 end;
 
 procedure OLStringTest.LeadTrailAddString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := '1234';
-  Check(b.LeadingCharsAdded('-', 7) = '---1234');
-  Check(b.LeadingSpacesAdded(8) = '    1234');
-  Check(b.LeadingZerosAdded(6) = '001234');
+  s := '1234';
+  Check(s.LeadingCharsAdded('-', 7) = '---1234');
+  Check(s.LeadingSpacesAdded(8) = '    1234');
+  Check(s.LeadingZerosAdded(6) = '001234');
 
-  Check(b.TrailingCharsAdded('-', 7) = '1234---');
-  Check(b.TrailingSpacesAdded(8) = '1234    ');
+  Check(s.TrailingCharsAdded('-', 7) = '1234---');
+  Check(s.TrailingSpacesAdded(8) = '1234    ');
 end;
 
 procedure OLStringTest.LeftRightString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := '1234KaBoom';
-  Check(b.LeftStr(3) = '123');
-  Check(b.RightStr(4) = 'Boom');
-  Check(b.RightStrFrom(5) = 'KaBoom');
-  Check(b.EndingRemoved(5) = '1234K');
+  s := '1234KaBoom';
+  Check(s.LeftStr(3) = '123');
+  Check(s.RightStr(4) = 'Boom');
+  Check(s.RightStrFrom(5) = 'KaBoom');
+  Check(s.EndingRemoved(5) = '1234K');
 end;
 
 procedure OLStringTest.LengthString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  CheckFalse(b.Length().IsNull());
+  CheckFalse(s.Length().IsNull());
 
-  b := Null;
-  Check(b.Length().IsNull());
+  s := Null;
+  Check(s.Length().IsNull());
 
-  b := '';
-  Check(b.Length() = 0);
+  s := '';
+  Check(s.Length() = 0);
 
-  b := 'Agnieszka';
-  Check(b.Length = 9);
+  s := 'Agnieszka';
+  Check(s.Length = 9);
 end;
 
 procedure OLStringTest.LessEqualString;
 var
-  b: OLString;
-  s, s2: string;
+  s: OLString;
+  str, str2: string;
 begin
-  CheckFalse(b <= Null);
+  CheckFalse(s <= Null);
 
-  b := Null;
+  s := Null;
 
-  Check(b <= Null);
+  Check(s <= Null);
 
-  s := 'ZZa';
-  b := 'ZZx';
-  s2 := 'ZZz';
+  str := 'ZZa';
+  s := 'ZZx';
+  str2 := 'ZZz';
 
-  CheckFalse(b <= Null);
+  CheckFalse(s <= Null);
 
-  CheckTrue(b <= s2);
-  CheckTrue(b <= b);
-  CheckFalse(b <= s);
+  CheckTrue(s <= str2);
+  CheckTrue(s <= s);
+  CheckFalse(s <= str);
 end;
 
 procedure OLIntegerTest.NotEqualInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  CheckFalse(b <> Null);
+  CheckFalse(i <> Null);
 
-  b := 3;
+  i := 3;
 
-  CheckTrue(b <> Null);
+  CheckTrue(i <> Null);
 
-  CheckTrue(b <> -1.1);
-  CheckFalse(b <> 3);
+  CheckTrue(i <> -1.1);
+  CheckFalse(i <> 3);
 end;
 
 procedure OLStringTest.NotEqualString;
 var
-  b: OLString;
-  s: string;
+  s: OLString;
+  str: string;
 begin
-  Check(b <> Null);
+  Check(s <> Null);
 
-  b := Null;
+  s := Null;
 
-  CheckFalse(b <> Null);
+  CheckFalse(s <> Null);
 
-  b := 'ZZZZZ';
-  s := 'AAAA';
+  s := 'ZZZZZ';
+  str := 'AAAA';
 
-  CheckTrue(b <> Null);
+  CheckTrue(s <> Null);
 
-  CheckTrue(b <> s);
-  CheckFalse(b <> b);
+  CheckTrue(s <> str);
+  CheckFalse(s <> s);
 end;
 
 procedure OLStringTest.OccurrancesString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'My name is Bond. My name is Bond. My name is Bond. My name is Bond.';
+  s := 'My name is Bond. My name is Bond. My name is Bond. My name is Bond.';
 
-  Check(b.OccurrencesCount('Bond') = 4);
-  Check(b.OccurrencesCount('bond') = 0);
-  Check(b.OccurrencesCount('bond', csCaseInsensitive) = 4);
+  Check(s.OccurrencesCount('Bond') = 4);
+  Check(s.OccurrencesCount('bond') = 0);
+  Check(s.OccurrencesCount('bond', csCaseInsensitive) = 4);
 
-  Check(b.OccurrencesPosition('Bond', 1) = 12);
-  Check(b.OccurrencesPosition('Bond', 2) = 29);
-  Check(b.OccurrencesPosition('Bond', 3) = 46);
-  Check(b.OccurrencesPosition('Bond', 4) = 63);
+  Check(s.OccurrencesPosition('Bond', 1) = 12);
+  Check(s.OccurrencesPosition('Bond', 2) = 29);
+  Check(s.OccurrencesPosition('Bond', 3) = 46);
+  Check(s.OccurrencesPosition('Bond', 4) = 63);
 
 
-  Check(b.OccurrencesPosition('bond', 4, csCaseInsensitive) = 63);
+  Check(s.OccurrencesPosition('bond', 4, csCaseInsensitive) = 63);
 end;
 
 procedure OLStringTest.PositionString;
 var
-  b: OLString;
+  s: OLString;
   i: OLInteger;
 begin
-  b := 'My name is Bond. My name is James Bond.';
+  s := 'My name is Bond. My name is James Bond.';
 
-  i := b.Pos('Bond');
+  i := s.Pos('Bond');
   Check(i = 12);
 
-  i := b.PosEx('Bond', i + 1);
+  i := s.PosEx('Bond', i + 1);
   Check(i = 35);
 
-  i := b.Pos('bond', csCaseInsensitive);
+  i := s.Pos('bond', csCaseInsensitive);
   Check(i = 12);
 
-  i := b.PosEx('bond', i + 1, csCaseInsensitive);
+  i := s.PosEx('bond', i + 1, csCaseInsensitive);
   Check(i = 35);
 end;
 
 procedure OLStringTest.QuotedString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'Quo Vadis';
-  Check(b.QuotedStr() = QuotedStr(b));
+  s := 'Quo Vadis';
+  Check(s.QuotedStr() = QuotedStr(s));
 end;
 
 procedure OLStringTest.ReplaceString;
 var
-  b: OLString;
+  s: OLString;
   i: OLInteger;
 begin
-  b := 'My name is Bond. My name is James Bond.';
-  b := b.Replaced('Bond', 'Bean');
-  Check(b = 'My name is Bean. My name is James Bean.');
+  s := 'My name is Bond. My name is James Bond.';
+  s := s.Replaced('Bond', 'Bean');
+  Check(s = 'My name is Bean. My name is James Bean.');
 
-  b := 'My name is Bond. My name is James Bond.';
-  b := b.ReplacedFirst('Bond', 'Bean');
-  Check(b = 'My name is Bean. My name is James Bond.');
+  s := 'My name is Bond. My name is James Bond.';
+  s := s.ReplacedFirst('Bond', 'Bean');
+  Check(s = 'My name is Bean. My name is James Bond.');
 
-  b := 'My name is Bond. My name is James Bond.';
-  b := b.ReplacedText('bond', 'Bean');
-  Check(b = 'My name is Bean. My name is James Bean.');
+  s := 'My name is Bond. My name is James Bond.';
+  s := s.ReplacedText('bond', 'Bean');
+  Check(s = 'My name is Bean. My name is James Bean.');
 
-  b := 'My name is Bond. My name is James Bond.';
-  b := b.ReplacedFirstText('BOND', 'Bean');
-  Check(b = 'My name is Bean. My name is James Bond.');
+  s := 'My name is Bond. My name is James Bond.';
+  s := s.ReplacedFirstText('BOND', 'Bean');
+  Check(s = 'My name is Bean. My name is James Bond.');
 
-  b := 'My name is Bond. My name is James Bond.';
-  b := b.Replaced('Bond', 'Bean').Replaced('James', 'Johnny');
-  Check(b = 'My name is Bean. My name is Johnny Bean.');
+  s := 'My name is Bond. My name is James Bond.';
+  s := s.Replaced('Bond', 'Bean').Replaced('James', 'Johnny');
+  Check(s = 'My name is Bean. My name is Johnny Bean.');
 end;
 
 procedure OLStringTest.ReverseString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'EVA';
+  s := 'EVA';
 
-  Check(b.ReversedString() = 'AVE');
+  Check(s.ReversedString() = 'AVE');
 end;
 
 procedure OLDateTimeTest.NowDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b.SetNow();
+  dt.SetNow();
 
-  Check(b = Now());
+  Check(dt = Now());
 end;
 
 procedure OLIntegerTest.SetInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 1;
-  Check(b = 1);
+  i := 1;
+  Check(i = 1);
 
-  b := 0;
-  Check(b = 0);
+  i := 0;
+  Check(i = 0);
 
-  b := '-100';
-  Check(b = -100);
+  i := '-100';
+  Check(i = -100);
 end;
 
 procedure OLIntegerTest.SetRandomPrimeInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b.SetRandomPrime(1000, 100000);
-  Check(b.IsPrime() and (b >= 1000) and (b <= 100000), b.ToString());
+  i.SetRandomPrime(1000, 100000);
+  Check(i.IsPrime() and (i >= 1000) and (i <= 100000), i.ToString());
 
-  b.SetRandomPrime(5000);
-  Check(b.IsPrime() and (b <= 5000), b.ToString());
+  i.SetRandomPrime(5000);
+  Check(i.IsPrime() and (i <= 5000), i.ToString());
 end;
 
 procedure OLStringTest.SameString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'Quo Vadis';
+  s := 'Quo Vadis';
 
-  Check(b.SameStr('Quo ' + 'Vadis'));
-  CheckFalse(b.SameStr('quo vadis'));
-  Check(b.SameText('quo vadis'));
+  Check(s.SameStr('Quo ' + 'Vadis'));
+  CheckFalse(s.SameStr('quo vadis'));
+  Check(s.SameText('quo vadis'));
 end;
 
 procedure OLStringTest.SetString;
 var
-  b: OLString;
-  s: string;
-  s2: string;
+  s: OLString;
+  str: string;
+  str2: string;
 begin
-  s := 'Hanna';
+  str := 'Hanna';
 
-  b := s;
-  Check(b = s);
+  s := str;
+  Check(s = str);
 
   //Change a char in a string using index
-  b[1] := 'P'; // Hanna -> Panna
-  Check(b = 'Panna');
+  s[1] := 'P'; // Hanna -> Panna
+  Check(s = 'Panna');
 
-  s := 'Kasia';
-  b := s;
-  Check(b = s);
-  CheckFalse(b = 'kasia');
+  str := 'Kasia';
+  s := str;
+  Check(s = str);
+  CheckFalse(s = 'kasia');
 
   // assigning TDate to OLString - automatic conversion to string
-  b := EncodeDate(2017,5,8);
-  s := DateToStr(EncodeDate(2017,5,8));
-  Check(b = s);
+  s := EncodeDate(2017,5,8);
+  str := DateToStr(EncodeDate(2017,5,8));
+  Check(s = str);
 
   // assigning float number to OLString - automatic conversion to string
-  b := 47123.5;
-  Check(b = FloatToStr(47123.5));
+  s := 47123.5;
+  Check(s = FloatToStr(47123.5));
 end;
 
 procedure OLStringTest.SmartToDateString;
 var
-  b : OLString;
+  s : OLString;
 
 begin
-  b := 'td';
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today());
+  s := ssTD;
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today());
 
-  b := 't';
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today());
+  s := 'td';
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today());
 
-  b := 'y';
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Yesterday());
+  s := 't';
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today());
 
-  b := 'yd';
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Yesterday());
+  s := 'y';
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Yesterday());
 
-  b := 'tm';
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Tomorrow());
+  s := 'yd';
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Yesterday());
 
-  b := 'by'; // Beginning of the year
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().StartOfTheYear());
+  s := 'tm';
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Tomorrow());
 
-  b := 'ey'; // End of the year
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().EndOfTheYear());
+  s := 'sy'; // Beginning of the year
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().StartOfTheYear());
 
-  b := 'bm';  // Beginning of the month
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().StartOfTheMonth());
+  s := 'ey'; // End of the year
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().EndOfTheYear());
 
-  b := 'em'; // End of the month
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().EndOfTheMonth());
+  s := 'sm';  // Beginning of the month
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().StartOfTheMonth());
 
-  b := 'bny'; // Beginning of the next year
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncYear().StartOfTheYear());
+  s := 'em'; // End of the month
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().EndOfTheMonth());
 
-  b := 'eny'; // End of the next year
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncYear().EndOfTheYear());
+  s := 'sny'; // Beginning of the next year
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncYear().StartOfTheYear());
 
-  b := 'bnm'; // Beginning of the next month
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncMonth().StartOfTheMonth());
+  s := 'eny'; // End of the next year
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncYear().EndOfTheYear());
 
-  b := 'enm'; // End of the next month
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncMonth().EndOfTheMonth());
+  s := 'snm'; // Beginning of the next month
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncMonth().StartOfTheMonth());
 
-  b := 'bpy'; // Beginning of the prior year
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncYear(-1).StartOfTheYear());
+  s := 'enm'; // End of the next month
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncMonth().EndOfTheMonth());
 
-  b := 'epy'; // End of the prior year
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncYear(-1).EndOfTheYear());
+  s := 'spy'; // Beginning of the prior year
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncYear(-1).StartOfTheYear());
 
-  b := 'bpm'; // Beginning of the prior month
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncMonth(-1).StartOfTheMonth());
+  s := 'epy'; // End of the prior year
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncYear(-1).EndOfTheYear());
 
-  b := 'epm'; // End of the prior month
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().IncMonth(-1).EndOfTheMonth());
+  s := 'spm'; // Beginning of the prior month
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncMonth(-1).StartOfTheMonth());
 
-  b := '5'; // Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedDay(5));
+  s := 'epm'; // End of the prior month
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().IncMonth(-1).EndOfTheMonth());
 
-  b := '26'; // Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedDay(26));
+  s := '5'; // Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedDay(5));
 
-  b := '426'; // Month + Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedMonth(4).RecodedDay(26));
+  s := '26'; // Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedDay(26));
 
-  b := '1126'; // Month + Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedMonth(11).RecodedDay(26));
+  s := '426'; // Month + Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedMonth(4).RecodedDay(26));
 
-  b := '81126'; // Year + Month + Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedYear(2008).RecodedMonth(11).RecodedDay(26));
+  s := '1126'; // Month + Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedMonth(11).RecodedDay(26));
 
-  b := '80106'; // Year + Month + Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedYear(2008).RecodedMonth(1).RecodedDay(6));
+  s := '81126'; // Year + Month + Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2008).RecodedMonth(11).RecodedDay(26));
 
-  b := '161126'; // Year + Month + Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedYear(2016).RecodedMonth(11).RecodedDay(26));
+  s := '80106'; // Year + Month + Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2008).RecodedMonth(1).RecodedDay(6));
 
-  b := '1161126'; // Year + Month + Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedYear(2116).RecodedMonth(11).RecodedDay(26));
+  s := '161126'; // Year + Month + Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2016).RecodedMonth(11).RecodedDay(26));
 
-  b := '20151126'; // Full Year + Month + Day
-  Check(b.TrySmartStrToDate());
-  Check(b.SmartStrToDate() = OLDate.Today().RecodedYear(2015).RecodedMonth(11).RecodedDay(26));
+  s := '1161126'; // Year + Month + Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2116).RecodedMonth(11).RecodedDay(26));
+
+  s := '20151126'; // Full Year + Month + Day
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2015).RecodedMonth(11).RecodedDay(26));
 end;
 
 procedure OLStringTest.SplitString;
 var
-  b: OLString;
+  s: OLString;
   lst: TStringDynArray;
 begin
-  b := 'One;Two;Three;Four';
-  lst := b.SplitString();
+  s := 'One;Two;Three;Four';
+  lst := s.SplitString();
 
   Check(lst[0] = 'One');
   Check(lst[1] = 'Two');
   Check(lst[2] = 'Three');
   Check(lst[3] = 'Four');
 
-  b := 'Four,Three,Two,One';
-  lst := b.SplitString(',');
+  s := 'Four,Three,Two,One';
+  lst := s.SplitString(',');
 
   Check(lst[0] = 'Four');
   Check(lst[2] = 'Two');
@@ -2337,219 +2371,219 @@ end;
 
 procedure OLStringTest.StartsEndsString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'One Two Three Four';
+  s := 'One Two Three Four';
 
-  Check(b.StartsStr('One'));
-  CheckFalse(b.StartsStr('one'));
-  Check(b.StartsText('ONE'));
+  Check(s.StartsStr('One'));
+  CheckFalse(s.StartsStr('one'));
+  Check(s.StartsText('ONE'));
 
-  Check(b.EndsStr('Four'));
-  CheckFalse(b.EndsStr('four'));
-  Check(b.EndsText('four'));
+  Check(s.EndsStr('Four'));
+  CheckFalse(s.EndsStr('four'));
+  Check(s.EndsText('four'));
 end;
 
 procedure OLDateTest.TodayDate;
 var
-  b: OLDate;
+  d: OLDate;
 begin
-  b.SetToday();
-  Check(b = Today());
+  d.SetToday();
+  Check(d = Today());
 
   Check(OLDate.Today = Today());
 end;
 
 procedure OLDateTimeTest.TodayDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b.SetToday();
-  Check(b = Today());
+  dt.SetToday();
+  Check(dt = Today());
 
   Check(OLDateTime.Today = Today());
 end;
 
 procedure OLDateTest.TomorrowDate;
 var
-  b: OLDate;
+  d: OLDate;
 begin
-  b.SetTomorow();
-  Check(b = Tomorrow());
+  d.SetTomorow();
+  Check(d = Tomorrow());
 
   Check(OLDate.Tomorrow = Tomorrow());
 end;
 
 procedure OLDateTimeTest.TomorrowDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b.SetTomorrow();
-  Check(b = Tomorrow());
+  dt.SetTomorrow();
+  Check(dt = Tomorrow());
 
   Check(OLDateTime.Tomorrow = Tomorrow());
 end;
 
 procedure OLIntegerTest.IsNullInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  Check(b.IsNull());
+  Check(i.IsNull());
 
-  b := 1;
-  Check(b.IsNull() = False);
+  i := 1;
+  Check(i.IsNull() = False);
 
-  b := Null;
-  Check(b.IsNull());
+  i := Null;
+  Check(i.IsNull());
 end;
 
 procedure OLStringTest.IBANString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'PL86101014690004882221000000';
-  Check(b.IsValidIBAN());
+  s := 'PL86101014690004882221000000';
+  Check(s.IsValidIBAN());
 
   //Country code is obligatory
-  b := '86101014690004882221000000';
-  CheckFalse(b.IsValidIBAN());
+  s := '86101014690004882221000000';
+  CheckFalse(s.IsValidIBAN());
 
   //IBAN number can contain spaces. They are removed prior the validation
-  b := 'PL 86 1010 1469 0004 8822 2100 0000';
-  Check(b.IsValidIBAN());
+  s := 'PL 86 1010 1469 0004 8822 2100 0000';
+  Check(s.IsValidIBAN());
 
-  b := 'PL 86 1010 1469 0004 8822 2100 0001';
-  CheckFalse(b.IsValidIBAN());
+  s := 'PL 86 1010 1469 0004 8822 2100 0001';
+  CheckFalse(s.IsValidIBAN());
 end;
 
 procedure OLStringTest.IncludeExcludeFinalCharString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'c:\temp\';
-  Check(b.TrailingPathDelimiterExcluded() = 'c:\temp');
-  b := 'c:\temp';
-  Check(b.TrailingPathDelimiterExcluded() = 'c:\temp');
+  s := 'c:\temp\';
+  Check(s.TrailingPathDelimiterExcluded() = 'c:\temp');
+  s := 'c:\temp';
+  Check(s.TrailingPathDelimiterExcluded() = 'c:\temp');
 
-  b := 'c:\asd';
-  Check(b.TrailingPathDelimiterIncluded() = 'c:\asd\');
-  b := 'c:\asd\';
-  Check(b.TrailingPathDelimiterIncluded() = 'c:\asd\');
+  s := 'c:\asd';
+  Check(s.TrailingPathDelimiterIncluded() = 'c:\asd\');
+  s := 'c:\asd\';
+  Check(s.TrailingPathDelimiterIncluded() = 'c:\asd\');
 
-  b := '1;2;3;';
-  Check(b.TrailingCharExcluded(';') = '1;2;3');
-  b := '1;2;3';
-  Check(b.TrailingCharExcluded(';') = '1;2;3');
+  s := '1;2;3;';
+  Check(s.TrailingCharExcluded(';') = '1;2;3');
+  s := '1;2;3';
+  Check(s.TrailingCharExcluded(';') = '1;2;3');
 
-  b := '4|5|6';
-  Check(b.TrailingCharIncluded('|') = '4|5|6|');
-  b := '4|5|6|';
-  Check(b.TrailingCharIncluded('|') = '4|5|6|');
+  s := '4|5|6';
+  Check(s.TrailingCharIncluded('|') = '4|5|6|');
+  s := '4|5|6|';
+  Check(s.TrailingCharIncluded('|') = '4|5|6|');
 
-  b := '7,8,9';
-  Check(b.TrailingComaIncluded() = '7,8,9,');
-  b := '7,8,9,';
-  Check(b.TrailingComaIncluded() = '7,8,9,');
+  s := '7,8,9';
+  Check(s.TrailingComaIncluded() = '7,8,9,');
+  s := '7,8,9,';
+  Check(s.TrailingComaIncluded() = '7,8,9,');
 
-  b := '7,8,9';
-  Check(b.TrailingComaExcluded() = '7,8,9');
-  b := '7,8,9,';
-  Check(b.TrailingComaExcluded() = '7,8,9');
+  s := '7,8,9';
+  Check(s.TrailingComaExcluded() = '7,8,9');
+  s := '7,8,9,';
+  Check(s.TrailingComaExcluded() = '7,8,9');
 end;
 
 procedure OLStringTest.IndexString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'Three';
+  s := 'Three';
 
-  Check(b.IndexStr(['One', 'Two', 'Three']) = 2);
-  Check(b.IndexStr(['one', 'two', 'three']) = -1);
+  Check(s.IndexStr(['One', 'Two', 'Three']) = 2);
+  Check(s.IndexStr(['one', 'two', 'three']) = -1);
 
-  Check(b.IndexText(['one', 'two', 'three']) = 2);
+  Check(s.IndexText(['one', 'two', 'three']) = 2);
 end;
 
 procedure OLStringTest.InsertDeleteString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := 'My name is Bond. Bond.';
+  s := 'My name is Bond. Bond.';
 
-  b := b.Inserted('James ', 18);
-  Check(b = 'My name is Bond. James Bond.');
+  s := s.Inserted('James ', 18);
+  Check(s = 'My name is Bond. James Bond.');
 
-  b := b.Deleted(17, 12);
-  Check(b = 'My name is Bond.');
+  s := s.Deleted(17, 12);
+  Check(s = 'My name is Bond.');
 
-  b := b.Inserted('Hello. ', 1);
-  Check(b = 'Hello. My name is Bond.');
+  s := s.Inserted('Hello. ', 1);
+  Check(s = 'Hello. My name is Bond.');
 
-  b := '123456789';
-  b := b.Deleted(4,3);
-  Check(b = '123789');
+  s := '123456789';
+  s := s.Deleted(4,3);
+  Check(s = '123789');
 end;
 
 procedure OLStringTest.IsNullString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  CheckFalse(b.IsNull());
+  CheckFalse(s.IsNull());
 
-  b := 'Agnieszka';
-  CheckFalse(b.IsNull());
+  s := 'Agnieszka';
+  CheckFalse(s.IsNull());
 
-  b := Null;
-  Check(b.IsNull());
+  s := Null;
+  Check(s.IsNull());
 end;
 
 procedure OLDateTest.IsTodayDate;
 var
-  b: OLDate;
+  d: OLDate;
 begin
-  b := Now();
-  Check(b.IsToday());
+  d := Now();
+  Check(d.IsToday());
 
-  b := Tomorrow();
-  CheckFalse(b.IsToday());
+  d := Tomorrow();
+  CheckFalse(d.IsToday());
 end;
 
 procedure OLDateTimeTest.IsTodayDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  b := Now();
-  Check(b.IsToday());
+  dt := Now();
+  Check(dt.IsToday());
 
-  b := Tomorrow();
-  CheckFalse(b.IsToday());
+  dt := Tomorrow();
+  CheckFalse(dt.IsToday());
 end;
 
 procedure OLDoubleTest.IsZeroDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 0;
-  Check(b.IsZero());
-  b := 0.09999;
-  Check(b.IsZero(0.1));
-  CheckFalse(b.IsZero());
+  d := 0;
+  Check(d.IsZero());
+  d := 0.09999;
+  Check(d.IsZero(0.1));
+  CheckFalse(d.IsZero());
 end;
 
 procedure OLIntegerTest.ToStringInteger;
 var
-  b: OLInteger;
+  i: OLInteger;
 begin
-  b := 123;
-  CheckEqualsString('123', b.ToString());
+  i := 123;
+  CheckEqualsString('123', i.ToString());
 
-  b := -100123;
-  CheckEqualsString('-100123', b.ToString());
+  i := -100123;
+  CheckEqualsString('-100123', i.ToString());
 end;
 
 
 procedure OLStringTest.ConvertString;
 var
-  b: OLString;
+  s: OLString;
 
   dt: TDateTime;
   c: Currency;
@@ -2565,711 +2599,732 @@ var
   oldt2: OLDateTime;
   oldat: OLDate;
 begin
-  b := CurrToStr(2.55);
-  Check(b.TryToCurr());
-  Check(b.ToCurr() = 2.55);
-  Check(b.TryToCurr(c));
+  s := CurrToStr(2.55);
+  Check(s.TryToCurr());
+  Check(s.ToCurr() = 2.55);
+  Check(s.TryToCurr(c));
   Check(c = 2.55);
-  Check(b.TryToCurr(olc));
+  Check(s.TryToCurr(olc));
   Check(olc = 2.55);
 
-  b := FloatToStr(2.55);
-  Check(b.TryToFloat());
-  Check(b.ToFloat() = 2.55);
-  Check(b.TryToFloat(d));
+  s := FloatToStr(2.55);
+  Check(s.TryToFloat());
+  Check(s.ToFloat() = 2.55);
+  Check(s.TryToFloat(d));
   Check(abs(d - 2.55) < 1e-5);
-  Check(b.TryToFloat(old));
+  Check(s.TryToFloat(old));
   Check(old = 2.55);
 
-  b := '255';
-  Check(b.TryToInt());
-  Check(b.ToInt() = 255);
-  Check(b.TryToInt(i));
+  s := '255';
+  Check(s.TryToInt());
+  Check(s.ToInt() = 255);
+  Check(s.TryToInt(i));
   Check(i = 255);
-  Check(b.TryToInt(oli));
+  Check(s.TryToInt(oli));
   Check(oli = 255);
 
-  b := '255000000000000000';
-  Check(b.TryToInt64());
-  Check(b.ToInt64 = 255000000000000000);
-  Check(b.TryToInt64(i64));
+  s := '255000000000000000';
+  Check(s.TryToInt64());
+  Check(s.ToInt64 = 255000000000000000);
+  Check(s.TryToInt64(i64));
   Check(i64 = 255000000000000000);
 
   dt := Now;
   dt := RecodeMilliSecond(now, 0); //No milliseconds in string
-  b := DateTimeToStr(dt);
-  Check(b.TryToDateTime());
-  Check(b.ToDateTime() = dt);
-  Check(b.TryToDateTime(dt2));
+  s := DateTimeToStr(dt);
+  Check(s.TryToDateTime());
+  Check(s.ToDateTime() = dt);
+  Check(s.TryToDateTime(dt2));
   Check(dt2 = dt);
-  Check(b.TryToDateTime(oldt2));
+  Check(s.TryToDateTime(oldt2));
   Check(oldt2 = dt);
 
   dat := Date();
-  b := DateToStr(dat);
-  Check(b.TryToDate());
-  Check(b.ToDate() = dat);
-  Check(b.TryToDate(dt2));
+  s := DateToStr(dat);
+  Check(s.TryToDate());
+  Check(s.ToDate() = dat);
+  Check(s.TryToDate(dt2));
   Check(dt2 = dat);
-  Check(b.TryToDate(oldat));
+  Check(s.TryToDate(oldat));
   Check(oldat = dat);
 end;
 
 procedure OLStringTest.ToStringString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  Check(b.ToString() = '');
+  Check(s.ToString() = '');
 
-  b := 'Agnieszka';
-  Check(b = b.ToString());
+  s := 'Agnieszka';
+  Check(s = s.ToString());
 end;
 
 procedure OLStringTest.TrimmedString;
 var
-  b: OLString;
+  s: OLString;
 begin
-  b := ' BOND ';
-  Check(b.Trimed() = 'BOND');
-  Check(b.TrimedLeft() = 'BOND ');
-  Check(b.TrimedRight() = ' BOND');
+  s := ' BOND ';
+  Check(s.Trimed() = 'BOND');
+  Check(s.TrimedLeft() = 'BOND ');
+  Check(s.TrimedRight() = ' BOND');
 end;
 
 procedure OLDateTest.WeeksInYearDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
   i: integer;
 begin
   for i := 2000 to 2020 do
   begin
-    d := EncodeDate(i,1,10);
-    b := d;
-    Check(b.WeeksInYear = WeeksInYear(d));
+    dt := EncodeDate(i,1,10);
+    d := dt;
+    Check(d.WeeksInYear = WeeksInYear(dt));
   end;
 end;
 
 procedure OLDateTimeTest.WeeksInYearDateTime;
 var
-  b: OLDateTime;
-  dt: TDateTime;
+  dt: OLDateTime;
+  dtt: TDateTime;
   i: integer;
 begin
   for i := 2000 to 2020 do
   begin
-    dt := EncodeDateTime(i,1,10,10,10,10,100);
-    b := dt;
-    Check(b.WeeksInYear = WeeksInYear(dt));
+    dtt := EncodeDateTime(i,1,10,10,10,10,100);
+    dt := dtt;
+    Check(dt.WeeksInYear = WeeksInYear(dtt));
   end;
 end;
 
 procedure OLCurrencyTest.EqualsCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  CheckTrue(b = Null);
+  CheckTrue(c = Null);
 
-  b := 3.52;
+  c := 3.52;
 
-  CheckFalse(b = Null);
+  CheckFalse(c = Null);
 
-  CheckTrue(b = 3.52);
-  CheckFalse(b = 1.1);
-  CheckFalse(b = -1.2);
-  CheckFalse(b = 0);
-  CheckFalse(b = 3.521);
+  CheckTrue(c = 3.52);
+  CheckFalse(c = 1.1);
+  CheckFalse(c = -1.2);
+  CheckFalse(c = 0);
+  CheckFalse(c = 3.521);
 
-  b := 1.11115;
-  Check(b = 1.1112);
+  c := 1.11115;
+  Check(c = 1.1112);
 end;
 
 procedure OLDoubleTest.EqualsDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  CheckTrue(b = Null);
+  CheckTrue(d = Null);
 
-  b := 3.52;
+  d := 3.52;
 
-  CheckFalse(b = Null);
+  CheckFalse(d = Null);
 
-  CheckTrue(b = 3.52);
-  CheckFalse(b = 1.1);
-  CheckFalse(b = -1.2);
-  CheckFalse(b = 0);
-  CheckFalse(b = 3.521);
+  CheckTrue(d = 3.52);
+  CheckFalse(d = 1.1);
+  CheckFalse(d = -1.2);
+  CheckFalse(d = 0);
+  CheckFalse(d = 3.521);
 
-  b := -1.11115;
-  Check(b = -1.11115);
+  d := -1.11115;
+  Check(d = -1.11115);
 
-  b := 0;
-  Check(b = 0);
+  d := 0;
+  Check(d = 0);
 end;
 
 procedure OLCurrencyTest.GreaterCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 3.01;
+  c := 3.01;
 
-  CheckFalse(b > Null);
+  CheckFalse(c > Null);
 
-  CheckTrue(b > 2.1);
-  CheckFalse(b > 3.01);
-  CheckFalse(b > 4);
+  CheckTrue(c > 2.1);
+  CheckFalse(c > 3.01);
+  CheckFalse(c > 4);
 end;
 
 procedure OLCurrencyTest.GreaterEqualCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 3.0001;
+  c := 3.0001;
 
-  CheckFalse(b >= Null);
+  CheckFalse(c >= Null);
 
-  CheckTrue(b >= 2.1);
-  CheckTrue(b >= 3.0001);
-  CheckFalse(b >= 3.0002);
+  CheckTrue(c >= 2.1);
+  CheckTrue(c >= 3.0001);
+  CheckFalse(c >= 3.0002);
 
-  b := -3;
-  CheckFalse(b >= -2.9999);
+  c := -3;
+  CheckFalse(c >= -2.9999);
 end;
 
 procedure OLCurrencyTest.LessCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 3.1111;
+  c := 3.1111;
 
-  CheckFalse(b < 3.1111);
-  CheckTrue(b < 3.1112);
-  CheckTrue(b < 3.11111);
+  CheckFalse(c < 3.1111);
+  CheckTrue(c < 3.1112);
+  CheckTrue(c < 3.11111);
 end;
 
 procedure OLCurrencyTest.LessEqualCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 3.9999;
+  c := 3.9999;
 
-  CheckFalse(b <= 2.522);
-  CheckTrue(b <= 3.9999);
+  CheckFalse(c <= 2.522);
+  CheckTrue(c <= 3.9999);
 
-  b := -2.1234;
-  CheckTrue(b <= -2.1234);
+  c := -2.1234;
+  CheckTrue(c <= -2.1234);
 end;
 
 procedure OLCurrencyTest.NotEqualCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  CheckFalse(b <> Null);
+  CheckFalse(c <> Null);
 
-  b := 3.1234;
+  c := 3.1234;
 
-  CheckTrue(b <> Null);
+  CheckTrue(c <> Null);
 
-  CheckTrue(b <> -1.1);
-  CheckFalse(b <> 3.1234);
-  CheckTrue(b <> 3.12339);
+  CheckTrue(c <> -1.1);
+  CheckFalse(c <> 3.1234);
+  CheckTrue(c <> 3.12339);
 end;
 
 procedure OLCurrencyTest.SetCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  b := 1;
-  Check(b = 1);
+  c := 1;
+  Check(c = 1);
 
-  b := 0;
-  Check(b = 0);
+  c := 0;
+  Check(c = 0);
 
-  b := '-100';
-  Check(b = -100);
+  c := '-100';
+  Check(c = -100);
 
-  b := 1.12349;
-  Check(b = 1.1235);
+  c := 1.12349;
+  Check(c = 1.1235);
 end;
 
 procedure OLCurrencyTest.IsNullCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  Check(b.IsNull());
+  Check(c.IsNull());
 
-  b := 1.0001;
-  Check(b.IsNull() = False);
+  c := 1.0001;
+  Check(c.IsNull() = False);
 
-  b := Null;
-  Check(b.IsNull());
+  c := Null;
+  Check(c.IsNull());
 end;
 
 procedure OLCurrencyTest.ToStringCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  Check(b.ToString() = EmptyStr);
+  Check(c.ToString() = EmptyStr);
 
-  b := 123;
-  CheckEqualsString(CurrToStrF(123, ffCurrency, 2) , b.ToString());
+  c := 123;
+  CheckEqualsString(CurrToStrF(123, ffCurrency, 2) , c.ToString());
 
-  b := -100123;
-  CheckEqualsString(CurrToStrF(-100123, ffCurrency, 2), b.ToString());
+  c := -100123;
+  CheckEqualsString(CurrToStrF(-100123, ffCurrency, 2), c.ToString());
 end;
 
 procedure OLCurrencyTest.IfNullCurrency;
 var
-  b: OLCurrency;
+  c: OLCurrency;
 begin
-  Check(b.IfNull(1.1) = 1.1);
+  Check(c.IfNull(1.1) = 1.1);
 
-  b := -1.0001;
-  Check(b.IfNull(1) = -1.0001);
+  c := -1.0001;
+  Check(c.IfNull(1) = -1.0001);
 
-  b := null;
-  Check(b.IfNull(-5.22) = -5.22);
+  c := null;
+  Check(c.IfNull(-5.22) = -5.22);
 end;
 
 procedure OLDoubleTest.GreaterDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 3.011;
+  d := 3.011;
 
-  CheckFalse(b > Null);
+  CheckFalse(d > Null);
 
-  CheckTrue(b > 2.1);
-  CheckFalse(b > 3.011);
-  CheckFalse(b > 4.222);
+  CheckTrue(d > 2.1);
+  CheckFalse(d > 3.011);
+  CheckFalse(d > 4.222);
 end;
 
 procedure OLDoubleTest.GreaterEqualDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 3.011;
+  d := 3.011;
 
-  CheckFalse(b >= Null);
+  CheckFalse(d >= Null);
 
-  CheckTrue(b >= 2.1);
-  CheckTrue(b >= 3.011);
+  CheckTrue(d >= 2.1);
+  CheckTrue(d >= 3.011);
 
-  b := -3.011;
-  CheckFalse(b >= -2.222);
+  d := -3.011;
+  CheckFalse(d >= -2.222);
 end;
 
 procedure OLDoubleTest.LessDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 3.000003;
+  d := 3.000003;
 
-  CheckFalse(b < 3.000003);
-  CheckTrue(b < 3.1);
+  CheckFalse(d < 3.000003);
+  CheckTrue(d < 3.1);
 end;
 
 procedure OLDoubleTest.LessEqualDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 3.000003;
+  d := 3.000003;
 
-  CheckFalse(b <= 2.5);
-  CheckTrue(b <= 3.000003);
+  CheckFalse(d <= 2.5);
+  CheckTrue(d <= 3.000003);
 
-  b := -2.000003;
-  CheckTrue(b <= -2.000003);
+  d := -2.000003;
+  CheckTrue(d <= -2.000003);
 end;
 
 procedure OLDoubleTest.NotEqualDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  CheckFalse(b <> Null);
+  CheckFalse(d <> Null);
 
-  b := 3.000003;
+  d := 3.000003;
 
-  CheckTrue(b <> Null);
+  CheckTrue(d <> Null);
 
-  CheckTrue(b <> -1.1);
-  CheckFalse(b <> 3.000003);
+  CheckTrue(d <> -1.1);
+  CheckFalse(d <> 3.000003);
 end;
 
 procedure OLDoubleTest.SetDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
   s: string;
 begin
-  b := 1;
-  Check(b = 1);
+  d := 1;
+  Check(d = 1);
 
-  b := 0;
-  Check(b = 0);
+  d := 0;
+  Check(d = 0);
 
-  b := '-100';
-  Check(b = -100);
+  d := '-100';
+  Check(d = -100);
 
-  b := 1.000003;
-  Check(b = 1.000003);
+  d := 1.000003;
+  Check(d = 1.000003);
 
   s := SysUtils.FloatToStr(-100.000003);
 
-  b := s;
-  Check(b = -100.000003);
+  d := s;
+  Check(d = -100.000003);
 end;
 
 procedure OLDoubleTest.IsNullDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  Check(b.IsNull());
+  Check(d.IsNull());
 
-  b := 0.0001;
-  Check(b.IsNull() = False);
+  d := 0.0001;
+  Check(d.IsNull() = False);
 
-  b := Null;
-  Check(b.IsNull());
+  d := Null;
+  Check(d.IsNull());
 end;
 
 procedure OLDoubleTest.ToStringDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  b := 123.00111;
-  Check(FloatToStr(123.00111) = b.ToString());
-  Check(FloatToStrF(123.00111, ffFixed, 16, 3) = b.ToString(3));
+  d := 123.00111;
+  Check(FloatToStr(123.00111) = d.ToString());
+  Check(FloatToStrF(123.00111, ffFixed, 16, 3) = d.ToString(3));
 
-  b := -100123.0243;
-  Check(FloatToStr(-100123.0243) = b.ToString());
-  Check(FloatToStrF(-100123.0243, ffCurrency, 16, 2) = b.ToString(2, ffCurrency));
+  d := -100123.0243;
+  Check(FloatToStr(-100123.0243) = d.ToString());
+  Check(FloatToStrF(-100123.0243, ffCurrency, 16, 2) = d.ToString(2, ffCurrency));
 end;
 
 procedure OLDoubleTest.IfNullDouble;
 var
-  b: OLDouble;
+  d: OLDouble;
 begin
-  Check(b.IfNull(1.333) = 1.333);
+  Check(d.IfNull(1.333) = 1.333);
 
-  b := -1.222;
-  Check(b.IfNull(1) = -1.222);
+  d := -1.222;
+  Check(d.IfNull(1) = -1.222);
 
-  b := null;
-  Check(b.IfNull(-5.1) = -5.1);
+  d := null;
+  Check(d.IfNull(-5.1) = -5.1);
 end;
 
 procedure OLDateTest.EqualsDate;
 var
-  b, b2: OLDate;
-  d: TDate;
+  d, d2: OLDate;
+  dt: TDate;
 begin
-  CheckTrue(b = Null);
-
-  b := EncodeDate(2017,5,4);
-
-  CheckFalse(b = Null);
+  CheckTrue(d = Null);
 
   d := EncodeDate(2017,5,4);
 
-  CheckTrue(b = d);
-  CheckFalse(b = Now());
+  CheckFalse(d = Null);
 
-  b := EncodeDateTime(2016,1,10,10,10,10,100);
-  b2 := EncodeDate(2016,1,10);
-  Check(b = b2);
+  dt := EncodeDate(2017,5,4);
+
+  CheckTrue(d = dt);
+  CheckFalse(d = Now());
+
+  d := EncodeDateTime(2016,1,10,10,10,10,100);
+  d2 := EncodeDate(2016,1,10);
+  Check(d = d2);
 end;
 
 procedure OLDateTimeTest.EqualsDateTime;
 var
-  b: OLDateTime;
-  dt, dt2: TDateTime;
+  dt: OLDateTime;
+  dtt2, dtt3: TDateTime;
 begin
-  CheckTrue(b = Null);
-
-  b := EncodeDateTime(2017,5,4,21,41,50,950);
-
-  CheckFalse(b = Null);
+  CheckTrue(dt = Null);
 
   dt := EncodeDateTime(2017,5,4,21,41,50,950);
-  dt2 := Now();
 
-  CheckTrue(b = dt);
-  CheckFalse(b = dt2);
+  CheckFalse(dt = Null);
+
+  dtt2 := EncodeDateTime(2017,5,4,21,41,50,950);
+  dtt3 := Now();
+
+  CheckTrue(dt = dtt2);
+  CheckFalse(dt = dtt3);
 end;
 
 procedure OLDateTest.GreaterEqualDate;
 var
-  b: OLDate;
-  d, d2: TDate;
+  d: OLDate;
+  dt, dt2: TDate;
 begin
-  Check(b >= Null);
+  Check(d >= Null);
 
-  d := EncodeDate(2016,1,1);
-  b := EncodeDate(2017,1,1);
-  d2 := EncodeDate(2018,1,1);
+  dt := EncodeDate(2016,1,1);
+  d := EncodeDate(2017,1,1);
+  dt2 := EncodeDate(2018,1,1);
 
-  CheckFalse(b >= Null);
+  CheckFalse(d >= Null);
 
-  CheckTrue(b >= d);
-  CheckTrue(b >= b);
-  CheckFalse(b >= d2);
+  CheckTrue(d >= dt);
+  CheckTrue(d >= d);
+  CheckFalse(d >= dt2);
 end;
 
 procedure OLDateTimeTest.GreaterEqualDateTime;
 var
-  b: OLDateTime;
-  dt, dt2: TDateTime;
+  dt: OLDateTime;
+  dtt2, dtt3: TDateTime;
 begin
-  Check(b >= Null);
+  Check(dt >= Null);
 
+  dtt2 := Now();
+  sleep(10);
   dt := Now();
   sleep(10);
-  b := Now();
-  sleep(10);
-  dt2 := Now();
+  dtt3 := Now();
 
-  CheckFalse(b >= Null);
+  CheckFalse(dt >= Null);
 
-  CheckTrue(b >= dt);
-  CheckTrue(b >= b);
-  CheckFalse(b >= dt2);
+  CheckTrue(dt >= dtt2);
+  CheckTrue(dt >= dt);
+  CheckFalse(dt >= dtt3);
 end;
 
 procedure OLDateTest.GreaterDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
 begin
-  CheckFalse(b > Null);
+  CheckFalse(d > Null);
 
-  d := EncodeDate(2016,1,1);
-  b := EncodeDate(2017,1,1);
+  dt := EncodeDate(2016,1,1);
+  d := EncodeDate(2017,1,1);
 
-  CheckFalse(b > Null);
+  CheckFalse(d > Null);
 
-  CheckTrue(b > d);
-  CheckFalse(b > b);
+  CheckTrue(d > dt);
+  CheckFalse(d > d);
 end;
 
 procedure OLDateTimeTest.GreaterDateTime;
 var
-  b: OLDateTime;
-  dt: TDateTime;
+  dt: OLDateTime;
+  dtt: TDateTime;
 begin
-  CheckFalse(b > Null);
+  CheckFalse(dt > Null);
 
-  dt := Now();
+  dtt := Now();
   sleep(10);
-  b := Now();
+  dt := Now();
 
-  CheckFalse(b > Null);
+  CheckFalse(dt > Null);
 
-  CheckTrue(b > dt);
-  CheckFalse(b > b);
+  CheckTrue(dt > dtt);
+  CheckFalse(dt > dt);
 end;
 
 procedure OLDateTest.IsNullDate;
 var
-  b: OLDate;
+  dt: OLDate;
 begin
-  Check(b.IsNull());
+  Check(dt.IsNull());
 
-  b := Today();
-  Check(b.IsNull() = False);
+  dt := Today();
+  Check(dt.IsNull() = False);
 
-  b := Null;
-  Check(b.IsNull());
+  dt := Null;
+  Check(dt.IsNull());
 end;
 
 procedure OLDateTimeTest.IsNullDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  Check(b.IsNull());
+  Check(dt.IsNull());
 
-  b := Now();
-  Check(b.IsNull() = False);
+  dt := Now();
+  Check(dt.IsNull() = False);
 
-  b := Null;
-  Check(b.IsNull());
+  dt := Null;
+  Check(dt.IsNull());
 end;
 
 procedure OLDateTest.LessEqualDate;
 var
-  b: OLDateTime;
-  d, d2: TDateTime;
+  d: OLDateTime;
+  dt, dt2: TDateTime;
 begin
-  Check(b <= Null);
+  Check(d <= Null);
 
-  d := EncodeDate(2016,1,1);
-  b := EncodeDate(2017,1,1);
-  d2 := EncodeDate(2018,1,1);
+  dt := EncodeDate(2016,1,1);
+  d := EncodeDate(2017,1,1);
+  dt2 := EncodeDate(2018,1,1);
 
-  CheckFalse(b <= Null);
+  CheckFalse(d <= Null);
 
-  CheckTrue(b <= d2);
-  CheckTrue(b <= b);
-  CheckFalse(b <= d);
+  CheckTrue(d <= dt2);
+  CheckTrue(d <= d);
+  CheckFalse(d <= dt);
 end;
 
 procedure OLDateTimeTest.LessEqualDateTime;
 var
-  b: OLDateTime;
-  dt, dt2: TDateTime;
+  dt: OLDateTime;
+  dtt, dtt2: TDateTime;
 begin
-  Check(b <= Null);
+  Check(dt <= Null);
 
+  dtt := Now();
+  sleep(10);
   dt := Now();
   sleep(10);
-  b := Now();
-  sleep(10);
-  dt2 := Now();
+  dtt2 := Now();
 
-  CheckFalse(b <= Null);
+  CheckFalse(dt <= Null);
 
-  CheckTrue(b <= dt2);
-  CheckTrue(b <= b);
-  CheckFalse(b <= dt);
+  CheckTrue(dt <= dtt2);
+  CheckTrue(dt <= dt);
+  CheckFalse(dt <= dtt);
 end;
 
 procedure OLDateTest.LessDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
 begin
-  CheckFalse(b > Null);
+  CheckFalse(d > Null);
 
-  b := EncodeDate(2016,1,1);
-  d := EncodeDate(2017,1,1);
+  d := EncodeDate(2016,1,1);
+  dt := EncodeDate(2017,1,1);
 
-  CheckFalse(b > Null);
+  CheckFalse(d > Null);
 
-  CheckTrue(b < d);
-  CheckFalse(b < b);
+  CheckTrue(d < dt);
+  CheckFalse(d < d);
 end;
 
 procedure OLDateTimeTest.LessDateTime;
 var
-  b: OLDateTime;
-  dt: TDateTime;
+  dt: OLDateTime;
+  dtt: TDateTime;
 begin
-  CheckFalse(b > Null);
+  CheckFalse(dt > Null);
 
-  b := Now();
-  sleep(10);
   dt := Now();
+  sleep(10);
+  dtt := Now();
 
-  CheckFalse(b > Null);
+  CheckFalse(dt > Null);
 
-  CheckTrue(b < dt);
-  CheckFalse(b < b);
+  CheckTrue(dt < dtt);
+  CheckFalse(dt < dt);
 end;
 
 procedure OLDateTest.NotEqualDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
 begin
-  CheckFalse(b <> Null);
+  CheckFalse(d <> Null);
 
-  b := EncodeDate(2017,1,1);
-  d := EncodeDate(2016,1,1);
+  d := EncodeDate(2017,1,1);
+  dt := EncodeDate(2016,1,1);
 
-  CheckTrue(b <> Null);
+  CheckTrue(d <> Null);
 
-  CheckTrue(b <> d);
-  CheckFalse(b <> b);
+  CheckTrue(d <> dt);
+  CheckFalse(d <> d);
 end;
 
 procedure OLDateTimeTest.NotEqualDateTime;
 var
-  b: OLDateTime;
+  dt: OLDateTime;
 begin
-  CheckFalse(b <> Null);
+  CheckFalse(dt <> Null);
 
-  b := Now();
+  dt := Now();
 
-  CheckTrue(b <> Null);
+  CheckTrue(dt <> Null);
 
   sleep(10);
-  CheckTrue(b <> Now());
-  CheckFalse(b <> b);
+  CheckTrue(dt <> Now());
+  CheckFalse(dt <> dt);
 end;
 
 procedure OLDateTest.SetDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
   s: string;
 begin
-  d := Today();
+  dt := Today();
 
-  b := d;
-  Check(b = d);
+  d := dt;
+  Check(d = dt);
 
-  d := EncodeDate(2017,5,4);
-  b := d;
-  Check(b = d);
-  CheckFalse(b = Today());
+  dt := EncodeDate(2017,5,4);
+  d := dt;
+  Check(d = dt);
+  CheckFalse(d = Today());
 
-  d := EncodeDate(2017,5,8);
-  s := DateToStr(d);
-  b := s;
-  Check(b = d);
+  dt := EncodeDate(2017,5,8);
+  s := DateToStr(dt);
+  d := s;
+  Check(d = dt);
 
-  b := 47123.5;
-  Check(b = EncodeDate(2029,1,5));
+  d := 47123.5;
+  Check(d = EncodeDate(2029,1,5));
+
+  d := 'td'; //SmartStrToDate - Today
+  Check(d = Today());
+
+  d := 'yd'; //SmartStrToDate - Yesterday
+  Check(d = Yesterday());
+
+  d := '2017-05-19';
+  Check(d = EncodeDate(2017,5,19));
+
+  d := '2017.05.19';
+  Check(d = EncodeDate(2017,5,19));
+
+  d := '2017/05/19';
+  Check(d = EncodeDate(2017,5,19));
+
+  d := '620';
+  Check(d = EncodeDate(YearOf(Date()),6,20));
+
+  d := '11';
+  Check(d = EncodeDate(YearOf(Date()), MonthOf(Date()) ,11));
 end;
 
 procedure OLDateTimeTest.SetDateTime;
 var
-  b: OLDateTime;
-  dt: TDateTime;
+  dt: OLDateTime;
+  dtt: TDateTime;
   s: string;
 begin
-  dt := Now();
+  dtt := Now();
 
-  b := dt;
-  Check(b = dt);
+  dt := dtt;
+  Check(dt = dtt);
 
-  dt := EncodeDateTime(2017,5,4,21,58,23,0);
-  b := dt;
-  Check(b = dt);
-  CheckFalse(b = Now());
+  dtt := EncodeDateTime(2017,5,4,21,58,23,0);
+  dt := dtt;
+  Check(dt = dtt);
+  CheckFalse(dt = Now());
 
-  s := DateTimeToStr(dt);
-  b := s;
-  Check(b = dt);
+  s := DateTimeToStr(dtt);
+  dt := s;
+  Check(dt = dtt);
 
-  b := 47123.5;
-  Check(b = EncodeDateTime(2029,1,5,12,0,0,0));
+  dt := 47123.5;
+  Check(dt = EncodeDateTime(2029,1,5,12,0,0,0));
 end;
 
 procedure OLDateTest.ToStringDate;
 var
-  b: OLDate;
-  d: TDate;
+  d: OLDate;
+  dt: TDate;
   s: string;
 begin
-  Check(b.ToString() = '');
+  Check(d.ToString() = '');
 
-  d := Today();
+  dt := Today();
 
-  b := d;
-  Check(b.ToString() = DateToStr(d));
+  d := dt;
+  Check(d.ToString() = DateToStr(dt));
 end;
 
-procedure OLDateTimeTest.ToStringDateTime;
+procedure OLDateTimeTest.OutPut;
 var
-  b: OLDateTime;
-  dt: TDateTime;
+  dt: OLDateTime;
+  dtt: TDateTime;
   s: string;
 begin
-  Check(b.ToString() = '');
+  Check(dt.ToString() = '');
 
-  dt := Now();
+  dtt := Now();
 
-  b := dt;
-  Check(b.ToString() = DateTimeToStr(dt));
+  dt := dtt;
+  Check(dt.ToString() = DateTimeToStr(dtt));
 end;
 
 initialization

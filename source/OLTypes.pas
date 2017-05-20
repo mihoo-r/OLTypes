@@ -3,7 +3,7 @@ unit OLTypes;
 interface
 
 uses OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-  OLIntegerType, OLStringType;
+  OLIntegerType, OLStringType, SmartToDate;
 
 type
   OLBoolean = OLBooleanType.OLBoolean;
@@ -14,7 +14,6 @@ type
   OLDouble = OLDoubleType.OLDouble;
   OLInteger = OLIntegerType.OLInteger;
   OLString = OLStringType.OLString;
-  TDateTimeParts = OLDateTimeType.TDateTimeParts;
   TStringPatternFind = OLStringType.TStringPatternFind;
 
   TCaseSensitivity = OLStringType.TCaseSensitivity;
@@ -30,6 +29,30 @@ function OLType(d: System.TDate): OLDate; overload;
 function OLType(d: System.Double): OLDouble; overload;
 function OLType(i: System.Integer): OLInteger; overload;
 function OLType(s: System.string): OLString; overload;
+
+const
+  // today, yesterday, tomorow
+  ssTD = SmartToDate.ssTD;
+  ssTM = SmartToDate.ssTM;
+  ssYD = SmartToDate.ssYD;
+
+  // Start/End of the Month/Year
+  ssSY = SmartToDate.ssSY;
+  ssEY = SmartToDate.ssEY;
+  ssSM = SmartToDate.ssSM;
+  ssEM = SmartToDate.ssEM;
+
+  // Start/End of the Next Month/Year
+  ssSNY = SmartToDate.ssSNY;
+  ssENY = SmartToDate.ssENY;
+  ssSNM = SmartToDate.ssSNM;
+  ssENM = SmartToDate.ssENM;
+
+  // Start/End of the Prior Month/Year
+  ssSPY = SmartToDate.ssSPY;
+  ssEPY = SmartToDate.ssEPY;
+  ssSPM = SmartToDate.ssSPM;
+  ssEPM = SmartToDate.ssEPM;
 
 implementation
 

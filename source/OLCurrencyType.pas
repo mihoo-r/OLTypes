@@ -89,21 +89,21 @@ end;
 
 class operator OLCurrency.Implicit(a: Extended): OLCurrency;
 var
-  returnrec: OLCurrency;
+  OutPut: OLCurrency;
 begin
-  returnrec.Value := a;
-  returnrec.HasValue := true;
-  Result := returnrec;
+  OutPut.Value := a;
+  OutPut.HasValue := true;
+  Result := OutPut;
 end;
 
 class operator OLCurrency.Implicit(a: OLCurrency): Extended;
 var
-  myint: Extended;
+  OutPut: Extended;
 begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as integer value');
-  myint := a.Value;
-  Result := myint;
+  OutPut := a.Value;
+  Result := OutPut;
 end;
 
 
@@ -186,27 +186,27 @@ end;
 
 class operator OLCurrency.Implicit(a: OLCurrency): Double;
 var
-  mydbl: Double;
+  OutPut: Double;
 begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as Double value');
-  mydbl := a.Value;
-  Result := mydbl;
+  OutPut := a.Value;
+  Result := OutPut;
 end;
 
 class operator OLCurrency.Implicit(a: Variant): OLCurrency;
 var
-  returnrec: OLCurrency;
+  OutPut: OLCurrency;
   i: Currency;
 begin
   if VarIsNull(a) then
-    returnrec.HasValue := false
+    OutPut.HasValue := false
   else
   begin
     if TryStrToCurr(a, i) then
     begin
-      returnrec.Value := i;
-      returnrec.HasValue := true;
+      OutPut.Value := i;
+      OutPut.HasValue := true;
     end
     else
     begin
@@ -214,7 +214,7 @@ begin
     end;
   end;
 
-  Result := returnrec;
+  Result := OutPut;
 end;
 
 function OLCurrency.IsNull: OLBoolean;

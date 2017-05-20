@@ -4,7 +4,7 @@ interface
 
 uses
   variants, SysUtils, StrUtils, Types, Graphics, OLBooleanType, OLCurrencyType,
-  OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType;
+  OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType, SmartToDate;
 
 type
   TCaseSensitivity = (csCaseSensitive, csCaseInsensitive);
@@ -25,14 +25,10 @@ type
     procedure SetLine(Index: integer; const Value: OLString);
     function IBANCalculateDigits(iban: OLString): OLInteger;
     function IBANChangeAlpha(input: string): string;
-    procedure AlfaSmartToDate(s: string; var d: OLDate; var OutPut: OLBoolean); overload;
-    procedure AlfaSmartToDate(s: string; var d: TDate; var OutPut: OLBoolean); overload;
-    procedure DigitsSmartToDate(Digits: OLString; var OutPut: OLBoolean;
-      var d: TDate); overload;
-    procedure DigitsSmartToDate(Digits: OLString; var OutPut: OLBoolean;
-      var d: OLDate); overload;
     function GetValue: string;
     procedure SetValue(const Value: string);
+    function GetCSV(Index: integer): OLString;
+    procedure SetCSV(Index: integer; const Value: OLString);
     property HasValue: OLBoolean read GetHasValue write SetHasValue;
 
     function GetCharAtIndex(Index: integer): Char;
@@ -48,6 +44,7 @@ type
 
     function CSVFieldValue(FieldIndex: integer; Delimiter: Char = ';'): OLString;
     function CSVFieldCount(Delimiter: Char = ';'): OLInteger;
+    procedure SetCSVFieldValue(FieldIndex: integer; Value: OLString; Delimiter: Char = ';');
     function Length(): OLInteger;
 
     function ContainsStr(ASubString: OLString): OLBoolean;
@@ -179,6 +176,7 @@ type
     function LineIndexOf(s: string): OLInteger;
     procedure LoadFromFile(FileName: string);
     procedure SaveToFile(FileName: string);
+    function LineAdded(NewLine: string): OLString;
 
     procedure CopyToClipboard();
     procedure PasteFromClipboard();
@@ -207,12 +205,19 @@ type
 
     property Chars[Index: integer]: Char read GetCharAtIndex write SetCharAtIndex; default;
     property Lines[Index: integer]: OLString read GetLine write SetLine;
+    property CSV[Index: integer]: OLString read GetCSV write SetCSV;
   end;
 
 implementation
 
 uses
-  Classes, Clipbrd, WinInet, DateUtils, Math, EncdDecd, ZLib;
+  Classes, Clipbrd, WinInet, DateUtils, Math, EncdDecd,
+  {$if CompilerVersion > 22.0 }
+  System.ZLib;
+  {$ELSE}
+  Zlib;
+  {$IFEND}
+
 
 { OLString }
 
@@ -371,6 +376,11 @@ begin
     raise Exception.Create('Index greater then string length.');
 
   Result := Self.Value[Index];
+end;
+
+function OLString.GetCSV(Index: integer): OLString;
+begin
+  Result := Self.CSVFieldValue(Index);
 end;
 
 //http://www.scalabium.com/faq/dct0080.htm
@@ -681,6 +691,17 @@ begin
   end;
 end;
 
+function OLString.LineAdded(NewLine: string): OLString;
+var
+  sl: TStringList;
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.LineAdd(NewLine);
+
+  Result := OutPut;
+end;
+
 function OLString.LineCount: OLInteger;
 var
   OutPut: OLInteger;
@@ -920,6 +941,33 @@ begin
   Self.Val[Index] := Value;
 end;
 
+procedure OLString.SetCSV(Index: integer; const Value: OLString);
+begin
+  Self.SetCSVFieldValue(Index, Value);
+end;
+
+procedure OLString.SetCSVFieldValue(FieldIndex: integer; Value: OLString;
+  Delimiter: Char);
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create();
+  try
+    sl.Delimiter := Delimiter;
+    sl.StrictDelimiter := True;
+    sl.DelimitedText := Self.Value;
+
+    while sl.Count < FieldIndex + 1 do
+      sl.Add('');
+
+    sl[FieldIndex] := Value;
+
+    Self := sl.DelimitedText;
+  finally
+    sl.Free;
+  end;
+end;
+
 procedure OLString.SetHasValue(Value: OLBoolean);
 begin
   if Value then
@@ -946,6 +994,19 @@ procedure OLString.SetValue(const Value: string);
 begin
   Self.Val := Value;
   Self.TurnDefaultValueFlagOff();
+end;
+
+function OLString.SmartStrToDate: OLDate;
+var
+  OutPut: OLDate;
+begin
+  if Self.IsNull then
+    OutPut := Null
+  else
+    OutPut := SmartToDate.SmartStrToDate(Self);
+
+
+  Result := OutPut;
 end;
 
 function OLString.SpacesRemoved: OLString;
@@ -1210,15 +1271,6 @@ begin
   Result := Self.TrailingCharsAdded(' ', NewLength);
 end;
 
-procedure OLString.AlfaSmartToDate(s: string; var d: TDate;
-  var OutPut: OLBoolean);
-var
-  dat: OLDate;
-begin
-  AlfaSmartToDate(s, dat, OutPut);
-  if OutPut then
-    d := dat;
-end;
 
 //http://www.yanniel.info/2011/01/string-compress-decompress-delphi-zlib.html
 function OLString.Compressed: string;
@@ -1310,7 +1362,7 @@ end;
 function OLString.CSVFieldCount(Delimiter: Char): OLInteger;
 var
   sl: TStringList;
-  wynik: OLInteger;
+  OutPut: OLInteger;
 begin
   sl := TStringList.Create();
   try
@@ -1318,18 +1370,18 @@ begin
     sl.StrictDelimiter := True;
     sl.DelimitedText := Self.Value;
 
-    wynik := sl.Count;
+    OutPut := sl.Count;
   finally
     sl.Free;
   end;
 
-  Result := wynik;
+  Result := OutPut;
 end;
 
 function OLString.CSVFieldValue(FieldIndex: integer; Delimiter: Char): OLString;
 var
   sl: TStringList;
-  wynik: string;
+  OutPut: string;
 begin
   sl := TStringList.Create();
   try
@@ -1337,12 +1389,12 @@ begin
     sl.StrictDelimiter := True;
     sl.DelimitedText := Self.Value;
     if sl.Count > FieldIndex then
-      wynik := sl[FieldIndex];
+      OutPut := sl[FieldIndex];
   finally
     sl.Free;
   end;
 
-  Result := wynik;
+  Result := OutPut;
 end;
 
 
@@ -1425,16 +1477,6 @@ begin
   Result := OutPut;
 end;
 
-procedure OLString.DigitsSmartToDate(Digits: OLString; var OutPut: OLBoolean;
-  var d: OLDate);
-var
-  dat: TDate;
-begin
-  DigitsSmartToDate(Digits, OutPut, dat);
-  if OutPut then
-    d := dat;
-end;
-
 function OLString.RepeatedString(ACount: integer): OLString;
 var
   OutPut: OLString;
@@ -1509,160 +1551,7 @@ begin
   Result := (IBANCalculateDigits(Self) = 1);
 end;
 
-procedure OLString.AlfaSmartToDate(s: string; var d: OLDate; var OutPut: OLBoolean);
-begin
-  if (s = 't') or (s = 'td') then
-  begin
-    d := Date;
-    OutPut := true;
-  end;
-  if (s = 'y') or (s = 'yd') then
-  begin
-    d := IncDay(Date, -1);
-    OutPut := true;
-  end;
-  if s = 'tm' then
-  begin
-    d := IncDay(Date, 1);
-    OutPut := true;
-  end;
-  if s = 'ey' then
-  begin
-    d := EndOfTheYear(Date);
-    OutPut := true;
-  end;
-  if s = 'em' then
-  begin
-    d := EndOfTheMonth(Date);
-    OutPut := true;
-  end;
-  if s = 'by' then
-  begin
-    d := StartOfTheYear(Date);
-    OutPut := true;
-  end;
-  if s = 'bm' then
-  begin
-    d := StartOfTheMonth(Date);
-    OutPut := true;
-  end;
-  if s = 'eny' then
-  begin
-    d := EndOfTheYear(IncYear(Date, 1));
-    OutPut := true;
-  end;
-  if s = 'enm' then
-  begin
-    d := EndOfTheMonth(IncMonth(Date, 1));
-    OutPut := true;
-  end;
-  if s = 'bny' then
-  begin
-    d := StartOfTheYear(IncYear(Date, 1));
-    OutPut := true;
-  end;
-  if s = 'bnm' then
-  begin
-    d := StartOfTheMonth(IncMonth(Date, 1));
-    OutPut := true;
-  end;
-  if s = 'epy' then
-  begin
-    d := EndOfTheYear(IncYear(Date, -1));
-    OutPut := true;
-  end;
-  if s = 'epm' then
-  begin
-    d := EndOfTheMonth(IncMonth(Date, -1));
-    OutPut := true;
-  end;
-  if s = 'bpy' then
-  begin
-    d := StartOfTheYear(IncYear(Date, -1));
-    OutPut := true;
-  end;
-  if s = 'bpm' then
-  begin
-    d := StartOfTheMonth(IncMonth(Date, -1));
-    OutPut := true;
-  end;
-end;
 
-procedure OLString.DigitsSmartToDate(Digits: OLString; var OutPut: OLBoolean; var d: TDate);
-var
-  YearStr: OLString;
-  DayStr: OLString;
-  MonthStr: OLString;
-  day: Word;
-  y: Word;
-  m: Word;
-  dt: TDateTime;
-begin
-  DecodeDate(Date, y, m, day);
-  DayStr := Digits.RightStr(2);
-  if Digits.Length() > 2 then
-  begin
-    MonthStr := Digits.MidStr(Digits.Length() - 3, Min(2, Digits.Length() - 2));
-  end
-  else
-    MonthStr := IntToStr(m);
-  if Digits.Length() > 4 then
-  begin
-    YearStr := Digits.MidStr(Digits.Length() - 7, Min(4, Digits.Length() - 4));
-    if YearStr.Length() = 3 then
-      YearStr := '2' + YearStr;
-    if YearStr.Length() = 2 then
-      YearStr := '20' + YearStr;
-    if YearStr.Length() = 1 then
-      YearStr := '200' + YearStr;
-  end
-  else
-    YearStr := IntToStr(y);
-  OutPut := TryEncodeDate(YearStr.ToInt(), MonthStr.ToInt(), DayStr.ToInt(), dt);
-  if OutPut then
-    d := dt;
-end;
-
-//ISO 8601
-function OLString.TrySmartStrToDate(var d: TDate): OLBoolean;
-var
-  OutPut: OLBoolean;
-  Digits: string;
-  dt: TDateTime;
-begin
-  OutPut := TryStrToDate(Self, dt);
-
-  if OutPut then
-  begin
-    d := dt;
-  end
-  else
-  begin
-    Digits := Self.DigitsOnly();
-
-    if Digits <> EmptyStr then
-    begin
-      DigitsSmartToDate(Digits, OutPut, d);
-    end
-    else
-    begin
-      AlfaSmartToDate(Self, d, OutPut);
-    end;
-  end;
-
-
-  Result := OutPut;
-end;
-
-function OLString.SmartStrToDate(): OLDate;
-var
-  d: OLDate;
-begin
-  if not Self.TrySmartStrToDate(d) then
-    raise Exception.Create(Self.QuotedStr +'cannot be decoded as date.');
-
-  Result := d;
-end;
 
 class operator OLString.Implicit(a: OLString): Variant;
 var
@@ -1693,7 +1582,22 @@ var
   OutPut: OLBoolean;
   dat: TDate;
 begin
-  OutPut := TrySmartStrToDate(dat);
+  if Self.IsNull then
+    OutPut := Null
+  else
+    OutPut := SmartToDate.TrySmartStrToDate(Self, dat);
+
+  Result := OutPut;
+end;
+
+function OLString.TrySmartStrToDate(var d: TDate): OLBoolean;
+var
+  OutPut: OLBoolean;
+begin
+  if Self.IsNull then
+    OutPut := Null
+  else
+    OutPut := SmartToDate.TrySmartStrToDate(Self, d);
 
   Result := OutPut;
 end;

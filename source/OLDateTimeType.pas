@@ -6,20 +6,6 @@ uses
   Variants, SysUtils, DateUtils, OlBooleanType, OLIntegerType, OLDoubleType;
 
 type
-  TDateTimeParts = record
-  private
-    procedure SetDateTime(Value: TDateTime);
-    function GetDateTime(): TDateTime;
-  public
-    Year: Word;
-    Month: Word;
-    Day: Word;
-    Hour: Word;
-    Minute: Word;
-    Second: Word;
-    MilliSecond: Word;
-    property DateTime: TDateTime read GetDateTime Write SetDateTime;
-  end;
   OLDateTime = record
   private
     Value: TDateTime;
@@ -27,10 +13,39 @@ type
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(Value: OLBoolean);
-    function GetDateTimeParts: TDateTimeParts;
-    procedure SetDateTimeParts(const Value: TDateTimeParts);
+    function GetDay: OLInteger;
+    function GetHour: OLInteger;
+    function GetMilliSecond: OLInteger;
+    function GetMinute: OLInteger;
+    function GetMonth: OLInteger;
+    function GetSecond: OLInteger;
+    function GetYear: OLInteger;
+    procedure SetHour(const Value: OLInteger);
+    procedure SetMilliSecond(const Value: OLInteger);
+    procedure SetMinute(const Value: OLInteger);
+    procedure SetMonth(const Value: OLInteger);
+    procedure SetSecond(const Value: OLInteger);
+    procedure SetYear(const Value: OLInteger);
+    procedure SetDay(const Value: OLInteger);
     property HasValue: OLBoolean read GetHasValue write SetHasValue;
+
+    function YearOf(): OLInteger;
+    function MonthOf(): OLInteger;
+    function WeekOf(): OLInteger; { ISO 8601 }
+    function DayOf(): OLInteger;
+    function HourOf(): OLInteger;
+    function MinuteOf(): OLInteger;
+    function SecondOf(): OLInteger;
+    function MilliSecondOf(): OLInteger;
   public
+    property Year: OLInteger read GetYear write SetYear;
+    property Month: OLInteger read GetMonth write SetMonth;
+    property Day: OLInteger read GetDay write SetDay;
+    property Hour: OLInteger read GetHour write SetHour;
+    property Minute: OLInteger read GetMinute write SetMinute;
+    property Second: OLInteger read GetSecond write SetSecond;
+    property MilliSecond: OLInteger read GetMilliSecond write SetMilliSecond;
+
     function IsNull(): OLBoolean;
     function ToString(): string;
     function IfNull(b: OLDateTime): OLDateTime;
@@ -75,15 +90,6 @@ type
 
     function IsToday(): OLBoolean;
     function SameDay(const DateTimeToCompare: OLDateTime): OLBoolean;
-
-    function YearOf(): OLInteger;
-    function MonthOf(): OLInteger;
-    function WeekOf(): OLInteger; { ISO 8601 }
-    function DayOf(): OLInteger;
-    function HourOf(): OLInteger;
-    function MinuteOf(): OLInteger;
-    function SecondOf(): OLInteger;
-    function MilliSecondOf(): OLInteger;
 
     function StartOfTheYear(): OLDateTime;
     function EndOfTheYear(): OLDateTime;
@@ -180,8 +186,6 @@ type
     function RecodedMilliSecond(const AMilliSecond: Word): OLDateTime;
 
     function SameTime(const DateTimeToCompare: OLDateTime): OLBoolean;
-
-    property DateTimeParts: TDateTimeParts read GetDateTimeParts write SetDateTimeParts;
   end;
 
 implementation
@@ -327,18 +331,44 @@ begin
   Result := (a.HasValue and b.HasValue and (System.Abs(a.Value - b.Value) < 1.1574e-8)) or (a.IsNull() and b.IsNull());  //Less than a millisecond difference
 end;
 
-function OLDateTime.GetDateTimeParts: TDateTimeParts;
-var
-  OutPut: TDateTimeParts;
+function OLDateTime.GetDay: OLInteger;
 begin
-  OutPut.DateTime := Self;
-
-  Result := OutPut;
+  Result := Self.DayOf();
 end;
 
 function OLDateTime.GetHasValue: OLBoolean;
 begin
   Result := (NullFlag <> EmptyStr);
+end;
+
+function OLDateTime.GetHour: OLInteger;
+begin
+  Result := Self.HourOf();
+end;
+
+function OLDateTime.GetMilliSecond: OLInteger;
+begin
+  Result := Self.MilliSecondOf();
+end;
+
+function OLDateTime.GetMinute: OLInteger;
+begin
+  Result := Self.MinuteOf();
+end;
+
+function OLDateTime.GetMonth: OLInteger;
+begin
+  Result := Self.MonthOf();
+end;
+
+function OLDateTime.GetSecond: OLInteger;
+begin
+  Result := Self.SecondOf();
+end;
+
+function OLDateTime.GetYear: OLInteger;
+begin
+  Result := Self.YearOf();
 end;
 
 class function OLDateTime.SecondCount(StartingYear: Integer): OLInteger;
@@ -415,17 +445,17 @@ end;
 
 class operator OLDateTime.Implicit(a: Variant): OLDateTime;
 var
-  returnrec: OLDateTime;
+  OutPut: OLDateTime;
   b: TDateTime;
 begin
   if VarIsNull(a) then
-    returnrec.HasValue := false
+    OutPut.HasValue := false
   else
   begin
     if TryStrToDateTime(a, b) then
     begin
-      returnrec.Value := b;
-      returnrec.HasValue := True;
+      OutPut.Value := b;
+      OutPut.HasValue := True;
     end
     else
     begin
@@ -433,7 +463,7 @@ begin
     end;
   end;
 
-  Result := returnrec;
+  Result := OutPut;
 end;
 
 class operator OLDateTime.Implicit(a: OLDateTime): TDateTime;
@@ -445,11 +475,11 @@ end;
 
 class operator OLDateTime.Implicit(a: TDateTime): OLDateTime;
 var
-  returnrec: OLDateTime;
+  OutPut: OLDateTime;
 begin
-  returnrec.Value := a;
-  returnrec.HasValue := True;
-  Result := returnrec;
+  OutPut.Value := a;
+  OutPut.HasValue := True;
+  Result := OutPut;
 end;
 
 function OLDateTime.IsAM: OLBoolean;
@@ -673,9 +703,9 @@ begin
   Result := DateUtils.SecondSpan(Self, AThen);
 end;
 
-procedure OLDateTime.SetDateTimeParts(const Value: TDateTimeParts);
+procedure OLDateTime.SetDay(const Value: OLInteger);
 begin
-  Self := Value.DateTime;
+  Self := DateUtils.RecodeDay(Self, Value);
 end;
 
 procedure OLDateTime.SetEndOfAMonth(const AYear, AMonth: Word);
@@ -696,6 +726,26 @@ begin
     NullFlag := EmptyStr;
 end;
 
+procedure OLDateTime.SetHour(const Value: OLInteger);
+begin
+  Self := DateUtils.RecodeHour(Self, Value);
+end;
+
+procedure OLDateTime.SetMilliSecond(const Value: OLInteger);
+begin
+  Self := DateUtils.RecodeMilliSecond(Self, Value);
+end;
+
+procedure OLDateTime.SetMinute(const Value: OLInteger);
+begin
+  Self := DateUtils.RecodeMinute(Self, Value);
+end;
+
+procedure OLDateTime.SetMonth(const Value: OLInteger);
+begin
+  Self := DateUtils.RecodeMonth(Self, Value);
+end;
+
 procedure OLDateTime.SetNow;
 begin
   Self := SysUtils.Now();
@@ -704,6 +754,11 @@ end;
 procedure OLDateTime.SetFromSecondCount(Count: integer; StartingYear: Integer);
 begin
   Self := OLDateTime.DateTimeFromSecondCount(Count, StartingYear)
+end;
+
+procedure OLDateTime.SetSecond(const Value: OLInteger);
+begin
+  Self := DateUtils.RecodeSecond(Self, Value);
 end;
 
 procedure OLDateTime.SetStartOfAMonth(const AYear, AMonth: Word);
@@ -724,6 +779,11 @@ end;
 procedure OLDateTime.SetTomorrow;
 begin
   Self := OLDateTime.Tomorrow();
+end;
+
+procedure OLDateTime.SetYear(const Value: OLInteger);
+begin
+  Self := DateUtils.RecodeYear(Self, Value);
 end;
 
 procedure OLDateTime.SetYesterday;
@@ -851,14 +911,14 @@ end;
 
 class operator OLDateTime.Implicit(a: Extended): OLDateTime;
 var
-  returnrec: OLDateTime;
+  OutPut: OLDateTime;
   dt: TDateTime;
 begin
   dt := a;
 
-  returnrec.Value := dt;
-  returnrec.HasValue := True;
-  Result := returnrec;
+  OutPut.Value := dt;
+  OutPut.HasValue := True;
+  Result := OutPut;
 end;
 
 function OLDateTime.IncDay(const ANumberOfDays: Integer): OLDateTime;
@@ -918,32 +978,6 @@ end;
 class operator OLDateTime.Implicit(a: string): OLDateTime;
 begin
   Result := SysUtils.StrToDateTime(a);
-end;
-
-{ TDateTimeParts }
-
-function TDateTimeParts.GetDateTime: TDateTime;
-begin
-  Result := EncodeDateTime(
-    Self.Year,
-    Self.Month,
-    Self.Day,
-    Self.Hour,
-    Self.Minute,
-    Self.Second,
-    Self.MilliSecond);
-end;
-
-procedure TDateTimeParts.SetDateTime(Value: TDateTime);
-begin
-  DecodeDateTime(Value,
-    Self.Year,
-    Self.Month,
-    Self.Day,
-    Self.Hour,
-    Self.Minute,
-    Self.Second,
-    Self.MilliSecond);
 end;
 
 end.

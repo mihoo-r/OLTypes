@@ -3,16 +3,25 @@ unit OLDateType;
 interface
 
 uses
-  Variants, SysUtils, DateUtils, OlBooleanType, OLIntegerType, OLDoubleType, OLDateTimeType;
+  Variants, SysUtils, DateUtils, OlBooleanType, OLIntegerType, OLDoubleType, OLDateTimeType,
+  SmartToDate;
 
 type
   OLDate = record
   private
     Value: OLDateTime;
-    function GetDateTimeParts: TDateTimeParts;
-    procedure SetDateTimeParts(const Value: TDateTimeParts);
+    function GetDay: OLInteger;
+    function GetMonth: OLInteger;
+    function GetYear: OLInteger;
+    procedure SetDay(const Value: OLInteger);
+    procedure SetMonth(const Value: OLInteger);
+    procedure SetYear(const Value: OLInteger);
 
   public
+    property Year: OLInteger read GetYear write SetYear;
+    property Month: OLInteger read GetMonth write SetMonth;
+    property Day: OLInteger read GetDay write SetDay;
+
     function IsNull(): OLBoolean;
     function ToString(): string;
     function IfNull(b: OLDate): OLDate;
@@ -54,11 +63,6 @@ type
 
     function IsToday(): OLBoolean;
     function SameDay(const DateToCompare: OLDate): OLBoolean;
-
-    function YearOf(): OLInteger;
-    function MonthOf(): OLInteger;
-    function WeekOf(): OLInteger; { ISO 8601 }
-    function DayOf(): OLInteger;
 
     function StartOfTheYear(): OLDate;
     function EndOfTheYear(): OLDate;
@@ -105,8 +109,6 @@ type
     function RecodedYear(const AYear: Word): OLDate;
     function RecodedMonth(const AMonth: Word): OLDate;
     function RecodedDay(const ADay: Word): OLDate;
-
-    property DateTimeParts: TDateTimeParts read GetDateTimeParts write SetDateTimeParts;
   end;
 
 implementation
@@ -118,11 +120,6 @@ uses Math;
 class operator OLDate.Add(a: OLDate; b: integer): OLDate;
 begin
   Result := a.Value + b;
-end;
-
-function OLDate.DayOf: OLInteger;
-begin
-  Result := Self.Value.DayOf();
 end;
 
 function OLDate.DayOfTheWeek: OLInteger;
@@ -193,13 +190,19 @@ begin
   Result := (a.Value = b.Value);
 end;
 
-function OLDate.GetDateTimeParts: TDateTimeParts;
-var
-  OutPut: TDateTimeParts;
+function OLDate.GetDay: OLInteger;
 begin
-  OutPut.DateTime := Self;
+  Result := Self.Value.Day;
+end;
 
-  Result := OutPut;
+function OLDate.GetMonth: OLInteger;
+begin
+  Result := Self.Value.Month;
+end;
+
+function OLDate.GetYear: OLInteger;
+begin
+  Result := Self.Value.Year;
 end;
 
 class operator OLDate.GreaterThan(a, b: OLDate): OLBoolean;
@@ -231,17 +234,17 @@ end;
 
 class operator OLDate.Implicit(a: Extended): OLDate;
 var
-  dt: OLDateTime;
+  OutPut: OLDateTime;
 begin
-  dt := a;
-  dt := dt.DateOf;
+  OutPut := a;
+  OutPut := OutPut.DateOf;
 
-  Result.Value := dt;
+  Result.Value := OutPut;
 end;
 
 class operator OLDate.Implicit(a: string): OLDate;
 begin
-  Result := StrToDate(a);
+  Result := SmartStrToDate(a);
 end;
 
 class operator OLDate.Implicit(a: OLDateTime): OLDate;
@@ -256,16 +259,16 @@ end;
 
 class operator OLDate.Implicit(a: Variant): OLDate;
 var
-  returnrec: OLDate;
+  OutPut: OLDate;
   b: TDateTime;
 begin
   if VarIsNull(a) then
-    returnrec.Value := Null
+    OutPut.Value := Null
   else
   begin
     if TryStrToDate(a, b) then
     begin
-      returnrec.Value := b;
+      OutPut.Value := b;
     end
     else
     begin
@@ -273,7 +276,7 @@ begin
     end;
   end;
 
-  Result := returnrec;
+  Result := OutPut;
 end;
 
 class operator OLDate.Implicit(a: TDateTime): OLDate;
@@ -355,11 +358,6 @@ begin
   Result := (a.Value <= b.Value);
 end;
 
-function OLDate.MonthOf: OLInteger;
-begin
-  Result := Self.Value.MonthOf();
-end;
-
 function OLDate.MonthsBetween(const AThen: OLDate): OLInteger;
 begin
   Result := Self.Value.MonthsBetween(AThen);
@@ -395,9 +393,9 @@ begin
   Result := Self.Value.SameDay(DateToCompare);
 end;
 
-procedure OLDate.SetDateTimeParts(const Value: TDateTimeParts);
+procedure OLDate.SetDay(const Value: OLInteger);
 begin
-  Self := DateOf(Value.DateTime);
+  Self.Value.Day := Value;
 end;
 
 procedure OLDate.SetEndOfAMonth(const AYear, AMonth: Word);
@@ -422,6 +420,11 @@ begin
   dt := dt.DateOf();
 
   Self.Value := dt;
+end;
+
+procedure OLDate.SetMonth(const Value: OLInteger);
+begin
+  Self.Value.Month := Value;
 end;
 
 procedure OLDate.SetStartOfAMonth(const AYear, AMonth: Word);
@@ -456,6 +459,11 @@ end;
 procedure OLDate.SetTomorow;
 begin
   Self.Value := OLDateTime.Tomorrow().DateOf();
+end;
+
+procedure OLDate.SetYear(const Value: OLInteger);
+begin
+  Self.Value.Year := Value;
 end;
 
 procedure OLDate.SetYesterday;
@@ -515,11 +523,6 @@ begin
   Result := OutPut;
 end;
 
-function OLDate.WeekOf: OLInteger;
-begin
-  Result := Self.Value.WeekOf();
-end;
-
 function OLDate.WeeksBetween(const AThen: OLDate): OLInteger;
 begin
   Result := Self.Value.WeeksBetween(AThen);
@@ -533,11 +536,6 @@ end;
 function OLDate.WeekSpan(const AThen: OLDate): OLDouble;
 begin
   Result := Self.Value.WeekSpan(AThen);
-end;
-
-function OLDate.YearOf: OLInteger;
-begin
-  Result := Self.Value.YearOf();
 end;
 
 function OLDate.YearsBetween(const AThen: OLDate): OLInteger;

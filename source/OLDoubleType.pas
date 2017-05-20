@@ -106,21 +106,21 @@ end;
 
 class operator OLDouble.Implicit(a: Double): OLDouble;
 var
-  returnrec: OLDouble;
+  OutPut: OLDouble;
 begin
-  returnrec.Value := a;
-  returnrec.HasValue := true;
-  Result := returnrec;
+  OutPut.Value := a;
+  OutPut.HasValue := true;
+  Result := OutPut;
 end;
 
 class operator OLDouble.Implicit(a: OLDouble): Double;
 var
-  b: Double;
+  OutPut: Double;
 begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as double value');
-  b := a.Value;
-  Result := b;
+  OutPut := a.Value;
+  Result := OutPut;
 end;
 
 class operator OLDouble.Dec(a: OLDouble): OLDouble;
@@ -180,19 +180,18 @@ begin
 end;
 
 class operator OLDouble.Implicit(a: Variant): OLDouble;
-
 var
-  returnrec: OLDouble;
+  OutPut: OLDouble;
   f: Double;
 begin
   if VarIsNull(a) then
-    returnrec.HasValue := false
+    OutPut.HasValue := false
   else
   begin
     if TryStrToFloat(a, f) then
     begin
-      returnrec.Value := f;
-      returnrec.HasValue := true;
+      OutPut.Value := f;
+      OutPut.HasValue := true;
     end
     else
     begin
@@ -200,7 +199,7 @@ begin
     end;
   end;
 
-  Result := returnrec;
+  Result := OutPut;
 end;
 
 class operator OLDouble.Inc(a: OLDouble): OLDouble;
@@ -385,33 +384,33 @@ end;
 
 class operator OLDouble.Implicit(a: OLInteger): OLDouble;
 var
-  returnrec: OLDouble;
+  OutPut: OLDouble;
 begin
   if not a.IsNull then
   begin
-    returnrec.Value := integer(a);
-    returnrec.HasValue := true;
+    OutPut.Value := integer(a);
+    OutPut.HasValue := true;
   end;
-  Result := returnrec;
+  Result := OutPut;
 end;
 
 class operator OLDouble.Implicit(a: Extended): OLDouble;
 var
-  returnrec: OLDouble;
+  OutPut: OLDouble;
 begin
-  returnrec.Value := a;
-  returnrec.HasValue := true;
-  Result := returnrec;
+  OutPut.Value := a;
+  OutPut.HasValue := true;
+  Result := OutPut;
 end;
 
 class operator OLDouble.Implicit(a: OLDouble): Extended;
 var
-  b: Double;
+  OutPut: Double;
 begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as extended value');
-  b := a.Value;
-  Result := b;
+  OutPut := a.Value;
+  Result := OutPut;
 end;
 
 class operator OLDouble.Implicit(a: OLDouble): Variant;

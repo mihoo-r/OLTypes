@@ -54,6 +54,7 @@ type
     class operator Divide(a: Extended; b: OLInteger): Extended;
     class operator Divide(a: OLInteger; b: Extended): Extended;
     class operator Modulus(a, b: OLInteger): OLInteger;
+    class operator BitwiseXor(a, b: OLInteger): OLInteger;
 
     class operator Implicit(a: integer): OLInteger;
     class operator Implicit(a: OLInteger): integer;
@@ -118,23 +119,32 @@ begin
   Result := returnrec;
 end;
 
-class operator OLInteger.Implicit(a: integer): OLInteger;
+class operator OLInteger.BitwiseXor(a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  returnrec.Value := a;
-  returnrec.HasValue := true;
+  returnrec.Value := a.Value mod b.Value;
+  returnrec.HasValue := a.HasValue xor b.HasValue;
   Result := returnrec;
+end;
+
+class operator OLInteger.Implicit(a: integer): OLInteger;
+var
+  OutPut: OLInteger;
+begin
+  OutPut.Value := a;
+  OutPut.HasValue := true;
+  Result := OutPut;
 end;
 
 class operator OLInteger.Implicit(a: OLInteger): integer;
 var
-  myint: integer;
+  OutPut: integer;
 begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as integer value');
-  myint := a.Value;
-  Result := myint;
+  OutPut := a.Value;
+  Result := OutPut;
 end;
 
 class operator OLInteger.Dec(a: OLInteger): OLInteger;
@@ -241,27 +251,27 @@ end;
 
 class operator OLInteger.Implicit(a: OLInteger): Double;
 var
-  mydbl: Double;
+  OutPut: Double;
 begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as Double value');
-  mydbl := a.Value;
-  Result := mydbl;
+  OutPut := a.Value;
+  Result := OutPut;
 end;
 
 class operator OLInteger.Implicit(a: Variant): OLInteger;
 var
-  returnrec: OLInteger;
+  OutPut: OLInteger;
   i: integer;
 begin
   if VarIsNull(a) then
-    returnrec.HasValue := false
+    OutPut.HasValue := false
   else
   begin
     if TryStrToInt(a, i) then
     begin
-      returnrec.Value := i;
-      returnrec.HasValue := true;
+      OutPut.Value := i;
+      OutPut.HasValue := true;
     end
     else
     begin
@@ -269,7 +279,7 @@ begin
     end;
   end;
 
-  Result := returnrec;
+  Result := OutPut;
 end;
 
 class operator OLInteger.Inc(a: OLInteger): OLInteger;
@@ -319,7 +329,6 @@ begin
 end;
 
 class operator OLInteger.Modulus(a, b: OLInteger): OLInteger;
-
 var
   returnrec: OLInteger;
 begin

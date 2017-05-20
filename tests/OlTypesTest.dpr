@@ -26,9 +26,9 @@ uses
   OLDateType in '..\source\OLDateType.pas',
   OLDoubleType in '..\source\OLDoubleType.pas',
   OLIntegerType in '..\source\OLIntegerType.pas',
-  OLRaplaceTypes in '..\source\OLRaplaceTypes.pas',
   OLStringType in '..\source\OLStringType.pas',
-  OLTypes in '..\source\OLTypes.pas';
+  OLTypes in '..\source\OLTypes.pas',
+  SmartToDate in '..\source\SmartToDate.pas';
 
 {$R *.RES}
 
