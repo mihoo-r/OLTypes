@@ -13,7 +13,7 @@ OLTypes library is distributed under **[the MIT License](https://www.wikiwand.co
 
 * Download library and unpack it.
 * Add all units to your project or add path to source folder to your project's Search path (Menu Project->Options->Delphi Compiler->Search path->Browser for folder->Add->OK)
-* Add OLTypes or OLReplaceTypes to the uses section in your program
+* Add OLTypes to the uses section in your program
 
 When you add source folder to Library path  
 (Menu Tools->Options->Environment Options->Delphi Options->Library->Library path [...]->Browser for folder->Add->OK)  
