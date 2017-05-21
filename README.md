@@ -3,7 +3,7 @@
 ### What is this repository for? ###
 
 The repository holds OLTypes Delphi library.  
-The library enhances basic types with some useful methods and ability to keep Null values.  
+The library enhances basic types with some useful methods and ability to store Null values.  
 It was tested with Delphi 2010, Delphi XE and Delphi 10.1. It will not work in Delphi 2005 and below.
 
 ###Licence###
