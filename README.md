@@ -4,10 +4,10 @@
 
 The repository holds OLTypes Delphi library.  
 The library enhances basic types with some useful methods and ability to keep Null values.  
-It was tested with Delphi 2010 and Delphi XE. It will not work in Delphi 2005 and below.
+It was tested with Delphi 2010, Delphi XE and Delphi 10.1. It will not work in Delphi 2005 and below.
 
 ###Licence###
-OLTypes library is distributed under **the MIT License**.
+OLTypes library is distributed under **[the MIT License](https://www.wikiwand.com/en/MIT_License)**.
 
 ### How do I get set up? ###
 
@@ -29,6 +29,4 @@ Please write me when you
 * have a suggestion,
 * wrote an interesting modification.
 
-### Who do I talk to? ###
-
-* Repo owner and admin: **[rajewicz+olt@gmail.com](mailto:rajewicz+olt@gmail.com)**
+ Repo owner and admin: **[rajewicz+olt@gmail.com](mailto:rajewicz+olt@gmail.com)**
