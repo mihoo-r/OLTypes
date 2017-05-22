@@ -2225,7 +2225,6 @@ end;
 procedure OLStringTest.ReplaceString;
 var
   s: OLString;
-  i: OLInteger;
 begin
   s := 'My name is Bond. My name is James Bond.';
   s := s.Replaced('Bond', 'Bean');
@@ -2306,7 +2305,6 @@ procedure OLStringTest.SetString;
 var
   s: OLString;
   str: string;
-  str2: string;
 begin
   str := 'Hanna';
 
