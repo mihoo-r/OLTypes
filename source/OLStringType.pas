@@ -366,8 +366,6 @@ begin
 end;
 
 function OLString.GetCharAtIndex(Index: integer): Char;
-var
-  OutPut: Char;
 begin
   if not Self.HasValue then
     raise Exception.Create('Cannot get chars from null value.');
@@ -534,7 +532,6 @@ end;
 class operator OLString.Implicit(a: Variant): OLString;
 var
   OutPut: OLString;
-  s: string;
 begin
   if VarIsNull(a) then
   begin
@@ -693,7 +690,6 @@ end;
 
 function OLString.LineAdded(NewLine: string): OLString;
 var
-  sl: TStringList;
   OutPut: OLString;
 begin
   OutPut := Self;
@@ -1015,8 +1011,34 @@ begin
 end;
 
 function OLString.SplitString(const Delimiters: string): TStringDynArray;
+var
+  i, l: integer;
+  OutPut: TStringDynArray;
+  TempStr: string;
 begin
-  Result := StrUtils.SplitString(Self, Delimiters)
+  //Result := StrUtils.SplitString(Self, Delimiters)
+
+  for i := 1 to Self.Length do
+  begin
+    if System.Pos(Self[i], Delimiters) > 0 then
+    begin
+      l := System.Length(OutPut);
+      SetLength(OutPut, l + 1);
+      OutPut[l] := TempStr;
+      TempStr := EmptyStr;
+    end
+    else
+      TempStr := TempStr + Self[i];
+  end;
+
+  if TempStr <> EmptyStr then
+  begin
+    l := System.Length(OutPut);
+    SetLength(OutPut, l + 1);
+    OutPut[l] := TempStr;
+  end;
+
+  Result := OutPut;
 end;
 
 function OLString.StartsStr(const ASubString: string): OLBoolean;
