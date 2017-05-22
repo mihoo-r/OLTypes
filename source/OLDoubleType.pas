@@ -3,7 +3,7 @@ unit OLDoubleType;
 interface
 
 uses
-  variants, SysUtils, OLIntegerType, Math, OLBooleanType;
+  variants, SysUtils, Math, OLBooleanType;
 
 type
   OLDouble = record
@@ -56,7 +56,7 @@ type
     class operator Implicit(a: OLDouble): Double;
     class operator Implicit(a: Variant): OLDouble;
     class operator Implicit(a: OLDouble): Variant;
-    class operator Implicit(a: OLInteger): OLDouble;
+    class operator Implicit(a: Integer): OLDouble;
 
     class operator Implicit(a: Extended): OLDouble;
     class operator Implicit(a: OLDouble): Extended;
@@ -132,8 +132,11 @@ class operator OLDouble.Divide(a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
 begin
-  returnrec.Value := a.Value / b.Value;
   returnrec.HasValue := a.HasValue and b.HasValue;
+
+  if returnrec.HasValue then
+    returnrec.Value := a.Value / b.Value;
+
   Result := returnrec;
 end;
 
@@ -382,15 +385,12 @@ begin
   Result := OLDouble.Random(0, MaxValue);
 end;
 
-class operator OLDouble.Implicit(a: OLInteger): OLDouble;
+class operator OLDouble.Implicit(a: Integer): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if not a.IsNull then
-  begin
-    OutPut.Value := integer(a);
-    OutPut.HasValue := true;
-  end;
+  OutPut.Value := a;
+  OutPut.HasValue := true;
   Result := OutPut;
 end;
 

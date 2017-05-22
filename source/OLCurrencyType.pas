@@ -3,7 +3,7 @@ unit OLCurrencyType;
 interface
 
 uses
-  variants, SysUtils, OLIntegerType, OlBooleanType;
+  variants, SysUtils, OLIntegerType, OlBooleanType, OLDoubleType;
 
 type
   OLCurrency = record
@@ -32,9 +32,11 @@ type
     class operator Add(a, b: OLCurrency): OLCurrency;
     class operator Subtract(a, b: OLCurrency): OLCurrency;
     class operator Multiply(a, b: OLCurrency): OLCurrency;
-    class operator Divide(a, b: OLCurrency): Extended;
-    class operator Divide(a: Extended; b: OLCurrency): Extended;
-    class operator Divide(a: OLCurrency; b: Extended): Extended;
+    class operator Divide(a, b: OLCurrency): OLDouble;
+    class operator Divide(a: OLDouble; b: OLCurrency): OLDouble;
+    class operator Divide(a: OLCurrency; b: OLDouble): OLDouble;
+    class operator Divide(a: Extended; b: OLCurrency): OLDouble;
+    class operator Divide(a: OLCurrency; b: Extended): OLDouble;
     class operator Negative(a: OLCurrency): OLCurrency;
 
     class operator Implicit(a: Extended): OLCurrency;
@@ -107,20 +109,29 @@ begin
 end;
 
 
-class operator OLCurrency.Divide(a: Extended; b: OLCurrency): Extended;
+class operator OLCurrency.Divide(a: OLDouble; b: OLCurrency): OLDouble;
+var
+  OutPut: OLDouble;
 begin
-  if not b.HasValue then
-    raise Exception.Create('Cannot divide by null.');
+  if (a.IsNull()) or (not b.HasValue) then
+    OutPut := Null
+  else
+    OutPut := a / b.Value;
 
-  Result := a / b.Value;
+  Result := OutPut;
 end;
 
-class operator OLCurrency.Divide(a: OLCurrency; b: Extended): Extended;
+class operator OLCurrency.Divide(a: OLCurrency; b: OLDouble): OLDouble;
+var
+  OutPut: OLDouble;
 begin
-  if not a.HasValue then
-    raise Exception.Create('Null value cannot be divided.');
+  if (not a.HasValue) or (b.IsNull()) then
+    OutPut := Null
+  else
+    OutPut := a.Value / b;
 
-  Result := a.Value / b;
+
+  Result := OutPut;
 end;
 
 class operator OLCurrency.Equal(a: OLCurrency; b: Extended): OLBoolean;
@@ -128,15 +139,17 @@ begin
   Result := (System.Abs(a.Value - b) < 1e-10) and a.HasValue;
 end;
 
-class operator OLCurrency.Divide(a, b: OLCurrency): Extended;
+class operator OLCurrency.Divide(a, b: OLCurrency): OLDouble;
+var
+  OutPut: OLDouble;
 begin
-  if not a.HasValue then
-    raise Exception.Create('Null value cannot be divided.');
+  if (not a.HasValue) or (not b.HasValue) then
+    OutPut := Null
+  else
+    OutPut := a.Value / b.Value;
 
-  if not b.HasValue then
-    raise Exception.Create('Cannot be divided by null.');
 
-  Result := a.Value / b.Value;
+  Result := OutPut;
 end;
 
 
@@ -250,7 +263,6 @@ end;
 
 
 class operator OLCurrency.Multiply(a, b: OLCurrency): OLCurrency;
-
 var
   returnrec: OLCurrency;
 begin
@@ -292,8 +304,9 @@ function OLCurrency.Power(Exponent: integer): OLCurrency;
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := Math.IntPower(Value, Exponent);
-  returnrec.HasValue := HasValue;
+  returnrec.HasValue := self.HasValue;
+  if returnrec.HasValue then
+    returnrec.Value := Math.IntPower(Value, Exponent);
   Result := returnrec;
 end;
 
@@ -384,6 +397,31 @@ begin
   if not a.HasValue then
     raise Exception.Create('Null cannot be used as Currency value');
   OutPut := a.Value;
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Divide(a: Extended; b: OLCurrency): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if (not b.HasValue) then
+    OutPut := Null
+  else
+    OutPut := a / b.Value;
+
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Divide(a: OLCurrency; b: Extended): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if (not a.HasValue) then
+    OutPut := Null
+  else
+    OutPut := a.Value / b;
+
+
   Result := OutPut;
 end;
 

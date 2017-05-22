@@ -3,7 +3,7 @@ unit OLIntegerType;
 interface
 
 uses
-  variants, SysUtils, OLBooleanType;
+  variants, SysUtils, OLBooleanType, OLDoubleType;
 
 type
   OLInteger = record
@@ -50,9 +50,11 @@ type
     class operator Subtract(a, b: OLInteger): OLInteger;
     class operator Multiply(a, b: OLInteger): OLInteger;
     class operator IntDivide(a, b: OLInteger): OLInteger;
-    class operator Divide(a, b: OLInteger): Extended;
-    class operator Divide(a: Extended; b: OLInteger): Extended;
-    class operator Divide(a: OLInteger; b: Extended): Extended;
+    class operator Divide(a, b: OLInteger): OLDouble;
+    class operator Divide(a: Extended; b: OLInteger): OLDouble;
+    class operator Divide(a: OLInteger; b: Extended): OLDouble;
+    class operator Divide(a: OLDouble; b: OLInteger): OLDouble;
+    class operator Divide(a: OLInteger; b: OLDouble): OLDouble;
     class operator Modulus(a, b: OLInteger): OLInteger;
     class operator BitwiseXor(a, b: OLInteger): OLInteger;
 
@@ -61,6 +63,7 @@ type
     class operator Implicit(a: OLInteger): Double;
     class operator Implicit(a: Variant): OLInteger;
     class operator Implicit(a: OLInteger): Variant;
+    class operator Implicit(a: OLInteger): OLDouble;
 
     class operator Inc(a: OLInteger): OLInteger;
     class operator Dec(a: OLInteger): OLInteger;
@@ -123,8 +126,8 @@ class operator OLInteger.BitwiseXor(a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  returnrec.Value := a.Value mod b.Value;
-  returnrec.HasValue := a.HasValue xor b.HasValue;
+  returnrec.Value := a.Value xor b.Value;
+  returnrec.HasValue := a.HasValue and b.HasValue;
   Result := returnrec;
 end;
 
@@ -153,20 +156,28 @@ begin
   Result := a;
 end;
 
-class operator OLInteger.Divide(a: Extended; b: OLInteger): Extended;
+class operator OLInteger.Divide(a: Extended; b: OLInteger): OLDouble;
+var
+  OutPut: OLDouble;
 begin
   if not b.HasValue then
-    raise Exception.Create('Cannot divide by null.');
+    OutPut := Null
+  else
+    OutPut := a / b.Value;
 
-  Result := a / b.Value;
+  Result := OutPut;
 end;
 
-class operator OLInteger.Divide(a: OLInteger; b: Extended): Extended;
+class operator OLInteger.Divide(a: OLInteger; b: Extended): OLDouble;
+var
+  OutPut: OLDouble;
 begin
   if not a.HasValue then
-    raise Exception.Create('Null value cannot be divided.');
+    OutPut := Null
+  else
+    OutPut := a.Value / b;
 
-  Result := a.Value / b;
+  Result := OutPut;
 end;
 
 class operator OLInteger.Equal(a: OLInteger; b: Extended): OLBoolean;
@@ -174,15 +185,16 @@ begin
   Result := (a.Value = b) and a.HasValue;
 end;
 
-class operator OLInteger.Divide(a, b: OLInteger): Extended;
+class operator OLInteger.Divide(a, b: OLInteger): OLDouble;
+var
+  OutPut: OLDouble;
 begin
-  if not a.HasValue then
-    raise Exception.Create('Null value cannot be divided.');
+  if (not a.HasValue) or (not b.HasValue) then
+    OutPut := Null
+  else
+    OutPut := a.Value / b.Value;
 
-  if not b.HasValue then
-    raise Exception.Create('Cannot be divided by null.');
-
-  Result := a.Value / b.Value;
+  Result := OutPut;
 end;
 
 function OLInteger.IsDividableBy(i: integer): OLBoolean;
@@ -292,8 +304,11 @@ class operator OLInteger.IntDivide(a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  returnrec.Value := a.Value div b.Value;
   returnrec.HasValue := a.HasValue and b.HasValue;
+
+  if (returnrec.HasValue) then
+    returnrec.Value := a.Value div b.Value;
+
   Result := returnrec;
 end;
 
@@ -598,6 +613,42 @@ end;
 class operator OLInteger.LessThanOrEqual(a: OLInteger; b: Extended): OLBoolean;
 begin
   Result := (a.Value <= b) and a.HasValue;
+end;
+
+class operator OLInteger.Implicit(a: OLInteger): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if a.HasValue then
+    OutPut := a.Value
+  else
+    OutPut := Null;
+
+  Result := OutPut;
+end;
+
+class operator OLInteger.Divide(a: OLDouble; b: OLInteger): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if (a.IsNull()) or (not b.HasValue) then
+    OutPut := Null
+  else
+    OutPut := a / b.Value;
+
+  Result := OutPut;
+end;
+
+class operator OLInteger.Divide(a: OLInteger; b: OLDouble): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if (not a.HasValue) or (b.IsNull) then
+    OutPut := Null
+  else
+    OutPut := a.Value / b;
+
+  Result := OutPut;
 end;
 
 initialization

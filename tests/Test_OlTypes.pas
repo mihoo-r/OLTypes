@@ -16,8 +16,6 @@ uses
         Messages, OLTypes;
 
 type
-        // Test methods for class TMock
-
   OLBooleanTest = class(TTestCase)
   published
     procedure SetBoolean;
@@ -900,8 +898,17 @@ end;
 
 procedure OLCurrencyTest.MathOperatorsCurrency;
 var
-  c: OLCurrency;
+  c, c2: OLCurrency;
 begin
+  c := 4 / 5;
+  Check(c = 0.8);
+
+  c := 4.5 / 2.25;
+  Check(c = 2);
+
+  c := 4.5 / 2;
+  Check(c = 2.25);
+
   c := 1.10;
 
   c := c + 1.25;
@@ -919,6 +926,35 @@ begin
 
   c := -c;
   Check(c = -5.55);
+
+  c := 4;
+  Check(3 / c = 0.75);
+  Check(8.88 / c = 2.22);
+
+  c := Null;
+  Check(c / 4 = Null);
+  Check(c / 1.11 = Null);
+  Check(3 / c = Null);
+  Check(8.88 / c = Null);
+
+  Check(c * 4 = Null);
+  Check(8.88 * c = Null);
+
+
+  Check(c2 / c = Null);
+  Check(c2 * c = Null);
+  c2 := 5.5;
+  Check(c2 / c = Null);
+  Check(c / c2 = Null);
+
+  Check(c * c2 = Null);
+  Check(c2 * c = Null);
+
+  Check(c + 2.2 = Null);
+  Check(3.3 + c = Null);
+
+  Check(c - 2.2 = Null);
+  Check(3.3 - c = Null);
 end;
 
 procedure OLDateTest.MathOperatorsDate;
@@ -955,8 +991,20 @@ end;
 
 procedure OLDoubleTest.MathOperatorsDouble;
 var
-  d: OLDouble;
+  d, d2: OLDouble;
+  i: OLInteger;
 begin
+  d := i;
+
+  d := 4 / 5;
+  Check(d = 0.8);
+
+  d := 4.5 / 2.25;
+  Check(d = 2);
+
+  d := 4.5 / 2;
+  Check(d = 2.25);
+
   d := 1.10;
 
   d := d + 1.25;
@@ -974,11 +1022,41 @@ begin
 
   d := -d;
   Check(d = -5.55);
+
+  d := 4;
+  Check(3 / d = 0.75);
+  Check(8.88 / d = 2.22);
+
+  d := Null;
+  Check(d / 4 = Null);
+  Check(d / 1.11 = Null);
+  Check(3 / d = Null);
+  Check(8.88 / d = Null);
+
+  Check(d * 4 = Null);
+  Check(8.88 * d = Null);
+
+
+  Check(d2 / d = Null);
+  Check(d2 * d = Null);
+  d2 := 5.5;
+  Check(d2 / d = Null);
+  Check(d / d2 = Null);
+
+  Check(d * d2 = Null);
+  Check(d2 * d = Null);
+
+  Check(d + 2.2 = Null);
+  Check(3.3 + d = Null);
+
+  Check(d - 2.2 = Null);
+  Check(3.3 - d = Null);
 end;
 
 procedure OLIntegerTest.MathOperatorsInteger;
 var
   i: OLInteger;
+  d: OLDouble;
 begin
   i := 1;
 
@@ -1011,6 +1089,24 @@ begin
 
   i := -i;
   Check(i = -7);
+
+
+  //When divident or divisor or both are null then all division results null
+  //d is null
+  Check(d / i = Null);
+  Check(i / d = Null);
+  Check(10 / d = Null);
+
+  //both null
+  i := Null;
+  Check(d / i = Null);
+  Check(i / d = Null);
+
+  //i stays null
+  d := 15.5;
+  Check(d / i = Null);
+  Check(10.1 / i = Null);
+  Check(i / d = Null);
 end;
 
 procedure OLStringTest.MatchString;
@@ -1145,6 +1241,9 @@ begin
   c := 0.5;
   Check(c.Power(0) = 1);
   Check(c.Power(-1) = 2);
+
+  c := null;
+  Check(c.Power(2) = null);
 end;
 
 procedure OLDoubleTest.PowerDouble;
@@ -2720,6 +2819,7 @@ end;
 procedure OLDoubleTest.EqualsDouble;
 var
   d: OLDouble;
+  i: OLInteger;
 begin
   CheckTrue(d = Null);
 
@@ -2735,6 +2835,10 @@ begin
 
   d := -1.11115;
   Check(d = -1.11115);
+
+  i := 3;
+  d := i;
+  Check(d = 3);
 
   d := 0;
   Check(d = 0);
