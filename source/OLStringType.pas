@@ -13,11 +13,19 @@ type
     Position: integer;
   end;
 
+  OLStringParamPair = record
+    ParamName: string;
+    ParamValue: string;
+  end;
+
   OLString = record
   private
     Val: string;
     NullFlag: string;
     DefaultValueFlag: string;
+
+    ValBeforeParams: string;
+    Parameters: array of OLStringParamPair;
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(Value: OLBoolean);
@@ -29,6 +37,12 @@ type
     procedure SetValue(const Value: string);
     function GetCSV(Index: integer): OLString;
     procedure SetCSV(Index: integer; const Value: OLString);
+    function ParamIndex(ParamName: string): OLInteger;
+    procedure AppendParam(ParamName: string; ParamValue: OLString);
+    procedure UpdateParam(ParamIndex: integer; ParamValue: OLString);
+    procedure ApplyParams;
+    function GetParam(ParamName: string): OLString;
+    procedure SetParam(ParamName: string; const Value: OLString);
     property HasValue: OLBoolean read GetHasValue write SetHasValue;
 
     function GetCharAtIndex(Index: integer): Char;
@@ -206,6 +220,7 @@ type
     property Chars[Index: integer]: Char read GetCharAtIndex write SetCharAtIndex; default;
     property Lines[Index: integer]: OLString read GetLine write SetLine;
     property CSV[Index: integer]: OLString read GetCSV write SetCSV;
+    property Params[ParamName: string]: OLString read GetParam write SetParam;
   end;
 
 implementation
@@ -453,6 +468,25 @@ begin
     OutPut := 1
   else
     OutPut := OccurrencesPosition(sLineBreak, Index) + LineBreak.Length();
+
+  Result := OutPut;
+end;
+
+function OLString.GetParam(ParamName: string): OLString;
+var
+  i: integer;
+  OutPut: OLString;
+begin
+  OutPut := Null;
+
+  for i := 0 to System.Length(Parameters) - 1 do
+  begin
+    if Parameters[i].ParamName = ParamName then
+    begin
+      OutPut := Parameters[i].ParamValue;
+      Break;
+    end;
+  end;
 
   Result := OutPut;
 end;
@@ -979,12 +1013,80 @@ begin
   sl := TStringList.Create();
   try
     sl.Text := Self;
+
+    while sl.Count <= Index do
+      sl.Add('');
+
     sl[Index] := Value;
     Self := sl.Text;
   finally
     sl.Free();
   end;
 end;
+
+procedure OLString.SetParam(ParamName: string; const Value: OLString);
+var
+  ParIdx: OLInteger;
+begin
+  if ValBeforeParams = '' then
+    ValBeforeParams := Val;
+
+  ParIdx := ParamIndex(ParamName);
+  if ParIdx.IsNull() then
+    AppendParam(ParamName, Value)
+  else
+    UpdateParam(ParIdx, Value);
+
+  ApplyParams();
+end;
+
+function OLString.ParamIndex(ParamName: string): OLInteger;
+var
+  i: integer;
+  output: OLInteger;
+begin
+  for i := 0 to System.Length(Self.Parameters) - 1 do
+  begin
+    if Self.Parameters[i].ParamName = ParamName then
+    begin
+      output := i;
+      Break;
+    end;
+  end;
+
+  Result := output;
+end;
+
+procedure OLString.AppendParam(ParamName: string; ParamValue: OLString);
+var
+  cnt: Integer;
+begin
+  cnt := System.Length(Self.Parameters);
+
+  SetLength(Self.Parameters, cnt + 1);
+
+  Self.Parameters[cnt].ParamName := ParamName;
+  Self.Parameters[cnt].ParamValue := ParamValue;
+end;
+
+
+procedure OLString.UpdateParam(ParamIndex: integer; ParamValue: OLString);
+begin
+  Self.Parameters[ParamIndex].ParamValue := ParamValue;
+end;
+
+procedure OLString.ApplyParams();
+var
+  i: integer;
+begin
+  Self.Val := ValBeforeParams;
+
+  for i := 0 to System.Length(Self.Parameters) - 1 do
+  begin
+    Self.Val := Self.Replaced(':' + Self.Parameters[i].ParamName, Self.Parameters[i].ParamValue)
+  end;
+end;
+
 
 procedure OLString.SetValue(const Value: string);
 begin

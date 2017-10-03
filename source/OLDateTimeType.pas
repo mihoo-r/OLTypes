@@ -186,6 +186,9 @@ type
     function RecodedMilliSecond(const AMilliSecond: Word): OLDateTime;
 
     function SameTime(const DateTimeToCompare: OLDateTime): OLBoolean;
+
+    function LongDayName(): string;
+    function ShordDayName(): string;
   end;
 
 implementation
@@ -523,6 +526,11 @@ begin
   Result := ((a.Value <= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
 end;
 
+function OLDateTime.LongDayName: string;
+begin
+  Result := LongDayNames[DayOfWeek(Self.Value)];
+end;
+
 function OLDateTime.MilliSecondOf: OLInteger;
 begin
   Result := DateUtils.MilliSecondOf(Self);
@@ -789,6 +797,11 @@ end;
 procedure OLDateTime.SetYesterday;
 begin
   Self := OLDateTime.Yesterday();
+end;
+
+function OLDateTime.ShordDayName: string;
+begin
+  Result := ShortDayNames[DayOfWeek(Self.Value)];
 end;
 
 class function OLDateTime.StartOfAMonth(const AYear, AMonth: Word): OLDateTime;

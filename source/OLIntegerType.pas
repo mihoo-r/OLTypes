@@ -31,6 +31,7 @@ type
     function ToString(): string;
     function IfNull(i: OLInteger): OLInteger;
     function Round(Digits: OLInteger): OLInteger;
+    function Between(BottomIncluded, TopIncluded: OLInteger): OLBoolean;
 
     procedure ForLoop(InitialValue: integer; ToValue: integer; Proc: TProc);
     function IsPrime(): OLBoolean;
@@ -120,6 +121,11 @@ begin
   returnrec.Value := a.Value + b.Value;
   returnrec.HasValue := a.HasValue and b.HasValue;
   Result := returnrec;
+end;
+
+function OLInteger.Between(BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+begin
+  Result := (Value <= TopIncluded) and (Value >= BottomIncluded);
 end;
 
 class operator OLInteger.BitwiseXor(a, b: OLInteger): OLInteger;

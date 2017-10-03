@@ -109,6 +109,9 @@ type
     function RecodedYear(const AYear: Word): OLDate;
     function RecodedMonth(const AMonth: Word): OLDate;
     function RecodedDay(const ADay: Word): OLDate;
+
+    function LongDayName(): string;
+    function ShordDayName(): string;
   end;
 
 implementation
@@ -266,7 +269,7 @@ begin
     OutPut.Value := Null
   else
   begin
-    if TryStrToDate(a, b) then
+    if TryStrToDateTime(a, b) then
     begin
       OutPut.Value := b;
     end
@@ -356,6 +359,11 @@ end;
 class operator OLDate.LessThanOrEqual(a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value <= b.Value);
+end;
+
+function OLDate.LongDayName: string;
+begin
+  Result := Self.Value.LongDayName();
 end;
 
 function OLDate.MonthsBetween(const AThen: OLDate): OLInteger;
@@ -469,6 +477,11 @@ end;
 procedure OLDate.SetYesterday;
 begin
   Self.Value := OLDateTime.Yesterday().DateOf();
+end;
+
+function OLDate.ShordDayName: string;
+begin
+  Result := Self.Value.ShordDayName();
 end;
 
 class function OLDate.StartOfAMonth(const AYear, AMonth: Word): OLDate;
