@@ -188,7 +188,7 @@ type
     function SameTime(const DateTimeToCompare: OLDateTime): OLBoolean;
 
     function LongDayName(): string;
-    function ShordDayName(): string;
+    function ShortDayName(): string;
   end;
 
 implementation
@@ -799,7 +799,7 @@ begin
   Self := OLDateTime.Yesterday();
 end;
 
-function OLDateTime.ShordDayName: string;
+function OLDateTime.ShortDayName: string;
 begin
   Result := ShortDayNames[DayOfWeek(Self.Value)];
 end;

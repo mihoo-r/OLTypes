@@ -333,17 +333,30 @@ end;
 function OLString.FindPattern(InFront, Behind: OLString; StartingPosition: integer; CaseSensitivity: TCaseSensitivity): TStringPatternFind;
 var
   OutPut: TStringPatternFind;
+  InFrontStart: integer;
   start, stop: integer;
+  SearchIn: OLString;
 begin
   if CaseSensitivity = csCaseInsensitive then
   begin
-    start := Self.UpperCase().PosEx(InFront.UpperCase(), StartingPosition) + InFront.Length();
-    stop := Self.UpperCase().PosEx(Behind.UpperCase(), start);
+    SearchIn := Self.UpperCase();
+    InFront := InFront.UpperCase();
+    Behind := Behind.UpperCase();
+  end
+  else
+    SearchIn := Self;
+
+  InFrontStart := SearchIn.PosEx(InFront, StartingPosition);
+
+  if InFrontStart > 0 then
+  begin
+    start := InFrontStart + InFront.Length();
+    stop := SearchIn.PosEx(Behind, start);
   end
   else
   begin
-    start := Self.PosEx(InFront, StartingPosition) + InFront.Length();
-    stop := Self.PosEx(Behind, start);
+    start := 0;
+    stop := 0;
   end;
 
   OutPut.Value := Self.MidStr(start, stop - start);
@@ -356,19 +369,36 @@ function OLString.FindPattern(Tag: OLString; StartingPosition: integer; CaseSens
 var
   NewStartingPosition: integer;
   TagStart: OLString;
+  SearchIn: OLString;
+  TagStartPosition: OLInteger;
+  OutPut: TStringPatternFind;
 begin
-  TagStart := '<' + Tag;
-
   if CaseSensitivity = csCaseInsensitive then
   begin
-    NewStartingPosition := Self.UpperCase().PosEx(TagStart.UpperCase(), StartingPosition) + TagStart.Length();
+    SearchIn := Self.UpperCase();
+    Tag := Tag.UpperCase();
   end
   else
   begin
-    NewStartingPosition := Self.PosEx(TagStart, StartingPosition) + TagStart.Length();
+    SearchIn := Self;
   end;
 
-  Result := Self.FindPattern('>', '</' + Tag, NewStartingPosition, CaseSensitivity);
+  TagStart := '<' + Tag;
+
+  TagStartPosition := SearchIn.PosEx(TagStart, StartingPosition);
+
+  if TagStartPosition > 0 then
+  begin
+    NewStartingPosition := TagStartPosition + TagStart.Length();
+    OutPut := Self.FindPattern('>', '</' + Tag, NewStartingPosition, CaseSensitivity);
+  end
+  else
+  begin
+    OutPut.Value := '';
+    OutPut.Position := 0;
+  end;
+
+  Result := OutPut;
 end;
 
 function OLString.Formated(const Data: array of const ): OLString;

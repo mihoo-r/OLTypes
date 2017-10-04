@@ -111,7 +111,7 @@ type
     function RecodedDay(const ADay: Word): OLDate;
 
     function LongDayName(): string;
-    function ShordDayName(): string;
+    function ShortDayName(): string;
   end;
 
 implementation
@@ -479,7 +479,7 @@ begin
   Self.Value := OLDateTime.Yesterday().DateOf();
 end;
 
-function OLDate.ShordDayName: string;
+function OLDate.ShortDayName: string;
 begin
   Result := Self.Value.ShordDayName();
 end;
