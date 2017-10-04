@@ -481,7 +481,7 @@ end;
 
 function OLDate.ShortDayName: string;
 begin
-  Result := Self.Value.ShordDayName();
+  Result := Self.Value.ShortDayName();
 end;
 
 class function OLDate.StartOfAMonth(const AYear, AMonth: Word): OLDate;
