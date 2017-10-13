@@ -189,6 +189,9 @@ type
 
     function LongDayName(): string;
     function ShortDayName(): string;
+
+    function Max(CompareDate: OLDateTime): OLDateTime;
+    function Min(CompareDate: OLDateTime): OLDateTime;
   end;
 
 implementation
@@ -531,6 +534,23 @@ begin
   Result := LongDayNames[DayOfWeek(Self.Value)];
 end;
 
+function OLDateTime.Max(CompareDate: OLDateTime): OLDateTime;
+var
+  OutPut: OLDateTime;
+begin
+  if Self.HasValue and CompareDate.HasValue then
+  begin
+    if Self.Value > CompareDate.Value then
+      OutPut := Self
+    else
+      OutPut := CompareDate;
+  end
+  else
+    OutPut := Null;
+
+  Result := OutPut;
+end;
+
 function OLDateTime.MilliSecondOf: OLInteger;
 begin
   Result := DateUtils.MilliSecondOf(Self);
@@ -574,6 +594,23 @@ end;
 function OLDateTime.MilliSecondSpan(const AThen: OLDateTime): OLDouble;
 begin
   Result := DateUtils.MilliSecondSpan(Self, AThen);
+end;
+
+function OLDateTime.Min(CompareDate: OLDateTime): OLDateTime;
+var
+  OutPut: OLDateTime;
+begin
+  if Self.HasValue and CompareDate.HasValue then
+  begin
+    if Self.Value < CompareDate.Value then
+      OutPut := Self
+    else
+      OutPut := CompareDate;
+  end
+  else
+    OutPut := Null;
+
+  Result := OutPut;
 end;
 
 function OLDateTime.MinuteOf: OLInteger;

@@ -112,6 +112,9 @@ type
 
     function LongDayName(): string;
     function ShortDayName(): string;
+
+    function Max(CompareDate: OLDate): OLDate;
+    function Min(CompareDate: OLDate): OLDate;
   end;
 
 implementation
@@ -364,6 +367,16 @@ end;
 function OLDate.LongDayName: string;
 begin
   Result := Self.Value.LongDayName();
+end;
+
+function OLDate.Max(CompareDate: OLDate): OLDate;
+begin
+  Result := Self.Value.Max(CompareDate);
+end;
+
+function OLDate.Min(CompareDate: OLDate): OLDate;
+begin
+  Result := Self.Value.Min(CompareDate);
 end;
 
 function OLDate.MonthsBetween(const AThen: OLDate): OLInteger;

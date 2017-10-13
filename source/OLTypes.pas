@@ -3,7 +3,7 @@ unit OLTypes;
 interface
 
 uses OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-  OLIntegerType, OLStringType, SmartToDate;
+  OLIntegerType, OLInt64Type, OLStringType, SmartToDate;
 
 type
   OLBoolean = OLBooleanType.OLBoolean;
@@ -13,6 +13,7 @@ type
   OLDate = OLDateType.OLDate;
   OLDouble = OLDoubleType.OLDouble;
   OLInteger = OLIntegerType.OLInteger;
+  OLInt64 = OLInt64Type.OLInt64;
   OLString = OLStringType.OLString;
   TStringPatternFind = OLStringType.TStringPatternFind;
 
@@ -28,6 +29,7 @@ function OLType(d: System.TDateTime): OLDateTime; overload;
 function OLType(d: System.TDate): OLDate; overload;
 function OLType(d: System.Double): OLDouble; overload;
 function OLType(i: System.Integer): OLInteger; overload;
+function OLType(i: System.Int64): OLInt64; overload;
 function OLType(s: System.string): OLString; overload;
 
 const
@@ -82,6 +84,11 @@ begin
 end;
 
 function OLType(i: System.Integer): OLInteger;
+begin
+  Result := i;
+end;
+
+function OLType(i: System.Int64): OLInt64;
 begin
   Result := i;
 end;
