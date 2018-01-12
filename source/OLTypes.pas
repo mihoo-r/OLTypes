@@ -28,6 +28,7 @@ function OLType(c: System.Currency): OLCurrency; overload;
 function OLType(d: System.TDateTime): OLDateTime; overload;
 function OLType(d: System.TDate): OLDate; overload;
 function OLType(d: System.Double): OLDouble; overload;
+function OLType(d: System.Extended): OLDouble; overload;
 function OLType(i: System.Integer): OLInteger; overload;
 function OLType(i: System.Int64): OLInt64; overload;
 function OLType(s: System.string): OLString; overload;
@@ -79,6 +80,11 @@ begin
 end;
 
 function OLType(d: System.Double): OLDouble;
+begin
+  Result := d;
+end;
+
+function OLType(d: System.Extended): OLDouble; overload;
 begin
   Result := d;
 end;

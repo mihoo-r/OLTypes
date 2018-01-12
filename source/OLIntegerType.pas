@@ -32,6 +32,9 @@ type
     function IfNull(i: OLInteger): OLInteger;
     function Round(Digits: OLInteger): OLInteger;
     function Between(BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+    function Increased(IncreasedBy: integer = 1): OLInteger;
+    function Decreased(DecreasedBy: integer = 1): OLInteger;
+    function Replaced(FromValue: OLInteger; ToValue: OLInteger): OLInteger;
 
     procedure ForLoop(InitialValue: integer; ToValue: integer; Proc: TProc);
     function IsPrime(): OLBoolean;
@@ -304,6 +307,16 @@ class operator OLInteger.Inc(a: OLInteger): OLInteger;
 begin
   System.Inc(&a.Value);
   Result := a;
+end;
+
+function OLInteger.Increased(IncreasedBy: integer = 1): OLInteger;
+begin
+  Result := Self + IncreasedBy;
+end;
+
+function OLInteger.Decreased(DecreasedBy: integer = 1): OLInteger;
+begin
+  Result := Self - DecreasedBy;
 end;
 
 class operator OLInteger.IntDivide(a, b: OLInteger): OLInteger;
@@ -581,6 +594,18 @@ end;
 class function OLInteger.RandomPrime(MaxValue: Integer): OLInteger;
 begin
   Result := OLInteger.RandomPrime(0, MaxValue);
+end;
+
+function OLInteger.Replaced(FromValue, ToValue: OLInteger): OLInteger;
+var
+  Output: OLInteger;
+begin
+  if Self = FromValue then
+    Output := ToValue
+  else
+    Output := Self;
+
+  Result := Output;
 end;
 
 function OLInteger.Round(Digits: OLInteger): OLInteger;

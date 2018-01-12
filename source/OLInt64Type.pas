@@ -32,6 +32,9 @@ type
     function IfNull(i: OLInt64): OLInt64;
     function Round(Digits: OLInt64): OLInt64;
     function Between(BottomIncluded, TopIncluded: OLInt64): OLBoolean;
+    function Increased(IncreasedBy: Int64 = 1): OLInt64;
+    function Decreased(DecreasedBy: Int64 = 1): OLInt64;
+    function Replaced(FromValue: OLInt64; ToValue: OLInt64): OLInt64;
 
     procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
     function IsPrime(): OLBoolean;
@@ -168,6 +171,11 @@ class operator OLInt64.Dec(a: OLInt64): OLInt64;
 begin
   System.Dec(&a.Value);
   Result := a;
+end;
+
+function OLInt64.Decreased(DecreasedBy: Int64): OLInt64;
+begin
+  Result := Self - DecreasedBy;
 end;
 
 class operator OLInt64.Divide(a: Extended; b: OLInt64): OLDouble;
@@ -316,6 +324,11 @@ class operator OLInt64.Inc(a: OLInt64): OLInt64;
 begin
   System.Inc(&a.Value);
   Result := a;
+end;
+
+function OLInt64.Increased(IncreasedBy: Int64): OLInt64;
+begin
+  Result := Self + IncreasedBy;
 end;
 
 class operator OLInt64.IntDivide(a, b: OLInt64): OLInt64;
@@ -616,6 +629,18 @@ end;
 class function OLInt64.RandomPrime(MaxValue: Int64): OLInt64;
 begin
   Result := OLInt64.RandomPrime(0, MaxValue);
+end;
+
+function OLInt64.Replaced(FromValue, ToValue: OLInt64): OLInt64;
+var
+  OutPut: OLInt64;
+begin
+  if Self = FromValue then
+    OutPut := ToValue
+  else
+    OutPut := Self;
+
+  Result := Self;
 end;
 
 function OLInt64.Round(Digits: OLInt64): OLInt64;

@@ -24,6 +24,7 @@ type
     function IfThen(ATrue: Currency; AFalse: Currency): Currency; overload;
     function IfThen(ATrue: Extended; AFalse: Extended): Extended; overload;
     function IfThen(ATrue: TDateTime; AFalse: TDateTime): TDateTime; overload;
+    function IfThen(ATrue: Boolean; AFalse: Boolean): Boolean; overload;
 
     class operator Implicit(a: Boolean): OLBoolean;
     class operator Implicit(a: OLBoolean): Boolean;
@@ -282,6 +283,18 @@ begin
     Output := '';
 
   Result := Output;
+end;
+
+function OLBoolean.IfThen(ATrue, AFalse: Boolean): Boolean;
+var
+  OutPut: Boolean;
+begin
+  if Self then
+    OutPut := ATrue
+  else
+    OutPut := AFalse;
+
+  Result := OutPut;
 end;
 
 end.
