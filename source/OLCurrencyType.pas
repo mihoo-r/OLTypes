@@ -13,7 +13,7 @@ type
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(Value: OLBoolean);
-    property HasValue: OLBoolean read GetHasValue write SetHasValue;
+    property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
     function Sqr(): OLCurrency;
     function Power(Exponent: integer): OLCurrency;
@@ -24,6 +24,7 @@ type
     function Min(i: OLCurrency): OLCurrency;
     function Abs(): OLCurrency;
     function IsNull(): OLBoolean;
+    function HasValue(): OLBoolean;
     function ToString(): string;
     function IfNull(i: OLCurrency): OLCurrency;
     function Round(Digits: integer): OLCurrency; overload;
@@ -73,7 +74,7 @@ const
 
 function OLCurrency.Abs(): OLCurrency;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
     Result := System.Abs(Self.Value)
   else
     Result := Null;
@@ -85,7 +86,7 @@ var
   returnrec: OLCurrency;
 begin
   returnrec.Value := a.Value + b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -94,7 +95,7 @@ var
   OutPut: OLCurrency;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := true;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
@@ -102,7 +103,7 @@ class operator OLCurrency.Implicit(a: OLCurrency): Extended;
 var
   OutPut: Extended;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as integer value');
   OutPut := a.Value;
   Result := OutPut;
@@ -113,7 +114,7 @@ class operator OLCurrency.Divide(a: OLDouble; b: OLCurrency): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (a.IsNull()) or (not b.HasValue) then
+  if (a.IsNull()) or (not b.ValuePresent) then
     OutPut := Null
   else
     OutPut := a / b.Value;
@@ -125,7 +126,7 @@ class operator OLCurrency.Divide(a: OLCurrency; b: OLDouble): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (not a.HasValue) or (b.IsNull()) then
+  if (not a.ValuePresent) or (b.IsNull()) then
     OutPut := Null
   else
     OutPut := a.Value / b;
@@ -136,14 +137,14 @@ end;
 
 class operator OLCurrency.Equal(a: OLCurrency; b: Extended): OLBoolean;
 begin
-  Result := (System.Abs(a.Value - b) < 1e-10) and a.HasValue;
+  Result := (System.Abs(a.Value - b) < 1e-10) and a.ValuePresent;
 end;
 
 class operator OLCurrency.Divide(a, b: OLCurrency): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (not a.HasValue) or (not b.HasValue) then
+  if (not a.ValuePresent) or (not b.ValuePresent) then
     OutPut := Null
   else
     OutPut := a.Value / b.Value;
@@ -155,7 +156,7 @@ end;
 
 class operator OLCurrency.Equal(a, b: OLCurrency): OLBoolean;
 begin
-  Result := ((a.Value = b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLCurrency.GetHasValue: OLBoolean;
@@ -165,19 +166,19 @@ end;
 
 class operator OLCurrency.GreaterThan(a, b: OLCurrency): OLBoolean;
 begin
-  Result := (a.Value > b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThanOrEqual(a, b: OLCurrency): OLBoolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLCurrency.IfNull(i: OLCurrency): OLCurrency;
 var
   Output: OLCurrency;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := Self
   else
     Output := i;
@@ -189,7 +190,7 @@ class operator OLCurrency.Implicit(a: OLCurrency): Variant;
 var
   OutPut: Variant;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value
   else
     OutPut := Null;
@@ -201,7 +202,7 @@ class operator OLCurrency.Implicit(a: OLCurrency): Double;
 var
   OutPut: Double;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Double value');
   OutPut := a.Value;
   Result := OutPut;
@@ -213,13 +214,13 @@ var
   i: Currency;
 begin
   if VarIsNull(a) then
-    OutPut.HasValue := false
+    OutPut.ValuePresent := false
   else
   begin
     if TryStrToCurr(a, i) then
     begin
       OutPut.Value := i;
-      OutPut.HasValue := true;
+      OutPut.ValuePresent := true;
     end
     else
     begin
@@ -232,22 +233,22 @@ end;
 
 function OLCurrency.IsNull: OLBoolean;
 begin
-  Result := not HasValue;
+  Result := not ValuePresent;
 end;
 
 class operator OLCurrency.LessThan(a, b: OLCurrency): OLBoolean;
 begin
-  Result := (a.Value < b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLCurrency.LessThanOrEqual(a, b: OLCurrency): OLBoolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLCurrency.Max(i: OLCurrency): OLCurrency;
 begin
-  if (not HasValue) or (i = Null) then
+  if (not ValuePresent) or (i = Null) then
     raise Exception.Create('Null value cannot be compared to integer.');
 
   Result := Math.Max(Value, i);
@@ -255,7 +256,7 @@ end;
 
 function OLCurrency.Min(i: OLCurrency): OLCurrency;
 begin
-  if (not HasValue) or (i = Null) then
+  if (not ValuePresent) or (i = Null) then
     raise Exception.Create('Null value cannot be compared to integer.');
 
   Result := Math.Min(Value, i);
@@ -267,7 +268,7 @@ var
   returnrec: OLCurrency;
 begin
   returnrec.Value := a.Value * b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -276,36 +277,36 @@ var
   b: OLCurrency;
 begin
   b.Value := -a.Value;
-  b.HasValue := a.HasValue;
+  b.ValuePresent := a.ValuePresent;
   Result := b;
 end;
 
 class operator OLCurrency.NotEqual(a: OLCurrency; b: Extended): OLBoolean;
 begin
-  Result := (a.Value <> b) and a.HasValue;
+  Result := (a.Value <> b) and a.ValuePresent;
 end;
 
 function OLCurrency.IsNegative: OLBoolean;
 begin
-  Result := HasValue and (Value < 0);
+  Result := ValuePresent and (Value < 0);
 end;
 
 function OLCurrency.IsNonNegative: OLBoolean;
 begin
-  Result := HasValue and (Value >= 0);
+  Result := ValuePresent and (Value >= 0);
 end;
 
 class operator OLCurrency.NotEqual(a, b: OLCurrency): OLBoolean;
 begin
-  Result := ((a.Value <> b.Value) and a.HasValue and b.HasValue) or (a.HasValue <> b.HasValue);
+  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 function OLCurrency.Power(Exponent: integer): OLCurrency;
 var
   returnrec: OLCurrency;
 begin
-  returnrec.HasValue := self.HasValue;
-  if returnrec.HasValue then
+  returnrec.ValuePresent := self.ValuePresent;
+  if returnrec.ValuePresent then
     returnrec.Value := Math.IntPower(Value, Exponent);
   Result := returnrec;
 end;
@@ -318,7 +319,7 @@ end;
 
 function OLCurrency.IsPositive: OLBoolean;
 begin
-  Result := HasValue and (Value > 0);
+  Result := ValuePresent and (Value > 0);
 end;
 
 
@@ -335,7 +336,7 @@ var
   returnrec: OLCurrency;
 begin
   returnrec.Value := Value * Value;
-  returnrec.HasValue := HasValue;
+  returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
 
@@ -345,7 +346,7 @@ var
   returnrec: OLCurrency;
 begin
   returnrec.Value := a.Value - b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -353,7 +354,7 @@ function OLCurrency.ToString: string;
 var
   Output: string;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := CurrToStrF(Value, ffCurrency, 2)
   else
     Output := EmptyStr;
@@ -370,31 +371,36 @@ end;
 
 class operator OLCurrency.GreaterThan(a: OLCurrency; b: Extended): OLBoolean;
 begin
-  Result := (a.Value > b) and a.HasValue;
+  Result := (a.Value > b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThanOrEqual(a: OLCurrency;
   b: Extended): OLBoolean;
 begin
-  Result := (a.Value >= b) and a.HasValue;
+  Result := (a.Value >= b) and a.ValuePresent;
+end;
+
+function OLCurrency.HasValue: OLBoolean;
+begin
+  Result := ValuePresent;
 end;
 
 class operator OLCurrency.LessThan(a: OLCurrency; b: Extended): OLBoolean;
 begin
-  Result := (a.Value < b) and a.HasValue;
+  Result := (a.Value < b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.LessThanOrEqual(a: OLCurrency;
   b: Extended): OLBoolean;
 begin
-  Result := (a.Value <= b) and a.HasValue;
+  Result := (a.Value <= b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.Implicit(a: OLCurrency): Currency;
 var
   OutPut: Extended;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Currency value');
   OutPut := a.Value;
   Result := OutPut;
@@ -404,7 +410,7 @@ class operator OLCurrency.Divide(a: Extended; b: OLCurrency): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (not b.HasValue) then
+  if (not b.ValuePresent) then
     OutPut := Null
   else
     OutPut := a / b.Value;
@@ -416,7 +422,7 @@ class operator OLCurrency.Divide(a: OLCurrency; b: Extended): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (not a.HasValue) then
+  if (not a.ValuePresent) then
     OutPut := Null
   else
     OutPut := a.Value / b;

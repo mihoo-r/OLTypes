@@ -23,6 +23,7 @@ type
     property Day: OLInteger read GetDay write SetDay;
 
     function IsNull(): OLBoolean;
+    function HasValue(): OLBoolean;
     function ToString(): string;
     function IfNull(b: OLDate): OLDate;
 
@@ -219,6 +220,11 @@ end;
 class operator OLDate.GreaterThanOrEqual(a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value >= b.Value);
+end;
+
+function OLDate.HasValue: OLBoolean;
+begin
+  Result := not IsNull();
 end;
 
 function OLDate.IfNull(b: OLDate): OLDate;

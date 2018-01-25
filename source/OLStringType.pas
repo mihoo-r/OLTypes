@@ -45,7 +45,7 @@ type
     procedure SetParam(ParamName: string; const Value: OLString);
     function GetHtmlUnicodeText: OLString;
     procedure SetHtmlUnicodeText(const Value: OLString);
-    property HasValue: OLBoolean read GetHasValue write SetHasValue;
+    property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
 
     function GetCharAtIndex(Index: integer): Char;
     procedure SetCharAtIndex(Index: integer; Value: Char);
@@ -53,12 +53,14 @@ type
     property Value: string read GetValue write SetValue;
   public
     function IsNull(): OLBoolean;
+    function HasValue(): OLBoolean;
     function IsEmptyStr(): OLBoolean;
     function IfNull(i: OLString): OLString;
     function IfNullOrEmpty(s: OLString): OLString;
     function IsNullOrEmpty(): OLBoolean;
 
     function GetLineStartPosition(Index: integer): OLInteger;
+    function GetLineEndPosition(Index: integer): OLInteger;
 
     function CSVFieldValue(FieldIndex: integer; Delimiter: Char = ';'): OLString;
     function CSVFieldCount(Delimiter: Char = ';'): OLInteger;
@@ -84,6 +86,8 @@ type
     function FindPatternStr(Tag: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseInsensitive): OLString; overload;
     function FindPattern(InFront: OLString; Behind: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseSensitive) : TStringPatternFind; overload;
     function FindPattern(Tag: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseInsensitive): TStringPatternFind; overload;
+
+    function Like(Pattern: OLString): OLBoolean;
 
     function Pos(SubStr: string; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
     function PosEx(SubStr: string; Offset: integer; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
@@ -205,6 +209,7 @@ type
     procedure LoadFromFile(FileName: string);
     procedure SaveToFile(FileName: string);
     function LineAdded(NewLine: string): OLString;
+    function LineEndAt(LineIndex: Integer): OLInteger;
 
     procedure CopyToClipboard();
     procedure PasteFromClipboard();
@@ -217,6 +222,7 @@ type
     function IsValidIBAN(): OLBoolean;
 
     function ToPWideChar(): PWideChar;
+
 
     class function RandomFrom(const AValues: array of string): OLString; static;
 
@@ -278,7 +284,7 @@ var
   returnrec: OLString;
 begin
   returnrec.Value := a.Value + b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -313,7 +319,7 @@ end;
 
 class operator OLString.Equal(a, b: OLString): OLBoolean;
 begin
-  Result := ((a.Value = b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLString.TrailingApostropheExcluded: OLString;
@@ -455,7 +461,7 @@ end;
 
 function OLString.GetCharAtIndex(Index: integer): Char;
 begin
-  if not Self.HasValue then
+  if not Self.ValuePresent then
     raise Exception.Create('Cannot get chars from null value.');
 
   if Self.Length < Index then
@@ -553,6 +559,11 @@ begin
   Result := OutPut;
 end;
 
+function OLString.GetLineEndPosition(Index: integer): OLInteger;
+begin
+  Result := Self.PosEx(sLineBreak, GetLineStartPosition(Index)).Increased(System.Length(sLineBreak) - 1).Replaced(System.Length(sLineBreak) - 1, 0);
+end;
+
 function OLString.GetLineStartPosition(Index: integer): OLInteger;
 var
   OutPut: integer;
@@ -599,12 +610,12 @@ end;
 
 class operator OLString.GreaterThan(a, b: OLString): OLBoolean;
 begin
-  Result := (a.Value > b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLString.GreaterThanOrEqual(a, b: OLString): OLBoolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLString.Hash(Salt: string = ''): Cardinal;
@@ -627,12 +638,17 @@ begin
   Result := IntToHex(Self.Hash(Salt), 4);
 end;
 
+function OLString.HasValue: OLBoolean;
+begin
+  Result := ValuePresent;
+end;
+
 class operator OLString.Implicit(a: string): OLString;
 var
   OutPut: OLString;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := True;
+  OutPut.ValuePresent := True;
 
   Result := OutPut;
 end;
@@ -641,7 +657,7 @@ class operator OLString.Implicit(a: OLString): string;
 var
   OutPut: string;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as string value');
   OutPut := a.Value;
   Result := OutPut;
@@ -651,7 +667,7 @@ function OLString.IfNull(i: OLString): OLString;
 var
   OutPut: OLString;
 begin
-  if not HasValue then
+  if not ValuePresent then
     OutPut := i
   else
     OutPut := Self.Value;
@@ -678,12 +694,12 @@ begin
   if VarIsNull(a) then
   begin
     OutPut.Value := '';
-    OutPut.HasValue := False
+    OutPut.ValuePresent := False
   end
   else
   begin
     OutPut.Value := VarToStr(a);
-    OutPut.HasValue := True;
+    OutPut.ValuePresent := True;
   end;
 
   Result := OutPut;
@@ -713,7 +729,7 @@ end;
 
 function OLString.IndexStr(const AValues: array of string): OLInteger;
 begin
-  if not Self.HasValue then
+  if not Self.ValuePresent then
     raise Exception.Create('Cannot determine index of null value.');
 
   Result := StrUtils.IndexStr(Self.Value, AValues);
@@ -721,7 +737,7 @@ end;
 
 function OLString.IndexText(const AValues: array of string): OLInteger;
 begin
-  if not Self.HasValue then
+  if not Self.ValuePresent then
     raise Exception.Create('Cannot determine index of null value.');
 
   Result := StrUtils.IndexText(Self.Value, AValues);
@@ -770,7 +786,7 @@ end;
 
 function OLString.IsNull: OLBoolean;
 begin
-  Result := not HasValue;
+  Result := not ValuePresent;
 end;
 
 function OLString.IsNullOrEmpty: OLBoolean;
@@ -801,7 +817,7 @@ function OLString.Length: OLInteger;
 var
   OutPut: OLInteger;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
     OutPut := System.Length(Self.Value)
   else
     OutPut := Null;
@@ -811,12 +827,121 @@ end;
 
 class operator OLString.LessThan(a, b: OLString): OLBoolean;
 begin
-  Result := (a.Value < b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLString.LessThanOrEqual(a, b: OLString): OLBoolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+end;
+
+function OLString.Like(Pattern: OLString): OLBoolean;
+var
+  I: Integer;
+  s: OLString;
+  Segment: OLString;
+  OutPut: OLBoolean;
+  p: OLInteger;
+  SubSegment: OLString;
+  j: Integer;
+  SegmentMatch: Boolean;
+  SegmentCount: OLInteger;
+begin
+  s := Self;
+
+  OutPut := True;
+
+  // '_%' = '%';
+  while (Pattern.ContainsStr('_%')) do
+    Pattern := Pattern.Replaced('_%', '%');
+
+  // '_%' = '%'
+  while (Pattern.ContainsStr('%_')) do
+    Pattern := Pattern.Replaced('%_', '%');
+
+  // '%%' = '%'
+  while (Pattern.ContainsStr('%%')) do
+    Pattern := Pattern.Replaced('%%', '%');
+
+  if not Pattern.IsNullOrEmpty() then
+  begin
+    //Remove leading '_' from pattern, and equivalent from tested string
+    while (Pattern[1] = '_') do
+    begin
+      Pattern := Pattern.Deleted(1,1);
+      s := s.Deleted(1,1);
+
+      if Pattern.IsEmptyStr() then
+        break;
+    end;
+  end;
+
+  SegmentCount := Pattern.CSVFieldCount('%');
+
+  for I := 0 to SegmentCount - 1 do
+  begin
+    Segment := Pattern.CSVFieldValue(i, '%');
+    if Segment <> '' then
+    begin
+      if Segment.ContainsStr('_') then
+      begin
+        Pattern := Pattern.Replaced(Segment, Segment.Replaced('_', ''));
+
+        SubSegment := Segment.LeftStr(Segment.Pos('_').Decreased().Replaced(-1, Segment.Length));
+
+        p := s.Pos(SubSegment);
+        while p > 0 do
+        begin
+          SegmentMatch := True;
+
+          if s.Length >= p + Segment.Length -1 then
+          begin
+            for j := 1 to Segment.Length do
+            begin
+               SegmentMatch := SegmentMatch and ((Segment[j] = s[p + j - 1]) or (Segment[j] = '_'));
+            end;
+          end
+          else
+            SegmentMatch := False;
+
+          if SegmentMatch then
+          begin
+            for j := 1 to Segment.Length do
+            begin
+               if (Segment[j] = '_') then
+                 s[p + j - 1] := '_';
+            end;
+
+            s := s.Replaced(Segment, Segment.Replaced('_', ''));
+          end;
+
+
+          p := s.PosEx(SubSegment, p + 1);
+        end;
+      end;
+    end;
+  end;
+
+  if SegmentCount > 0 then
+  begin
+    p := 1;
+
+    for I := 0 to SegmentCount - 1 do
+    begin
+      Segment := Pattern.CSVFieldValue(i, '%');
+
+      if Segment <> '' then
+      begin
+        p := s.PosEx(Segment, p);
+
+        OutPut := OutPut and (p > 0) and ((p = 1) or (i > 0)) and ((i <> SegmentCount - 1) or (p + Segment.Length - 1= s.Length));
+      end;
+    end;
+  end
+  else
+    OutPut := False;
+
+  Result := OutPut;
 end;
 
 procedure OLString.LineAdd(NewLine: string);
@@ -888,6 +1013,11 @@ begin
   end;
 end;
 
+function OLString.LineEndAt(LineIndex: Integer): OLInteger;
+begin
+
+end;
+
 function OLString.LineIndexOf(s: string): OLInteger;
 var
   sl: TStringList;
@@ -917,6 +1047,7 @@ begin
     sl.Free();
   end;
 end;
+
 
 procedure OLString.LoadFromFile(FileName: string);
 var
@@ -953,7 +1084,7 @@ end;
 
 class operator OLString.NotEqual(a, b: OLString): OLBoolean;
 begin
-  Result := ((a.Value <> b.Value) and a.HasValue and b.HasValue) or (a.HasValue <> b.HasValue);
+  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 procedure OLString.PasteFromClipboard;
@@ -1084,7 +1215,7 @@ end;
 
 procedure OLString.SetCharAtIndex(Index: integer; Value: Char);
 begin
-  if not Self.HasValue then
+  if not Self.ValuePresent then
     raise Exception.Create('Cannot set chars in null value.');
 
   if Self.Length < Index then
@@ -1974,7 +2105,7 @@ class operator OLString.Implicit(a: OLString): Variant;
 var
   OutPut: Variant;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value
   else
     OutPut := Null;

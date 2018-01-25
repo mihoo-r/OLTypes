@@ -13,7 +13,7 @@ type
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(Value: OLBoolean);
-    property HasValue: OLBoolean read GetHasValue write SetHasValue;
+    property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
     function Sqr(): OLDouble;
     function Sqrt(): OLDouble;
@@ -25,6 +25,7 @@ type
     function Min(d: OLDouble): OLDouble;
     function Abs(): OLDouble;
     function IsNull(): OLBoolean;
+    function HasValue(): OLBoolean;
     function ToString(): string; overload;
     function ToString(Digits: integer; Format: TFloatFormat = ffFixed; Precision: integer = 16): string; overload;
     function IfNull(d: OLDouble): OLDouble;
@@ -83,7 +84,7 @@ const
 
 function OLDouble.Abs(): OLDouble;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
     Result := System.Abs(Self.Value)
   else
     Result := Null;
@@ -95,7 +96,7 @@ var
   returnrec: OLDouble;
 begin
   returnrec.Value := a.Value + b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -109,7 +110,7 @@ var
   OutPut: OLDouble;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := true;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
@@ -117,7 +118,7 @@ class operator OLDouble.Implicit(a: OLDouble): Double;
 var
   OutPut: Double;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as double value');
   OutPut := a.Value;
   Result := OutPut;
@@ -132,9 +133,9 @@ class operator OLDouble.Divide(a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
 begin
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
 
-  if returnrec.HasValue then
+  if returnrec.ValuePresent then
     returnrec.Value := a.Value / b.Value;
 
   Result := returnrec;
@@ -147,7 +148,7 @@ end;
 
 class operator OLDouble.Equal(a, b: OLDouble): OLBoolean;
 begin
-  Result := (a.HasValue and b.HasValue and (System.Abs(a.Value - b.Value) < 1e-10)) or (a.IsNull() and b.IsNull());
+  Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1e-10)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLDouble.Floor: OLDouble;
@@ -162,19 +163,24 @@ end;
 
 class operator OLDouble.GreaterThan(a, b: OLDouble): OLBoolean;
 begin
-  Result := (a.Value > b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLDouble.GreaterThanOrEqual(a, b: OLDouble): OLBoolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+end;
+
+function OLDouble.HasValue: OLBoolean;
+begin
+  Result := ValuePresent;
 end;
 
 function OLDouble.IfNull(d: OLDouble): OLDouble;
 var
   Output: OLDouble;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := Self
   else
     Output := d;
@@ -188,13 +194,13 @@ var
   f: Double;
 begin
   if VarIsNull(a) then
-    OutPut.HasValue := false
+    OutPut.ValuePresent := false
   else
   begin
     if TryStrToFloat(a, f) then
     begin
       OutPut.Value := f;
-      OutPut.HasValue := true;
+      OutPut.ValuePresent := true;
     end
     else
     begin
@@ -217,22 +223,22 @@ end;
 
 function OLDouble.IsNull: OLBoolean;
 begin
-  Result := not HasValue;
+  Result := not ValuePresent;
 end;
 
 class operator OLDouble.LessThan(a, b: OLDouble): OLBoolean;
 begin
-  Result := (a.Value < b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLDouble.LessThanOrEqual(a, b: OLDouble): OLBoolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLDouble.Max(d: OLDouble): OLDouble;
 begin
-  if (not HasValue) or (d.IsNull()) then
+  if (not ValuePresent) or (d.IsNull()) then
     raise Exception.Create('Null value cannot be compared to double.');
 
   Result := Math.Max(Value, d);
@@ -240,7 +246,7 @@ end;
 
 function OLDouble.Min(d: OLDouble): OLDouble;
 begin
-  if (not HasValue) or (d.IsNull) then
+  if (not ValuePresent) or (d.IsNull) then
     raise Exception.Create('Null value cannot be compared to double.');
 
   Result := Math.Min(Value, d);
@@ -252,7 +258,7 @@ var
   returnrec: OLDouble;
 begin
   returnrec.Value := a.Value * b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -277,17 +283,17 @@ end;
 
 function OLDouble.IsNegative: OLBoolean;
 begin
-  Result := HasValue and (Value < 0);
+  Result := ValuePresent and (Value < 0);
 end;
 
 function OLDouble.IsNonNegative: OLBoolean;
 begin
-  Result := HasValue and (Value >= 0);
+  Result := ValuePresent and (Value >= 0);
 end;
 
 class operator OLDouble.NotEqual(a, b: OLDouble): OLBoolean;
 begin
-  Result := ((a.Value <> b.Value) and a.HasValue and b.HasValue) or (a.HasValue <> b.HasValue);
+  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 function OLDouble.Power(Exponent: Extended): OLDouble;
@@ -300,7 +306,7 @@ var
   returnrec: OLDouble;
 begin
   returnrec.Value := Math.IntPower(Value, Exponent);
-  returnrec.HasValue := HasValue;
+  returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
 
@@ -312,7 +318,7 @@ end;
 
 function OLDouble.IsPositive: OLBoolean;
 begin
-  Result := HasValue and (Value > 0);
+  Result := ValuePresent and (Value > 0);
 end;
 
 function OLDouble.IsZero(Epsilon: Extended): OLBoolean;
@@ -343,7 +349,7 @@ var
   returnrec: OLDouble;
 begin
   returnrec.Value := Value * Value;
-  returnrec.HasValue := HasValue;
+  returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
 
@@ -358,7 +364,7 @@ var
   returnrec: OLDouble;
 begin
   returnrec.Value := a.Value - b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -372,7 +378,7 @@ function OLDouble.ToString: string;
 var
   Output: string;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := FloatToStr(Value)
   else
     Output := '';
@@ -390,7 +396,7 @@ var
   OutPut: OLDouble;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := true;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
@@ -399,7 +405,7 @@ var
   OutPut: OLDouble;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := true;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
@@ -407,7 +413,7 @@ class operator OLDouble.Implicit(a: OLDouble): Extended;
 var
   OutPut: Double;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as extended value');
   OutPut := a.Value;
   Result := OutPut;
@@ -417,7 +423,7 @@ class operator OLDouble.Implicit(a: OLDouble): Variant;
 var
   OutPut: Variant;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value
   else
     OutPut := Null;

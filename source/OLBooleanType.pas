@@ -13,12 +13,12 @@ type
 
     function GetHasValue(): Boolean;
     procedure SetHasValue(Value: Boolean);
-    property HasValue: Boolean read GetHasValue write SetHasValue;
+    property ValuePresent: Boolean read GetHasValue write SetHasValue;
   public
     function IsNull(): Boolean;
     function ToString(): string;
     function IfNull(b: OLBoolean): OLBoolean;
-
+    function HasValue(): OLBoolean;
     function IfThen(ATrue: string; AFalse: string = ''): string; overload;
     function IfThen(ATrue: Integer; AFalse: Integer): integer; overload;
     function IfThen(ATrue: Currency; AFalse: Currency): Currency; overload;
@@ -56,12 +56,12 @@ const
 
 class operator OLBoolean.Equal(a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value = b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 class operator OLBoolean.Equal(a: OLBoolean; b: Variant): Boolean;
 begin
-  Result := ((a.Value = b) and (a.HasValue and (b <> Null))) or (a.IsNull() and (b = Null));
+  Result := ((a.Value = b) and (a.ValuePresent and (b <> Null))) or (a.IsNull() and (b = Null));
 end;
 
 function OLBoolean.GetHasValue: Boolean;
@@ -71,19 +71,24 @@ end;
 
 class operator OLBoolean.GreaterThan(a, b: OLBoolean): Boolean;
 begin
-  Result := (a.Value > b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLBoolean.GreaterThanOrEqual(a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+end;
+
+function OLBoolean.HasValue: OLBoolean;
+begin
+  Result := ValuePresent;
 end;
 
 function OLBoolean.IfNull(b: OLBoolean): OLBoolean;
 var
   Output: OLBoolean;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := Self
   else
     Output := b;
@@ -155,7 +160,7 @@ class operator OLBoolean.Implicit(a: OLBoolean): Variant;
 var
   OutPut: Variant;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value
   else
     OutPut := Null;
@@ -169,13 +174,13 @@ var
   b: Boolean;
 begin
   if VarIsNull(a) then
-    OutPut.HasValue := false
+    OutPut.ValuePresent := false
   else
   begin
     if TryStrToBool(a, b) then
     begin
       OutPut.Value := b;
-      OutPut.HasValue := true;
+      OutPut.ValuePresent := true;
     end
     else
     begin
@@ -190,7 +195,7 @@ class operator OLBoolean.Implicit(a: OLBoolean): Boolean;
 var
   OutPut: Boolean;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Boolean value.');
   OutPut := a.Value;
   Result := OutPut;
@@ -201,30 +206,30 @@ var
   OutPut: OLBoolean;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := true;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
 function OLBoolean.IsNull: Boolean;
 begin
-  Result := not HasValue;
+  Result := not ValuePresent;
 end;
 
 class operator OLBoolean.LessThan(a, b: OLBoolean): Boolean;
 begin
-  Result := (a.Value < b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLBoolean.LessThanOrEqual(a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 class operator OLBoolean.LogicalAnd(a, b: OLBoolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
-  OutPut.HasValue := a.HasValue and b.HasValue;
+  OutPut.ValuePresent := a.ValuePresent and b.ValuePresent;
   OutPut.Value := a.Value and b.Value;
 
   Result := OutPut;
@@ -234,7 +239,7 @@ class operator OLBoolean.LogicalNot(a: OLBoolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
-  OutPut.HasValue := a.HasValue;
+  OutPut.ValuePresent := a.ValuePresent;
   OutPut.Value := not a.Value;
 
   Result := OutPut;
@@ -244,7 +249,7 @@ class operator OLBoolean.LogicalOr(a, b: OLBoolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
-  OutPut.HasValue := a.HasValue and b.HasValue;
+  OutPut.ValuePresent := a.ValuePresent and b.ValuePresent;
   OutPut.Value := a.Value or b.Value;
 
   Result := OutPut;
@@ -254,7 +259,7 @@ class operator OLBoolean.LogicalXor(a, b: OLBoolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
-  OutPut.HasValue := a.HasValue and b.HasValue;
+  OutPut.ValuePresent := a.ValuePresent and b.ValuePresent;
   OutPut.Value := a.Value xor b.Value;
 
   Result := OutPut;
@@ -262,7 +267,7 @@ end;
 
 class operator OLBoolean.NotEqual(a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value <> b.Value) and a.HasValue and b.HasValue) or (a.HasValue <> b.HasValue);
+  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 procedure OLBoolean.SetHasValue(Value: Boolean);
@@ -277,7 +282,7 @@ function OLBoolean.ToString: string;
 var
   Output: string;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := BoolToStr(Value, true)
   else
     Output := '';

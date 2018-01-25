@@ -27,7 +27,7 @@ type
     procedure SetSecond(const Value: OLInteger);
     procedure SetYear(const Value: OLInteger);
     procedure SetDay(const Value: OLInteger);
-    property HasValue: OLBoolean read GetHasValue write SetHasValue;
+    property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
 
     function YearOf(): OLInteger;
     function MonthOf(): OLInteger;
@@ -47,6 +47,7 @@ type
     property MilliSecond: OLInteger read GetMilliSecond write SetMilliSecond;
 
     function IsNull(): OLBoolean;
+    function HasValue(): OLBoolean;
     function ToString(): string;
     function IfNull(b: OLDateTime): OLDateTime;
 
@@ -205,7 +206,7 @@ class operator OLDateTime.Add(a: OLDateTime; b: Extended): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value + b
   else
     OutPut := Null;
@@ -217,7 +218,7 @@ function OLDateTime.DateOf: OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
     OutPut := DateUtils.DateOf(Self.Value)
   else
     OutPut := Null;
@@ -334,7 +335,7 @@ end;
 
 class operator OLDateTime.Equal(a, b: OLDateTime): OLBoolean;
 begin
-  Result := (a.HasValue and b.HasValue and (System.Abs(a.Value - b.Value) < 1.1574e-8)) or (a.IsNull() and b.IsNull());  //Less than a millisecond difference
+  Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1.1574e-8)) or (a.IsNull() and b.IsNull());  //Less than a millisecond difference
 end;
 
 function OLDateTime.GetDay: OLInteger;
@@ -387,12 +388,17 @@ end;
 
 class operator OLDateTime.GreaterThan(a, b: OLDateTime): OLBoolean;
 begin
-  Result := (a.Value > b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLDateTime.GreaterThanOrEqual(a, b: OLDateTime): OLBoolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+end;
+
+function OLDateTime.HasValue: OLBoolean;
+begin
+  Result := ValuePresent;
 end;
 
 function OLDateTime.HourOf: OLInteger;
@@ -429,7 +435,7 @@ function OLDateTime.IfNull(b: OLDateTime): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  if HasValue then
+  if ValuePresent then
     OutPut := Self
   else
     OutPut := b;
@@ -441,7 +447,7 @@ class operator OLDateTime.Implicit(a: OLDateTime): Variant;
 var
   OutPut: Variant;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value
   else
     OutPut := Null;
@@ -455,13 +461,13 @@ var
   b: TDateTime;
 begin
   if VarIsNull(a) then
-    OutPut.HasValue := false
+    OutPut.ValuePresent := false
   else
   begin
     if TryStrToDateTime(a, b) then
     begin
       OutPut.Value := b;
-      OutPut.HasValue := True;
+      OutPut.ValuePresent := True;
     end
     else
     begin
@@ -474,7 +480,7 @@ end;
 
 class operator OLDateTime.Implicit(a: OLDateTime): TDateTime;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as TDateTime value.');
   Result := a.Value;
 end;
@@ -484,7 +490,7 @@ var
   OutPut: OLDateTime;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := True;
+  OutPut.ValuePresent := True;
   Result := OutPut;
 end;
 
@@ -500,7 +506,7 @@ end;
 
 function OLDateTime.IsNull: OLBoolean;
 begin
-  Result := not HasValue;
+  Result := not ValuePresent;
 end;
 
 function OLDateTime.IsPM: OLBoolean;
@@ -521,12 +527,12 @@ end;
 
 class operator OLDateTime.LessThan(a, b: OLDateTime): OLBoolean;
 begin
-  Result := (a.Value < b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLDateTime.LessThanOrEqual(a, b: OLDateTime): OLBoolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLDateTime.LongDayName: string;
@@ -538,7 +544,7 @@ function OLDateTime.Max(CompareDate: OLDateTime): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  if Self.HasValue and CompareDate.HasValue then
+  if Self.ValuePresent and CompareDate.ValuePresent then
   begin
     if Self.Value > CompareDate.Value then
       OutPut := Self
@@ -600,7 +606,7 @@ function OLDateTime.Min(CompareDate: OLDateTime): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  if Self.HasValue and CompareDate.HasValue then
+  if Self.ValuePresent and CompareDate.ValuePresent then
   begin
     if Self.Value < CompareDate.Value then
       OutPut := Self
@@ -665,7 +671,7 @@ end;
 
 class operator OLDateTime.NotEqual(a, b: OLDateTime): OLBoolean;
 begin
-  Result := ((a.Value <> b.Value) and a.HasValue and b.HasValue) or (a.HasValue <> b.HasValue);
+  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 function OLDateTime.RecodedDay(const ADay: Word): OLDateTime;
@@ -875,7 +881,7 @@ class operator OLDateTime.Subtract(a: OLDateTime; b: Extended): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value - b
   else
     OutPut := Null;
@@ -887,7 +893,7 @@ function OLDateTime.TimeOf: OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
     OutPut := DateUtils.TimeOf(Self.Value)
   else
     OutPut := Null;
@@ -909,7 +915,7 @@ function OLDateTime.ToString: string;
 var
   OutPut: string;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
     OutPut := DateTimeToStr(Self.Value)
   else
     OutPut := '';
@@ -967,7 +973,7 @@ begin
   dt := a;
 
   OutPut.Value := dt;
-  OutPut.HasValue := True;
+  OutPut.ValuePresent := True;
   Result := OutPut;
 end;
 

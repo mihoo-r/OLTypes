@@ -13,7 +13,7 @@ type
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(Value: OLBoolean);
-    property HasValue: OLBoolean read GetHasValue write SetHasValue;
+    property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
     function IsDividableBy(i: Int64): OLBoolean;
     function IsOdd(): OLBoolean;
@@ -28,6 +28,7 @@ type
     function Min(i: OLInt64): OLInt64;
     function Abs(): OLInt64;
     function IsNull(): OLBoolean;
+    function HasValue(): OLBoolean;
     function ToString(): string;
     function IfNull(i: OLInt64): OLInt64;
     function Round(Digits: OLInt64): OLInt64;
@@ -118,7 +119,7 @@ end;
 
 function OLInt64.Abs(): OLInt64;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
     Result := System.Abs(Self.Value)
   else
     Result := Null;
@@ -130,7 +131,7 @@ var
   returnrec: OLInt64;
 begin
   returnrec.Value := a.Value + b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -144,7 +145,7 @@ var
   returnrec: OLInt64;
 begin
   returnrec.Value := a.Value xor b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -153,7 +154,7 @@ var
   OutPut: OLInt64;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := true;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
@@ -161,7 +162,7 @@ class operator OLInt64.Implicit(a: OLInt64): Int64;
 var
   OutPut: Int64;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Int64 value');
   OutPut := a.Value;
   Result := OutPut;
@@ -182,7 +183,7 @@ class operator OLInt64.Divide(a: Extended; b: OLInt64): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if not b.HasValue then
+  if not b.ValuePresent then
     OutPut := Null
   else
     OutPut := a / b.Value;
@@ -194,7 +195,7 @@ class operator OLInt64.Divide(a: OLInt64; b: Extended): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     OutPut := Null
   else
     OutPut := a.Value / b;
@@ -204,14 +205,14 @@ end;
 
 class operator OLInt64.Equal(a: OLInt64; b: Extended): OLBoolean;
 begin
-  Result := (a.Value = b) and a.HasValue;
+  Result := (a.Value = b) and a.ValuePresent;
 end;
 
 class operator OLInt64.Divide(a, b: OLInt64): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (not a.HasValue) or (not b.HasValue) then
+  if (not a.ValuePresent) or (not b.ValuePresent) then
     OutPut := Null
   else
     OutPut := a.Value / b.Value;
@@ -221,12 +222,12 @@ end;
 
 function OLInt64.IsDividableBy(i: Int64): OLBoolean;
 begin
-  Result := Self.HasValue and ((Self.Value mod i) = 0);
+  Result := Self.ValuePresent and ((Self.Value mod i) = 0);
 end;
 
 class operator OLInt64.Equal(a, b: OLInt64): OLBoolean;
 begin
-  Result := ((a.Value = b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 procedure OLInt64.ForLoop(InitialValue, ToValue: Int64; Proc: TProc);
@@ -267,19 +268,19 @@ end;
 
 class operator OLInt64.GreaterThan(a, b: OLInt64): OLBoolean;
 begin
-  Result := (a.Value > b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLInt64.GreaterThanOrEqual(a, b: OLInt64): OLBoolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLInt64.IfNull(i: OLInt64): OLInt64;
 var
   Output: OLInt64;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := Self
   else
     Output := i;
@@ -291,7 +292,7 @@ class operator OLInt64.Implicit(a: OLInt64): Double;
 var
   OutPut: Double;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Double value');
   OutPut := a.Value;
   Result := OutPut;
@@ -303,13 +304,13 @@ var
   i: Int64;
 begin
   if VarIsNull(a) then
-    OutPut.HasValue := false
+    OutPut.ValuePresent := false
   else
   begin
     if TryStrToInt64(a, i) then
     begin
       OutPut.Value := i;
-      OutPut.HasValue := true;
+      OutPut.ValuePresent := true;
     end
     else
     begin
@@ -335,9 +336,9 @@ class operator OLInt64.IntDivide(a, b: OLInt64): OLInt64;
 var
   returnrec: OLInt64;
 begin
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
 
-  if (returnrec.HasValue) then
+  if (returnrec.ValuePresent) then
     returnrec.Value := a.Value div b.Value;
 
   Result := returnrec;
@@ -345,22 +346,22 @@ end;
 
 function OLInt64.IsNull: OLBoolean;
 begin
-  Result := not HasValue;
+  Result := not ValuePresent;
 end;
 
 class operator OLInt64.LessThan(a, b: OLInt64): OLBoolean;
 begin
-  Result := (a.Value < b.Value) and a.HasValue and b.HasValue;
+  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLInt64.LessThanOrEqual(a, b: OLInt64): OLBoolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.HasValue and b.HasValue)) or (a.IsNull() and b.IsNull());
+  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLInt64.Max(i: OLInt64): OLInt64;
 begin
-  if (not HasValue) or (i = Null) then
+  if (not ValuePresent) or (i = Null) then
     raise Exception.Create('Null value cannot be compared to Int64.');
 
   Result := Math.Max(Value, i);
@@ -368,7 +369,7 @@ end;
 
 function OLInt64.Min(i: OLInt64): OLInt64;
 begin
-  if (not HasValue) or (i = Null) then
+  if (not ValuePresent) or (i = Null) then
     raise Exception.Create('Null value cannot be compared to Int64.');
 
   Result := Math.Min(Value, i);
@@ -379,7 +380,7 @@ var
   returnrec: OLInt64;
 begin
   returnrec.Value := a.Value mod b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -389,7 +390,7 @@ var
   returnrec: OLInt64;
 begin
   returnrec.Value := a.Value * b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -398,13 +399,13 @@ var
   b: OLInt64;
 begin
   b.Value := -a.Value;
-  b.HasValue := a.HasValue;
+  b.ValuePresent := a.ValuePresent;
   Result := b;
 end;
 
 class operator OLInt64.NotEqual(a: OLInt64; b: Extended): OLBoolean;
 begin
-  Result := (a.Value <> b) and a.HasValue;
+  Result := (a.Value <> b) and a.ValuePresent;
 end;
 
 function OLInt64.Power(Exponent: Int64): Double;
@@ -414,17 +415,17 @@ end;
 
 function OLInt64.IsNegative: OLBoolean;
 begin
-  Result := HasValue and (Value < 0);
+  Result := ValuePresent and (Value < 0);
 end;
 
 function OLInt64.IsNonNegative: OLBoolean;
 begin
-  Result := HasValue and (Value >= 0);
+  Result := ValuePresent and (Value >= 0);
 end;
 
 class operator OLInt64.NotEqual(a, b: OLInt64): OLBoolean;
 begin
-  Result := ((a.Value <> b.Value) and a.HasValue and b.HasValue) or (a.HasValue <> b.HasValue);
+  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 function OLInt64.Power(Exponent: LongWord): OLInt64;
@@ -432,7 +433,7 @@ var
   returnrec: OLInt64;
 begin
   returnrec.Value := Math.Floor(Math.IntPower(Value, Exponent));
-  returnrec.HasValue := HasValue;
+  returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
 
@@ -478,12 +479,12 @@ end;
 
 function OLInt64.IsOdd: OLBoolean;
 begin
-  Result := HasValue and (not IsEven());
+  Result := ValuePresent and (not IsEven());
 end;
 
 function OLInt64.IsPositive: OLBoolean;
 begin
-  Result := HasValue and (Value > 0);
+  Result := ValuePresent and (Value > 0);
 end;
 
 function OLInt64.IsPrime: OLBoolean;
@@ -496,7 +497,7 @@ var
   LoopCount: Int64;
   k: OLInt64;
 begin
-  if Self.HasValue then
+  if Self.ValuePresent then
   begin
     i := 0;
     PrimeLen := Length(primes);
@@ -569,25 +570,25 @@ end;
 procedure OLInt64.SetRandom(MaxValue: Int64);
 begin
   Self.Value := OLInt64.Random(MaxValue);
-  Self.HasValue := True;
+  Self.ValuePresent := True;
 end;
 
 procedure OLInt64.SetRandom(MinValue, MaxValue: Int64);
 begin
   Self.Value := OLInt64.Random(MinValue, MaxValue);
-  Self.HasValue := True;
+  Self.ValuePresent := True;
 end;
 
 procedure OLInt64.SetRandomPrime(MaxValue: Int64);
 begin
   Self.Value := OLInt64.RandomPrime(MaxValue);
-  Self.HasValue := True;
+  Self.ValuePresent := True;
 end;
 
 procedure OLInt64.SetRandomPrime(MinValue, MaxValue: Int64);
 begin
   Self.Value := OLInt64.RandomPrime(MinValue, MaxValue);
-  Self.HasValue := True;
+  Self.ValuePresent := True;
 end;
 
 function OLInt64.Sqr: OLInt64;
@@ -595,7 +596,7 @@ var
   returnrec: OLInt64;
 begin
   returnrec.Value := Value * Value;
-  returnrec.HasValue := HasValue;
+  returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
 
@@ -605,7 +606,7 @@ var
   returnrec: OLInt64;
 begin
   returnrec.Value := a.Value - b.Value;
-  returnrec.HasValue := a.HasValue and b.HasValue;
+  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
@@ -613,7 +614,7 @@ function OLInt64.ToString: string;
 var
   Output: string;
 begin
-  if HasValue then
+  if ValuePresent then
     Output := IntToStr(Value)
   else
     Output := '';
@@ -652,7 +653,7 @@ class operator OLInt64.Implicit(a: OLInt64): Variant;
 var
   OutPut: Variant;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value
   else
     OutPut := Null;
@@ -662,30 +663,35 @@ end;
 
 class operator OLInt64.GreaterThan(a: OLInt64; b: Extended): OLBoolean;
 begin
-  Result := (a.Value > b) and a.HasValue;
+  Result := (a.Value > b) and a.ValuePresent;
 end;
 
 class operator OLInt64.GreaterThanOrEqual(a: OLInt64;
   b: Extended): OLBoolean;
 begin
-  Result := (a.Value >= b) and a.HasValue;
+  Result := (a.Value >= b) and a.ValuePresent;
+end;
+
+function OLInt64.HasValue: OLBoolean;
+begin
+  Result := ValuePresent;
 end;
 
 class operator OLInt64.LessThan(a: OLInt64; b: Extended): OLBoolean;
 begin
-  Result := (a.Value < b) and a.HasValue;
+  Result := (a.Value < b) and a.ValuePresent;
 end;
 
 class operator OLInt64.LessThanOrEqual(a: OLInt64; b: Extended): OLBoolean;
 begin
-  Result := (a.Value <= b) and a.HasValue;
+  Result := (a.Value <= b) and a.ValuePresent;
 end;
 
 class operator OLInt64.Implicit(a: OLInt64): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if a.HasValue then
+  if a.ValuePresent then
     OutPut := a.Value
   else
     OutPut := Null;
@@ -702,7 +708,7 @@ begin
   else
   begin
     OutPut.Value := a;
-    OutPut.HasValue := true;
+    OutPut.ValuePresent := true;
   end;
 
   Result := OutPut;
@@ -725,7 +731,7 @@ var
   OutPut: OLInt64;
 begin
   OutPut.Value := a;
-  OutPut.HasValue := true;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
@@ -733,7 +739,7 @@ class operator OLInt64.Implicit(a: OLInt64): Integer;
 var
   OutPut: Integer;
 begin
-  if not a.HasValue then
+  if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Integer value');
   OutPut := a.Value;
   Result := OutPut;
@@ -743,7 +749,7 @@ class operator OLInt64.Divide(a: OLDouble; b: OLInt64): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (a.IsNull()) or (not b.HasValue) then
+  if (a.IsNull()) or (not b.ValuePresent) then
     OutPut := Null
   else
     OutPut := a / b.Value;
@@ -755,7 +761,7 @@ class operator OLInt64.Divide(a: OLInt64; b: OLDouble): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  if (not a.HasValue) or (b.IsNull) then
+  if (not a.ValuePresent) or (b.IsNull) then
     OutPut := Null
   else
     OutPut := a.Value / b;
