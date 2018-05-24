@@ -1000,15 +1000,21 @@ end;
 
 function OLDateTime.IncMonth(const ANumberOfMonths: Integer): OLDateTime;
 var
-  Month: Word;
-  Year: Word;
+  Month: Integer;
+  Year: Integer;
 begin
   Year := Self.YearOf();
   Month := Self.MonthOf();
   Inc(Month, ANumberOfMonths);
 
+  while Month < 1 do
+  begin
+    Dec(Year);
+    Inc(Month, 12);
+  end;
+
   while Month > 12 do
-begin
+  begin
     Inc(Year);
     Dec(Month, 12);
   end;

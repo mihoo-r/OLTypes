@@ -31,8 +31,8 @@ type
     function IfNull(d: OLDouble): OLDouble;
 
     function Round(const Digits: integer = 0): OLDouble;
-    function Floor(): OLDouble;
-    function Ceil(): OLDouble;
+    function Floor(): Integer;
+    function Ceil(): Integer;
 
     function Power(Exponent: Extended): OLDouble;  overload;
 
@@ -100,7 +100,7 @@ begin
   Result := returnrec;
 end;
 
-function OLDouble.Ceil: OLDouble;
+function OLDouble.Ceil: Integer;
 begin
   Result := Math.Ceil(Self);
 end;
@@ -151,7 +151,7 @@ begin
   Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1e-10)) or (a.IsNull() and b.IsNull());
 end;
 
-function OLDouble.Floor: OLDouble;
+function OLDouble.Floor: Integer;
 begin
   Result := Math.Floor(Self);
 end;

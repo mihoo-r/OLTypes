@@ -45,6 +45,11 @@ type
     procedure SetParam(ParamName: string; const Value: OLString);
     function GetHtmlUnicodeText: OLString;
     procedure SetHtmlUnicodeText(const Value: OLString);
+    function GetBase64: OLString;
+    procedure SetBase64(const Value: OLString);
+    function GetUrlEncodedText: OLString;
+    procedure SetUrlEncodedText(const Value: OLString);
+    function Utf8Code(c: Char): OLString;
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
 
     function GetCharAtIndex(Index: integer): Char;
@@ -82,6 +87,7 @@ type
     function MatchText(const AValues: array of string): OLBoolean;
 
     function MidStr(const AStart, ACount: integer): OLString;
+    function MidStrEx(const AStart, AEnd: integer): OLString;
     function FindPatternStr(InFront: OLString; Behind: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseSensitive) : OLString; overload;
     function FindPatternStr(Tag: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseInsensitive): OLString; overload;
     function FindPattern(InFront: OLString; Behind: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseSensitive) : TStringPatternFind; overload;
@@ -91,6 +97,8 @@ type
 
     function Pos(SubStr: string; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
     function PosEx(SubStr: string; Offset: integer; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function PosLast(SubStr: string; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function PosLastEx(SubStr: string; NotAfterPosition: integer; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 
     function Replaced(const AFromText, AToText: string): OLString;
     function ReplacedFirst(const AFromText, AToText: string): OLString;
@@ -176,8 +184,8 @@ type
     procedure EndcodeBase64FromFile(FileName: string);
     procedure DecodeBase64ToFile(FileName: string);
 
-    function Compressed(): string;
-    function Decompressed(): string;
+    function Compressed(): OLString;
+    function Decompressed(): OLString;
 
     function TrailingPathDelimiterExcluded(): OLString;
     function TrailingPathDelimiterIncluded(): OLString;
@@ -244,12 +252,14 @@ type
     function CSVIndex(ValueToFind: OLString): OLInteger;
     function CSVFieldByName(FieldName: OLString; RowIndex: Integer = 1): OLString;
 
+    property Base64: OLString read GetBase64 write SetBase64;
     property Chars[Index: integer]: Char read GetCharAtIndex write SetCharAtIndex; default;
     property Lines[Index: integer]: OLString read GetLine write SetLine;
     property CSV[Index: integer]: OLString read GetCSV write SetCSV;
     property Params[ParamName: string]: OLString read GetParam write SetParam;
 
     property HtmlUnicodeText: OLString read GetHtmlUnicodeText write SetHtmlUnicodeText;
+    property UrlEncodedText: OLString read GetUrlEncodedText write SetUrlEncodedText;
   end;
 
 implementation
@@ -276,8 +286,14 @@ type
     LiteralCode: string;
   end;
 
+  TUrlTranslation = record
+    UnicodeChar: Char;
+    Translation: string;
+  end;
+
 var
   HtmlUnicodeTranslation: array [0..315] of THtmlUnicodeTranslation;
+  UrlTranslation: array[0..160] of TUrlTranslation;
 
 class operator OLString.Add(a, b: OLString): OLString;
 var
@@ -459,6 +475,18 @@ begin
   Result := SysUtils.Format(s, Data);
 end;
 
+function OLString.GetBase64: OLString;
+var
+  OutPut: OLString;
+begin
+  if Self.IsNull() then
+    OutPut := Null
+  else
+    OutPut := EncodeString(Self);
+
+  Result := OutPut;
+end;
+
 function OLString.GetCharAtIndex(Index: integer): Char;
 begin
   if not Self.ValuePresent then
@@ -593,6 +621,41 @@ begin
       OutPut := Parameters[i].ParamValue;
       Break;
     end;
+  end;
+
+  Result := OutPut;
+end;
+
+function OLString.Utf8Code(c: Char): OLString;
+var
+  b: TBytes;
+  es: RawByteString;
+  OutPut: OLString;
+  I: Integer;
+begin
+  es :=  UTF8Encode(c);
+
+  b := BytesOf(es);
+
+  for I := 0 to System.Length(b) - 1 do
+   OutPut := OutPut + '%' + IntToHex(b[i],2);
+
+  Result := OutPut;
+end;
+
+function OLString.GetUrlEncodedText: OLString;
+var
+  I: Integer;
+  OutPut: string;
+  c: Char;
+begin
+  for I := 1 to Self.Length do
+  begin
+    c := Self[i];
+    if c in ['0'..'9', 'A'..'Z', 'a'..'z'] then
+      OutPut := OutPut + c
+    else
+      OutPut := OutPut + Utf8Code(c);
   end;
 
   Result := OutPut;
@@ -1082,6 +1145,11 @@ begin
   Result := StrUtils.MidStr(Self, AStart, ACount);
 end;
 
+function OLString.MidStrEx(const AStart, AEnd: integer): OLString;
+begin
+  Result := MidStr(AStart, AEnd - AStart + 1);
+end;
+
 class operator OLString.NotEqual(a, b: OLString): OLBoolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
@@ -1130,6 +1198,99 @@ begin
   begin
     SubStr := SysUtils.UpperCase(SubStr);
     OutPut := StrUtils.PosEx(SubStr, Self.UpperCase(), Offset)
+  end;
+
+  Result := OutPut;
+end;
+
+function OLString.PosLast(SubStr: string; CaseSensitivity: TCaseSensitivity): OLInteger;
+var
+  SubStringLength: Integer;
+  myCharPtr : PChar;
+  i: Integer;
+  OutPut: Integer;
+begin
+  OutPut := 0;
+
+  SubStringLength := System.Length(SubStr);
+
+  i := Self.Length() - SubStringLength + 1;
+  myCharPtr := Addr(Self.Val[i]);
+
+  if CaseSensitivity = csCaseSensitive then
+  begin
+    while i > 0 do
+    begin
+      if StrUtils.LeftStr(myCharPtr, SubStringLength) = SubStr then
+      begin
+        OutPut := i;
+        Break;
+      end;
+
+      Dec(i);
+      Dec(myCharPtr);
+    end;
+  end
+  else
+  begin
+    while i > 0 do
+    begin
+      if SysUtils.AnsiUpperCase(StrUtils.LeftStr(myCharPtr, SubStringLength)) = SysUtils.AnsiUpperCase(SubStr) then
+      begin
+        OutPut := i;
+        Break;
+      end;
+
+      Dec(i);
+      Dec(myCharPtr);
+    end;
+  end;
+
+
+  Result := OutPut;
+end;
+
+function OLString.PosLastEx(SubStr: string; NotAfterPosition: integer; CaseSensitivity: TCaseSensitivity): OLInteger;
+var
+  SubStringLength: Integer;
+  myCharPtr : PChar;
+  i: Integer;
+  OutPut: Integer;
+begin
+  OutPut := 0;
+
+  SubStringLength := System.Length(SubStr);
+
+  i := Min(Self.Length() - SubStringLength + 1, NotAfterPosition);
+  myCharPtr := Addr(Self.Val[i]);
+
+  if CaseSensitivity = csCaseSensitive then
+  begin
+    while i > 0 do
+    begin
+      if StrUtils.LeftStr(myCharPtr, SubStringLength) = SubStr then
+      begin
+        OutPut := i;
+        Break;
+      end;
+
+      Dec(i);
+      Dec(myCharPtr);
+    end;
+  end
+  else
+  begin
+    while i > 0 do
+    begin
+      if SysUtils.AnsiUpperCase(StrUtils.LeftStr(myCharPtr, SubStringLength)) = SysUtils.AnsiUpperCase(SubStr) then
+      begin
+        OutPut := i;
+        Break;
+      end;
+
+      Dec(i);
+      Dec(myCharPtr);
+    end;
   end;
 
   Result := OutPut;
@@ -1211,6 +1372,11 @@ begin
   finally
     sl.Free();
   end;
+end;
+
+procedure OLString.SetBase64(const Value: OLString);
+begin
+  Self := DecodeString(Value);
 end;
 
 procedure OLString.SetCharAtIndex(Index: integer; Value: Char);
@@ -1308,6 +1474,21 @@ begin
     UpdateParam(ParIdx, Value);
 
   ApplyParams();
+end;
+
+procedure OLString.SetUrlEncodedText(const Value: OLString);
+var
+  I: Integer;
+  OutPut: OLString;
+begin
+  OutPut := Value;
+
+  for I := 0 to System.Length(UrlTranslation) - 1 do
+  begin
+    OutPut := OutPut.Replaced(UrlTranslation[i].Translation, UrlTranslation[i].UnicodeChar);
+  end;
+
+  Self := OutPut;
 end;
 
 function OLString.ParamIndex(ParamName: string): OLInteger;
@@ -1789,7 +1970,7 @@ end;
 
 
 //http://www.yanniel.info/2011/01/string-compress-decompress-delphi-zlib.html
-function OLString.Compressed: string;
+function OLString.Compressed: OLString;
 var
   strInput,
   strOutput: TStringStream;
@@ -1856,7 +2037,7 @@ var
   Position, Counter, OutPut: integer;
 begin
   OutPut := 0;
-  Counter := 0;
+  Counter := -1;
   Position := Self.Pos(SubString, CaseSensitivity);
 
   while Position > 0 do
@@ -1967,7 +2148,7 @@ begin
 end;
 
 //http://www.yanniel.info/2011/01/string-compress-decompress-delphi-zlib.html
-function OLString.Decompressed: string;
+function OLString.Decompressed: OLString;
 var
   strInput,
   strOutput: TStringStream;
@@ -2491,6 +2672,171 @@ initialization
   HtmlUnicodeTranslation[313].UnicodeChar := '♣';	HtmlUnicodeTranslation[313].NumericalCode := '&#9827;';	HtmlUnicodeTranslation[313].LiteralCode := '&clubs;';
   HtmlUnicodeTranslation[314].UnicodeChar := '♥';	HtmlUnicodeTranslation[314].NumericalCode := '&#9829;';	HtmlUnicodeTranslation[314].LiteralCode := '&hearts;';
   HtmlUnicodeTranslation[315].UnicodeChar := '♦';	HtmlUnicodeTranslation[315].NumericalCode := '&#9830;';	HtmlUnicodeTranslation[315].LiteralCode := '&diams;';
+
+
+  UrlTranslation[0].UnicodeChar := '%'; UrlTranslation[0].Translation := '%25'; //Must be first
+  UrlTranslation[1].UnicodeChar := '!'; UrlTranslation[1].Translation := '%21';
+  UrlTranslation[2].UnicodeChar := '"'; UrlTranslation[2].Translation := '%22';
+  UrlTranslation[3].UnicodeChar := '#'; UrlTranslation[3].Translation := '%23';
+  UrlTranslation[4].UnicodeChar := '$'; UrlTranslation[4].Translation := '%24';
+  UrlTranslation[5].UnicodeChar := ' '; UrlTranslation[5].Translation := '%20';
+  UrlTranslation[6].UnicodeChar := '&'; UrlTranslation[6].Translation := '%26';
+  UrlTranslation[7].UnicodeChar := ''''; UrlTranslation[7].Translation := '%27';
+  UrlTranslation[8].UnicodeChar := '('; UrlTranslation[8].Translation := '%28';
+  UrlTranslation[9].UnicodeChar := ')'; UrlTranslation[9].Translation := '%29';
+  UrlTranslation[10].UnicodeChar := '*'; UrlTranslation[10].Translation := '%2A';
+  UrlTranslation[11].UnicodeChar := '+'; UrlTranslation[11].Translation := '%2B';
+  UrlTranslation[12].UnicodeChar := ','; UrlTranslation[12].Translation := '%2C';
+  UrlTranslation[13].UnicodeChar := '-'; UrlTranslation[13].Translation := '%2D';
+  UrlTranslation[14].UnicodeChar := '.'; UrlTranslation[14].Translation := '%2E';
+  UrlTranslation[15].UnicodeChar := '/'; UrlTranslation[15].Translation := '%2F';
+  UrlTranslation[16].UnicodeChar := ':'; UrlTranslation[16].Translation := '%3A';
+  UrlTranslation[17].UnicodeChar := '<'; UrlTranslation[17].Translation := '%3C';
+  UrlTranslation[18].UnicodeChar := '='; UrlTranslation[18].Translation := '%3D';
+  UrlTranslation[19].UnicodeChar := '>'; UrlTranslation[19].Translation := '%3E';
+  UrlTranslation[20].UnicodeChar := '?'; UrlTranslation[20].Translation := '%3F';
+  UrlTranslation[21].UnicodeChar := '@'; UrlTranslation[21].Translation := '%40';
+  UrlTranslation[22].UnicodeChar := '['; UrlTranslation[22].Translation := '%5B';
+  UrlTranslation[23].UnicodeChar := '\'; UrlTranslation[23].Translation := '%5C';
+  UrlTranslation[24].UnicodeChar := ']'; UrlTranslation[24].Translation := '%5D';
+  UrlTranslation[25].UnicodeChar := '^'; UrlTranslation[25].Translation := '%5E';
+  UrlTranslation[26].UnicodeChar := '_'; UrlTranslation[26].Translation := '%5F';
+  UrlTranslation[27].UnicodeChar := '`'; UrlTranslation[27].Translation := '%60';
+  UrlTranslation[28].UnicodeChar := '{'; UrlTranslation[28].Translation := '%7B';
+  UrlTranslation[29].UnicodeChar := '|'; UrlTranslation[29].Translation := '%7C';
+  UrlTranslation[30].UnicodeChar := '}'; UrlTranslation[30].Translation := '%7D';
+  UrlTranslation[31].UnicodeChar := '~'; UrlTranslation[31].Translation := '%7E';
+  UrlTranslation[32].UnicodeChar := ' '; UrlTranslation[32].Translation := '%7F';
+  UrlTranslation[33].UnicodeChar := '`'; UrlTranslation[33].Translation := '%E2%82%AC';
+  UrlTranslation[34].UnicodeChar := ''; UrlTranslation[34].Translation := '%81';
+  UrlTranslation[35].UnicodeChar := '‚'; UrlTranslation[35].Translation := '%E2%80%9A';
+  UrlTranslation[36].UnicodeChar := 'ƒ'; UrlTranslation[36].Translation := '%C6%92';
+  UrlTranslation[37].UnicodeChar := '„'; UrlTranslation[37].Translation := '%E2%80%9E';
+  UrlTranslation[38].UnicodeChar := '…'; UrlTranslation[38].Translation := '%E2%80%A6';
+  UrlTranslation[39].UnicodeChar := '†'; UrlTranslation[39].Translation := '%E2%80%A0';
+  UrlTranslation[40].UnicodeChar := '‡'; UrlTranslation[40].Translation := '%E2%80%A1';
+  UrlTranslation[41].UnicodeChar := 'ˆ'; UrlTranslation[41].Translation := '%CB%86';
+  UrlTranslation[42].UnicodeChar := '‰'; UrlTranslation[42].Translation := '%E2%80%B0';
+  UrlTranslation[43].UnicodeChar := 'Š'; UrlTranslation[43].Translation := '%C5%A0';
+  UrlTranslation[44].UnicodeChar := '‹'; UrlTranslation[44].Translation := '%E2%80%B9';
+  UrlTranslation[45].UnicodeChar := 'Œ'; UrlTranslation[45].Translation := '%C5%92';
+  UrlTranslation[46].UnicodeChar := ''; UrlTranslation[46].Translation := '%C5%8D';
+  UrlTranslation[47].UnicodeChar := 'Ž'; UrlTranslation[47].Translation := '%C5%BD';
+  UrlTranslation[48].UnicodeChar := ''; UrlTranslation[48].Translation := '%8F';
+  UrlTranslation[49].UnicodeChar := ''; UrlTranslation[49].Translation := '%C2%90';
+  UrlTranslation[50].UnicodeChar := '‘'; UrlTranslation[50].Translation := '%E2%80%98';
+  UrlTranslation[51].UnicodeChar := '’'; UrlTranslation[51].Translation := '%E2%80%99';
+  UrlTranslation[52].UnicodeChar := '“'; UrlTranslation[52].Translation := '%E2%80%9C';
+  UrlTranslation[53].UnicodeChar := '”'; UrlTranslation[53].Translation := '%E2%80%9D';
+  UrlTranslation[54].UnicodeChar := '•'; UrlTranslation[54].Translation := '%E2%80%A2';
+  UrlTranslation[55].UnicodeChar := '–'; UrlTranslation[55].Translation := '%E2%80%93';
+  UrlTranslation[56].UnicodeChar := '—'; UrlTranslation[56].Translation := '%E2%80%94';
+  UrlTranslation[57].UnicodeChar := '˜'; UrlTranslation[57].Translation := '%CB%9C';
+  UrlTranslation[58].UnicodeChar := '™'; UrlTranslation[58].Translation := '%E2%84';
+  UrlTranslation[59].UnicodeChar := 'š'; UrlTranslation[59].Translation := '%C5%A1';
+  UrlTranslation[60].UnicodeChar := '›'; UrlTranslation[60].Translation := '%E2%80';
+  UrlTranslation[61].UnicodeChar := 'œ'; UrlTranslation[61].Translation := '%C5%93';
+  UrlTranslation[62].UnicodeChar := ''; UrlTranslation[62].Translation := '%9D';
+  UrlTranslation[63].UnicodeChar := 'ž'; UrlTranslation[63].Translation := '%C5%BE';
+  UrlTranslation[64].UnicodeChar := 'Ÿ'; UrlTranslation[64].Translation := '%C5%B8';
+  UrlTranslation[65].UnicodeChar := ' '; UrlTranslation[65].Translation := '%C2%A0';
+  UrlTranslation[66].UnicodeChar := '¡'; UrlTranslation[66].Translation := '%C2%A1';
+  UrlTranslation[67].UnicodeChar := '¢'; UrlTranslation[67].Translation := '%C2%A2';
+  UrlTranslation[68].UnicodeChar := '£'; UrlTranslation[68].Translation := '%C2%A3';
+  UrlTranslation[69].UnicodeChar := '¤'; UrlTranslation[69].Translation := '%C2%A4';
+  UrlTranslation[70].UnicodeChar := '¥'; UrlTranslation[70].Translation := '%C2%A5';
+  UrlTranslation[71].UnicodeChar := '¦'; UrlTranslation[71].Translation := '%C2%A6';
+  UrlTranslation[72].UnicodeChar := '§'; UrlTranslation[72].Translation := '%C2%A7';
+  UrlTranslation[73].UnicodeChar := '¨'; UrlTranslation[73].Translation := '%C2%A8';
+  UrlTranslation[74].UnicodeChar := '©'; UrlTranslation[74].Translation := '%C2%A9';
+  UrlTranslation[75].UnicodeChar := 'ª'; UrlTranslation[75].Translation := '%C2%AA';
+  UrlTranslation[76].UnicodeChar := '«'; UrlTranslation[76].Translation := '%C2%AB';
+  UrlTranslation[77].UnicodeChar := '¬'; UrlTranslation[77].Translation := '%C2%AC';
+  UrlTranslation[78].UnicodeChar := '®'; UrlTranslation[78].Translation := '%C2%AE';
+  UrlTranslation[79].UnicodeChar := '¯'; UrlTranslation[79].Translation := '%C2%AF';
+  UrlTranslation[80].UnicodeChar := '°'; UrlTranslation[80].Translation := '%C2%B0';
+  UrlTranslation[81].UnicodeChar := '±'; UrlTranslation[81].Translation := '%C2%B1';
+  UrlTranslation[82].UnicodeChar := '²'; UrlTranslation[82].Translation := '%C2%B2';
+  UrlTranslation[83].UnicodeChar := '³'; UrlTranslation[83].Translation := '%C2%B3';
+  UrlTranslation[84].UnicodeChar := '´'; UrlTranslation[84].Translation := '%C2%B4';
+  UrlTranslation[85].UnicodeChar := 'µ'; UrlTranslation[85].Translation := '%C2%B5';
+  UrlTranslation[86].UnicodeChar := '¶'; UrlTranslation[86].Translation := '%C2%B6';
+  UrlTranslation[87].UnicodeChar := '·'; UrlTranslation[87].Translation := '%C2%B7';
+  UrlTranslation[88].UnicodeChar := '¸'; UrlTranslation[88].Translation := '%C2%B8';
+  UrlTranslation[89].UnicodeChar := '¹'; UrlTranslation[89].Translation := '%C2%B9';
+  UrlTranslation[90].UnicodeChar := 'º'; UrlTranslation[90].Translation := '%C2%BA';
+  UrlTranslation[91].UnicodeChar := '»'; UrlTranslation[91].Translation := '%C2%BB';
+  UrlTranslation[92].UnicodeChar := '¼'; UrlTranslation[92].Translation := '%C2%BC';
+  UrlTranslation[93].UnicodeChar := '½'; UrlTranslation[93].Translation := '%C2%BD';
+  UrlTranslation[94].UnicodeChar := '¾'; UrlTranslation[94].Translation := '%C2%BE';
+  UrlTranslation[95].UnicodeChar := '¿'; UrlTranslation[95].Translation := '%C2%BF';
+  UrlTranslation[96].UnicodeChar := 'À'; UrlTranslation[96].Translation := '%C3%80';
+  UrlTranslation[97].UnicodeChar := 'Á'; UrlTranslation[97].Translation := '%C3%81';
+  UrlTranslation[98].UnicodeChar := 'Â'; UrlTranslation[98].Translation := '%C3%82';
+  UrlTranslation[99].UnicodeChar := 'Ã'; UrlTranslation[99].Translation := '%C3%83';
+  UrlTranslation[100].UnicodeChar := 'Ä'; UrlTranslation[100].Translation := '%C3%84';
+  UrlTranslation[101].UnicodeChar := 'Å'; UrlTranslation[101].Translation := '%C3%85';
+  UrlTranslation[102].UnicodeChar := 'Æ'; UrlTranslation[102].Translation := '%C3%86';
+  UrlTranslation[103].UnicodeChar := 'Ç'; UrlTranslation[103].Translation := '%C3%87';
+  UrlTranslation[104].UnicodeChar := 'È'; UrlTranslation[104].Translation := '%C3%88';
+  UrlTranslation[105].UnicodeChar := 'É'; UrlTranslation[105].Translation := '%C3%89';
+  UrlTranslation[106].UnicodeChar := 'Ê'; UrlTranslation[106].Translation := '%C3%8A';
+  UrlTranslation[107].UnicodeChar := 'Ë'; UrlTranslation[107].Translation := '%C3%8B';
+  UrlTranslation[108].UnicodeChar := 'Ì'; UrlTranslation[108].Translation := '%C3%8C';
+  UrlTranslation[109].UnicodeChar := 'Í'; UrlTranslation[109].Translation := '%C3%8D';
+  UrlTranslation[110].UnicodeChar := 'Î'; UrlTranslation[110].Translation := '%C3%8E';
+  UrlTranslation[111].UnicodeChar := 'Ï'; UrlTranslation[111].Translation := '%C3%8F';
+  UrlTranslation[112].UnicodeChar := 'Ð'; UrlTranslation[112].Translation := '%C3%90';
+  UrlTranslation[113].UnicodeChar := 'Ñ'; UrlTranslation[113].Translation := '%C3%91';
+  UrlTranslation[114].UnicodeChar := 'Ò'; UrlTranslation[114].Translation := '%C3%92';
+  UrlTranslation[115].UnicodeChar := 'Ó'; UrlTranslation[115].Translation := '%C3%93';
+  UrlTranslation[116].UnicodeChar := 'Ô'; UrlTranslation[116].Translation := '%C3%94';
+  UrlTranslation[117].UnicodeChar := 'Õ'; UrlTranslation[117].Translation := '%C3%95';
+  UrlTranslation[118].UnicodeChar := 'Ö'; UrlTranslation[118].Translation := '%C3%96';
+  UrlTranslation[119].UnicodeChar := '×'; UrlTranslation[119].Translation := '%C3%97';
+  UrlTranslation[120].UnicodeChar := 'Ø'; UrlTranslation[120].Translation := '%C3%98';
+  UrlTranslation[121].UnicodeChar := 'Ù'; UrlTranslation[121].Translation := '%C3%99';
+  UrlTranslation[122].UnicodeChar := 'Ú'; UrlTranslation[122].Translation := '%C3%9A';
+  UrlTranslation[123].UnicodeChar := 'Û'; UrlTranslation[123].Translation := '%C3%9B';
+  UrlTranslation[124].UnicodeChar := 'Ü'; UrlTranslation[124].Translation := '%C3%9C';
+  UrlTranslation[125].UnicodeChar := 'Ý'; UrlTranslation[125].Translation := '%C3%9D';
+  UrlTranslation[126].UnicodeChar := 'Þ'; UrlTranslation[126].Translation := '%C3%9E';
+  UrlTranslation[127].UnicodeChar := 'ß'; UrlTranslation[127].Translation := '%C3%9F';
+  UrlTranslation[128].UnicodeChar := 'à'; UrlTranslation[128].Translation := '%C3%A0';
+  UrlTranslation[129].UnicodeChar := 'á'; UrlTranslation[129].Translation := '%C3%A1';
+  UrlTranslation[130].UnicodeChar := 'â'; UrlTranslation[130].Translation := '%C3%A2';
+  UrlTranslation[131].UnicodeChar := 'ã'; UrlTranslation[131].Translation := '%C3%A3';
+  UrlTranslation[132].UnicodeChar := 'ä'; UrlTranslation[132].Translation := '%C3%A4';
+  UrlTranslation[133].UnicodeChar := 'å'; UrlTranslation[133].Translation := '%C3%A5';
+  UrlTranslation[134].UnicodeChar := 'æ'; UrlTranslation[134].Translation := '%C3%A6';
+  UrlTranslation[135].UnicodeChar := 'ç'; UrlTranslation[135].Translation := '%C3%A7';
+  UrlTranslation[136].UnicodeChar := 'è'; UrlTranslation[136].Translation := '%C3%A8';
+  UrlTranslation[137].UnicodeChar := 'é'; UrlTranslation[137].Translation := '%C3%A9';
+  UrlTranslation[138].UnicodeChar := 'ê'; UrlTranslation[138].Translation := '%C3%AA';
+  UrlTranslation[139].UnicodeChar := 'ë'; UrlTranslation[139].Translation := '%C3%AB';
+  UrlTranslation[140].UnicodeChar := 'ì'; UrlTranslation[140].Translation := '%C3%AC';
+  UrlTranslation[141].UnicodeChar := 'í'; UrlTranslation[141].Translation := '%C3%AD';
+  UrlTranslation[142].UnicodeChar := 'î'; UrlTranslation[142].Translation := '%C3%AE';
+  UrlTranslation[143].UnicodeChar := 'ï'; UrlTranslation[143].Translation := '%C3%AF';
+  UrlTranslation[144].UnicodeChar := 'ð'; UrlTranslation[144].Translation := '%C3%B0';
+  UrlTranslation[145].UnicodeChar := 'ñ'; UrlTranslation[145].Translation := '%C3%B1';
+  UrlTranslation[146].UnicodeChar := 'ò'; UrlTranslation[146].Translation := '%C3%B2';
+  UrlTranslation[147].UnicodeChar := 'ó'; UrlTranslation[147].Translation := '%C3%B3';
+  UrlTranslation[148].UnicodeChar := 'ô'; UrlTranslation[148].Translation := '%C3%B4';
+  UrlTranslation[149].UnicodeChar := 'õ'; UrlTranslation[149].Translation := '%C3%B5';
+  UrlTranslation[150].UnicodeChar := 'ö'; UrlTranslation[150].Translation := '%C3%B6';
+  UrlTranslation[151].UnicodeChar := '÷'; UrlTranslation[151].Translation := '%C3%B7';
+  UrlTranslation[152].UnicodeChar := 'ø'; UrlTranslation[152].Translation := '%C3%B8';
+  UrlTranslation[153].UnicodeChar := 'ù'; UrlTranslation[153].Translation := '%C3%B9';
+  UrlTranslation[154].UnicodeChar := 'ú'; UrlTranslation[154].Translation := '%C3%BA';
+  UrlTranslation[155].UnicodeChar := 'û'; UrlTranslation[155].Translation := '%C3%BB';
+  UrlTranslation[156].UnicodeChar := 'ü'; UrlTranslation[156].Translation := '%C3%BC';
+  UrlTranslation[157].UnicodeChar := 'ý'; UrlTranslation[157].Translation := '%C3%BD';
+  UrlTranslation[158].UnicodeChar := 'þ'; UrlTranslation[158].Translation := '%C3%BE';
+  UrlTranslation[159].UnicodeChar := 'ÿ'; UrlTranslation[159].Translation := '%C3%BF';
+
+
+
 
 
 end.
