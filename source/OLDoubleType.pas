@@ -12,66 +12,66 @@ type
     NullFlag: string;
 
     function GetHasValue(): OLBoolean;
-    procedure SetHasValue(Value: OLBoolean);
+    procedure SetHasValue(const Value: OLBoolean);
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
     function Sqr(): OLDouble;
     function Sqrt(): OLDouble;
-    function Power(Exponent: integer): OLDouble;  overload;
+    function Power(const Exponent: integer): OLDouble;  overload;
     function IsPositive(): OLBoolean;
     function IsNegative(): OLBoolean;
     function IsNonNegative(): OLBoolean;
-    function Max(d: OLDouble): OLDouble;
-    function Min(d: OLDouble): OLDouble;
+    function Max(const d: OLDouble): OLDouble;
+    function Min(const d: OLDouble): OLDouble;
     function Abs(): OLDouble;
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
     function ToString(): string; overload;
-    function ToString(Digits: integer; Format: TFloatFormat = ffFixed; Precision: integer = 16): string; overload;
-    function IfNull(d: OLDouble): OLDouble;
+    function ToString(const Digits: integer; const Format: TFloatFormat = ffFixed; const Precision: integer = 16): string; overload;
+    function IfNull(const d: OLDouble): OLDouble;
 
     function Round(const Digits: integer = 0): OLDouble;
     function Floor(): Integer;
     function Ceil(): Integer;
 
-    function Power(Exponent: Extended): OLDouble;  overload;
+    function Power(const Exponent: Extended): OLDouble;  overload;
 
     function IsNan(): OLBoolean;
     function IsInfinite(): OLBoolean;
-    function IsZero(Epsilon: Extended = 0): OLBoolean;
+    function IsZero(const Epsilon: Extended = 0): OLBoolean;
 
-    function InRange(AMin, AMax: Extended): OLBoolean;
-    function EnsureRange(AMin, AMax: Extended): Extended;
+    function InRange(const AMin, AMax: Extended): OLBoolean;
+    function EnsureRange(const AMin, AMax: Extended): Extended;
 
-    function SameValue(const B: Extended; Epsilon: Extended = 0): OLBoolean;
+    function SameValue(const B: Extended; const Epsilon: Extended = 0): OLBoolean;
 
-    class function Random(MinValue: Double; MaxValue:Double): OLDouble;  overload; static;
-    class function Random(MaxValue:Double = MaxInt): OLDouble;  overload; static;
+    class function Random(const MinValue: Double; const MaxValue:Double): OLDouble;  overload; static;
+    class function Random(const MaxValue:Double = MaxInt): OLDouble;  overload; static;
 
-    class operator Add(a, b: OLDouble): OLDouble;
-    class operator Subtract(a, b: OLDouble): OLDouble;
-    class operator Multiply(a, b: OLDouble): OLDouble;
-    class operator Divide(a, b: OLDouble): OLDouble;
+    class operator Add(const a, b: OLDouble): OLDouble;
+    class operator Subtract(const a, b: OLDouble): OLDouble;
+    class operator Multiply(const a, b: OLDouble): OLDouble;
+    class operator Divide(const a, b: OLDouble): OLDouble;
 
-    class operator Implicit(a: Double): OLDouble;
-    class operator Implicit(a: OLDouble): Double;
-    class operator Implicit(a: Variant): OLDouble;
-    class operator Implicit(a: OLDouble): Variant;
-    class operator Implicit(a: Integer): OLDouble;
+    class operator Implicit(const a: Double): OLDouble;
+    class operator Implicit(const a: OLDouble): Double;
+    class operator Implicit(const a: Variant): OLDouble;
+    class operator Implicit(const a: OLDouble): Variant;
+    class operator Implicit(const a: Integer): OLDouble;
 
-    class operator Implicit(a: Extended): OLDouble;
-    class operator Implicit(a: OLDouble): Extended;
+    class operator Implicit(const a: Extended): OLDouble;
+    class operator Implicit(const a: OLDouble): Extended;
 
-    class operator Inc(a: OLDouble): OLDouble;
-    class operator Dec(a: OLDouble): OLDouble;
-    class operator Negative(a: OLDouble): OLDouble;
+    class operator Inc(const a: OLDouble): OLDouble;
+    class operator Dec(const a: OLDouble): OLDouble;
+    class operator Negative(const a: OLDouble): OLDouble;
 
-    class operator Equal(a, b: OLDouble): OLBoolean;
-    class operator NotEqual(a, b: OLDouble): OLBoolean;
-    class operator GreaterThan(a, b: OLDouble): OLBoolean;
-    class operator GreaterThanOrEqual(a, b: OLDouble): OLBoolean;
-    class operator LessThan(a, b: OLDouble): OLBoolean;
-    class operator LessThanOrEqual(a, b: OLDouble): OLBoolean;
+    class operator Equal(const a, b: OLDouble): OLBoolean;
+    class operator NotEqual(const a, b: OLDouble): OLBoolean;
+    class operator GreaterThan(const a, b: OLDouble): OLBoolean;
+    class operator GreaterThanOrEqual(const a, b: OLDouble): OLBoolean;
+    class operator LessThan(const a, b: OLDouble): OLBoolean;
+    class operator LessThanOrEqual(const a, b: OLDouble): OLBoolean;
   end;
 
 implementation
@@ -90,7 +90,7 @@ begin
     Result := Null;
 end;
 
-class operator OLDouble.Add(a, b: OLDouble): OLDouble;
+class operator OLDouble.Add(const a, b: OLDouble): OLDouble;
 
 var
   returnrec: OLDouble;
@@ -105,7 +105,7 @@ begin
   Result := Math.Ceil(Self);
 end;
 
-class operator OLDouble.Implicit(a: Double): OLDouble;
+class operator OLDouble.Implicit(const a: Double): OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -114,7 +114,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDouble.Implicit(a: OLDouble): Double;
+class operator OLDouble.Implicit(const a: OLDouble): Double;
 var
   OutPut: Double;
 begin
@@ -124,12 +124,12 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDouble.Dec(a: OLDouble): OLDouble;
+class operator OLDouble.Dec(const a: OLDouble): OLDouble;
 begin
   Result := a - 1;
 end;
 
-class operator OLDouble.Divide(a, b: OLDouble): OLDouble;
+class operator OLDouble.Divide(const a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
 begin
@@ -141,12 +141,12 @@ begin
   Result := returnrec;
 end;
 
-function OLDouble.EnsureRange(AMin, AMax: Extended): Extended;
+function OLDouble.EnsureRange(const AMin, AMax: Extended): Extended;
 begin
   Result := Math.EnsureRange(Self, AMin, AMax);
 end;
 
-class operator OLDouble.Equal(a, b: OLDouble): OLBoolean;
+class operator OLDouble.Equal(const a, b: OLDouble): OLBoolean;
 begin
   Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1e-10)) or (a.IsNull() and b.IsNull());
 end;
@@ -161,12 +161,12 @@ begin
   Result := (NullFlag <> EmptyStr);
 end;
 
-class operator OLDouble.GreaterThan(a, b: OLDouble): OLBoolean;
+class operator OLDouble.GreaterThan(const a, b: OLDouble): OLBoolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLDouble.GreaterThanOrEqual(a, b: OLDouble): OLBoolean;
+class operator OLDouble.GreaterThanOrEqual(const a, b: OLDouble): OLBoolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -176,7 +176,7 @@ begin
   Result := ValuePresent;
 end;
 
-function OLDouble.IfNull(d: OLDouble): OLDouble;
+function OLDouble.IfNull(const d: OLDouble): OLDouble;
 var
   Output: OLDouble;
 begin
@@ -188,7 +188,7 @@ begin
   Result := Output;
 end;
 
-class operator OLDouble.Implicit(a: Variant): OLDouble;
+class operator OLDouble.Implicit(const a: Variant): OLDouble;
 var
   OutPut: OLDouble;
   f: Double;
@@ -211,12 +211,12 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDouble.Inc(a: OLDouble): OLDouble;
+class operator OLDouble.Inc(const a: OLDouble): OLDouble;
 begin
   Result := a + 1;
 end;
 
-function OLDouble.InRange(AMin, AMax: Extended): OLBoolean;
+function OLDouble.InRange(const AMin, AMax: Extended): OLBoolean;
 begin
   Result := Math.InRange(Self, AMin, AMax);
 end;
@@ -226,17 +226,17 @@ begin
   Result := not ValuePresent;
 end;
 
-class operator OLDouble.LessThan(a, b: OLDouble): OLBoolean;
+class operator OLDouble.LessThan(const a, b: OLDouble): OLBoolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLDouble.LessThanOrEqual(a, b: OLDouble): OLBoolean;
+class operator OLDouble.LessThanOrEqual(const a, b: OLDouble): OLBoolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-function OLDouble.Max(d: OLDouble): OLDouble;
+function OLDouble.Max(const d: OLDouble): OLDouble;
 begin
   if (not ValuePresent) or (d.IsNull()) then
     raise Exception.Create('Null value cannot be compared to double.');
@@ -244,7 +244,7 @@ begin
   Result := Math.Max(Value, d);
 end;
 
-function OLDouble.Min(d: OLDouble): OLDouble;
+function OLDouble.Min(const d: OLDouble): OLDouble;
 begin
   if (not ValuePresent) or (d.IsNull) then
     raise Exception.Create('Null value cannot be compared to double.');
@@ -253,7 +253,7 @@ begin
 end;
 
 
-class operator OLDouble.Multiply(a, b: OLDouble): OLDouble;
+class operator OLDouble.Multiply(const a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
 begin
@@ -262,7 +262,7 @@ begin
   Result := returnrec;
 end;
 
-class operator OLDouble.Negative(a: OLDouble): OLDouble;
+class operator OLDouble.Negative(const a: OLDouble): OLDouble;
 
 var
   b: OLDouble;
@@ -291,17 +291,17 @@ begin
   Result := ValuePresent and (Value >= 0);
 end;
 
-class operator OLDouble.NotEqual(a, b: OLDouble): OLBoolean;
+class operator OLDouble.NotEqual(const a, b: OLDouble): OLBoolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
-function OLDouble.Power(Exponent: Extended): OLDouble;
+function OLDouble.Power(const Exponent: Extended): OLDouble;
 begin
   Result := Math.Power(Self, Exponent);
 end;
 
-function OLDouble.Power(Exponent: integer): OLDouble;
+function OLDouble.Power(const Exponent: integer): OLDouble;
 var
   returnrec: OLDouble;
 begin
@@ -311,7 +311,8 @@ begin
 end;
 
 
-class function OLDouble.Random(MinValue: Double; MaxValue:Double): OLDouble;
+class function OLDouble.Random(const MinValue: Double; const MaxValue:Double):
+    OLDouble;
 begin
   Result := MinValue + system.Random() * (MaxValue - MinValue);
 end;
@@ -321,17 +322,18 @@ begin
   Result := ValuePresent and (Value > 0);
 end;
 
-function OLDouble.IsZero(Epsilon: Extended): OLBoolean;
+function OLDouble.IsZero(const Epsilon: Extended = 0): OLBoolean;
 begin
   Result := Math.IsZero(Self, Epsilon);
 end;
 
-function OLDouble.SameValue(const B: Extended; Epsilon: Extended): OLBoolean;
+function OLDouble.SameValue(const B: Extended; const Epsilon: Extended = 0):
+    OLBoolean;
 begin
   Result := Math.SameValue(Self, B, Epsilon);
 end;
 
-procedure OLDouble.SetHasValue(Value: OLBoolean);
+procedure OLDouble.SetHasValue(const Value: OLBoolean);
 begin
   if Value then
     NullFlag := NonEmptyStr
@@ -358,7 +360,7 @@ begin
   Result := System.Sqrt(Self);
 end;
 
-class operator OLDouble.Subtract(a, b: OLDouble): OLDouble;
+class operator OLDouble.Subtract(const a, b: OLDouble): OLDouble;
 
 var
   returnrec: OLDouble;
@@ -368,8 +370,8 @@ begin
   Result := returnrec;
 end;
 
-function OLDouble.ToString(Digits: integer; Format: TFloatFormat;
-  Precision: integer): string;
+function OLDouble.ToString(const Digits: integer; const Format: TFloatFormat =
+    ffFixed; const Precision: integer = 16): string;
 begin
   Result := FloatToStrF(Self, Format, Precision, Digits);
 end;
@@ -386,12 +388,12 @@ begin
   Result := Output;
 end;
 
-class function OLDouble.Random(MaxValue: Double): OLDouble;
+class function OLDouble.Random(const MaxValue:Double = MaxInt): OLDouble;
 begin
   Result := OLDouble.Random(0, MaxValue);
 end;
 
-class operator OLDouble.Implicit(a: Integer): OLDouble;
+class operator OLDouble.Implicit(const a: Integer): OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -400,7 +402,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDouble.Implicit(a: Extended): OLDouble;
+class operator OLDouble.Implicit(const a: Extended): OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -409,7 +411,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDouble.Implicit(a: OLDouble): Extended;
+class operator OLDouble.Implicit(const a: OLDouble): Extended;
 var
   OutPut: Double;
 begin
@@ -419,7 +421,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDouble.Implicit(a: OLDouble): Variant;
+class operator OLDouble.Implicit(const a: OLDouble): Variant;
 var
   OutPut: Variant;
 begin

@@ -12,7 +12,7 @@ type
     NullFlag: string;
 
     function GetHasValue(): OLBoolean;
-    procedure SetHasValue(Value: OLBoolean);
+    procedure SetHasValue(const Value: OLBoolean);
     function GetDay: OLInteger;
     function GetHour: OLInteger;
     function GetMilliSecond: OLInteger;
@@ -51,22 +51,22 @@ type
     function ToString(): string;
     function IfNull(b: OLDateTime): OLDateTime;
 
-    class operator Implicit(a: TDateTime): OLDateTime;
-    class operator Implicit(a: OLDateTime): TDateTime;
-    class operator Implicit(a: Variant): OLDateTime;
-    class operator Implicit(a: OLDateTime): Variant;
-    class operator Implicit(a: Extended): OLDateTime;
-    class operator Implicit(a: string): OLDateTime;
+    class operator Implicit(const a: TDateTime): OLDateTime;
+    class operator Implicit(const a: OLDateTime): TDateTime;
+    class operator Implicit(const a: Variant): OLDateTime;
+    class operator Implicit(const a: OLDateTime): Variant;
+    class operator Implicit(const a: Extended): OLDateTime;
+    class operator Implicit(const a: string): OLDateTime;
 
-    class operator Equal(a, b: OLDateTime): OLBoolean;
-    class operator NotEqual(a, b: OLDateTime): OLBoolean;
-    class operator GreaterThan(a, b: OLDateTime): OLBoolean;
-    class operator GreaterThanOrEqual(a, b: OLDateTime): OLBoolean;
-    class operator LessThan(a, b: OLDateTime): OLBoolean;
-    class operator LessThanOrEqual(a, b: OLDateTime): OLBoolean;
+    class operator Equal(const a, b: OLDateTime): OLBoolean;
+    class operator NotEqual(const a, b: OLDateTime): OLBoolean;
+    class operator GreaterThan(const a, b: OLDateTime): OLBoolean;
+    class operator GreaterThanOrEqual(const a, b: OLDateTime): OLBoolean;
+    class operator LessThan(const a, b: OLDateTime): OLBoolean;
+    class operator LessThanOrEqual(const a, b: OLDateTime): OLBoolean;
 
-    class operator Add(a: OLDateTime; b: Extended): OLDateTime;
-    class operator Subtract(a: OLDateTime; b: Extended): OLDateTime;
+    class operator Add(const a: OLDateTime; const b: Extended): OLDateTime;
+    class operator Subtract(const a: OLDateTime; const b: Extended): OLDateTime;
 
     function DateOf(): OLDateTime;
     function TimeOf(): OLDateTime;
@@ -139,9 +139,9 @@ type
 
     function MilliSecondOfTheMinute(): LongWord;
 
-    class function SecondCount(StartingYear: Integer = 2017): OLInteger; static;
-    class function DateTimeFromSecondCount(Count: integer; StartingYear: Integer = 2017): OLDateTime; static;
-    procedure SetFromSecondCount(Count: integer; StartingYear: Integer = 2017);
+    class function SecondCount(const StartingYear: Integer = 2017): OLInteger; static;
+    class function DateTimeFromSecondCount(const Count: integer; const StartingYear: Integer = 2017): OLDateTime; static;
+    procedure SetFromSecondCount(const Count: integer; const StartingYear: Integer = 2017);
 
     function YearsBetween(const AThen: OLDateTime): OLInteger;
     function MonthsBetween(const AThen: OLDateTime): OLInteger;
@@ -152,8 +152,8 @@ type
     function SecondsBetween(const AThen: OLDateTime): Int64;
     function MilliSecondsBetween(const AThen: OLDateTime): Int64;
 
-    function InRange(AStartDateTime, AEndDateTime: OLDateTime; aInclusive: Boolean = True): OLBoolean;
-    function InDateRange(AStartDateTime, AEndDateTime: TDate; aInclusive: Boolean = True): OLBoolean;
+    function InRange(const AStartDateTime, AEndDateTime: OLDateTime; const aInclusive: Boolean = True): OLBoolean;
+    function InDateRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean = True): OLBoolean;
 
     function YearSpan(const AThen: OLDateTime): OLDouble;
     function MonthSpan(const AThen: OLDateTime): OLDouble;
@@ -175,8 +175,8 @@ type
     function IncMilliSecond(const ANumberOfMilliSeconds: Int64 = 1): OLDateTime;
 
     procedure DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word);
-    procedure EncodeDateTime(const AYear, AMonth, ADay: Word; AHour: Word = 0; AMinute: Word = 0;
-      ASecond: Word = 0; AMilliSecond: Word = 0);
+    procedure EncodeDateTime(const AYear, AMonth, ADay: Word; const AHour: Word = 0; const AMinute: Word = 0;
+      const ASecond: Word = 0; const AMilliSecond: Word = 0);
 
     function RecodedYear(const AYear: Word): OLDateTime;
     function RecodedMonth(const AMonth: Word): OLDateTime;
@@ -191,8 +191,8 @@ type
     function LongDayName(): string;
     function ShortDayName(): string;
 
-    function Max(CompareDate: OLDateTime): OLDateTime;
-    function Min(CompareDate: OLDateTime): OLDateTime;
+    function Max(const CompareDate: OLDateTime): OLDateTime;
+    function Min(const CompareDate: OLDateTime): OLDateTime;
   end;
 
 implementation
@@ -202,7 +202,8 @@ const
 
   { OLDateTime }
 
-class operator OLDateTime.Add(a: OLDateTime; b: Extended): OLDateTime;
+class operator OLDateTime.Add(const a: OLDateTime; const b: Extended):
+    OLDateTime;
 var
   OutPut: OLDateTime;
 begin
@@ -226,13 +227,13 @@ begin
   Result := OutPut;
 end;
 
-class function OLDateTime.DateTimeFromSecondCount(Count,
+class function OLDateTime.DateTimeFromSecondCount(const Count,
   StartingYear: Integer): OLDateTime;
 begin
   Result := OLDateTime.StartOfAYear(StartingYear).IncSecond(Count);
 end;
 
-function OLDateTime.InDateRange(AStartDateTime, AEndDateTime: TDate; aInclusive: Boolean): OLBoolean;
+function OLDateTime.InDateRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
@@ -244,8 +245,8 @@ begin
   Result := OutPut;
 end;
 
-function OLDateTime.InRange(AStartDateTime, AEndDateTime: OLDateTime;
-  aInclusive: Boolean): OLBoolean;
+function OLDateTime.InRange(const AStartDateTime, AEndDateTime: OLDateTime;
+  const aInclusive: Boolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
@@ -298,7 +299,9 @@ begin
   DateUtils.DecodeDateTime(Self, AYear, AMonth, ADay, AHour, AMinute, ASecond,  AMilliSecond);
 end;
 
-procedure OLDateTime.EncodeDateTime(const AYear, AMonth, ADay: Word; AHour, AMinute, ASecond, AMilliSecond: Word);
+procedure OLDateTime.EncodeDateTime(const AYear, AMonth, ADay: Word; const
+    AHour: Word = 0; const AMinute: Word = 0; const ASecond: Word = 0; const
+    AMilliSecond: Word = 0);
 begin
   self := DateUtils.EncodeDateTime(AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond);
 end;
@@ -333,7 +336,7 @@ begin
   Result := DateUtils.EndOfTheYear(Self);
 end;
 
-class operator OLDateTime.Equal(a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.Equal(const a, b: OLDateTime): OLBoolean;
 begin
   Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1.1574e-8)) or (a.IsNull() and b.IsNull());  //Less than a millisecond difference
 end;
@@ -378,7 +381,7 @@ begin
   Result := Self.YearOf();
 end;
 
-class function OLDateTime.SecondCount(StartingYear: Integer): OLInteger;
+class function OLDateTime.SecondCount(const StartingYear: Integer): OLInteger;
 var
   d: OLDateTime;
 begin
@@ -386,12 +389,12 @@ begin
   Result := d.SecondsBetween(OLDateTime.StartOfAYear(StartingYear));
 end;
 
-class operator OLDateTime.GreaterThan(a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.GreaterThan(const a, b: OLDateTime): OLBoolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLDateTime.GreaterThanOrEqual(a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.GreaterThanOrEqual(const a, b: OLDateTime): OLBoolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -443,7 +446,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDateTime.Implicit(a: OLDateTime): Variant;
+class operator OLDateTime.Implicit(const a: OLDateTime): Variant;
 var
   OutPut: Variant;
 begin
@@ -455,13 +458,16 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDateTime.Implicit(a: Variant): OLDateTime;
+class operator OLDateTime.Implicit(const a: Variant): OLDateTime;
 var
   OutPut: OLDateTime;
   b: TDateTime;
 begin
   if VarIsNull(a) then
-    OutPut.ValuePresent := false
+  begin
+    OutPut.ValuePresent := false;
+    OutPut.Value := 0;
+  end
   else
   begin
     if TryStrToDateTime(a, b) then
@@ -478,14 +484,14 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDateTime.Implicit(a: OLDateTime): TDateTime;
+class operator OLDateTime.Implicit(const a: OLDateTime): TDateTime;
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as TDateTime value.');
   Result := a.Value;
 end;
 
-class operator OLDateTime.Implicit(a: TDateTime): OLDateTime;
+class operator OLDateTime.Implicit(const a: TDateTime): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
@@ -525,12 +531,12 @@ begin
   Result := DateUtils.IsToday(Self);
 end;
 
-class operator OLDateTime.LessThan(a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.LessThan(const a, b: OLDateTime): OLBoolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLDateTime.LessThanOrEqual(a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.LessThanOrEqual(const a, b: OLDateTime): OLBoolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -540,7 +546,7 @@ begin
   Result := LongDayNames[DayOfWeek(Self.Value)];
 end;
 
-function OLDateTime.Max(CompareDate: OLDateTime): OLDateTime;
+function OLDateTime.Max(const CompareDate: OLDateTime): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
@@ -602,7 +608,7 @@ begin
   Result := DateUtils.MilliSecondSpan(Self, AThen);
 end;
 
-function OLDateTime.Min(CompareDate: OLDateTime): OLDateTime;
+function OLDateTime.Min(const CompareDate: OLDateTime): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
@@ -669,7 +675,7 @@ begin
   Result := DateUtils.MonthSpan(Self, AThen);
 end;
 
-class operator OLDateTime.NotEqual(a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.NotEqual(const a, b: OLDateTime): OLBoolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
@@ -769,7 +775,7 @@ begin
   Self := OLDateTime.EndOfAYear(AYear);
 end;
 
-procedure OLDateTime.SetHasValue(Value: OLBoolean);
+procedure OLDateTime.SetHasValue(const Value: OLBoolean);
 begin
   if Value then
     NullFlag := NonEmptyStr
@@ -802,7 +808,7 @@ begin
   Self := SysUtils.Now();
 end;
 
-procedure OLDateTime.SetFromSecondCount(Count: integer; StartingYear: Integer);
+procedure OLDateTime.SetFromSecondCount(const Count: integer; const StartingYear: Integer);
 begin
   Self := OLDateTime.DateTimeFromSecondCount(Count, StartingYear)
 end;
@@ -877,7 +883,8 @@ begin
   Result := DateUtils.StartOfTheYear(Self);
 end;
 
-class operator OLDateTime.Subtract(a: OLDateTime; b: Extended): OLDateTime;
+class operator OLDateTime.Subtract(const a: OLDateTime; const b: Extended):
+    OLDateTime;
 var
   OutPut: OLDateTime;
 begin
@@ -965,7 +972,7 @@ begin
   Result := DateUtils.Yesterday;
 end;
 
-class operator OLDateTime.Implicit(a: Extended): OLDateTime;
+class operator OLDateTime.Implicit(const a: Extended): OLDateTime;
 var
   OutPut: OLDateTime;
   dt: TDateTime;
@@ -1037,7 +1044,7 @@ begin
   Result := DateUtils.IncYear(Self, ANumberOfYears);
 end;
 
-class operator OLDateTime.Implicit(a: string): OLDateTime;
+class operator OLDateTime.Implicit(const a: string): OLDateTime;
 begin
   Result := SysUtils.StrToDateTime(a);
 end;

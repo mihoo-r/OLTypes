@@ -12,81 +12,81 @@ type
     NullFlag: string;
 
     function GetHasValue(): OLBoolean;
-    procedure SetHasValue(Value: OLBoolean);
+    procedure SetHasValue(const Value: OLBoolean);
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
-    function IsDividableBy(i: integer): OLBoolean;
+    function IsDividableBy(const i: integer): OLBoolean;
     function IsOdd(): OLBoolean;
     function IsEven(): OLBoolean;
     function Sqr(): OLInteger;
-    function Power(Exponent: LongWord): OLInteger; overload;
-    function Power(Exponent: integer): Double; overload;
+    function Power(const Exponent: LongWord): OLInteger; overload;
+    function Power(const Exponent: integer): Double; overload;
     function IsPositive(): OLBoolean;
     function IsNegative(): OLBoolean;
     function IsNonNegative(): OLBoolean;
-    function Max(i: OLInteger): OLInteger;
-    function Min(i: OLInteger): OLInteger;
+    function Max(const i: OLInteger): OLInteger;
+    function Min(const i: OLInteger): OLInteger;
     function Abs(): OLInteger;
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
     function ToString(): string;
-    function IfNull(i: OLInteger): OLInteger;
-    function Round(Digits: OLInteger): OLInteger;
-    function Between(BottomIncluded, TopIncluded: OLInteger): OLBoolean;
-    function Increased(IncreasedBy: integer = 1): OLInteger;
-    function Decreased(DecreasedBy: integer = 1): OLInteger;
-    function Replaced(FromValue: OLInteger; ToValue: OLInteger): OLInteger;
+    function IfNull(const i: OLInteger): OLInteger;
+    function Round(const Digits: OLInteger): OLInteger;
+    function Between(const BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+    function Increased(const IncreasedBy: integer = 1): OLInteger;
+    function Decreased(const DecreasedBy: integer = 1): OLInteger;
+    function Replaced(const FromValue: OLInteger; const ToValue: OLInteger): OLInteger;
 
-    procedure ForLoop(InitialValue: integer; ToValue: integer; Proc: TProc);
+    procedure ForLoop(const InitialValue: integer; const ToValue: integer; const Proc: TProc);
     function IsPrime(): OLBoolean;
-    class function Random(MinValue: Integer; MaxValue:Integer): OLInteger;  overload; static;
-    class function RandomPrime(MinValue: Integer; MaxValue:Integer): OLInteger; overload; static;
+    class function Random(const MinValue: Integer; const MaxValue:Integer): OLInteger;  overload; static;
+    class function RandomPrime(const MinValue: Integer; const MaxValue:Integer): OLInteger; overload; static;
 
-    class function Random(MaxValue:Integer = MaxInt): OLInteger;  overload; static;
-    class function RandomPrime(MaxValue:Integer = MaxInt): OLInteger; overload; static;
+    class function Random(const MaxValue:Integer = MaxInt): OLInteger;  overload; static;
+    class function RandomPrime(const MaxValue:Integer = MaxInt): OLInteger; overload; static;
 
-    procedure SetRandom(MinValue: Integer; MaxValue:Integer); overload;
-    procedure SetRandom(MaxValue:Integer = MaxInt); overload;
+    procedure SetRandom(const MinValue: Integer; const MaxValue:Integer); overload;
+    procedure SetRandom(const MaxValue:Integer = MaxInt); overload;
 
-    procedure SetRandomPrime(MinValue: Integer; MaxValue:Integer); overload;
-    procedure SetRandomPrime(MaxValue:Integer = MaxInt); overload;
+    procedure SetRandomPrime(const MinValue: Integer; const MaxValue:Integer); overload;
+    procedure SetRandomPrime(const MaxValue:Integer = MaxInt); overload;
 
-    class operator Add(a, b: OLInteger): OLInteger;
-    class operator Subtract(a, b: OLInteger): OLInteger;
-    class operator Multiply(a, b: OLInteger): OLInteger;
-    class operator IntDivide(a, b: OLInteger): OLInteger;
-    class operator Divide(a, b: OLInteger): OLDouble;
-    class operator Divide(a: Extended; b: OLInteger): OLDouble;
-    class operator Divide(a: OLInteger; b: Extended): OLDouble;
-    class operator Divide(a: OLDouble; b: OLInteger): OLDouble;
-    class operator Divide(a: OLInteger; b: OLDouble): OLDouble;
-    class operator Modulus(a, b: OLInteger): OLInteger;
-    class operator BitwiseXor(a, b: OLInteger): OLInteger;
+    class operator Add(const a, b: OLInteger): OLInteger;
+    class operator Subtract(const a, b: OLInteger): OLInteger;
+    class operator Multiply(const a, b: OLInteger): OLInteger;
+    class operator IntDivide(const a, b: OLInteger): OLInteger;
+    class operator Divide(const a, b: OLInteger): OLDouble;
+    class operator Divide(const a: Extended; const b: OLInteger): OLDouble;
+    class operator Divide(const a: OLInteger; const b: Extended): OLDouble;
+    class operator Divide(const a: OLDouble; const b: OLInteger): OLDouble;
+    class operator Divide(const a: OLInteger; const b: OLDouble): OLDouble;
+    class operator Modulus(const a, b: OLInteger): OLInteger;
+    class operator BitwiseXor(const a, b: OLInteger): OLInteger;
 
-    class operator Implicit(a: integer): OLInteger;
-    class operator Implicit(a: OLInteger): integer;
-    class operator Implicit(a: OLInteger): Double;
-    class operator Implicit(a: Variant): OLInteger;
-    class operator Implicit(a: OLInteger): Variant;
-    class operator Implicit(a: OLInteger): OLDouble;
+    class operator Implicit(const a: integer): OLInteger;
+    class operator Implicit(const a: OLInteger): integer;
+    class operator Implicit(const a: OLInteger): Double;
+    class operator Implicit(const a: Variant): OLInteger;
+    class operator Implicit(const a: OLInteger): Variant;
+    class operator Implicit(const a: OLInteger): OLDouble;
 
     class operator Inc(a: OLInteger): OLInteger;
     class operator Dec(a: OLInteger): OLInteger;
-    class operator Negative(a: OLInteger): OLInteger;
+    class operator Negative(const a: OLInteger): OLInteger;
 
-    class operator Equal(a, b: OLInteger): OLBoolean; overload;
-    class operator NotEqual(a, b: OLInteger): OLBoolean;  overload;
-    class operator GreaterThan(a, b: OLInteger): OLBoolean;  overload;
-    class operator GreaterThanOrEqual(a, b: OLInteger): OLBoolean;  overload;
-    class operator LessThan(a, b: OLInteger): OLBoolean;  overload;
-    class operator LessThanOrEqual(a, b: OLInteger): OLBoolean;  overload;
+    class operator Equal(const a, b: OLInteger): OLBoolean; overload;
+    class operator NotEqual(const a, b: OLInteger): OLBoolean;  overload;
+    class operator GreaterThan(const a, b: OLInteger): OLBoolean;  overload;
+    class operator GreaterThanOrEqual(const a, b: OLInteger): OLBoolean;  overload;
+    class operator LessThan(const a, b: OLInteger): OLBoolean;  overload;
+    class operator LessThanOrEqual(const a, b: OLInteger): OLBoolean;  overload;
 
-    class operator Equal(a: OLInteger; b: Extended): OLBoolean;  overload;
-    class operator NotEqual(a: OLInteger; b: Extended): OLBoolean;  overload;
-    class operator GreaterThan(a: OLInteger; b: Extended): OLBoolean;  overload;
-    class operator GreaterThanOrEqual(a: OLInteger; b: Extended): OLBoolean;  overload;
-    class operator LessThan(a: OLInteger; b: Extended): OLBoolean;  overload;
-    class operator LessThanOrEqual(a: OLInteger; b: Extended): OLBoolean;  overload;
+    class operator Equal(const a: OLInteger; const b: Extended): OLBoolean;  overload;
+    class operator NotEqual(const a: OLInteger; const b: Extended): OLBoolean;  overload;
+    class operator GreaterThan(const a: OLInteger; const b: Extended): OLBoolean;  overload;
+    class operator GreaterThanOrEqual(const a: OLInteger; const b: Extended): OLBoolean;  overload;
+    class operator LessThan(const a: OLInteger; const b: Extended): OLBoolean;  overload;
+    class operator LessThanOrEqual(const a: OLInteger; const b: Extended): OLBoolean;  overload;
   end;
 
 implementation
@@ -117,7 +117,7 @@ begin
     Result := Null;
 end;
 
-class operator OLInteger.Add(a, b: OLInteger): OLInteger;
+class operator OLInteger.Add(const a, b: OLInteger): OLInteger;
 
 var
   returnrec: OLInteger;
@@ -127,12 +127,13 @@ begin
   Result := returnrec;
 end;
 
-function OLInteger.Between(BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+function OLInteger.Between(const BottomIncluded, TopIncluded: OLInteger):
+    OLBoolean;
 begin
   Result := (Value <= TopIncluded) and (Value >= BottomIncluded);
 end;
 
-class operator OLInteger.BitwiseXor(a, b: OLInteger): OLInteger;
+class operator OLInteger.BitwiseXor(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
@@ -141,7 +142,7 @@ begin
   Result := returnrec;
 end;
 
-class operator OLInteger.Implicit(a: integer): OLInteger;
+class operator OLInteger.Implicit(const a: integer): OLInteger;
 var
   OutPut: OLInteger;
 begin
@@ -150,7 +151,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Implicit(a: OLInteger): integer;
+class operator OLInteger.Implicit(const a: OLInteger): integer;
 var
   OutPut: integer;
 begin
@@ -166,7 +167,8 @@ begin
   Result := a;
 end;
 
-class operator OLInteger.Divide(a: Extended; b: OLInteger): OLDouble;
+class operator OLInteger.Divide(const a: Extended; const b: OLInteger):
+    OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -178,7 +180,8 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Divide(a: OLInteger; b: Extended): OLDouble;
+class operator OLInteger.Divide(const a: OLInteger; const b: Extended):
+    OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -190,12 +193,13 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Equal(a: OLInteger; b: Extended): OLBoolean;
+class operator OLInteger.Equal(const a: OLInteger; const b: Extended):
+    OLBoolean;
 begin
   Result := (a.Value = b) and a.ValuePresent;
 end;
 
-class operator OLInteger.Divide(a, b: OLInteger): OLDouble;
+class operator OLInteger.Divide(const a, b: OLInteger): OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -207,17 +211,18 @@ begin
   Result := OutPut;
 end;
 
-function OLInteger.IsDividableBy(i: integer): OLBoolean;
+function OLInteger.IsDividableBy(const i: integer): OLBoolean;
 begin
   Result := Self.ValuePresent and ((Self.Value mod i) = 0);
 end;
 
-class operator OLInteger.Equal(a, b: OLInteger): OLBoolean;
+class operator OLInteger.Equal(const a, b: OLInteger): OLBoolean;
 begin
   Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-procedure OLInteger.ForLoop(InitialValue, ToValue: integer; Proc: TProc);
+procedure OLInteger.ForLoop(const InitialValue: integer; const ToValue:
+    integer; const Proc: TProc);
 var
   iterator: integer;
 begin
@@ -249,17 +254,17 @@ begin
   Result := (NullFlag <> EmptyStr);
 end;
 
-class operator OLInteger.GreaterThan(a, b: OLInteger): OLBoolean;
+class operator OLInteger.GreaterThan(const a, b: OLInteger): OLBoolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLInteger.GreaterThanOrEqual(a, b: OLInteger): OLBoolean;
+class operator OLInteger.GreaterThanOrEqual(const a, b: OLInteger): OLBoolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-function OLInteger.IfNull(i: OLInteger): OLInteger;
+function OLInteger.IfNull(const i: OLInteger): OLInteger;
 var
   Output: OLInteger;
 begin
@@ -271,7 +276,7 @@ begin
   Result := Output;
 end;
 
-class operator OLInteger.Implicit(a: OLInteger): Double;
+class operator OLInteger.Implicit(const a: OLInteger): Double;
 var
   OutPut: Double;
 begin
@@ -281,7 +286,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Implicit(a: Variant): OLInteger;
+class operator OLInteger.Implicit(const a: Variant): OLInteger;
 var
   OutPut: OLInteger;
   i: integer;
@@ -310,17 +315,17 @@ begin
   Result := a;
 end;
 
-function OLInteger.Increased(IncreasedBy: integer = 1): OLInteger;
+function OLInteger.Increased(const IncreasedBy: integer = 1): OLInteger;
 begin
   Result := Self + IncreasedBy;
 end;
 
-function OLInteger.Decreased(DecreasedBy: integer = 1): OLInteger;
+function OLInteger.Decreased(const DecreasedBy: integer = 1): OLInteger;
 begin
   Result := Self - DecreasedBy;
 end;
 
-class operator OLInteger.IntDivide(a, b: OLInteger): OLInteger;
+class operator OLInteger.IntDivide(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
@@ -337,17 +342,17 @@ begin
   Result := not ValuePresent;
 end;
 
-class operator OLInteger.LessThan(a, b: OLInteger): OLBoolean;
+class operator OLInteger.LessThan(const a, b: OLInteger): OLBoolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLInteger.LessThanOrEqual(a, b: OLInteger): OLBoolean;
+class operator OLInteger.LessThanOrEqual(const a, b: OLInteger): OLBoolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-function OLInteger.Max(i: OLInteger): OLInteger;
+function OLInteger.Max(const i: OLInteger): OLInteger;
 begin
   if (not ValuePresent) or (i = Null) then
     raise Exception.Create('Null value cannot be compared to integer.');
@@ -355,7 +360,7 @@ begin
   Result := Math.Max(Value, i);
 end;
 
-function OLInteger.Min(i: OLInteger): OLInteger;
+function OLInteger.Min(const i: OLInteger): OLInteger;
 begin
   if (not ValuePresent) or (i = Null) then
     raise Exception.Create('Null value cannot be compared to integer.');
@@ -363,7 +368,7 @@ begin
   Result := Math.Min(Value, i);
 end;
 
-class operator OLInteger.Modulus(a, b: OLInteger): OLInteger;
+class operator OLInteger.Modulus(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
@@ -372,7 +377,7 @@ begin
   Result := returnrec;
 end;
 
-class operator OLInteger.Multiply(a, b: OLInteger): OLInteger;
+class operator OLInteger.Multiply(const a, b: OLInteger): OLInteger;
 
 var
   returnrec: OLInteger;
@@ -382,7 +387,7 @@ begin
   Result := returnrec;
 end;
 
-class operator OLInteger.Negative(a: OLInteger): OLInteger;
+class operator OLInteger.Negative(const a: OLInteger): OLInteger;
 var
   b: OLInteger;
 begin
@@ -391,12 +396,13 @@ begin
   Result := b;
 end;
 
-class operator OLInteger.NotEqual(a: OLInteger; b: Extended): OLBoolean;
+class operator OLInteger.NotEqual(const a: OLInteger; const b: Extended):
+    OLBoolean;
 begin
   Result := (a.Value <> b) and a.ValuePresent;
 end;
 
-function OLInteger.Power(Exponent: integer): Double;
+function OLInteger.Power(const Exponent: integer): Double;
 begin
   Result := Math.IntPower(Value, Exponent);
 end;
@@ -411,12 +417,12 @@ begin
   Result := ValuePresent and (Value >= 0);
 end;
 
-class operator OLInteger.NotEqual(a, b: OLInteger): OLBoolean;
+class operator OLInteger.NotEqual(const a, b: OLInteger): OLBoolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
-function OLInteger.Power(Exponent: LongWord): OLInteger;
+function OLInteger.Power(const Exponent: LongWord): OLInteger;
 var
   returnrec: OLInteger;
 begin
@@ -426,12 +432,14 @@ begin
 end;
 
 
-class function OLInteger.Random(MinValue: Integer; MaxValue:Integer): OLInteger;
+class function OLInteger.Random(const MinValue: Integer; const
+    MaxValue:Integer): OLInteger;
 begin
   Result := MinValue + system.Random(MaxValue - MinValue + 1);
 end;
 
-class function OLInteger.RandomPrime(MinValue: Integer; MaxValue:Integer): OLInteger;
+class function OLInteger.RandomPrime(const MinValue: Integer; const
+    MaxValue:Integer): OLInteger;
 var
   new: OLInteger;
 begin
@@ -524,7 +532,7 @@ begin
   Result := OutPut;
 end;
 
-procedure OLInteger.SetHasValue(Value: OLBoolean);
+procedure OLInteger.SetHasValue(const Value: OLBoolean);
 begin
   if Value then
     NullFlag := NonEmptyStr
@@ -532,25 +540,26 @@ begin
     NullFlag := EmptyStr;
 end;
 
-procedure OLInteger.SetRandom(MaxValue: Integer);
+procedure OLInteger.SetRandom(const MaxValue:Integer = MaxInt);
 begin
   Self.Value := OLInteger.Random(MaxValue);
   Self.ValuePresent := True;
 end;
 
-procedure OLInteger.SetRandom(MinValue, MaxValue: Integer);
+procedure OLInteger.SetRandom(const MinValue: Integer; const MaxValue:Integer);
 begin
   Self.Value := OLInteger.Random(MinValue, MaxValue);
   Self.ValuePresent := True;
 end;
 
-procedure OLInteger.SetRandomPrime(MaxValue: Integer);
+procedure OLInteger.SetRandomPrime(const MaxValue:Integer = MaxInt);
 begin
   Self.Value := OLInteger.RandomPrime(MaxValue);
   Self.ValuePresent := True;
 end;
 
-procedure OLInteger.SetRandomPrime(MinValue, MaxValue: Integer);
+procedure OLInteger.SetRandomPrime(const MinValue: Integer; const
+    MaxValue:Integer);
 begin
   Self.Value := OLInteger.RandomPrime(MinValue, MaxValue);
   Self.ValuePresent := True;
@@ -565,7 +574,7 @@ begin
   Result := returnrec;
 end;
 
-class operator OLInteger.Subtract(a, b: OLInteger): OLInteger;
+class operator OLInteger.Subtract(const a, b: OLInteger): OLInteger;
 
 var
   returnrec: OLInteger;
@@ -587,17 +596,19 @@ begin
   Result := Output;
 end;
 
-class function OLInteger.Random(MaxValue: Integer): OLInteger;
+class function OLInteger.Random(const MaxValue:Integer = MaxInt): OLInteger;
 begin
   Result := OLInteger.Random(0, MaxValue);
 end;
 
-class function OLInteger.RandomPrime(MaxValue: Integer): OLInteger;
+class function OLInteger.RandomPrime(const MaxValue:Integer = MaxInt):
+    OLInteger;
 begin
   Result := OLInteger.RandomPrime(0, MaxValue);
 end;
 
-function OLInteger.Replaced(FromValue, ToValue: OLInteger): OLInteger;
+function OLInteger.Replaced(const FromValue: OLInteger; const ToValue:
+    OLInteger): OLInteger;
 var
   Output: OLInteger;
 begin
@@ -609,12 +620,12 @@ begin
   Result := Output;
 end;
 
-function OLInteger.Round(Digits: OLInteger): OLInteger;
+function OLInteger.Round(const Digits: OLInteger): OLInteger;
 begin
   Result := Math.RoundTo(Self, Digits);
 end;
 
-class operator OLInteger.Implicit(a: OLInteger): Variant;
+class operator OLInteger.Implicit(const a: OLInteger): Variant;
 var
   OutPut: Variant;
 begin
@@ -626,13 +637,14 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.GreaterThan(a: OLInteger; b: Extended): OLBoolean;
+class operator OLInteger.GreaterThan(const a: OLInteger; const b: Extended):
+    OLBoolean;
 begin
   Result := (a.Value > b) and a.ValuePresent;
 end;
 
-class operator OLInteger.GreaterThanOrEqual(a: OLInteger;
-  b: Extended): OLBoolean;
+class operator OLInteger.GreaterThanOrEqual(const a: OLInteger; const b:
+    Extended): OLBoolean;
 begin
   Result := (a.Value >= b) and a.ValuePresent;
 end;
@@ -642,17 +654,19 @@ begin
   Result := ValuePresent;
 end;
 
-class operator OLInteger.LessThan(a: OLInteger; b: Extended): OLBoolean;
+class operator OLInteger.LessThan(const a: OLInteger; const b: Extended):
+    OLBoolean;
 begin
   Result := (a.Value < b) and a.ValuePresent;
 end;
 
-class operator OLInteger.LessThanOrEqual(a: OLInteger; b: Extended): OLBoolean;
+class operator OLInteger.LessThanOrEqual(const a: OLInteger; const b:
+    Extended): OLBoolean;
 begin
   Result := (a.Value <= b) and a.ValuePresent;
 end;
 
-class operator OLInteger.Implicit(a: OLInteger): OLDouble;
+class operator OLInteger.Implicit(const a: OLInteger): OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -664,7 +678,8 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Divide(a: OLDouble; b: OLInteger): OLDouble;
+class operator OLInteger.Divide(const a: OLDouble; const b: OLInteger):
+    OLDouble;
 var
   OutPut: OLDouble;
 begin
@@ -676,7 +691,8 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Divide(a: OLInteger; b: OLDouble): OLDouble;
+class operator OLInteger.Divide(const a: OLInteger; const b: OLDouble):
+    OLDouble;
 var
   OutPut: OLDouble;
 begin

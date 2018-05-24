@@ -2185,13 +2185,13 @@ begin
   Check(s.OccurrencesCount('bond') = 0);
   Check(s.OccurrencesCount('bond', csCaseInsensitive) = 4);
 
-  Check(s.OccurrencesPosition('Bond', 1) = 12);
-  Check(s.OccurrencesPosition('Bond', 2) = 29);
-  Check(s.OccurrencesPosition('Bond', 3) = 46);
-  Check(s.OccurrencesPosition('Bond', 4) = 63);
+  Check(s.OccurrencesPosition('Bond', 0) = 12);
+  Check(s.OccurrencesPosition('Bond', 1) = 29);
+  Check(s.OccurrencesPosition('Bond', 2) = 46);
+  Check(s.OccurrencesPosition('Bond', 3) = 63);
 
 
-  Check(s.OccurrencesPosition('bond', 4, csCaseInsensitive) = 63);
+  Check(s.OccurrencesPosition('bond', 3, csCaseInsensitive) = 63);
 end;
 
 procedure OLStringTest.PositionString;

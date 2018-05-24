@@ -28,58 +28,58 @@ type
     Parameters: array of OLStringParamPair;
 
     function GetHasValue(): OLBoolean;
-    procedure SetHasValue(Value: OLBoolean);
-    function GetLine(Index: integer): OLString;
-    procedure SetLine(Index: integer; const Value: OLString);
+    procedure SetHasValue(const Value: OLBoolean);
+    function GetLine(const Index: integer): OLString;
+    procedure SetLine(const Index: integer; const Value: OLString);
     function IBANCalculateDigits(iban: OLString): OLInteger;
-    function IBANChangeAlpha(input: string): string;
+    function IBANChangeAlpha(const input: string): string;
     function GetValue: string;
     procedure SetValue(const Value: string);
-    function GetCSV(Index: integer): OLString;
-    procedure SetCSV(Index: integer; const Value: OLString);
-    function ParamIndex(ParamName: string): OLInteger;
-    procedure AppendParam(ParamName: string; ParamValue: OLString);
-    procedure UpdateParam(ParamIndex: integer; ParamValue: OLString);
+    function GetCSV(const Index: integer): OLString;
+    procedure SetCSV(const Index: integer; const Value: OLString);
+    function ParamIndex(const ParamName: string): OLInteger;
+    procedure AppendParam(const ParamName: string; const ParamValue: OLString);
+    procedure UpdateParam(const ParamIndex: integer; const ParamValue: OLString);
     procedure ApplyParams;
-    function GetParam(ParamName: string): OLString;
-    procedure SetParam(ParamName: string; const Value: OLString);
+    function GetParam(const ParamName: string): OLString;
+    procedure SetParam(const ParamName: string; const Value: OLString);
     function GetHtmlUnicodeText: OLString;
     procedure SetHtmlUnicodeText(const Value: OLString);
     function GetBase64: OLString;
     procedure SetBase64(const Value: OLString);
     function GetUrlEncodedText: OLString;
     procedure SetUrlEncodedText(const Value: OLString);
-    function Utf8Code(c: Char): OLString;
+    function Utf8Code(const c: Char): OLString;
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
 
-    function GetCharAtIndex(Index: integer): Char;
-    procedure SetCharAtIndex(Index: integer; Value: Char);
+    function GetCharAtIndex(const Index: integer): Char;
+    procedure SetCharAtIndex(const Index: integer; const Value: Char);
     procedure TurnDefaultValueFlagOff();
     property Value: string read GetValue write SetValue;
   public
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
     function IsEmptyStr(): OLBoolean;
-    function IfNull(i: OLString): OLString;
-    function IfNullOrEmpty(s: OLString): OLString;
+    function IfNull(const s: OLString): OLString;
+    function IfNullOrEmpty(const s: OLString): OLString;
     function IsNullOrEmpty(): OLBoolean;
 
-    function GetLineStartPosition(Index: integer): OLInteger;
-    function GetLineEndPosition(Index: integer): OLInteger;
+    function GetLineStartPosition(const Index: integer): OLInteger;
+    function GetLineEndPosition(const Index: integer): OLInteger;
 
-    function CSVFieldValue(FieldIndex: integer; Delimiter: Char = ';'): OLString;
-    function CSVFieldCount(Delimiter: Char = ';'): OLInteger;
-    procedure SetCSVFieldValue(FieldIndex: integer; Value: OLString; Delimiter: Char = ';');
+    function CSVFieldValue(const FieldIndex: integer; const Delimiter: Char = ';'): OLString;
+    function CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
+    procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
     function Length(): OLInteger;
 
-    function ContainsStr(ASubString: OLString): OLBoolean;
-    function ContainsText(ASubText: OLString): OLBoolean;
-    function RepeatedString(ACount: integer): OLString;
+    function ContainsStr(const ASubString: OLString): OLBoolean;
+    function ContainsText(const ASubText: OLString): OLBoolean;
+    function RepeatedString(const ACount: integer): OLString;
 
     function StartsStr(const ASubString: string): OLBoolean;
     function StartsText(const ASubText: string): OLBoolean;
-    function EndsStr(ASubString: OLString): OLBoolean;
-    function EndsText(ASubString: OLString): OLBoolean;
+    function EndsStr(const ASubString: OLString): OLBoolean;
+    function EndsText(const ASubString: OLString): OLBoolean;
 
     function IndexStr(const AValues: array of string): OLInteger;
     function IndexText(const AValues: array of string): OLInteger;
@@ -88,35 +88,39 @@ type
 
     function MidStr(const AStart, ACount: integer): OLString;
     function MidStrEx(const AStart, AEnd: integer): OLString;
-    function FindPatternStr(InFront: OLString; Behind: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseSensitive) : OLString; overload;
-    function FindPatternStr(Tag: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseInsensitive): OLString; overload;
-    function FindPattern(InFront: OLString; Behind: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseSensitive) : TStringPatternFind; overload;
-    function FindPattern(Tag: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseInsensitive): TStringPatternFind; overload;
+    function FindPatternStr(const InFront: OLString; const Behind: OLString; const StartingPosition: integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseSensitive) : OLString; overload;
+    function FindPatternStr(const Tag: OLString; const StartingPosition: integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive): OLString; overload;
+    function FindPattern(InFront: OLString; Behind: OLString; const
+        StartingPosition: integer = 1; const CaseSensitivity: TCaseSensitivity =
+        csCaseSensitive): TStringPatternFind; overload;
+    function FindPattern(Tag: OLString; const StartingPosition: integer = 1; const
+        CaseSensitivity: TCaseSensitivity = csCaseInsensitive): TStringPatternFind;
+        overload;
 
     function Like(Pattern: OLString): OLBoolean;
 
-    function Pos(SubStr: string; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
-    function PosEx(SubStr: string; Offset: integer; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
-    function PosLast(SubStr: string; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
-    function PosLastEx(SubStr: string; NotAfterPosition: integer; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function Pos(const SubStr: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function PosEx(const SubStr: string; const Offset: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function PosLast(const SubStr: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function PosLastEx(const SubStr: string; const NotAfterPosition: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 
     function Replaced(const AFromText, AToText: string): OLString;
     function ReplacedFirst(const AFromText, AToText: string): OLString;
     function ReplacedText(const AFromText, AToText: string): OLString;
     function ReplacedFirstText(const AFromText, AToText: string): OLString;
-    function ReplacedStartingAt(Position: Cardinal; const NewValue: OLString): OLString;
+    function ReplacedStartingAt(const Position: Cardinal; const NewValue: OLString): OLString;
 
     function ReversedString(): OLString;
 
     function RightStr(const ACount: integer): OLString;
     function LeftStr(const ACount: integer): OLString;
     function EndingRemoved(const ACount: integer): OLString;
-    function RightStrFrom(StartFrom: integer): OLString;
+    function RightStrFrom(const StartFrom: integer): OLString;
 
     function SplitString(const Delimiters: string = ';'): TStringDynArray;
 
-    function Inserted(const InsertStr: string; Position: integer): OLString;
-    function Deleted(FromPosition: integer; Count: integer = 1): OLString;
+    function Inserted(const InsertStr: string; const Position: integer): OLString;
+    function Deleted(const FromPosition: integer; const Count: integer = 1): OLString;
 
     function ExtractedFileDriveString(): OLString;
     function ExtractedFileDir(): OLString;
@@ -141,11 +145,11 @@ type
     function DigitsOnly(): OLString;
     function SpacesRemoved(): OLString;
 
-    function LeadingCharsAdded(C: Char; NewLength: integer): OLString;
-    function TrailingCharsAdded(C: Char; NewLength: integer): OLString;
-    function LeadingZerosAdded(NewLength: integer): OLString;
-    function LeadingSpacesAdded(NewLength: integer): OLString;
-    function TrailingSpacesAdded(NewLength: integer): OLString;
+    function LeadingCharsAdded(const C: Char; const NewLength: integer): OLString;
+    function TrailingCharsAdded(const C: Char; const NewLength: integer): OLString;
+    function LeadingZerosAdded(const NewLength: integer): OLString;
+    function LeadingSpacesAdded(const NewLength: integer): OLString;
+    function TrailingSpacesAdded(const NewLength: integer): OLString;
 
     function ToString(): string;
     function ToCurr(): OLCurrency;
@@ -181,8 +185,8 @@ type
     function TrySmartStrToDate(var d: OLDate): OLBoolean; overload;
     function SmartStrToDate(): OLDate;
 
-    procedure EndcodeBase64FromFile(FileName: string);
-    procedure DecodeBase64ToFile(FileName: string);
+    procedure EndcodeBase64FromFile(const FileName: string);
+    procedure DecodeBase64ToFile(const FileName: string);
 
     function Compressed(): OLString;
     function Decompressed(): OLString;
@@ -190,42 +194,42 @@ type
     function TrailingPathDelimiterExcluded(): OLString;
     function TrailingPathDelimiterIncluded(): OLString;
 
-    function TrailingCharExcluded(c: Char): OLString;
-    function TrailingCharIncluded(c: Char): OLString;
+    function TrailingCharExcluded(const c: Char): OLString;
+    function TrailingCharIncluded(const c: Char): OLString;
     function TrailingComaExcluded(): OLString;
     function TrailingComaIncluded(): OLString;
     function TrailingApostropheExcluded(): OLString;
     function TrailingApostropheIncluded(): OLString;
 
-    function LeadingCharExcluded(c: Char): OLString;
-    function LeadingCharIncluded(c: Char): OLString;
+    function LeadingCharExcluded(const c: Char): OLString;
+    function LeadingCharIncluded(const c: Char): OLString;
     function LeadingComaExcluded(): OLString;
     function LeadingComaIncluded(): OLString;
     function LeadingApostropheExcluded(): OLString;
     function LeadingApostropheIncluded(): OLString;
 
-    function PixelWidth(F: TFont): OLInteger;
+    function PixelWidth(const F: TFont): OLInteger;
 
-    function OccurrencesCount(SubString: string; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
-    function OccurrencesPosition(SubString: string; Index: integer; CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function OccurrencesCount(const SubString: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    function OccurrencesPosition(const SubString: string; const Index: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 
     function LineCount(): OLInteger;
-    procedure LineAdd(NewLine: string);
-    procedure LineDelete(LineIndex: integer);
-    procedure LineInsertAt(LineIndex: integer; s: string);
-    function LineIndexOf(s: string): OLInteger;
-    procedure LoadFromFile(FileName: string);
-    procedure SaveToFile(FileName: string);
-    function LineAdded(NewLine: string): OLString;
-    function LineEndAt(LineIndex: Integer): OLInteger;
+    procedure LineAdd(const NewLine: string);
+    procedure LineDelete(const LineIndex: integer);
+    procedure LineInsertAt(const LineIndex: integer; const s: string);
+    function LineIndexOf(const s: string): OLInteger;
+    procedure LoadFromFile(const FileName: string);
+    procedure SaveToFile(const FileName: string);
+    function LineAdded(const NewLine: string): OLString;
+    function LineEndAt(const LineIndex: Integer): OLInteger;
 
     procedure CopyToClipboard();
     procedure PasteFromClipboard();
 
-    function Hash(Salt: string = ''): cardinal;
-    function HashStr(Salt: string = ''): OLString;
+    function Hash(const Salt: string = ''): cardinal;
+    function HashStr(const Salt: string = ''): OLString;
 
-    procedure GetFromUrl(URL: string);
+    procedure GetFromUrl(const URL: string);
 
     function IsValidIBAN(): OLBoolean;
 
@@ -234,29 +238,29 @@ type
 
     class function RandomFrom(const AValues: array of string): OLString; static;
 
-    class operator Add(a, b: OLString): OLString;
+    class operator Add(const a, b: OLString): OLString;
 
-    class operator Implicit(a: string): OLString;
-    class operator Implicit(a: OLString): string;
+    class operator Implicit(const a: string): OLString;
+    class operator Implicit(const a: OLString): string;
 
-    class operator Implicit(a: Variant): OLString;
-    class operator Implicit(a: OLString): Variant;
+    class operator Implicit(const a: Variant): OLString;
+    class operator Implicit(const a: OLString): Variant;
 
-    class operator Equal(a, b: OLString): OLBoolean;
-    class operator NotEqual(a, b: OLString): OLBoolean;
-    class operator GreaterThan(a, b: OLString): OLBoolean;
-    class operator GreaterThanOrEqual(a, b: OLString): OLBoolean;
-    class operator LessThan(a, b: OLString): OLBoolean;
-    class operator LessThanOrEqual(a, b: OLString): OLBoolean;
+    class operator Equal(const a, b: OLString): OLBoolean;
+    class operator NotEqual(const a, b: OLString): OLBoolean;
+    class operator GreaterThan(const a, b: OLString): OLBoolean;
+    class operator GreaterThanOrEqual(const a, b: OLString): OLBoolean;
+    class operator LessThan(const a, b: OLString): OLBoolean;
+    class operator LessThanOrEqual(const a, b: OLString): OLBoolean;
 
-    function CSVIndex(ValueToFind: OLString): OLInteger;
-    function CSVFieldByName(FieldName: OLString; RowIndex: Integer = 1): OLString;
+    function CSVIndex(const ValueToFind: OLString): OLInteger;
+    function CSVFieldByName(const FieldName: OLString; const RowIndex: Integer = 1): OLString;
 
     property Base64: OLString read GetBase64 write SetBase64;
-    property Chars[Index: integer]: Char read GetCharAtIndex write SetCharAtIndex; default;
-    property Lines[Index: integer]: OLString read GetLine write SetLine;
-    property CSV[Index: integer]: OLString read GetCSV write SetCSV;
-    property Params[ParamName: string]: OLString read GetParam write SetParam;
+    property Chars[const Index: integer]: Char read GetCharAtIndex write SetCharAtIndex; default;
+    property Lines[const Index: integer]: OLString read GetLine write SetLine;
+    property CSV[const Index: integer]: OLString read GetCSV write SetCSV;
+    property Params[const ParamName: string]: OLString read GetParam write SetParam;
 
     property HtmlUnicodeText: OLString read GetHtmlUnicodeText write SetHtmlUnicodeText;
     property UrlEncodedText: OLString read GetUrlEncodedText write SetUrlEncodedText;
@@ -295,7 +299,7 @@ var
   HtmlUnicodeTranslation: array [0..315] of THtmlUnicodeTranslation;
   UrlTranslation: array[0..160] of TUrlTranslation;
 
-class operator OLString.Add(a, b: OLString): OLString;
+class operator OLString.Add(const a, b: OLString): OLString;
 var
   returnrec: OLString;
 begin
@@ -304,7 +308,7 @@ begin
   Result := returnrec;
 end;
 
-procedure OLString.EndcodeBase64FromFile(FileName: string);
+procedure OLString.EndcodeBase64FromFile(const FileName: string);
 var
   InputStream: TFileStream;
   OutputStream: TStringStream;
@@ -323,17 +327,17 @@ begin
   end;
 end;
 
-function OLString.EndsStr(ASubString: OLString): OLBoolean;
+function OLString.EndsStr(const ASubString: OLString): OLBoolean;
 begin
   Result := StrUtils.EndsStr(ASubString, Self);
 end;
 
-function OLString.EndsText(ASubString: OLString): OLBoolean;
+function OLString.EndsText(const ASubString: OLString): OLBoolean;
 begin
   Result := StrUtils.EndsText(ASubString, Self);
 end;
 
-class operator OLString.Equal(a, b: OLString): OLBoolean;
+class operator OLString.Equal(const a, b: OLString): OLBoolean;
 begin
   Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -348,7 +352,7 @@ begin
   Result := Self.TrailingCharIncluded('''');
 end;
 
-function OLString.TrailingCharExcluded(c: Char): OLString;
+function OLString.TrailingCharExcluded(const c: Char): OLString;
 var
   OutPut: OLString;
 begin
@@ -395,7 +399,9 @@ begin
   Result := SysUtils.ExtractFilePath(Self);
 end;
 
-function OLString.FindPattern(InFront, Behind: OLString; StartingPosition: integer; CaseSensitivity: TCaseSensitivity): TStringPatternFind;
+function OLString.FindPattern(InFront: OLString; Behind: OLString;
+    const StartingPosition: integer = 1; const CaseSensitivity:
+    TCaseSensitivity = csCaseSensitive): TStringPatternFind;
 var
   OutPut: TStringPatternFind;
   InFrontStart: integer;
@@ -430,7 +436,9 @@ begin
   Result := OutPut;
 end;
 
-function OLString.FindPattern(Tag: OLString; StartingPosition: integer; CaseSensitivity: TCaseSensitivity): TStringPatternFind;
+function OLString.FindPattern(Tag: OLString; const StartingPosition:
+    integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive):
+    TStringPatternFind;
 var
   NewStartingPosition: integer;
   TagStart: OLString;
@@ -487,7 +495,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.GetCharAtIndex(Index: integer): Char;
+function OLString.GetCharAtIndex(const Index: integer): Char;
 begin
   if not Self.ValuePresent then
     raise Exception.Create('Cannot get chars from null value.');
@@ -498,13 +506,13 @@ begin
   Result := Self.Value[Index];
 end;
 
-function OLString.GetCSV(Index: integer): OLString;
+function OLString.GetCSV(const Index: integer): OLString;
 begin
   Result := Self.CSVFieldValue(Index);
 end;
 
 //http://www.scalabium.com/faq/dct0080.htm
-procedure OLString.GetFromUrl(URL: string);
+procedure OLString.GetFromUrl(const URL: string);
 var
   NetHandle: HINTERNET;
   UrlHandle: HINTERNET;
@@ -566,7 +574,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.GetLine(Index: integer): OLString;
+function OLString.GetLine(const Index: integer): OLString;
 var
   sl: TStringList;
   OutPut: OLString;
@@ -587,12 +595,12 @@ begin
   Result := OutPut;
 end;
 
-function OLString.GetLineEndPosition(Index: integer): OLInteger;
+function OLString.GetLineEndPosition(const Index: integer): OLInteger;
 begin
   Result := Self.PosEx(sLineBreak, GetLineStartPosition(Index)).Increased(System.Length(sLineBreak) - 1).Replaced(System.Length(sLineBreak) - 1, 0);
 end;
 
-function OLString.GetLineStartPosition(Index: integer): OLInteger;
+function OLString.GetLineStartPosition(const Index: integer): OLInteger;
 var
   OutPut: integer;
   LineBreak: OLString;
@@ -602,12 +610,12 @@ begin
   if Index = 0 then
     OutPut := 1
   else
-    OutPut := OccurrencesPosition(sLineBreak, Index) + LineBreak.Length();
+    OutPut := OccurrencesPosition(sLineBreak, Index - 1) + LineBreak.Length();
 
   Result := OutPut;
 end;
 
-function OLString.GetParam(ParamName: string): OLString;
+function OLString.GetParam(const ParamName: string): OLString;
 var
   i: integer;
   OutPut: OLString;
@@ -626,7 +634,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.Utf8Code(c: Char): OLString;
+function OLString.Utf8Code(const c: Char): OLString;
 var
   b: TBytes;
   es: RawByteString;
@@ -666,22 +674,24 @@ begin
   Result := Self.Val;
 end;
 
-function OLString.FindPatternStr(InFront, Behind: OLString; StartingPosition: integer; CaseSensitivity: TCaseSensitivity): OLString;
+function OLString.FindPatternStr(const InFront: OLString; const Behind:
+    OLString; const StartingPosition: integer = 1; const CaseSensitivity:
+    TCaseSensitivity = csCaseSensitive): OLString;
 begin
   Result := Self.FindPattern(InFront, Behind, StartingPosition, CaseSensitivity).Value;
 end;
 
-class operator OLString.GreaterThan(a, b: OLString): OLBoolean;
+class operator OLString.GreaterThan(const a, b: OLString): OLBoolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLString.GreaterThanOrEqual(a, b: OLString): OLBoolean;
+class operator OLString.GreaterThanOrEqual(const a, b: OLString): OLBoolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-function OLString.Hash(Salt: string = ''): Cardinal;
+function OLString.Hash(const Salt: string = ''): cardinal;
  var
    s: string;
    i:integer;
@@ -696,7 +706,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.HashStr(Salt: string = ''): OLString;
+function OLString.HashStr(const Salt: string = ''): OLString;
 begin
   Result := IntToHex(Self.Hash(Salt), 4);
 end;
@@ -706,7 +716,7 @@ begin
   Result := ValuePresent;
 end;
 
-class operator OLString.Implicit(a: string): OLString;
+class operator OLString.Implicit(const a: string): OLString;
 var
   OutPut: OLString;
 begin
@@ -716,7 +726,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLString.Implicit(a: OLString): string;
+class operator OLString.Implicit(const a: OLString): string;
 var
   OutPut: string;
 begin
@@ -726,19 +736,19 @@ begin
   Result := OutPut;
 end;
 
-function OLString.IfNull(i: OLString): OLString;
+function OLString.IfNull(const s: OLString): OLString;
 var
   OutPut: OLString;
 begin
   if not ValuePresent then
-    OutPut := i
+    OutPut := s
   else
     OutPut := Self.Value;
 
   Result := OutPut;
 end;
 
-function OLString.IfNullOrEmpty(s: OLString): OLString;
+function OLString.IfNullOrEmpty(const s: OLString): OLString;
 var
   OutPut: OLString;
 begin
@@ -750,7 +760,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLString.Implicit(a: Variant): OLString;
+class operator OLString.Implicit(const a: Variant): OLString;
 var
   OutPut: OLString;
 begin
@@ -768,7 +778,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.TrailingCharIncluded(c: Char): OLString;
+function OLString.TrailingCharIncluded(const c: Char): OLString;
 var
   OutPut: OLString;
 begin
@@ -826,7 +836,8 @@ begin
   Result := OutPut;
 end;
 
-function OLString.Inserted(const InsertStr: string; Position: integer): OLString;
+function OLString.Inserted(const InsertStr: string; const Position: integer):
+    OLString;
 var
   s: string;
 begin
@@ -888,12 +899,12 @@ begin
   Result := OutPut;
 end;
 
-class operator OLString.LessThan(a, b: OLString): OLBoolean;
+class operator OLString.LessThan(const a, b: OLString): OLBoolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLString.LessThanOrEqual(a, b: OLString): OLBoolean;
+class operator OLString.LessThanOrEqual(const a, b: OLString): OLBoolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -1007,7 +1018,7 @@ begin
   Result := OutPut;
 end;
 
-procedure OLString.LineAdd(NewLine: string);
+procedure OLString.LineAdd(const NewLine: string);
 var
   sl: TStringList;
 begin
@@ -1032,7 +1043,7 @@ begin
   end;
 end;
 
-function OLString.LineAdded(NewLine: string): OLString;
+function OLString.LineAdded(const NewLine: string): OLString;
 var
   OutPut: OLString;
 begin
@@ -1062,7 +1073,7 @@ begin
   Result := OutPut;
 end;
 
-procedure OLString.LineDelete(LineIndex: integer);
+procedure OLString.LineDelete(const LineIndex: integer);
 var
   sl: TStringList;
 begin
@@ -1076,12 +1087,12 @@ begin
   end;
 end;
 
-function OLString.LineEndAt(LineIndex: Integer): OLInteger;
+function OLString.LineEndAt(const LineIndex: Integer): OLInteger;
 begin
 
 end;
 
-function OLString.LineIndexOf(s: string): OLInteger;
+function OLString.LineIndexOf(const s: string): OLInteger;
 var
   sl: TStringList;
   OutPut: integer;
@@ -1097,7 +1108,7 @@ begin
   Result := OutPut;
 end;
 
-procedure OLString.LineInsertAt(LineIndex: integer; s: string);
+procedure OLString.LineInsertAt(const LineIndex: integer; const s: string);
 var
   sl: TStringList;
 begin
@@ -1112,7 +1123,7 @@ begin
 end;
 
 
-procedure OLString.LoadFromFile(FileName: string);
+procedure OLString.LoadFromFile(const FileName: string);
 var
   sl: TStringList;
 begin
@@ -1150,7 +1161,7 @@ begin
   Result := MidStr(AStart, AEnd - AStart + 1);
 end;
 
-class operator OLString.NotEqual(a, b: OLString): OLBoolean;
+class operator OLString.NotEqual(const a, b: OLString): OLBoolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
@@ -1160,7 +1171,7 @@ begin
   Self := Clipboard.AsText;
 end;
 
-function OLString.PixelWidth(F: TFont): OLInteger;
+function OLString.PixelWidth(const F: TFont): OLInteger;
 var
   bmp: TBitmap;
 begin
@@ -1173,37 +1184,42 @@ begin
   end;
 end;
 
-function OLString.Pos(SubStr: string; CaseSensitivity: TCaseSensitivity): OLInteger;
+function OLString.Pos(const SubStr: string; const CaseSensitivity:
+    TCaseSensitivity = csCaseSensitive): OLInteger;
 var
   OutPut: OLInteger;
+  UpperSubString: string;
 begin
   if CaseSensitivity = csCaseSensitive then
     OutPut := System.Pos(SubStr, Self)
   else
   begin
-    SubStr := SysUtils.UpperCase(SubStr);
-    OutPut := System.Pos(SubStr, Self.UpperCase())
+    UpperSubString := SysUtils.UpperCase(SubStr);
+    OutPut := System.Pos(UpperSubString, Self.UpperCase())
   end;
 
   Result := OutPut;
 end;
 
-function OLString.PosEx(SubStr: string; Offset: integer; CaseSensitivity: TCaseSensitivity): OLInteger;
+function OLString.PosEx(const SubStr: string; const Offset: integer; const
+    CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 var
   OutPut: OLInteger;
+  UpperSubString: string;
 begin
   if CaseSensitivity = csCaseSensitive then
     OutPut := StrUtils.PosEx(SubStr, Self, Offset)
   else
   begin
-    SubStr := SysUtils.UpperCase(SubStr);
-    OutPut := StrUtils.PosEx(SubStr, Self.UpperCase(), Offset)
+    UpperSubString := SysUtils.UpperCase(SubStr);
+    OutPut := StrUtils.PosEx(UpperSubString, Self.UpperCase(), Offset)
   end;
 
   Result := OutPut;
 end;
 
-function OLString.PosLast(SubStr: string; CaseSensitivity: TCaseSensitivity): OLInteger;
+function OLString.PosLast(const SubStr: string; const CaseSensitivity:
+    TCaseSensitivity = csCaseSensitive): OLInteger;
 var
   SubStringLength: Integer;
   myCharPtr : PChar;
@@ -1250,7 +1266,9 @@ begin
   Result := OutPut;
 end;
 
-function OLString.PosLastEx(SubStr: string; NotAfterPosition: integer; CaseSensitivity: TCaseSensitivity): OLInteger;
+function OLString.PosLastEx(const SubStr: string; const NotAfterPosition:
+    integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive):
+    OLInteger;
 var
   SubStringLength: Integer;
   myCharPtr : PChar;
@@ -1321,7 +1339,8 @@ begin
   Result := SysUtils.StringReplace(Self, AFromText, AToText, [rfIgnoreCase]);
 end;
 
-function OLString.ReplacedStartingAt(Position: Cardinal; const NewValue: OLString): OLString;
+function OLString.ReplacedStartingAt(const Position: Cardinal; const NewValue:
+    OLString): OLString;
 begin
   Result := StrUtils.StuffString(Self, Position, NewValue.Length, NewValue);
 end;
@@ -1346,7 +1365,7 @@ begin
   Result := StrUtils.RightStr(Self, ACount);
 end;
 
-function OLString.RightStrFrom(StartFrom: integer): OLString;
+function OLString.RightStrFrom(const StartFrom: integer): OLString;
 begin
   Result := Self.RightStr(Self.Length() - StartFrom + 1);
 end;
@@ -1361,7 +1380,7 @@ begin
   Result := SysUtils.SameText(Self, s);
 end;
 
-procedure OLString.SaveToFile(FileName: string);
+procedure OLString.SaveToFile(const FileName: string);
 var
   sl: TStringList;
 begin
@@ -1379,7 +1398,7 @@ begin
   Self := DecodeString(Value);
 end;
 
-procedure OLString.SetCharAtIndex(Index: integer; Value: Char);
+procedure OLString.SetCharAtIndex(const Index: integer; const Value: Char);
 begin
   if not Self.ValuePresent then
     raise Exception.Create('Cannot set chars in null value.');
@@ -1390,13 +1409,13 @@ begin
   Self.Val[Index] := Value;
 end;
 
-procedure OLString.SetCSV(Index: integer; const Value: OLString);
+procedure OLString.SetCSV(const Index: integer; const Value: OLString);
 begin
   Self.SetCSVFieldValue(Index, Value);
 end;
 
-procedure OLString.SetCSVFieldValue(FieldIndex: integer; Value: OLString;
-  Delimiter: Char);
+procedure OLString.SetCSVFieldValue(const FieldIndex: integer; const Value:
+    OLString; const Delimiter: Char = ';');
 var
   sl: TStringList;
 begin
@@ -1417,7 +1436,7 @@ begin
   end;
 end;
 
-procedure OLString.SetHasValue(Value: OLBoolean);
+procedure OLString.SetHasValue(const Value: OLBoolean);
 begin
   if Value then
     NullFlag := NonEmptyStr
@@ -1442,7 +1461,7 @@ begin
   Self := OutPut;
 end;
 
-procedure OLString.SetLine(Index: integer; const Value: OLString);
+procedure OLString.SetLine(const Index: integer; const Value: OLString);
 var
   sl: TStringList;
 begin
@@ -1460,7 +1479,7 @@ begin
   end;
 end;
 
-procedure OLString.SetParam(ParamName: string; const Value: OLString);
+procedure OLString.SetParam(const ParamName: string; const Value: OLString);
 var
   ParIdx: OLInteger;
 begin
@@ -1491,7 +1510,7 @@ begin
   Self := OutPut;
 end;
 
-function OLString.ParamIndex(ParamName: string): OLInteger;
+function OLString.ParamIndex(const ParamName: string): OLInteger;
 var
   i: integer;
   output: OLInteger;
@@ -1508,7 +1527,8 @@ begin
   Result := output;
 end;
 
-procedure OLString.AppendParam(ParamName: string; ParamValue: OLString);
+procedure OLString.AppendParam(const ParamName: string; const ParamValue:
+    OLString);
 var
   cnt: Integer;
 begin
@@ -1521,7 +1541,8 @@ begin
 end;
 
 
-procedure OLString.UpdateParam(ParamIndex: integer; ParamValue: OLString);
+procedure OLString.UpdateParam(const ParamIndex: integer; const ParamValue:
+    OLString);
 begin
   Self.Parameters[ParamIndex].ParamValue := ParamValue;
 end;
@@ -1563,7 +1584,7 @@ begin
   Result := Self.Replaced(' ', '');
 end;
 
-function OLString.SplitString(const Delimiters: string): TStringDynArray;
+function OLString.SplitString(const Delimiters: string = ';'): TStringDynArray;
 var
   i, l: integer;
   OutPut: TStringDynArray;
@@ -1895,7 +1916,7 @@ begin
   Result := Self.LeadingCharIncluded(',');
 end;
 
-function OLString.LeadingCharExcluded(c: Char): OLString;
+function OLString.LeadingCharExcluded(const c: Char): OLString;
 var
   OutPut: OLString;
 begin
@@ -1907,7 +1928,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.LeadingCharIncluded(c: Char): OLString;
+function OLString.LeadingCharIncluded(const c: Char): OLString;
 var
   OutPut: OLString;
 begin
@@ -1919,7 +1940,8 @@ begin
   Result := OutPut;
 end;
 
-function OLString.LeadingCharsAdded(C: Char; NewLength: integer): OLString;
+function OLString.LeadingCharsAdded(const C: Char; const NewLength: integer):
+    OLString;
 var
   OutPut: OLString;
 begin
@@ -1941,17 +1963,18 @@ begin
   Result := Self.LeadingCharIncluded(',');
 end;
 
-function OLString.LeadingSpacesAdded(NewLength: integer): OLString;
+function OLString.LeadingSpacesAdded(const NewLength: integer): OLString;
 begin
   Result := Self.LeadingCharsAdded(' ', NewLength);
 end;
 
-function OLString.LeadingZerosAdded(NewLength: integer): OLString;
+function OLString.LeadingZerosAdded(const NewLength: integer): OLString;
 begin
   Result := Self.LeadingCharsAdded('0', NewLength)
 end;
 
-function OLString.TrailingCharsAdded(C: Char; NewLength: integer): OLString;
+function OLString.TrailingCharsAdded(const C: Char; const NewLength: integer):
+    OLString;
 var
   OutPut: OLString;
 begin
@@ -1963,7 +1986,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.TrailingSpacesAdded(NewLength: integer): OLString;
+function OLString.TrailingSpacesAdded(const NewLength: integer): OLString;
 begin
   Result := Self.TrailingCharsAdded(' ', NewLength);
 end;
@@ -1997,12 +2020,12 @@ begin
   Result := OutPut;
 end;
 
-function OLString.ContainsStr(ASubString: OLString): OLBoolean;
+function OLString.ContainsStr(const ASubString: OLString): OLBoolean;
 begin
   Result := StrUtils.ContainsStr(Self, ASubString);
 end;
 
-function OLString.ContainsText(ASubText: OLString): OLBoolean;
+function OLString.ContainsText(const ASubText: OLString): OLBoolean;
 begin
   Result := StrUtils.ContainsText(Self, ASubText);
 end;
@@ -2012,7 +2035,8 @@ begin
   Clipboard.AsText := Self;
 end;
 
-function OLString.OccurrencesCount(SubString: string; CaseSensitivity: TCaseSensitivity): OLInteger;
+function OLString.OccurrencesCount(const SubString: string; const
+    CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 var
   Position, OutPut: integer;
 begin
@@ -2032,7 +2056,9 @@ begin
   Result := OutPut;
 end;
 
-function OLString.OccurrencesPosition(SubString: string; Index: integer; CaseSensitivity: TCaseSensitivity): OLInteger;
+function OLString.OccurrencesPosition(const SubString: string; const Index:
+    integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive):
+    OLInteger;
 var
   Position, Counter, OutPut: integer;
 begin
@@ -2056,7 +2082,8 @@ begin
   Result := OutPut;
 end;
 
-function OLString.CSVFieldByName(FieldName: OLString; RowIndex: Integer = 1): OLString;
+function OLString.CSVFieldByName(const FieldName: OLString; const RowIndex:
+    Integer = 1): OLString;
 var
   FieldIndex: OLInteger;
   Output: OLString;
@@ -2073,7 +2100,7 @@ begin
   Result := Output;
 end;
 
-function OLString.CSVFieldCount(Delimiter: Char): OLInteger;
+function OLString.CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
 var
   sl: TStringList;
   OutPut: OLInteger;
@@ -2092,7 +2119,8 @@ begin
   Result := OutPut;
 end;
 
-function OLString.CSVFieldValue(FieldIndex: integer; Delimiter: Char): OLString;
+function OLString.CSVFieldValue(const FieldIndex: integer; const Delimiter:
+    Char = ';'): OLString;
 var
   sl: TStringList;
   OutPut: string;
@@ -2112,7 +2140,7 @@ begin
 end;
 
 
-function OLString.CSVIndex(ValueToFind: OLString): OLInteger;
+function OLString.CSVIndex(const ValueToFind: OLString): OLInteger;
 var
   I: Integer;
   OutPut: OLInteger;
@@ -2129,7 +2157,7 @@ end;
 
 //http://stackoverflow.com/questions/32306960/delphi-7-and-decode-utf-8-base64
 
-procedure OLString.DecodeBase64ToFile(FileName: string);
+procedure OLString.DecodeBase64ToFile(const FileName: string);
 var
   InputStream: TStringStream;
   OutputStream: TFileStream;
@@ -2177,7 +2205,8 @@ begin
   Result := OutPut;
 end;
 
-function OLString.Deleted(FromPosition, Count: integer): OLString;
+function OLString.Deleted(const FromPosition: integer; const Count: integer =
+    1): OLString;
 var
   s: String;
 begin
@@ -2206,7 +2235,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.RepeatedString(ACount: integer): OLString;
+function OLString.RepeatedString(const ACount: integer): OLString;
 var
   OutPut: OLString;
   i: integer;
@@ -2221,13 +2250,15 @@ begin
   Result := OutPut;
 end;
 
-function OLString.FindPatternStr(Tag: OLString; StartingPosition: integer = 1; CaseSensitivity: TCaseSensitivity = csCaseInsensitive): OLString;
+function OLString.FindPatternStr(const Tag: OLString; const StartingPosition:
+    integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive):
+    OLString;
 begin
   Result := Self.FindPattern(Tag, StartingPosition, CaseSensitivity).Value;
 end;
 
 
-function OLString.IBANChangeAlpha(input: string): string;
+function OLString.IBANChangeAlpha(const input: string): string;
   // A -> 10, B -> 11, C -> 12 ...
 var
   a: Char;
@@ -2282,7 +2313,7 @@ end;
 
 
 
-class operator OLString.Implicit(a: OLString): Variant;
+class operator OLString.Implicit(const a: OLString): Variant;
 var
   OutPut: Variant;
 begin

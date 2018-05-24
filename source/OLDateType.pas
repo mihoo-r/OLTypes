@@ -25,28 +25,28 @@ type
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
     function ToString(): string;
-    function IfNull(b: OLDate): OLDate;
+    function IfNull(const b: OLDate): OLDate;
 
-    class operator Implicit(a: TDate): OLDate;
-    class operator Implicit(a: OLDate): TDate;
-    class operator Implicit(a: OLDateTime): OLDate;
-    class operator Implicit(a: OLDate): OLDateTime;
-    class operator Implicit(a: TDateTime): OLDate;
-    class operator Implicit(a: OLDate): TDateTime;
-    class operator Implicit(a: Variant): OLDate;
-    class operator Implicit(a: OLDate): Variant;
-    class operator Implicit(a: Extended): OLDate;
-    class operator Implicit(a: string): OLDate;
+    class operator Implicit(const a: TDate): OLDate;
+    class operator Implicit(const a: OLDate): TDate;
+    class operator Implicit(const a: OLDateTime): OLDate;
+    class operator Implicit(const a: OLDate): OLDateTime;
+    class operator Implicit(const a: TDateTime): OLDate;
+    class operator Implicit(const a: OLDate): TDateTime;
+    class operator Implicit(const a: Variant): OLDate;
+    class operator Implicit(const a: OLDate): Variant;
+    class operator Implicit(const a: Extended): OLDate;
+    class operator Implicit(const a: string): OLDate;
 
-    class operator Equal(a, b: OLDate): OLBoolean;
-    class operator NotEqual(a, b: OLDate): OLBoolean;
-    class operator GreaterThan(a, b: OLDate): OLBoolean;
-    class operator GreaterThanOrEqual(a, b: OLDate): OLBoolean;
-    class operator LessThan(a, b: OLDate): OLBoolean;
-    class operator LessThanOrEqual(a, b: OLDate): OLBoolean;
+    class operator Equal(const a, b: OLDate): OLBoolean;
+    class operator NotEqual(const a, b: OLDate): OLBoolean;
+    class operator GreaterThan(const a, b: OLDate): OLBoolean;
+    class operator GreaterThanOrEqual(const a, b: OLDate): OLBoolean;
+    class operator LessThan(const a, b: OLDate): OLBoolean;
+    class operator LessThanOrEqual(const a, b: OLDate): OLBoolean;
 
-    class operator Add(a: OLDate; b: integer): OLDate;
-    class operator Subtract(a: OLDate; b: integer): OLDate;
+    class operator Add(const a: OLDate; b: integer): OLDate;
+    class operator Subtract(const a: OLDate; const b: integer): OLDate;
 
     function IsInLeapYear(): OLBoolean;
 
@@ -92,7 +92,7 @@ type
     function WeeksBetween(const AThen: OLDate): OLInteger;
     function DaysBetween(const AThen: OLDate): OLInteger;
 
-    function InRange(AStartDateTime, AEndDateTime: OLDate; aInclusive: Boolean = True): OLBoolean;
+    function InRange(const AStartDateTime, AEndDateTime: OLDate; const aInclusive: Boolean = True): OLBoolean;
 
     function YearSpan(const AThen: OLDate): OLDouble;
     function MonthSpan(const AThen: OLDate): OLDouble;
@@ -114,8 +114,8 @@ type
     function LongDayName(): string;
     function ShortDayName(): string;
 
-    function Max(CompareDate: OLDate): OLDate;
-    function Min(CompareDate: OLDate): OLDate;
+    function Max(const CompareDate: OLDate): OLDate;
+    function Min(const CompareDate: OLDate): OLDate;
   end;
 
 implementation
@@ -124,7 +124,7 @@ uses Math;
 
 { OLDate }
 
-class operator OLDate.Add(a: OLDate; b: integer): OLDate;
+class operator OLDate.Add(const a: OLDate; b: integer): OLDate;
 begin
   Result := a.Value + b;
 end;
@@ -192,7 +192,7 @@ begin
   Result := Self.Value.EndOfTheYear();
 end;
 
-class operator OLDate.Equal(a, b: OLDate): OLBoolean;
+class operator OLDate.Equal(const a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value = b.Value);
 end;
@@ -212,12 +212,12 @@ begin
   Result := Self.Value.Year;
 end;
 
-class operator OLDate.GreaterThan(a, b: OLDate): OLBoolean;
+class operator OLDate.GreaterThan(const a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value > b.Value);
 end;
 
-class operator OLDate.GreaterThanOrEqual(a, b: OLDate): OLBoolean;
+class operator OLDate.GreaterThanOrEqual(const a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value >= b.Value);
 end;
@@ -227,12 +227,12 @@ begin
   Result := not IsNull();
 end;
 
-function OLDate.IfNull(b: OLDate): OLDate;
+function OLDate.IfNull(const b: OLDate): OLDate;
 begin
   Result := Self.Value.IfNull(b);
 end;
 
-class operator OLDate.Implicit(a: OLDate): Variant;
+class operator OLDate.Implicit(const a: OLDate): Variant;
 var
   OutPut: Variant;
 begin
@@ -244,7 +244,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDate.Implicit(a: Extended): OLDate;
+class operator OLDate.Implicit(const a: Extended): OLDate;
 var
   OutPut: OLDateTime;
 begin
@@ -254,22 +254,22 @@ begin
   Result.Value := OutPut;
 end;
 
-class operator OLDate.Implicit(a: string): OLDate;
+class operator OLDate.Implicit(const a: string): OLDate;
 begin
   Result := SmartStrToDate(a);
 end;
 
-class operator OLDate.Implicit(a: OLDateTime): OLDate;
+class operator OLDate.Implicit(const a: OLDateTime): OLDate;
 begin
   Result.Value := a.DateOf();
 end;
 
-class operator OLDate.Implicit(a: OLDate): OLDateTime;
+class operator OLDate.Implicit(const a: OLDate): OLDateTime;
 begin
   Result := a.Value;
 end;
 
-class operator OLDate.Implicit(a: Variant): OLDate;
+class operator OLDate.Implicit(const a: Variant): OLDate;
 var
   OutPut: OLDate;
   b: TDateTime;
@@ -291,7 +291,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDate.Implicit(a: TDateTime): OLDate;
+class operator OLDate.Implicit(const a: TDateTime): OLDate;
 var
   OutPut: OLDate;
 begin
@@ -300,7 +300,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDate.Implicit(a: TDate): OLDate;
+class operator OLDate.Implicit(const a: TDate): OLDate;
 var
   OutPut: OLDate;
 begin
@@ -309,12 +309,12 @@ begin
   Result := OutPut;
 end;
 
-class operator OLDate.Implicit(a: OLDate): TDateTime;
+class operator OLDate.Implicit(const a: OLDate): TDateTime;
 begin
   Result := a.Value;
 end;
 
-class operator OLDate.Implicit(a: OLDate): TDate;
+class operator OLDate.Implicit(const a: OLDate): TDate;
 begin
   Result := a.Value;
 end;
@@ -339,8 +339,8 @@ begin
   Result := Self.Value.IncYear(ANumberOfYears);
 end;
 
-function OLDate.InRange(AStartDateTime, AEndDateTime: OLDate;
-  aInclusive: Boolean): OLBoolean;
+function OLDate.InRange(const AStartDateTime, AEndDateTime: OLDate; const
+    aInclusive: Boolean = True): OLBoolean;
 begin
   Result := Self.Value.InDateRange(AStartDateTime, AEndDateTime, aInclusive);
 end;
@@ -360,12 +360,12 @@ begin
   Result := Self.Value.IsToday;
 end;
 
-class operator OLDate.LessThan(a, b: OLDate): OLBoolean;
+class operator OLDate.LessThan(const a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value < b.Value);
 end;
 
-class operator OLDate.LessThanOrEqual(a, b: OLDate): OLBoolean;
+class operator OLDate.LessThanOrEqual(const a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value <= b.Value);
 end;
@@ -375,12 +375,12 @@ begin
   Result := Self.Value.LongDayName();
 end;
 
-function OLDate.Max(CompareDate: OLDate): OLDate;
+function OLDate.Max(const CompareDate: OLDate): OLDate;
 begin
   Result := Self.Value.Max(CompareDate);
 end;
 
-function OLDate.Min(CompareDate: OLDate): OLDate;
+function OLDate.Min(const CompareDate: OLDate): OLDate;
 begin
   Result := Self.Value.Min(CompareDate);
 end;
@@ -395,7 +395,7 @@ begin
   Result := Self.Value.MonthSpan(AThen);
 end;
 
-class operator OLDate.NotEqual(a, b: OLDate): OLBoolean;
+class operator OLDate.NotEqual(const a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value <> b.Value);
 end;
@@ -528,7 +528,7 @@ begin
   Result := Self.Value.StartOfTheYear().DateOf();
 end;
 
-class operator OLDate.Subtract(a: OLDate; b: integer): OLDate;
+class operator OLDate.Subtract(const a: OLDate; const b: integer): OLDate;
 begin
   Result := a.Value - b;
 end;

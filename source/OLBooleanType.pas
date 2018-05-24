@@ -12,37 +12,37 @@ type
     NullFlag: string;
 
     function GetHasValue(): Boolean;
-    procedure SetHasValue(Value: Boolean);
+    procedure SetHasValue(const Value: Boolean);
     property ValuePresent: Boolean read GetHasValue write SetHasValue;
   public
     function IsNull(): Boolean;
     function ToString(): string;
-    function IfNull(b: OLBoolean): OLBoolean;
+    function IfNull(const b: OLBoolean): OLBoolean;
     function HasValue(): OLBoolean;
-    function IfThen(ATrue: string; AFalse: string = ''): string; overload;
-    function IfThen(ATrue: Integer; AFalse: Integer): integer; overload;
-    function IfThen(ATrue: Currency; AFalse: Currency): Currency; overload;
-    function IfThen(ATrue: Extended; AFalse: Extended): Extended; overload;
-    function IfThen(ATrue: TDateTime; AFalse: TDateTime): TDateTime; overload;
-    function IfThen(ATrue: Boolean; AFalse: Boolean): Boolean; overload;
+    function IfThen(const ATrue: string; const AFalse: string = ''): string; overload;
+    function IfThen(const ATrue: Integer; const AFalse: Integer): integer; overload;
+    function IfThen(const ATrue: Currency; const AFalse: Currency): Currency; overload;
+    function IfThen(const ATrue: Extended; const AFalse: Extended): Extended; overload;
+    function IfThen(const ATrue: TDateTime; const AFalse: TDateTime): TDateTime; overload;
+    function IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 
-    class operator Implicit(a: Boolean): OLBoolean;
-    class operator Implicit(a: OLBoolean): Boolean;
-    class operator Implicit(a: Variant): OLBoolean;
-    class operator Implicit(a: OLBoolean): Variant;
+    class operator Implicit(const a: Boolean): OLBoolean;
+    class operator Implicit(const a: OLBoolean): Boolean;
+    class operator Implicit(const a: Variant): OLBoolean;
+    class operator Implicit(const a: OLBoolean): Variant;
 
-    class operator Equal(a, b: OLBoolean): Boolean;
-    class operator Equal(a: OLBoolean; b: Variant): Boolean;
-    class operator NotEqual(a, b: OLBoolean): Boolean;
-    class operator GreaterThan(a, b: OLBoolean): Boolean;
-    class operator GreaterThanOrEqual(a, b: OLBoolean): Boolean;
-    class operator LessThan(a, b: OLBoolean): Boolean;
-    class operator LessThanOrEqual(a, b: OLBoolean): Boolean;
+    class operator Equal(const a, b: OLBoolean): Boolean;
+    class operator Equal(const a: OLBoolean; b: Variant): Boolean;
+    class operator NotEqual(const a, b: OLBoolean): Boolean;
+    class operator GreaterThan(const a, b: OLBoolean): Boolean;
+    class operator GreaterThanOrEqual(const a, b: OLBoolean): Boolean;
+    class operator LessThan(const a, b: OLBoolean): Boolean;
+    class operator LessThanOrEqual(const a, b: OLBoolean): Boolean;
 
-    class operator LogicalNot(a: OLBoolean): OLBoolean;
-    class operator LogicalAnd(a: OLBoolean; b: OLBoolean): OLBoolean;
-    class operator LogicalOr(a: OLBoolean; b: OLBoolean): OLBoolean;
-    class operator LogicalXor(a: OLBoolean; b: OLBoolean): OLBoolean;
+    class operator LogicalNot(const a: OLBoolean): OLBoolean;
+    class operator LogicalAnd(const a: OLBoolean; b: OLBoolean): OLBoolean;
+    class operator LogicalOr(const a: OLBoolean; b: OLBoolean): OLBoolean;
+    class operator LogicalXor(const a: OLBoolean; b: OLBoolean): OLBoolean;
   end;
 
 implementation
@@ -54,12 +54,12 @@ const
 
 { OLBoolean }
 
-class operator OLBoolean.Equal(a, b: OLBoolean): Boolean;
+class operator OLBoolean.Equal(const a, b: OLBoolean): Boolean;
 begin
   Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-class operator OLBoolean.Equal(a: OLBoolean; b: Variant): Boolean;
+class operator OLBoolean.Equal(const a: OLBoolean; b: Variant): Boolean;
 begin
   Result := ((a.Value = b) and (a.ValuePresent and (b <> Null))) or (a.IsNull() and (b = Null));
 end;
@@ -69,12 +69,12 @@ begin
   Result := (NullFlag <> EmptyStr);
 end;
 
-class operator OLBoolean.GreaterThan(a, b: OLBoolean): Boolean;
+class operator OLBoolean.GreaterThan(const a, b: OLBoolean): Boolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLBoolean.GreaterThanOrEqual(a, b: OLBoolean): Boolean;
+class operator OLBoolean.GreaterThanOrEqual(const a, b: OLBoolean): Boolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -84,7 +84,7 @@ begin
   Result := ValuePresent;
 end;
 
-function OLBoolean.IfNull(b: OLBoolean): OLBoolean;
+function OLBoolean.IfNull(const b: OLBoolean): OLBoolean;
 var
   Output: OLBoolean;
 begin
@@ -96,7 +96,8 @@ begin
   Result := Output;
 end;
 
-function OLBoolean.IfThen(ATrue, AFalse: Currency): Currency;
+function OLBoolean.IfThen(const ATrue: Currency; const AFalse: Currency):
+    Currency;
 var
   OutPut: Currency;
 begin
@@ -108,7 +109,7 @@ begin
   Result := OutPut;
 end;
 
-function OLBoolean.IfThen(ATrue, AFalse: Integer): integer;
+function OLBoolean.IfThen(const ATrue: Integer; const AFalse: Integer): integer;
 var
   OutPut: Integer;
 begin
@@ -120,7 +121,8 @@ begin
   Result := OutPut;
 end;
 
-function OLBoolean.IfThen(ATrue, AFalse: Extended): Extended;
+function OLBoolean.IfThen(const ATrue: Extended; const AFalse: Extended):
+    Extended;
 var
   OutPut: Extended;
 begin
@@ -132,7 +134,8 @@ begin
   Result := OutPut;
 end;
 
-function OLBoolean.IfThen(ATrue, AFalse: TDateTime): TDateTime;
+function OLBoolean.IfThen(const ATrue: TDateTime; const AFalse: TDateTime):
+    TDateTime;
 var
   OutPut: TDateTime;
 begin
@@ -144,7 +147,8 @@ begin
   Result := OutPut;
 end;
 
-function OLBoolean.IfThen(ATrue, AFalse: string): string;
+function OLBoolean.IfThen(const ATrue: string; const AFalse: string = ''):
+    string;
 var
   OutPut: string;
 begin
@@ -156,7 +160,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.Implicit(a: OLBoolean): Variant;
+class operator OLBoolean.Implicit(const a: OLBoolean): Variant;
 var
   OutPut: Variant;
 begin
@@ -168,7 +172,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.Implicit(a: Variant): OLBoolean;
+class operator OLBoolean.Implicit(const a: Variant): OLBoolean;
 var
   OutPut: OLBoolean;
   b: Boolean;
@@ -191,7 +195,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.Implicit(a: OLBoolean): Boolean;
+class operator OLBoolean.Implicit(const a: OLBoolean): Boolean;
 var
   OutPut: Boolean;
 begin
@@ -201,7 +205,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.Implicit(a: Boolean): OLBoolean;
+class operator OLBoolean.Implicit(const a: Boolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
@@ -215,17 +219,18 @@ begin
   Result := not ValuePresent;
 end;
 
-class operator OLBoolean.LessThan(a, b: OLBoolean): Boolean;
+class operator OLBoolean.LessThan(const a, b: OLBoolean): Boolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLBoolean.LessThanOrEqual(a, b: OLBoolean): Boolean;
+class operator OLBoolean.LessThanOrEqual(const a, b: OLBoolean): Boolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-class operator OLBoolean.LogicalAnd(a, b: OLBoolean): OLBoolean;
+class operator OLBoolean.LogicalAnd(const a: OLBoolean; b: OLBoolean):
+    OLBoolean;
 var
   OutPut: OLBoolean;
 begin
@@ -235,7 +240,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.LogicalNot(a: OLBoolean): OLBoolean;
+class operator OLBoolean.LogicalNot(const a: OLBoolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
@@ -245,7 +250,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.LogicalOr(a, b: OLBoolean): OLBoolean;
+class operator OLBoolean.LogicalOr(const a: OLBoolean; b: OLBoolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
@@ -255,7 +260,8 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.LogicalXor(a, b: OLBoolean): OLBoolean;
+class operator OLBoolean.LogicalXor(const a: OLBoolean; b: OLBoolean):
+    OLBoolean;
 var
   OutPut: OLBoolean;
 begin
@@ -265,12 +271,12 @@ begin
   Result := OutPut;
 end;
 
-class operator OLBoolean.NotEqual(a, b: OLBoolean): Boolean;
+class operator OLBoolean.NotEqual(const a, b: OLBoolean): Boolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
-procedure OLBoolean.SetHasValue(Value: Boolean);
+procedure OLBoolean.SetHasValue(const Value: Boolean);
 begin
   if Value then
     NullFlag := NonEmptyStr
@@ -290,7 +296,7 @@ begin
   Result := Output;
 end;
 
-function OLBoolean.IfThen(ATrue, AFalse: Boolean): Boolean;
+function OLBoolean.IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean;
 var
   OutPut: Boolean;
 begin
