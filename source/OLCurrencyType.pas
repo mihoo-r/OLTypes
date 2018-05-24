@@ -35,7 +35,7 @@ type
     class operator Multiply(const a, b: OLCurrency): OLCurrency;
     class operator Divide(const a, b: OLCurrency): OLDouble;
     class operator Divide(const a: OLDouble; const b: OLCurrency): OLDouble;
-    class operator Divide(const a: OLCurrency; b: OLDouble): OLDouble;
+    class operator Divide(const a: OLCurrency; const b: OLDouble): OLDouble;
     class operator Divide(const a: Extended; const b: OLCurrency): OLDouble;
     class operator Divide(const a: OLCurrency; const b: Extended): OLDouble;
     class operator Negative(const a: OLCurrency): OLCurrency;
@@ -123,7 +123,8 @@ begin
   Result := OutPut;
 end;
 
-class operator OLCurrency.Divide(const a: OLCurrency; b: OLDouble): OLDouble;
+class operator OLCurrency.Divide(const a: OLCurrency; const b: OLDouble):
+    OLDouble;
 var
   OutPut: OLDouble;
 begin

@@ -32,7 +32,7 @@ type
     class operator Implicit(const a: OLBoolean): Variant;
 
     class operator Equal(const a, b: OLBoolean): Boolean;
-    class operator Equal(const a: OLBoolean; b: Variant): Boolean;
+    class operator Equal(const a: OLBoolean; const b: Variant): Boolean;
     class operator NotEqual(const a, b: OLBoolean): Boolean;
     class operator GreaterThan(const a, b: OLBoolean): Boolean;
     class operator GreaterThanOrEqual(const a, b: OLBoolean): Boolean;
@@ -59,7 +59,7 @@ begin
   Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-class operator OLBoolean.Equal(const a: OLBoolean; b: Variant): Boolean;
+class operator OLBoolean.Equal(const a: OLBoolean; const b: Variant): Boolean;
 begin
   Result := ((a.Value = b) and (a.ValuePresent and (b <> Null))) or (a.IsNull() and (b = Null));
 end;
