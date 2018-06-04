@@ -218,6 +218,7 @@ type
     procedure LineDelete(const LineIndex: integer);
     procedure LineInsertAt(const LineIndex: integer; const s: string);
     function LineIndexOf(const s: string): OLInteger;
+    function LineIndexLike(const s: string; StartingFrom: Integer = 0): OLInteger;
     procedure LoadFromFile(const FileName: string);
     procedure SaveToFile(const FileName: string);
     function LineAdded(const NewLine: string): OLString;
@@ -1090,6 +1091,23 @@ end;
 function OLString.LineEndAt(const LineIndex: Integer): OLInteger;
 begin
 
+end;
+
+function OLString.LineIndexLike(const s: string; StartingFrom: Integer): OLInteger;
+var
+  i: Integer;
+  OutPut: OLInteger;
+begin
+  for i := StartingFrom to Self.LineCount - 1 do
+  begin
+    if Self.Lines[i].Like(s) then
+    begin
+      OutPut := i;
+      Break;
+    end;
+  end;
+
+  Result := OutPut;
 end;
 
 function OLString.LineIndexOf(const s: string): OLInteger;
