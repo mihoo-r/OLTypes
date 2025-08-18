@@ -20,19 +20,29 @@ type
     function IsPositive(): OLBoolean;
     function IsNegative(): OLBoolean;
     function IsNonNegative(): OLBoolean;
+    function Between(const BottomIncluded, TopIncluded: OLInteger): OLBoolean;
     function Max(const i: OLCurrency): OLCurrency;
     function Min(const i: OLCurrency): OLCurrency;
     function Abs(): OLCurrency;
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
-    function ToString(): string;
+    function ToString(): string; overload;
+    function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    function ToSQLString: string;
+    function ToStrF(Format: TFloatFormat; Digits: Integer): string;
     function IfNull(const i: OLCurrency): OLCurrency;
-    function Round(const Digits: integer): OLCurrency; overload;
     function Round(): OLInteger; overload;
+    function Round(const PowerOfTen: integer): OLCurrency; overload;
+    function Ceil(): OLInteger;
+    function Floor(): OLInteger;
 
     class operator Add(const a, b: OLCurrency): OLCurrency;
     class operator Subtract(const a, b: OLCurrency): OLCurrency;
     class operator Multiply(const a, b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLCurrency; b: OLInteger): OLCurrency;
+    class operator Multiply(const a: OLCurrency; b: Extended): OLCurrency;
+    class operator Multiply(const a: OLCurrency; b: Double): OLCurrency;
+    class operator Multiply(const a: OLCurrency; b: OLDouble): OLCurrency;
     class operator Divide(const a, b: OLCurrency): OLDouble;
     class operator Divide(const a: OLDouble; const b: OLCurrency): OLDouble;
     class operator Divide(const a: OLCurrency; const b: OLDouble): OLDouble;
@@ -40,9 +50,15 @@ type
     class operator Divide(const a: OLCurrency; const b: Extended): OLDouble;
     class operator Negative(const a: OLCurrency): OLCurrency;
 
+    class operator Implicit(const a: Integer): OLCurrency;
     class operator Implicit(const a: Extended): OLCurrency;
     class operator Implicit(const a: OLCurrency): Extended;
+    class operator Implicit(const a: Double): OLCurrency;
     class operator Implicit(const a: OLCurrency): Double;
+    class operator Implicit(const a: Real): OLCurrency;
+    class operator Implicit(const a: OLCurrency): Real;
+    class operator Implicit(const a: OLDouble): OLCurrency;
+    class operator Implicit(const a: OLCurrency): OLDouble;
     class operator Implicit(const a: Variant): OLCurrency;
     class operator Implicit(const a: OLCurrency): Variant;
     class operator Implicit(const a: OLCurrency): Currency;
@@ -54,6 +70,13 @@ type
     class operator LessThan(const a, b: OLCurrency): OLBoolean; overload;
     class operator LessThanOrEqual(const a, b: OLCurrency): OLBoolean; overload;
 
+    class operator Equal(const a: OLCurrency; const b: Currency): OLBoolean; overload;
+    class operator NotEqual(const a: OLCurrency; const b: Currency): OLBoolean; overload;
+    class operator GreaterThan(const a: OLCurrency; const b: Currency): OLBoolean; overload;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean; overload;
+    class operator LessThan(const a: OLCurrency; const b: Currency): OLBoolean; overload;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean; overload;
+
     class operator Equal(const a: OLCurrency; const b: Extended): OLBoolean; overload;
     class operator NotEqual(const a: OLCurrency; const b: Extended): OLBoolean; overload;
     class operator GreaterThan(const a: OLCurrency; const b: Extended): OLBoolean; overload;
@@ -63,6 +86,7 @@ type
   end;
 
   OLDecimal = OLCurrency;
+  POLCurrency = ^OLCurrency;
 
 implementation
 
@@ -90,6 +114,23 @@ begin
   Result := returnrec;
 end;
 
+function OLCurrency.Between(const BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+begin
+  Result := HasValue.IfThen((Value <= TopIncluded) and (Value >= BottomIncluded), null);
+end;
+
+function OLCurrency.Ceil: OLInteger;
+var
+  OutPut: OLInteger;
+begin
+  if HasValue then
+    OutPut := Math.Ceil(Self)
+  else
+    OutPut := null;
+
+  Result := OutPut;
+end;
+
 class operator OLCurrency.Implicit(const a: Extended): OLCurrency;
 var
   OutPut: OLCurrency;
@@ -104,7 +145,7 @@ var
   OutPut: Extended;
 begin
   if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as integer value');
+    raise Exception.Create('Null cannot be used as Extended value');
   OutPut := a.Value;
   Result := OutPut;
 end;
@@ -141,6 +182,23 @@ class operator OLCurrency.Equal(const a: OLCurrency; const b: Extended):
     OLBoolean;
 begin
   Result := (System.Abs(a.Value - b) < 1e-10) and a.ValuePresent;
+end;
+
+class operator OLCurrency.Equal(const a: OLCurrency; const b: Currency): OLBoolean;
+begin
+  Result := (a.Value = b) and a.ValuePresent;
+end;
+
+function OLCurrency.Floor: OLInteger;
+var
+  OutPut: OLInteger;
+begin
+  if HasValue then
+    OutPut := Math.Floor(Self)
+  else
+    OutPut := null;
+
+  Result := OutPut;
 end;
 
 class operator OLCurrency.Divide(const a, b: OLCurrency): OLDouble;
@@ -266,6 +324,24 @@ begin
 end;
 
 
+class operator OLCurrency.Multiply(const a: OLCurrency; b: Extended): OLCurrency;
+var
+  returnrec: OLCurrency;
+begin
+  returnrec.Value := a.Value * b;
+  returnrec.ValuePresent := a.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; b: OLInteger): OLCurrency;
+var
+  returnrec: OLCurrency;
+begin
+  returnrec.Value := a.Value * b.AsInteger();
+  returnrec.ValuePresent := a.ValuePresent and b.HasValue();
+  Result := returnrec;
+end;
+
 class operator OLCurrency.Multiply(const a, b: OLCurrency): OLCurrency;
 var
   returnrec: OLCurrency;
@@ -286,6 +362,11 @@ end;
 
 class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Extended):
     OLBoolean;
+begin
+  Result := (System.Abs(a.Value - b) > 1e-10) and a.ValuePresent;
+end;
+
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Currency): OLBoolean;
 begin
   Result := (a.Value <> b) and a.ValuePresent;
 end;
@@ -317,8 +398,15 @@ end;
 
 
 function OLCurrency.Round: OLInteger;
+var
+  OutPut: OLInteger;
 begin
-  Result := System.Trunc(Math.RoundTo(Self, 0));
+  if HasValue then
+    OutPut := System.Trunc(Math.RoundTo(Self, 0))
+  else
+    OutPut := null;
+
+  Result := OutPut;
 end;
 
 function OLCurrency.IsPositive: OLBoolean;
@@ -345,7 +433,6 @@ begin
 end;
 
 class operator OLCurrency.Subtract(const a, b: OLCurrency): OLCurrency;
-
 var
   returnrec: OLCurrency;
 begin
@@ -355,21 +442,65 @@ begin
 end;
 
 function OLCurrency.ToString: string;
+begin
+  Result := ToStrF(ffCurrency, 2);
+end;
+
+function OLCurrency.ToSQLString: string;
+var
+  fs: TFormatSettings;
+  OutPut: string;
+begin
+  fs.ThousandSeparator := #0;
+  fs.DecimalSeparator := '.';
+
+  if HasValue then
+    OutPut := CurrToStrF(Self, ffNumber, 4, fs)
+  else
+    OutPut := 'NULL';
+
+  Result := OutPut;
+end;
+
+function OLCurrency.ToStrF(Format: TFloatFormat; Digits: Integer): string;
 var
   Output: string;
 begin
   if ValuePresent then
-    Output := CurrToStrF(Value, ffCurrency, 2)
+    Output := CurrToStrF(Value, Format, Digits)
   else
     Output := EmptyStr;
 
   Result := Output;
 end;
 
-
-function OLCurrency.Round(const Digits: integer): OLCurrency;
+function OLCurrency.ToString(ThousandSeparator, DecimalSeparator: Char; Format: string): string;
+var
+  fs: TFormatSettings;
+  Output: string;
 begin
-  Result := Math.RoundTo(Self, Digits);
+  if ValuePresent then
+  begin
+    fs.ThousandSeparator := ThousandSeparator;
+    fs.DecimalSeparator := DecimalSeparator;
+    Output := FormatFloat(Format, Value, fs)
+  end
+  else
+    Output := '';
+
+  Result := Output;
+end;
+
+function OLCurrency.Round(const PowerOfTen: integer): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if HasValue then
+    OutPut := Math.RoundTo(Self, PowerOfTen)
+  else
+    OutPut := null;
+
+  Result := OutPut;
 end;
 
 
@@ -377,6 +508,16 @@ class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Extended):
     OLBoolean;
 begin
   Result := (a.Value > b) and a.ValuePresent;
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Currency): OLBoolean;
+begin
+  Result := (a.Value > b) and a.ValuePresent;
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean;
+begin
+  Result := (a.Value >= b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b:
@@ -396,6 +537,16 @@ begin
   Result := (a.Value < b) and a.ValuePresent;
 end;
 
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: Currency): OLBoolean;
+begin
+  Result := (a.Value < b) and a.ValuePresent;
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean;
+begin
+  Result := (a.Value <= b) and a.ValuePresent;
+end;
+
 class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b:
     Extended): OLBoolean;
 begin
@@ -409,6 +560,66 @@ begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Currency value');
   OutPut := a.Value;
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Implicit(const a: Integer): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  OutPut.Value := a;
+  OutPut.ValuePresent := true;
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Implicit(const a: OLCurrency): Real;
+var
+  OutPut: Real;
+begin
+  if not a.ValuePresent then
+    raise Exception.Create('Null cannot be used as Real value');
+  OutPut := a.Value;
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Implicit(const a: Real): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  OutPut.Value := a;
+  OutPut.ValuePresent := true;
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Implicit(const a: OLCurrency): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if a.IsNull then
+    OutPut := Null
+  else
+    OutPut := a.Value;
+
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Implicit(const a: OLDouble): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  OutPut.ValuePresent := a.HasValue;
+  if a.HasValue then
+    OutPut.Value := a;
+
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Implicit(const a: Double): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  OutPut.Value := a;
+  OutPut.ValuePresent := true;
   Result := OutPut;
 end;
 
@@ -434,6 +645,28 @@ begin
     OutPut := Null
   else
     OutPut := a.Value / b;
+
+
+  Result := OutPut;
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; b: Double): OLCurrency;
+var
+  returnrec: OLCurrency;
+begin
+  returnrec.Value := a.Value * b;
+  returnrec.ValuePresent := a.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; b: OLDouble): OLCurrency;
+var
+  OutPut: OLDouble;
+begin
+  if (not a.ValuePresent) or (b.IsNull()) then
+    OutPut := Null
+  else
+    OutPut := a.Value * b;
 
 
   Result := OutPut;
