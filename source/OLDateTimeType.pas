@@ -48,7 +48,9 @@ type
 
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
-    function ToString(): string;
+    function ToString(): string; overload;
+    function ToString(const Format: string): string; overload;
+    function ToSQLString(): string;
     function IfNull(b: OLDateTime): OLDateTime;
 
     class operator Implicit(const a: TDateTime): OLDateTime;
@@ -83,6 +85,7 @@ type
     class function Today: OLDateTime; static;
     class function Yesterday: OLDateTime; static;
     class function Tomorrow: OLDateTime; static;
+    class function Now(): OLDateTime; static;
 
     procedure SetNow();
     procedure SetToday();
@@ -189,11 +192,15 @@ type
     function SameTime(const DateTimeToCompare: OLDateTime): OLBoolean;
 
     function LongDayName(): string;
+    function LongMonthName(): string;
     function ShortDayName(): string;
+    function ShortMonthName(): string;
 
     function Max(const CompareDate: OLDateTime): OLDateTime;
     function Min(const CompareDate: OLDateTime): OLDateTime;
   end;
+
+  POLDateTime = ^OLDateTime;
 
 implementation
 
@@ -543,7 +550,29 @@ end;
 
 function OLDateTime.LongDayName: string;
 begin
-  Result := LongDayNames[DayOfWeek(Self.Value)];
+  {$if CompilerVersion > 22} // Delphi XE or later
+     Result := SysUtils.FormatSettings.LongDayNames[DayOfWeek(Self.Value)];
+  {$else}
+    Result := LongDayNames[DayOfWeek(Self.Value)];
+  {$ifend}
+end;
+
+function OLDateTime.LongMonthName: string;
+begin
+  {$if CompilerVersion > 22} // Delphi XE or later
+     Result := SysUtils.FormatSettings.LongMonthNames[Self.Month.AsInteger()];
+  {$else}
+    Result := LongMonthNames[Self.Month];
+  {$ifend}
+end;
+
+function OLDateTime.ShortMonthName: string;
+begin
+  {$if CompilerVersion > 22} // Delphi XE or later
+     Result := SysUtils.FormatSettings.ShortMonthNames[Self.Month.AsInteger()];
+  {$else}
+    Result := ShortMonthNames[Self.Month];
+  {$ifend}
 end;
 
 function OLDateTime.Max(const CompareDate: OLDateTime): OLDateTime;
@@ -666,8 +695,24 @@ begin
 end;
 
 function OLDateTime.MonthsBetween(const AThen: OLDateTime): OLInteger;
+var
+  Y1, Y2, M1, M2, D1, D2: Integer;
+  FullMonth: OLBoolean;
 begin
-  Result := DateUtils.MonthsBetween(Self, AThen);
+//Result := Self.Value.MonthsBetween(AThen); //Useless - returns "approximate" number of months based on avg days in month (30.4375 days)
+
+  Y1 := AThen.Year;
+  M1 := AThen.Month;
+  D1 := AThen.Day;
+
+  Y2 := Self.Year;
+  M2 := Self.Month;
+  D2 := Self.Day;
+
+  FullMonth := (D2 >= D1) or (D2 = DaysInAMonth(Y2, M2));
+
+  //Decrease when comparing for example '2020-01-10' and '2020-02-09' - not a full month so result is 0
+  Result := 12 * (Y2 - Y1) + (M2 - M1) + FullMonth.IfThen(0, -1);
 end;
 
 function OLDateTime.MonthSpan(const AThen: OLDateTime): OLDouble;
@@ -678,6 +723,11 @@ end;
 class operator OLDateTime.NotEqual(const a, b: OLDateTime): OLBoolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
+end;
+
+class function OLDateTime.Now: OLDateTime;
+begin
+  Result := SysUtils.Now();
 end;
 
 function OLDateTime.RecodedDay(const ADay: Word): OLDateTime;
@@ -850,7 +900,12 @@ end;
 
 function OLDateTime.ShortDayName: string;
 begin
-  Result := ShortDayNames[DayOfWeek(Self.Value)];
+  {$if CompilerVersion > 22} // Delphi XE or later
+     Result := SysUtils.FormatSettings.ShortDayNames[DayOfWeek(Self.Value)];
+  {$else}
+    Result := ShortDayNames[DayOfWeek(Self.Value)];
+  {$ifend}
+
 end;
 
 class function OLDateTime.StartOfAMonth(const AYear, AMonth: Word): OLDateTime;
@@ -918,6 +973,18 @@ begin
   Result := DateUtils.Tomorrow();
 end;
 
+function OLDateTime.ToString(const Format: string): string;
+var
+  OutPut: string;
+begin
+  if Self.ValuePresent then
+    OutPut := FormatDateTime(Format, Self.Value)
+  else
+    OutPut := '';
+
+  Result := OutPut;
+end;
+
 function OLDateTime.ToString: string;
 var
   OutPut: string;
@@ -930,6 +997,17 @@ begin
   Result := OutPut;
 end;
 
+function OLDateTime.ToSQLString: string;
+var
+  OutPut: string;
+begin
+  if HasValue then
+    OutPut := QuotedStr(ToString())
+  else
+    OutPut := 'NULL';
+
+  Result := OutPut;
+end;
 
 function OLDateTime.WeekOf: OLInteger;
 begin
@@ -1007,6 +1085,7 @@ end;
 
 function OLDateTime.IncMonth(const ANumberOfMonths: Integer): OLDateTime;
 var
+  Day: OLInteger;
   Month: Integer;
   Year: Integer;
 begin
@@ -1026,7 +1105,12 @@ begin
     Dec(Month, 12);
   end;
 
-  Result := Self.RecodedYear(Year).RecodedMonth(Month);
+  if DaysInAMonth(Year, Month) < Self.Day then
+    Day := DaysInAMonth(Year, Month)
+  else
+    Day := Self.Day;
+
+  Result := Self.RecodedDay(Day).RecodedMonth(Month).RecodedYear(Year);
 end;
 
 function OLDateTime.IncSecond(const ANumberOfSeconds: Int64): OLDateTime;
