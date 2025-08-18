@@ -17,6 +17,7 @@ type
   public
     function IsNull(): Boolean;
     function ToString(): string;
+    function ToSQLString(): string;
     function IfNull(const b: OLBoolean): OLBoolean;
     function HasValue(): OLBoolean;
     function IfThen(const ATrue: string; const AFalse: string = ''): string; overload;
@@ -44,6 +45,8 @@ type
     class operator LogicalOr(const a: OLBoolean; b: OLBoolean): OLBoolean;
     class operator LogicalXor(const a: OLBoolean; b: OLBoolean): OLBoolean;
   end;
+
+  POLBoolean = ^OLBoolean;
 
 implementation
 
@@ -282,6 +285,18 @@ begin
     NullFlag := NonEmptyStr
   else
     NullFlag := EmptyStr;
+end;
+
+function OLBoolean.ToSQLString: string;
+var
+  OutPut: string;
+begin
+  if HasValue then
+    OutPut := ToString()
+  else
+    OutPut := 'NULL';
+
+  Result := OutPut;
 end;
 
 function OLBoolean.ToString: string;
