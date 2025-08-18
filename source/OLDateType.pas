@@ -24,7 +24,9 @@ type
 
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
-    function ToString(): string;
+    function ToString(): string; overload;
+    function ToString(const Format: string): string; overload;
+    function ToSQLString(): string;
     function IfNull(const b: OLDate): OLDate;
 
     class operator Implicit(const a: TDate): OLDate;
@@ -112,11 +114,17 @@ type
     function RecodedDay(const ADay: Word): OLDate;
 
     function LongDayName(): string;
+    function LongMonthName(): string;
     function ShortDayName(): string;
+    function ShortMonthName(): string;
 
     function Max(const CompareDate: OLDate): OLDate;
     function Min(const CompareDate: OLDate): OLDate;
+
+    class function IsValidDate(const Year, Month, Day: OLInteger): OLBoolean; static;
   end;
+
+  POLDate = ^OLDate;
 
 implementation
 
@@ -360,6 +368,11 @@ begin
   Result := Self.Value.IsToday;
 end;
 
+class function OLDate.IsValidDate(const Year, Month, Day: OLInteger): OLBoolean;
+begin
+  Result := (Month > 0) and (Day > 0) and (DaysInAMonth(Year, Month) >= Day);
+end;
+
 class operator OLDate.LessThan(const a, b: OLDate): OLBoolean;
 begin
   Result := (a.Value < b.Value);
@@ -375,6 +388,11 @@ begin
   Result := Self.Value.LongDayName();
 end;
 
+function OLDate.LongMonthName: string;
+begin
+  Result := Self.Value.LongMonthName();
+end;
+
 function OLDate.Max(const CompareDate: OLDate): OLDate;
 begin
   Result := Self.Value.Max(CompareDate);
@@ -386,8 +404,24 @@ begin
 end;
 
 function OLDate.MonthsBetween(const AThen: OLDate): OLInteger;
+var
+  Y1, Y2, M1, M2, D1, D2: Integer;
+  FullMonth: OLBoolean;
 begin
-  Result := Self.Value.MonthsBetween(AThen);
+//Result := Self.Value.MonthsBetween(AThen); //Useless - returns "approximate" number of months based on avg days in month (30.4375 days)
+
+  Y1 := AThen.Year;
+  M1 := AThen.Month;
+  D1 := AThen.Day;
+
+  Y2 := Self.Year;
+  M2 := Self.Month;
+  D2 := Self.Day;
+
+  FullMonth := (D2 >= D1) or (D2 = DaysInAMonth(Y2, M2));
+
+  //Decrease when comparing for example '2020-01-10' and '2020-02-09' - not a full month so result is 0
+  Result := 12 * (Y2 - Y1) + (M2 - M1) + FullMonth.IfThen(0, -1);
 end;
 
 function OLDate.MonthSpan(const AThen: OLDate): OLDouble;
@@ -503,6 +537,11 @@ begin
   Result := Self.Value.ShortDayName();
 end;
 
+function OLDate.ShortMonthName: string;
+begin
+  Result := Self.Value.ShortMonthName();
+end;
+
 class function OLDate.StartOfAMonth(const AYear, AMonth: Word): OLDate;
 begin
   Result.Value := OLDateTime.StartOfAMonth(AYear, AMonth);
@@ -551,6 +590,30 @@ begin
     OutPut := ''
   else
     OutPut := DateToStr(Self.Value);
+
+  Result := OutPut;
+end;
+
+function OLDate.ToSQLString: string;
+var
+  OutPut: string;
+begin
+  if HasValue then
+    OutPut := QuotedStr(ToString())
+  else
+    OutPut := 'NULL';
+
+  Result := OutPut;
+end;
+
+function OLDate.ToString(const Format: string): string;
+var
+  OutPut: string;
+begin
+  if Self.HasValue then
+    OutPut := FormatDateTime(Format, Self.Value)
+  else
+    OutPut := '';
 
   Result := OutPut;
 end;

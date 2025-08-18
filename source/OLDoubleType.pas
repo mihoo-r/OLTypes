@@ -28,9 +28,12 @@ type
     function HasValue(): OLBoolean;
     function ToString(): string; overload;
     function ToString(const Digits: integer; const Format: TFloatFormat = ffFixed; const Precision: integer = 16): string; overload;
+    function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    function ToSQLString(): string;
     function IfNull(const d: OLDouble): OLDouble;
 
-    function Round(const Digits: integer = 0): OLDouble;
+    function Round(const PowerOfTen: integer): OLDouble; overload;
+    function Round(): Integer; overload;
     function Floor(): Integer;
     function Ceil(): Integer;
 
@@ -74,6 +77,8 @@ type
     class operator LessThanOrEqual(const a, b: OLDouble): OLBoolean;
   end;
 
+  POLDouble = ^OLDouble;
+
 implementation
 
 //uses
@@ -101,8 +106,12 @@ begin
 end;
 
 function OLDouble.Ceil: Integer;
+var
+  d: Double;
 begin
-  Result := Math.Ceil(Self);
+  d := Self;
+
+  Result := Math.Ceil(d);
 end;
 
 class operator OLDouble.Implicit(const a: Double): OLDouble;
@@ -152,8 +161,11 @@ begin
 end;
 
 function OLDouble.Floor: Integer;
+var
+  d: Double;
 begin
-  Result := Math.Floor(Self);
+  d := Self;
+  Result := Math.Floor(d);
 end;
 
 function OLDouble.GetHasValue: OLBoolean;
@@ -272,13 +284,19 @@ begin
 end;
 
 function OLDouble.IsInfinite: OLBoolean;
+var
+  d: Double;
 begin
-  Result := Math.IsInfinite(Self);
+  d := Self;
+  Result := Math.IsInfinite(d);
 end;
 
 function OLDouble.IsNan: OLBoolean;
+var
+  d: Double;
 begin
-  Result := Math.IsNan(Self);
+  d := Self;
+  Result := Math.IsNan(d);
 end;
 
 function OLDouble.IsNegative: OLBoolean;
@@ -341,9 +359,16 @@ begin
     NullFlag := EmptyStr;
 end;
 
-function OLDouble.Round(const Digits: integer): OLDouble;
+function OLDouble.Round(const PowerOfTen: integer): OLDouble;
+var
+  OutPut: OLDouble;
 begin
-  Result := Math.RoundTo(Self, Digits);
+  if HasValue then
+    OutPut := Math.RoundTo(Self, PowerOfTen)
+  else
+    OutPut := null;
+
+  Result := OutPut;
 end;
 
 function OLDouble.Sqr: OLDouble;
@@ -370,10 +395,43 @@ begin
   Result := returnrec;
 end;
 
+function OLDouble.ToSQLString: string;
+var
+  fs: TFormatSettings;
+  OutPut: string;
+begin
+  fs.ThousandSeparator := #0;
+  fs.DecimalSeparator := '.';
+
+  if HasValue then
+    OutPut := FloatToStrF(Self, ffNumber, 16, 16, fs)
+  else
+    OutPut := 'NULL';
+
+  Result := OutPut;
+end;
+
 function OLDouble.ToString(const Digits: integer; const Format: TFloatFormat =
     ffFixed; const Precision: integer = 16): string;
 begin
   Result := FloatToStrF(Self, Format, Precision, Digits);
+end;
+
+function OLDouble.ToString(ThousandSeparator, DecimalSeparator: Char; Format: string): string;
+var
+  fs: TFormatSettings;
+  Output: string;
+begin
+  if ValuePresent then
+  begin
+    fs.ThousandSeparator := ThousandSeparator;
+    fs.DecimalSeparator := DecimalSeparator;
+    Output := FormatFloat(Format, Value, fs)
+  end
+  else
+    Output := '';
+
+  Result := Output;
 end;
 
 function OLDouble.ToString: string;
@@ -391,6 +449,14 @@ end;
 class function OLDouble.Random(const MaxValue:Double = MaxInt): OLDouble;
 begin
   Result := OLDouble.Random(0, MaxValue);
+end;
+
+function OLDouble.Round: Integer;
+var
+  d: Double;
+begin
+  d := Self;
+  Result := System.Round(d);
 end;
 
 class operator OLDouble.Implicit(const a: Integer): OLDouble;

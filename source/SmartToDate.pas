@@ -7,27 +7,27 @@ function SmartStrToDate(s: string): TDate;
 
 const
   // today, yesterday, tomorow
-  ssTD = 'td';
-  ssTM = 'tm';
-  ssYD = 'yd';
+  ssTD = 't'; ssTD2 = 'td';
+  ssTM = 'm'; ssTM2 = 'tm';
+  ssYD = 'y'; ssYD2 = 'yd';
 
   // Start/End of the Month/Year
-  ssSY = 'sy';
-  ssEY = 'ey';
-  ssSM = 'sm';
-  ssEM = 'em';
+  ssSY = 'sy'; ssSY2 = 'ss';
+  ssEY = 'ey'; ssEY2 = 'ee';
+  ssSM = 's'; ssSM2 = 'sm';
+  ssEM = 'e'; ssEM2 = 'em';
 
   // Start/End of the Next Month/Year
-  ssSNY = 'sny';
-  ssENY = 'eny';
-  ssSNM = 'snm';
-  ssENM = 'enm';
+  ssSNY = 'dd'; ssSNY2 = 'sny';
+  ssENY = 'rr'; ssENY2 = 'eny';
+  ssSNM = 'd'; ssSNM2 = 'snm';
+  ssENM = 'r'; ssENM2 = 'enm';
 
   // Start/End of the Prior Month/Year
-  ssSPY = 'spy';
-  ssEPY = 'epy';
-  ssSPM = 'spm';
-  ssEPM = 'epm';
+  ssSPY = 'aa'; ssSPY2 = 'spy';
+  ssEPY = 'ww'; ssEPY2 = 'epy';
+  ssSPM = 'a'; ssSPM2 = 'spm';
+  ssEPM = 'w'; ssEPM2 = 'epm';
 
 implementation
 
@@ -70,77 +70,77 @@ end;
 
 procedure AlfaSmartToDate(s: string; var d: TDate; var OutPut: Boolean);
 begin
-  if (s = 't') or (s = ssTD) then
+  if (s = ssTD) or (s = ssTD2) then
   begin
     d := Date;
     OutPut := true;
   end;
-  if (s = 'y') or (s = ssYD) then
+  if (s = ssYD) or (s = ssYD2) then
   begin
     d := IncDay(Date, -1);
     OutPut := true;
   end;
-  if s = ssTM then
+  if (s = ssTM) or (s = ssTM2) then
   begin
     d := IncDay(Date, 1);
     OutPut := true;
   end;
-  if s = ssEY then
+  if (s = ssEY) or (s = ssEY2) then
   begin
     d := Floor(EndOfTheYear(Date));
     OutPut := true;
   end;
-  if s = ssEM then
+  if (s = ssEM) or (s = ssEM2) then
   begin
     d := Floor(EndOfTheMonth(Date));
     OutPut := true;
   end;
-  if s = ssSY then
+  if (s = ssSY) or (s=ssSY2) then
   begin
     d := StartOfTheYear(Date);
     OutPut := true;
   end;
-  if s = ssSM then
+  if (s = ssSM) or (s = ssSM2) then
   begin
     d := StartOfTheMonth(Date);
     OutPut := true;
   end;
-  if s = ssENY then
+  if (s = ssENY) or (s = ssENY2)then
   begin
     d := Floor(EndOfTheYear(IncYear(Date, 1)));
     OutPut := true;
   end;
-  if s = ssENM then
+  if (s = ssENM) or (s = ssENM2) then
   begin
     d := Floor(EndOfTheMonth(IncMonth(Date, 1)));
     OutPut := true;
   end;
-  if s = ssSNY then
+  if (s = ssSNY) or (s = ssSNY2) then
   begin
     d := StartOfTheYear(IncYear(Date, 1));
     OutPut := true;
   end;
-  if s = ssSNM then
+  if (s = ssSNM) or (s = ssSNM2) then
   begin
     d := StartOfTheMonth(IncMonth(Date, 1));
     OutPut := true;
   end;
-  if s = ssEPY then
+  if (s = ssEPY) or (s = ssEPY2) then
   begin
     d := Floor(EndOfTheYear(IncYear(Date, -1)));
     OutPut := true;
   end;
-  if s = ssEPM then
+  if (s = ssEPM) or (s = ssEPM2) then
   begin
     d := Floor(EndOfTheMonth(IncMonth(Date, -1)));
     OutPut := true;
   end;
-  if s = ssSPY then
+  if (s = ssSPY) or (s = ssSPY2) then
   begin
     d := StartOfTheYear(IncYear(Date, -1));
     OutPut := true;
   end;
-  if s = ssSPM then
+  if (s = ssSPM) or (s = ssSPM2) then
   begin
     d := StartOfTheMonth(IncMonth(Date, -1));
     OutPut := true;

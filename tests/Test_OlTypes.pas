@@ -1458,7 +1458,7 @@ begin
 
   Check(d2.DaysBetween(d) = DateUtils.DaysBetween(d2, d));
   Check(d2.WeeksBetween(d) = DateUtils.WeeksBetween(d2, d));
-  Check(d2.MonthsBetween(d) = DateUtils.MonthsBetween(d2, d));
+  Check(d2.MonthsBetween(d) = 54); //DateUtils.MonthsBetween(d2, d) returns aproximate number of months
   Check(d2.YearsBetween(d) = DateUtils.YearsBetween(d2, d));
 
 
@@ -1480,7 +1480,7 @@ begin
   Check(dt2.HoursBetween(dt) = DateUtils.HoursBetween(dt2, dt));
   Check(dt2.DaysBetween(dt) = DateUtils.DaysBetween(dt2, dt));
   Check(dt2.WeeksBetween(dt) = DateUtils.WeeksBetween(dt2, dt));
-  Check(dt2.MonthsBetween(dt) = DateUtils.MonthsBetween(dt2, dt));
+  Check(dt2.MonthsBetween(dt) = 54); //DateUtils.MonthsBetween(d2, d) returns aproximate number of months
   Check(dt2.YearsBetween(dt) = DateUtils.YearsBetween(dt2, dt));
 
 

@@ -3,7 +3,8 @@ unit OLTypes;
 interface
 
 uses OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-  OLIntegerType, OLInt64Type, OLStringType, SmartToDate;
+  OLIntegerType, OLInt64Type, OLStringType, SmartToDate, System.Threading,
+  System.SysUtils;
 
 type
   OLBoolean = OLBooleanType.OLBoolean;
@@ -15,6 +16,18 @@ type
   OLInteger = OLIntegerType.OLInteger;
   OLInt64 = OLInt64Type.OLInt64;
   OLString = OLStringType.OLString;
+
+  POLBoolean = OLBooleanType.POLBoolean;
+  POLCurrency = OLCurrencyType.POLCurrency;
+  POLDecimal = OLCurrencyType.POLCurrency;
+  POLDateTime = OLDateTimeType.POLDateTime;
+  POLDate = OLDateType.POLDate;
+  POLDouble = OLDoubleType.POLDouble;
+  POLInteger = OLIntegerType.POLInteger;
+  POLInt64 = OLInt64Type.POLInt64;
+  POLString = OLStringType.POLString;
+
+
   TStringPatternFind = OLStringType.TStringPatternFind;
 
   TCaseSensitivity = OLStringType.TCaseSensitivity;
@@ -32,6 +45,9 @@ function OLType(d: System.Extended): OLDouble; overload;
 function OLType(i: System.Integer): OLInteger; overload;
 function OLType(i: System.Int64): OLInt64; overload;
 function OLType(s: System.string): OLString; overload;
+
+function OLFuture(f: TFunc<OLInteger>): IFuture<OLInteger>; overload;
+function OLFuture(f: TFunc<integer>): IFuture<OLInteger>; overload;
 
 const
   // today, yesterday, tomorow
@@ -56,6 +72,8 @@ const
   ssEPY = SmartToDate.ssEPY;
   ssSPM = SmartToDate.ssSPM;
   ssEPM = SmartToDate.ssEPM;
+
+  EmptyChar: Char = #0;
 
 implementation
 
@@ -102,6 +120,20 @@ end;
 function OLType(s: System.string): OLString;
 begin
   Result := s;
+end;
+
+function OLFuture(f: TFunc<OLInteger>): IFuture<OLInteger>;
+begin
+  Result := TTask.Future<OLInteger>(f);
+end;
+
+function OLFuture(f: TFunc<integer>): IFuture<OLInteger>;
+begin
+  Result := TTask.Future<OLInteger>(
+    function: OLInteger
+    begin
+      Result := f();
+    end);
 end;
 
 end.

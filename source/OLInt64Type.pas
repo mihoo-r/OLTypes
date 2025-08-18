@@ -13,6 +13,16 @@ type
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(Value: OLBoolean);
+    function GetBinary: string;
+    function GetHexidecimal: string;
+    function GetNumeralSystem32: string;
+    function GetNumeralSystem64: string;
+    function GetOctal: string;
+    procedure SetBinary(const Value: string);
+    procedure SetHexidecimal(const Value: string);
+    procedure SetNumeralSystem32(const Value: string);
+    procedure SetNumeralSystem64(const Value: string);
+    procedure SetOctal(const Value: string);
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
     function IsDividableBy(i: Int64): OLBoolean;
@@ -30,12 +40,15 @@ type
     function IsNull(): OLBoolean;
     function HasValue(): OLBoolean;
     function ToString(): string;
+    function ToSQLString(): string;
     function IfNull(i: OLInt64): OLInt64;
     function Round(Digits: OLInt64): OLInt64;
     function Between(BottomIncluded, TopIncluded: OLInt64): OLBoolean;
     function Increased(IncreasedBy: Int64 = 1): OLInt64;
     function Decreased(DecreasedBy: Int64 = 1): OLInt64;
     function Replaced(FromValue: OLInt64; ToValue: OLInt64): OLInt64;
+
+    function ToNumeralSystem(const Base: Integer): string;
 
     procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
     function IsPrime(): OLBoolean;
@@ -95,12 +108,20 @@ type
     class operator GreaterThanOrEqual(a: OLInt64; b: Extended): OLBoolean;  overload;
     class operator LessThan(a: OLInt64; b: Extended): OLBoolean;  overload;
     class operator LessThanOrEqual(a: OLInt64; b: Extended): OLBoolean;  overload;
+
+    property Binary: string read GetBinary write SetBinary;
+    property Octal: string read GetOctal write SetOctal;
+    property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
+    property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
+    property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
   end;
+
+  POLInt64 = ^OLInt64;
 
 implementation
 
 uses
-  Math;
+  Math, NumeralSystemConvert;
 
 const
   NonEmptyStr = ' ';
@@ -147,6 +168,11 @@ begin
   returnrec.Value := a.Value xor b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
+end;
+
+function OLInt64.ToNumeralSystem(const Base: Integer): string;
+begin
+  Result := ConvertNumeralSystem(Self, Base);
 end;
 
 class operator OLInt64.Implicit(a: Int64): OLInt64;
@@ -261,9 +287,34 @@ begin
   Result := Self.IsDividableBy(2);
 end;
 
+function OLInt64.GetBinary: string;
+begin
+  Result := ToNumeralSystem(2);
+end;
+
 function OLInt64.GetHasValue: OLBoolean;
 begin
   Result := (NullFlag <> EmptyStr);
+end;
+
+function OLInt64.GetHexidecimal: string;
+begin
+  Result := ToNumeralSystem(16);
+end;
+
+function OLInt64.GetNumeralSystem32: string;
+begin
+Result := ToNumeralSystem(32);
+end;
+
+function OLInt64.GetNumeralSystem64: string;
+begin
+  Result := ToNumeralSystem(64);
+end;
+
+function OLInt64.GetOctal: string;
+begin
+  Result := ToNumeralSystem(8);
 end;
 
 class operator OLInt64.GreaterThan(a, b: OLInt64): OLBoolean;
@@ -559,12 +610,37 @@ begin
   Result := OutPut;
 end;
 
+procedure OLInt64.SetBinary(const Value: string);
+begin
+  Self := ConvertNumeralSystem(Value, 2);
+end;
+
 procedure OLInt64.SetHasValue(Value: OLBoolean);
 begin
   if Value then
     NullFlag := NonEmptyStr
   else
     NullFlag := EmptyStr;
+end;
+
+procedure OLInt64.SetHexidecimal(const Value: string);
+begin
+  Self := ConvertNumeralSystem(Value, 16);
+end;
+
+procedure OLInt64.SetNumeralSystem32(const Value: string);
+begin
+  Self := ConvertNumeralSystem(Value, 32);
+end;
+
+procedure OLInt64.SetNumeralSystem64(const Value: string);
+begin
+  Self := ConvertNumeralSystem(Value, 64);
+end;
+
+procedure OLInt64.SetOctal(const Value: string);
+begin
+  Self := ConvertNumeralSystem(Value, 8);
 end;
 
 procedure OLInt64.SetRandom(MaxValue: Int64);
@@ -608,6 +684,18 @@ begin
   returnrec.Value := a.Value - b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
+end;
+
+function OLInt64.ToSQLString: string;
+var
+  OutPut: string;
+begin
+  if HasValue then
+    OutPut := ToString()
+  else
+    OutPut := 'NULL';
+
+  Result := OutPut;
 end;
 
 function OLInt64.ToString: string;
