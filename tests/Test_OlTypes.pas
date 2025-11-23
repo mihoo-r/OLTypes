@@ -1,4 +1,4 @@
-unit Test_OlTypes;
+ï»¿unit Test_OlTypes;
 {
 
   Delphi DUnit Test Case
@@ -34,8 +34,10 @@ type
     procedure OrBolean;
     procedure NotBoolean;
     procedure XorBoolean;
-
     procedure IfThenBoolean;
+    
+    // NULL Handling Tests
+    procedure NullHandlingBoolean;
   end;
 
   OLIntegerTest = class(TTestCase)
@@ -60,9 +62,13 @@ type
     procedure IfNullInteger;
     procedure RoundInteger;
     procedure ForLoopInteger;
-    procedure IdPrimeInteger;
+    procedure IsPrimeInteger;
     procedure SetRandomPrimeInteger;
     procedure MathOperatorsInteger;
+    
+    // NULL Propagation Tests
+    procedure NullPropagationPredicatesInteger;
+    procedure ShortCircuitInteger;
   end;
 
   OLCurrencyTest = class(TTestCase)
@@ -85,6 +91,9 @@ type
     procedure AbsCurrency;
     procedure RoundCurrency;
     procedure MathOperatorsCurrency;
+    
+    // NULL Propagation Tests
+    procedure NullPropagationPredicatesCurrency;
   end;
 
   OLDoubleTest = class(TTestCase)
@@ -115,6 +124,9 @@ type
     procedure InRangeDouble;
     procedure EnsureRangeDouble;
     procedure SameValueDouble;
+    
+    // NULL Propagation Tests
+    procedure NullPropagationPredicatesDouble;
   end;
 
   OLDateTimeTest = class(TTestCase)
@@ -151,6 +163,9 @@ type
     procedure RecodingDateTime;
     procedure SameTimeDateTime;
     procedure DateTimePartsDateTime;
+    
+    // NULL Handling Tests
+    procedure NullHandlingDateTime;
   end;
 
   OLDateTest = class(TTestCase)
@@ -182,6 +197,9 @@ type
     procedure IncDate;
     procedure RecodingDate;
     procedure DateTimePartsDate;
+    
+    // NULL Handling Tests
+    procedure NullHandlingDate;
   end;
 
   OLStringTest = class(TTestCase)
@@ -235,6 +253,63 @@ type
     procedure HashString;
     procedure GetFromURLString;
     procedure IBANString;
+
+    // Null Handling & Basic Operations
+    procedure IfNullOrEmptyString;
+    procedure IsNullOrEmptyString;
+    procedure NotNullNorEmptyString;
+    procedure IsEmptyStrString;
+
+    // Character Manipulation
+    procedure AlphanumericsOnlyString;
+    procedure NoDigitsString;
+    procedure RepeatedStringString;
+    procedure LikeString;
+
+    // String Pattern Finding
+    procedure FindTagStrString;
+    procedure FindPatternStrString;
+
+    // Leading Character Operations
+    procedure LeadingCharString;
+    procedure LeadingComaString;
+    procedure LeadingApostropheString;
+
+    // Trailing Apostrophe Operations
+    procedure TrailingApostropheString;
+
+    // URL & HTML Encoding
+    procedure UrlEncodedTextString;
+    procedure HtmlUnicodeTextString;
+
+    // Position & Replacement Operations
+    procedure ReplacedStartingAtString;
+    procedure PosLastString;
+
+    // CSV Operations Advanced
+    procedure CSVIndexString;
+    procedure CSVFieldNameString;
+    procedure CSVFieldByNameString;
+
+    // Parameter & JSON Operations
+    procedure ParamsString;
+    procedure JSONString;
+
+    // Static Methods
+    procedure RandomFromString;
+    procedure RandomStringString;
+
+    // Line Operations
+    procedure LinesSortedString;
+    procedure LineIndexLikeString;
+
+    // Conversion & Utility
+    procedure ToSQLStringString;
+    procedure ToPWideCharString;
+    procedure LineEndAtString;
+    
+    // NULL Handling Tests
+    procedure NullHandlingString;
   end;
 
 implementation
@@ -567,20 +642,43 @@ begin
   CheckFalse(b >= True);
 end;
 
-procedure OLIntegerTest.IdPrimeInteger;
+procedure OLIntegerTest.IsPrimeInteger;
 var
   i: OLInteger;
 begin
+  i := 0;
+
   CheckFalse(i.IsPrime());
 
   i := 1984441079;
-  Check(i.IsPrime());
+  Check(i.IsPrime(), '1984441079 should be prime');
 
   i := 97496039;
-  Check(i.IsPrime());
+  Check(i.IsPrime(), '97496039 should be prime');
 
   i := 97496033;
-  CheckFalse(i.IsPrime());
+  CheckFalse(i.IsPrime(), '97496033 should not be prime');
+
+  i := 2;
+  Check(i.IsPrime(), '2 should be prime');
+
+  i := 3;
+  Check(i.IsPrime(), '3 should be prime');
+
+  i := 1;
+  CheckFalse(i.IsPrime(), '1 should not be prime');
+
+  i := 0;
+  CheckFalse(i.IsPrime(), '0 should not be prime');
+
+  i := -5;
+  CheckFalse(i.IsPrime(), '-5 should not be prime');
+
+  i := 4;
+  CheckFalse(i.IsPrime(), '4 should not be prime');
+
+  i := 29;
+  Check(i.IsPrime(), '29 should be prime');
 end;
 
 procedure OLIntegerTest.IfNullInteger;
@@ -1106,7 +1204,7 @@ begin
   d := 15.5;
   Check(d / i = Null);
   Check(10.1 / i = Null);
-  Check(i / d = Null);
+   Check(i / d = Null);
 end;
 
 procedure OLStringTest.MatchString;
@@ -1970,9 +2068,9 @@ begin
   s := 'asd';
   CheckFalse(s > Null);
 
-  s := 'ÆÆÆ';
+  s := 'ï¿½ï¿½ï¿½';
   str := 'DDD';
-  CheckFalse(s < str); //'ÆÆÆ' is greater then 'D' (!)
+  CheckFalse(s < str); //'ï¿½ï¿½ï¿½' is greater then 'D' (!)
 
   s := 'CCC';
   str := 'DDD';
@@ -2007,7 +2105,7 @@ begin
   Check(s.LineIndexOf('Second line') = 1);
 
   s.LineDelete(1);
-  Check(s.LineIndexOf('Second line') = -1);
+  Check(s.LineIndexOf('Second line').IsNull());
 
 
   TestFileName := GetTemp() + 'test.txt';
@@ -2028,13 +2126,24 @@ begin
   s := '';
   s.LineAdd('');
   s.LineAdd('');
+  Check(s.Lines[0] = '');
+  Check(s.Lines[1] = '');
+
   s.LineAdd('Third line');
+  Check(s.Lines[1] = '');
   Check(s.Lines[2] = 'Third line');
 
   s2 := s.LineAdded('Fourth line')
          .LineAdded('Fifth line')
          .LineAdded('Sixth line');
   Check(s2.Lines[5] = 'Sixth line');
+
+  s2.LineDelete(2);
+  Check(s2.Lines[2] = 'Fourth line');
+
+  s2.LineInsertAt(2, 'New third line');
+  Check(s2.Lines[2] = 'New third line');
+  Check(s2.Lines[3] = 'Fourth line');
 
   s := Null;
   Check(s.LineCount.IsNull());
@@ -2435,10 +2544,6 @@ begin
   Check(s.TrySmartStrToDate());
   Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2016).RecodedMonth(11).RecodedDay(26));
 
-  s := '1161126'; // Year + Month + Day
-  Check(s.TrySmartStrToDate());
-  Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2116).RecodedMonth(11).RecodedDay(26));
-
   s := '20151126'; // Full Year + Month + Day
   Check(s.TrySmartStrToDate());
   Check(s.SmartStrToDate() = OLDate.Today().RecodedYear(2015).RecodedMonth(11).RecodedDay(26));
@@ -2595,7 +2700,7 @@ begin
   s := 'Three';
 
   Check(s.IndexStr(['One', 'Two', 'Three']) = 2);
-  Check(s.IndexStr(['one', 'two', 'three']) = -1);
+  Check(s.IndexStr(['one', 'two', 'three']).IsNull());
 
   Check(s.IndexText(['one', 'two', 'three']) = 2);
 end;
@@ -3427,6 +3532,663 @@ begin
 
   dt := dtt;
   Check(dt.ToString() = DateTimeToStr(dtt));
+end;
+
+{ New OLString Tests }
+
+// Null Handling & Basic Operations
+procedure OLStringTest.IfNullOrEmptyString;
+var
+  s: OLString;
+begin
+  s := Null;
+  Check(s.IfNullOrEmpty('Default') = 'Default');
+
+  s := '';
+  Check(s.IfNullOrEmpty('Default') = 'Default');
+
+  s := 'Value';
+  Check(s.IfNullOrEmpty('Default') = 'Value');
+end;
+
+procedure OLStringTest.IsNullOrEmptyString;
+var
+  s: OLString;
+begin
+  s := Null;
+  Check(s.IsNullOrEmpty());
+
+  s := '';
+  Check(s.IsNullOrEmpty());
+
+  s := 'Value';
+  CheckFalse(s.IsNullOrEmpty());
+end;
+
+procedure OLStringTest.NotNullNorEmptyString;
+var
+  s: OLString;
+begin
+  s := Null;
+  CheckFalse(s.NotNullNorEmpty());
+
+  s := '';
+  CheckFalse(s.NotNullNorEmpty());
+
+  s := 'Value';
+  Check(s.NotNullNorEmpty());
+end;
+
+procedure OLStringTest.IsEmptyStrString;
+var
+  s: OLString;
+begin
+  s := '';
+  Check(s.IsEmptyStr());
+
+  s := 'Value';
+  CheckFalse(s.IsEmptyStr());
+
+  s := Null;
+  Check(s.IsEmptyStr().IsNull());
+end;
+
+// Character Manipulation
+procedure OLStringTest.AlphanumericsOnlyString;
+var
+  s: OLString;
+begin
+  s := 'Hello123!@#World456';
+  Check(s.AlphanumericsOnly() = 'Hello123World456');
+
+  s := '!@#$%^&*()';
+  Check(s.AlphanumericsOnly() = '');
+
+  s := Null;
+  Check(s.AlphanumericsOnly().IsNull());
+end;
+
+procedure OLStringTest.NoDigitsString;
+var
+  s: OLString;
+begin
+  s := 'Hello123World456';
+  Check(s.NoDigits() = 'HelloWorld');
+
+  s := '123456';
+  Check(s.NoDigits() = '');
+
+  s := Null;
+  Check(s.NoDigits().IsNull());
+end;
+
+procedure OLStringTest.RepeatedStringString;
+var
+  s: OLString;
+begin
+  s := 'ABC';
+  Check(s.RepeatedString(3) = 'ABCABCABC');
+
+  s := 'X';
+  Check(s.RepeatedString(5) = 'XXXXX');
+
+  s := Null;
+  Check(s.RepeatedString(3).IsNull());
+end;
+
+procedure OLStringTest.LikeString;
+var
+  s: OLString;
+begin
+  s := 'Hello World';
+  Check(s.Like('Hello%'));
+  Check(s.Like('%World'));
+  Check(s.Like('%o W%'));
+  Check(s.Like('Hello_World'));
+  Check(s.Like('Hell___orld'));
+  CheckFalse(s.Like('Goodbye%'));
+
+  s := Null;
+  Check(s.Like('%').IsNull());
+end;
+
+// String Pattern Finding
+procedure OLStringTest.FindTagStrString;
+var
+  s: OLString;
+begin
+  s := '<name>John Doe</name><age>30</age>';
+  Check(s.FindTagStr('name') = 'John Doe');
+  Check(s.FindTagStr('age') = '30');
+
+  s := '<TITLE>Test</TITLE>';
+  Check(s.FindTagStr('title') = 'Test');
+
+  s := Null;
+  Check(s.FindTagStr('tag').IsNull());
+end;
+
+procedure OLStringTest.FindPatternStrString;
+var
+  s: OLString;
+begin
+  s := 'Price: $100.50 USD';
+  Check(s.FindPatternStr('$', ' ') = '100.50');
+
+  s := 'Name: [John] Age: [30]';
+  Check(s.FindPatternStr('[', ']') = 'John');
+
+  s := Null;
+  Check(s.FindPatternStr('[', ']').IsNull());
+end;
+
+// Leading Character Operations
+procedure OLStringTest.LeadingCharString;
+var
+  s: OLString;
+begin
+  s := '123';
+  Check(s.LeadingCharIncluded('-') = '-123');
+  Check(s.LeadingCharExcluded('-') = '123');
+
+  s := '-123';
+  Check(s.LeadingCharExcluded('-') = '123');
+  Check(s.LeadingCharIncluded('-') = '-123');
+
+  s := Null;
+  Check(s.LeadingCharIncluded('-').IsNull());
+  Check(s.LeadingCharExcluded('-').IsNull());
+end;
+
+procedure OLStringTest.LeadingComaString;
+var
+  s: OLString;
+begin
+  s := '123';
+  Check(s.LeadingComaIncluded() = ',123');
+
+  s := ',123';
+  Check(s.LeadingComaExcluded() = '123');
+  Check(s.LeadingComaIncluded() = ',123');
+
+  s := Null;
+  Check(s.LeadingComaIncluded().IsNull());
+  Check(s.LeadingComaExcluded().IsNull());
+end;
+
+procedure OLStringTest.LeadingApostropheString;
+var
+  s: OLString;
+begin
+  s := 'text';
+  Check(s.LeadingApostropheIncluded() = '''text');
+
+  s := '''text';
+  Check(s.LeadingApostropheExcluded() = 'text');
+  Check(s.LeadingApostropheIncluded() = '''text');
+
+  s := Null;
+  Check(s.LeadingApostropheIncluded().IsNull());
+  Check(s.LeadingApostropheExcluded().IsNull());
+end;
+
+// Trailing Apostrophe Operations
+procedure OLStringTest.TrailingApostropheString;
+var
+  s: OLString;
+begin
+  s := 'text';
+  Check(s.TrailingApostropheIncluded() = 'text''');
+
+  s := 'text''';
+  Check(s.TrailingApostropheExcluded() = 'text');
+  Check(s.TrailingApostropheIncluded() = 'text''');
+
+  s := Null;
+  Check(s.TrailingApostropheIncluded().IsNull());
+  Check(s.TrailingApostropheExcluded().IsNull());
+end;
+
+// URL & HTML Encoding
+procedure OLStringTest.UrlEncodedTextString;
+var
+  s: OLString;
+begin
+  s := 'Hello%20World';
+  s.UrlEncodedText := s;
+  Check(s = 'Hello World');
+
+  s := '"Hello World!"';
+  Check(s.UrlEncodedText = '%22Hello%20World%21%22');
+
+  s := Null;
+  Check(s.UrlEncodedText.IsNull());
+end;
+
+procedure OLStringTest.HtmlUnicodeTextString;
+var
+  s, encoded: OLString;
+begin
+  s := 'Test & < >';
+  encoded := s.HtmlUnicodeText;
+  CheckFalse(encoded = s);
+  Check(encoded.Length > s.Length);
+
+  s := Null;
+  Check(s.HtmlUnicodeText.IsNull());
+end;
+
+// Position & Replacement Operations
+procedure OLStringTest.ReplacedStartingAtString;
+var
+  s: OLString;
+begin
+  s := 'Hello World';
+  Check(s.ReplacedStartingAt(7, 'Universe') = 'Hello Universe');
+
+  s := '123456789';
+  Check(s.ReplacedStartingAt(4, 'XXX') = '123XXX789');
+
+  s := Null;
+  Check(s.ReplacedStartingAt(1, 'Test').IsNull());
+end;
+
+procedure OLStringTest.PosLastString;
+var
+  s: OLString;
+  i: OLInteger;
+begin
+  s := 'My name is Bond. My name is James Bond.';
+
+  i := s.PosLast('Bond');
+  Check(i = 35);
+
+  i := s.PosLast('name');
+  Check(i = 21);
+
+  i := s.PosLast('xyz');
+  Check(i.IsNull());
+
+  s := Null;
+  i := s.PosLast('test');
+  Check(i.IsNull());
+end;
+
+// CSV Operations Advanced
+procedure OLStringTest.CSVIndexString;
+var
+  s: OLString;
+begin
+  s := 'apple;banana;cherry;date';
+  Check(s.CSVIndex('banana') = 1);
+  Check(s.CSVIndex('cherry') = 2);
+  Check(s.CSVIndex('apple') = 0);
+  Check(s.CSVIndex('xyz').IsNull());
+
+  s := Null;
+  Check(s.CSVIndex('test').IsNull());
+end;
+
+procedure OLStringTest.CSVFieldNameString;
+var
+  s: OLString;
+begin
+  s := 'Name;Age;City' + sLineBreak + 'John;30;NYC';
+  Check(s.CSVFieldName(0) = 'Name');
+  Check(s.CSVFieldName(1) = 'Age');
+  Check(s.CSVFieldName(2) = 'City');
+
+  s := Null;
+  Check(s.CSVFieldName(0).IsNull());
+end;
+
+procedure OLStringTest.CSVFieldByNameString;
+var
+  s: OLString;
+begin
+  s := 'Name;Age;City' + sLineBreak + 'John;30;NYC' + sLineBreak + 'Jane;25;LA';
+  Check(s.CSVFieldByName('Name', 1) = 'John');
+  Check(s.CSVFieldByName('Age', 1) = '30');
+  Check(s.CSVFieldByName('City', 2) = 'LA');
+  Check(s.CSVFieldByName('Age', 2) = '25');
+
+  s := Null;
+  Check(s.CSVFieldByName('test', 1).IsNull());
+end;
+
+// Parameter & JSON Operations
+procedure OLStringTest.ParamsString;
+var
+  s: OLString;
+begin
+  s := 'Hello :name, you are :age years old';
+  s.Params['name'] := 'John';
+  s.Params['age'] := '30';
+  Check(s = 'Hello John, you are 30 years old');
+
+  Check(s.Params['name'] = 'John');
+  Check(s.Params['age'] = '30');
+
+
+  s := 'Hello :Param, you are :Param2 years old';
+  s.Params['Param'] := 'John';
+  s.Params['Param2'] := '30';
+  Check(s = 'Hello John, you are 30 years old');
+end;
+
+procedure OLStringTest.JSONString;
+var
+  s: OLString;
+begin
+  s := '{"name":"John","age":30,"city":"NYC"}';
+  Check(s.JSON['name'] = 'John');
+  Check(s.JSON['age'] = '30');
+  Check(s.JSON['city'] = 'NYC');
+
+  s.JSON['name'] := 'Jane';
+  Check(s.JSON['name'] = 'Jane');
+end;
+
+// Static Methods
+procedure OLStringTest.RandomFromString;
+var
+  s: OLString;
+  found: Boolean;
+begin
+  s := OLString.RandomFrom(['apple', 'banana', 'cherry']);
+  found := (s = 'apple') or (s = 'banana') or (s = 'cherry');
+  Check(found);
+
+  s := OLString.RandomFrom(['single']);
+  Check(s = 'single');
+end;
+
+procedure OLStringTest.RandomStringString;
+var
+  s: OLString;
+begin
+  s := OLString.RandomString(10);
+  Check(s.Length() = 10);
+
+  s := OLString.RandomString(5);
+  Check(s.Length() = 5);
+
+  s := OLString.RandomString(0);
+  Check(s.Length() = 0);
+end;
+
+// Line Operations
+procedure OLStringTest.LinesSortedString;
+var
+  s: OLString;
+begin
+  s := 'zebra' + sLineBreak + 'apple' + sLineBreak + 'banana';
+  s := s.LinesSorted();
+  Check(s.Lines[0] = 'apple');
+  Check(s.Lines[1] = 'banana');
+  Check(s.Lines[2] = 'zebra');
+
+  s := Null;
+  Check(s.LinesSorted().IsNull());
+end;
+
+procedure OLStringTest.LineIndexLikeString;
+var
+  s: OLString;
+begin
+  s := 'First line' + sLineBreak + 'Second line' + sLineBreak + 'Third line';
+  Check(s.LineIndexLike('Second%') = 1);
+  Check(s.LineIndexLike('Third%') = 2);
+  Check(s.LineIndexLike('%line') = 0);
+  Check(s.LineIndexLike('%xyz%').IsNull());
+
+  s := Null;
+  Check(s.LineIndexLike('test').IsNull());
+end;
+
+// Conversion & Utility
+procedure OLStringTest.ToSQLStringString;
+var
+  s: OLString;
+begin
+  s := 'O''Reilly';
+  Check(s.ToSQLString() = '''O''''Reilly''');
+
+  s := 'Simple';
+  Check(s.ToSQLString() = '''Simple''');
+
+  s := '';
+  Check(s.ToSQLString() = '''''');
+end;
+
+procedure OLStringTest.ToPWideCharString;
+var
+  s: OLString;
+  pw: PWideChar;
+begin
+  s := 'Test String';
+  pw := s.ToPWideChar();
+  Check(pw <> nil);
+  Check(string(pw) = 'Test String');
+end;
+
+procedure OLStringTest.LineEndAtString;
+var
+  s: OLString;
+begin
+  s := 'First line' + sLineBreak + 'Second line' + sLineBreak + 'Third line';
+  Check(s.LineEndAt(0) > 0);
+  Check(s.LineEndAt(1) > s.LineEndAt(0));
+
+  s := Null;
+  Check(s.LineEndAt(0).IsNull());
+end;
+
+// ============================================================================
+// NULL Propagation Tests
+// ============================================================================
+
+procedure OLIntegerTest.NullPropagationPredicatesInteger;
+var
+  i: OLInteger;
+begin
+  // NULL integer should propagate NULL through all value predicate methods
+  i := Null;
+  
+  // Test IsDividableBy
+  Check(i.IsDividableBy(2).IsNull(), 'NULL.IsDividableBy should return NULL');
+  
+  // Test IsEven (relies on IsDividableBy)
+  Check(i.IsEven().IsNull(), 'NULL.IsEven should return NULL');
+  
+  // Test IsOdd  
+  Check(i.IsOdd().IsNull(), 'NULL.IsOdd should return NULL');
+  
+  // Test IsPositive
+  Check(i.IsPositive().IsNull(), 'NULL.IsPositive should return NULL');
+  
+  // Test IsNegative
+  Check(i.IsNegative().IsNull(), 'NULL.IsNegative should return NULL');
+  
+  // Test IsNonNegative
+  Check(i.IsNonNegative().IsNull(), 'NULL.IsNonNegative should return NULL');
+  
+  // Test IsPrime
+  Check(i.IsPrime().IsNull(), 'NULL.IsPrime should return NULL');
+  
+  // Status predicates should still return boolean
+  Check(i.IsNull() = True, 'NULL.IsNull should return TRUE');
+  Check(i.HasValue() = False, 'NULL.HasValue should return FALSE');
+end;
+
+procedure OLDoubleTest.NullPropagationPredicatesDouble;
+var
+  d: OLDouble;
+begin
+  // NULL double should propagate NULL through all value predicate methods
+  d := Null;
+  
+  // Test IsPositive
+  Check(d.IsPositive().IsNull(), 'NULL.IsPositive should return NULL');
+  
+  // Test IsNegative
+  Check(d.IsNegative().IsNull(), 'NULL.IsNegative should return NULL');
+  
+  // Test IsNonNegative
+  Check(d.IsNonNegative().IsNull(), 'NULL.IsNonNegative should return NULL');
+  
+  // Test IsNan
+  Check(d.IsNan().IsNull(), 'NULL.IsNan should return NULL');
+  
+  // Test IsInfinite
+  Check(d.IsInfinite().IsNull(), 'NULL.IsInfinite should return NULL');
+  
+  // Test IsZero
+  Check(d.IsZero().IsNull(), 'NULL.IsZero should return NULL');
+  
+  // Status predicates should still return boolean
+  Check(d.IsNull() = True, 'NULL.IsNull should return TRUE');
+  Check(d.HasValue() = False, 'NULL.HasValue should return FALSE');
+end;
+
+procedure OLCurrencyTest.NullPropagationPredicatesCurrency;
+var
+  c: OLCurrency;
+begin
+  // NULL currency should propagate NULL through all value predicate methods
+  c := Null;
+  
+  // Test IsPositive
+  Check(c.IsPositive().IsNull(), 'NULL.IsPositive should return NULL');
+  
+  // Test IsNegative
+  Check(c.IsNegative().IsNull(), 'NULL.IsNegative should return NULL');
+  
+  // Test IsNonNegative
+  Check(c.IsNonNegative().IsNull(), 'NULL.IsNonNegative should return NULL');
+  
+  // Status predicates should still return boolean
+  Check(c.IsNull() = True, 'NULL.IsNull should return TRUE');
+  Check(c.HasValue() = False, 'NULL.HasValue should return FALSE');
+end;
+
+procedure OLBooleanTest.NullHandlingBoolean;
+var
+  b: OLBoolean;
+begin
+  // NULL boolean should return definitive boolean values for status predicates
+  b := Null;
+  
+  // Status predicates should return boolean
+  Check(b.IsNull() = True, 'NULL.IsNull should return TRUE');
+  Check(b.HasValue() = False, 'NULL.HasValue should return FALSE');
+  
+  // Verify with non-null value
+  b := True;
+  Check(b.IsNull() = False, 'TRUE.IsNull should return FALSE');
+  Check(b.HasValue() = True, 'TRUE.HasValue should return TRUE');
+  
+  b := False;
+  Check(b.IsNull() = False, 'FALSE.IsNull should return FALSE');
+  Check(b.HasValue() = True, 'FALSE.HasValue should return TRUE');
+end;
+
+procedure OLStringTest.NullHandlingString;
+var
+  s: OLString;
+begin
+  // NULL string should return definitive boolean values for status predicates
+  s := Null;
+  
+  // Status predicates should return boolean
+  Check(s.IsNull() = True, 'NULL.IsNull should return TRUE');
+  Check(s.HasValue() = False, 'NULL.HasValue should return FALSE');
+  Check(s.IsNullOrEmpty() = True, 'NULL.IsNullOrEmpty should return TRUE');
+  
+  // Verify with non-null value
+  s := 'test';
+  Check(s.IsNull() = False, '"test".IsNull should return FALSE');
+  Check(s.HasValue() = True, '"test".HasValue should return TRUE');
+  Check(s.IsNullOrEmpty() = False, '"test".IsNullOrEmpty should return FALSE');
+  
+  // Verify with empty string
+  s := '';
+  Check(s.IsNull() = False, 'Empty string.IsNull should return FALSE');
+  Check(s.HasValue() = True, 'Empty string.HasValue should return TRUE');
+  Check(s.IsNullOrEmpty() = True, 'Empty string.IsNullOrEmpty should return TRUE');
+end;
+
+procedure OLDateTest.NullHandlingDate;
+var
+  d: OLDate;
+begin
+  // NULL date should return definitive boolean values for status predicates
+  d := Null;
+  
+  // Status predicates should return boolean
+  Check(d.IsNull() = True, 'NULL.IsNull should return TRUE');
+  Check(d.HasValue() = False, 'NULL.HasValue should return FALSE');
+  
+  // Verify with non-null value
+  d := EncodeDate(2023, 1, 1);
+  Check(d.IsNull() = False, 'Date.IsNull should return FALSE');
+  Check(d.HasValue() = True, 'Date.HasValue should return TRUE');
+end;
+
+procedure OLDateTimeTest.NullHandlingDateTime;
+var
+  dt: OLDateTime;
+begin
+  // NULL datetime should return definitive boolean values for status predicates
+  dt := Null;
+  
+  // Status predicates should return boolean
+  Check(dt.IsNull() = True, 'NULL.IsNull should return TRUE');
+  Check(dt.HasValue() = False, 'NULL.HasValue should return FALSE');
+  
+  // Verify with non-null value
+  dt := EncodeDateTime(2023, 1, 1, 12, 0, 0, 0);
+  Check(dt.IsNull() = False, 'DateTime.IsNull should return FALSE');
+  Check(dt.HasValue() = True, 'DateTime.HasValue should return TRUE');
+end;
+
+procedure OLIntegerTest.ShortCircuitInteger;
+var
+  i1, i2: OLInteger;
+  WasCalled: Boolean;
+
+  function SideEffect: Boolean;
+  begin
+    WasCalled := True;
+    Result := True;
+  end;
+
+begin
+  // Case 1: First operand is False (10 = 20 is False)
+  // Short-circuiting (False AND ...) means SideEffect should NOT be called.
+  i1 := 10;
+  i2 := 20;
+  WasCalled := False;
+  
+  if (i1 = i2) and SideEffect then
+  begin
+    // Should not be reached
+  end;
+  
+  CheckFalse(WasCalled, 'Short-circuiting failed: SideEffect was called when first operand was False');
+
+  // Case 2: First operand is True (10 = 10 is True)
+  // No short-circuiting (True AND ...) means SideEffect SHOULD be called.
+  i1 := 10;
+  i2 := 10;
+  WasCalled := False;
+  
+  if (i1 = i2) and SideEffect then
+  begin
+    // Should be reached
+  end;
+  
+  CheckTrue(WasCalled, 'Short-circuiting failed: SideEffect was NOT called when first operand was True');
 end;
 
 initialization

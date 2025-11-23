@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{AF88F11E-1095-43B8-BBA8-CAE135ADD7F0}</ProjectGuid>
-        <ProjectVersion>19.5</ProjectVersion>
+        <ProjectVersion>20.1</ProjectVersion>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <AppType>Application</AppType>
@@ -10,6 +10,7 @@
         <MainSource>OlTypesTest.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
+        <ProjectName Condition="'$(ProjectName)'==''">OlTypesTest</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -100,6 +101,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Test_OlTypes.pas"/>
+        <DCCReference Include="TestOLArrays.pas"/>
         <DCCReference Include="..\source\OLBooleanType.pas"/>
         <DCCReference Include="..\source\OLCurrencyType.pas"/>
         <DCCReference Include="..\source\OLDateTimeType.pas"/>
@@ -109,6 +111,7 @@
         <DCCReference Include="..\source\OLStringType.pas"/>
         <DCCReference Include="..\source\OLTypes.pas"/>
         <DCCReference Include="..\source\SmartToDate.pas"/>
+        <DCCReference Include="TestOLDictionaries.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
