@@ -22,6 +22,7 @@ uses
   Test_OlTypes in 'Test_OlTypes.pas',
   Test_NullPropagation in 'Test_NullPropagation.pas',
   TestOLArrays in 'TestOLArrays.pas',
+  Test_OLTypesToEdits in 'Test_OLTypesToEdits.pas',
   OLBooleanType in '..\source\OLBooleanType.pas',
   OLCurrencyType in '..\source\OLCurrencyType.pas',
   OLDateTimeType in '..\source\OLDateTimeType.pas',
@@ -30,6 +31,7 @@ uses
   OLIntegerType in '..\source\OLIntegerType.pas',
   OLStringType in '..\source\OLStringType.pas',
   OLTypes in '..\source\OLTypes.pas',
+  OLTypesToEdits in '..\source\OLTypesToEdits.pas',
   SmartToDate in '..\source\SmartToDate.pas',
   TestOLDictionaries in 'TestOLDictionaries.pas';
 
