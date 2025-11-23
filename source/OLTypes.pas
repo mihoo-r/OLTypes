@@ -4,7 +4,7 @@ interface
 
 uses OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
   OLIntegerType, OLInt64Type, OLStringType, SmartToDate, System.Threading,
-  System.SysUtils;
+  System.SysUtils, OLArrays, OLDictionaries;
 
 type
   OLBoolean = OLBooleanType.OLBoolean;
@@ -26,6 +26,37 @@ type
   POLInteger = OLIntegerType.POLInteger;
   POLInt64 = OLInt64Type.POLInt64;
   POLString = OLStringType.POLString;
+
+  TBooleanDynArray = OLArrays.TBooleanDynArray;
+  TCurrencyDynArray = OLArrays.TCurrencyDynArray;
+  TDateTimeDynArray = OLArrays.TDateTimeDynArray;
+  TDateDynArray = OLArrays.TDateDynArray;
+  TDoubleDynArray = OLArrays.TDoubleDynArray;
+  TIntegerDynArray = OLArrays.TIntegerDynArray;
+  TInt64DynArray = OLArrays.TInt64DynArray;
+  TByteDynArray = OLArrays.TByteDynArray;
+  TStringDynArray = OLArrays.TStringDynArray;
+
+  OLBooleanArray = OLArrays.OLBooleanArray;
+  OLCurrencyArray = OLArrays.OLCurrencyArray;
+  OLDateTimeArray = OLArrays.OLDateTimeArray;
+  OLDateArray = OLArrays.OLDateArray;
+  OLDoubleArray = OLArrays.OLDoubleArray;
+  OLIntegerArray = OLArrays.OLIntegerArray;
+  OLInt64Array = OLArrays.OLInt64Array;
+  OLByteArray = OLArrays.OLByteArray;
+  OLStringArray = OLArrays.OLStringArray;
+
+  OLIntIntDictionary = OLDictionaries.OLIntIntDictionary;
+  OLIntStrDictionary = OLDictionaries.OLIntStrDictionary;
+  OLIntDblDictionary = OLDictionaries.OLIntDblDictionary;
+  OLIntCurrDictionary = OLDictionaries.OLIntCurrDictionary;
+  OLIntBooleanDictionary = OLDictionaries.OLIntBooleanDictionary;
+  OLStrStrDictionary = OLDictionaries.OLStrStrDictionary;
+  OLStrIntDictionary = OLDictionaries.OLStrIntDictionary;
+  OLStrCurrDictionary = OLDictionaries.OLStrCurrDictionary;
+  OLIntDateDictionary = OLDictionaries.OLIntDateDictionary;
+  OLStrDblDictionary = OLDictionaries.OLStrDblDictionary;
 
 
   TStringPatternFind = OLStringType.TStringPatternFind;
@@ -74,6 +105,8 @@ const
   ssEPM = SmartToDate.ssEPM;
 
   EmptyChar: Char = #0;
+
+  END_OF_THE_STRING = OLStringtype.END_OF_THE_STRING;
 
 implementation
 
