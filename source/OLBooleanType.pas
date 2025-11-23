@@ -9,7 +9,11 @@ type
   OLBoolean = record
   private
     Value: Boolean;
-    NullFlag: string;
+    {$IF CompilerVersion >= 34.0}
+    FHasValue: Boolean;
+    {$ELSE}
+    FHasValue: string;
+    {$IFEND}
 
     function GetHasValue(): Boolean;
     procedure SetHasValue(const Value: Boolean);
@@ -44,6 +48,10 @@ type
     class operator LogicalAnd(const a: OLBoolean; b: OLBoolean): OLBoolean;
     class operator LogicalOr(const a: OLBoolean; b: OLBoolean): OLBoolean;
     class operator LogicalXor(const a: OLBoolean; b: OLBoolean): OLBoolean;
+
+    {$IF CompilerVersion >= 34.0}
+    class operator Initialize(out Dest: OLBoolean);
+    {$IFEND}
   end;
 
   POLBoolean = ^OLBoolean;
@@ -69,7 +77,11 @@ end;
 
 function OLBoolean.GetHasValue: Boolean;
 begin
-  Result := (NullFlag <> EmptyStr);
+  {$IF CompilerVersion >= 34.0}
+  Result := FHasValue;
+  {$ELSE}
+  Result := FHasValue = ' ';
+  {$IFEND}
 end;
 
 class operator OLBoolean.GreaterThan(const a, b: OLBoolean): Boolean;
@@ -274,6 +286,13 @@ begin
   Result := OutPut;
 end;
 
+{$IF CompilerVersion >= 34.0}
+class operator OLBoolean.Initialize(out Dest: OLBoolean);
+begin
+  Dest.FHasValue := False;
+end;
+{$IFEND}
+
 class operator OLBoolean.NotEqual(const a, b: OLBoolean): Boolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
@@ -281,10 +300,11 @@ end;
 
 procedure OLBoolean.SetHasValue(const Value: Boolean);
 begin
-  if Value then
-    NullFlag := NonEmptyStr
-  else
-    NullFlag := EmptyStr;
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := OLBoolValue.IfThen(' ', '');
+  {$IFEND}
 end;
 
 function OLBoolean.ToSQLString: string;
