@@ -6,14 +6,14 @@ uses
   System.Generics.Collections,
   System.Generics.Defaults,
   System.SysUtils,
-  // Twoje oryginalne moduły typów
+  // Your original type modules
   OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
   OLIntegerType, OLInt64Type, OLStringType;
 
 type
   // ===========================================================================
-  // 1. SILNIK GENERYCZNY (OLArray<T>)
-  // Zawiera całą logikę zarządzania pamięcią i algorytmy.
+  // 1. GENERIC ENGINE (OLArray<T>)
+  // Contains all memory management logic and algorithms.
   // ===========================================================================
   TEnumerator<T> = record
   private
@@ -29,7 +29,7 @@ type
   OLArray<T> = record
   private
     arr: TArray<T>;
-    FSorted: Boolean; // Flaga stanu posortowania
+    FSorted: Boolean; // Sorted state flag
     function GetItems(Index: Integer): T;
     function GetLength: Integer;
     procedure SetItems(Index: Integer; const Value: T);
@@ -45,10 +45,10 @@ type
     procedure Delete(Index: Integer);
     procedure Clear;
 
-    // Sortuje tablicę "w miejscu" (in-place)
+    // Sorts the array "in-place"
     procedure Sort;
 
-    // Zwraca nową, posortowaną kopię
+    // Returns a new, sorted copy
     function Sorted: OLArray<T>;
 
     function LastItemIndex: Integer;
@@ -61,7 +61,7 @@ type
     class operator Implicit(const A: OLArray<T>): TArray<T>; overload;
   end;
 
-  // Definicje tablic dynamicznych (zgodnie z oryginałem)
+  // Dynamic array definitions (as per original)
   TBooleanDynArray  = array of Boolean;
   TCurrencyDynArray = array of Currency;
   TDateTimeDynArray = array of TDateTime;
@@ -73,8 +73,8 @@ type
   TStringDynArray   = array of string;
 
   // ===========================================================================
-  // 2. WRAPPERY (Konkretne typy)
-  // Implementują 4 operatory konwersji i delegują pracę do FEngine.
+  // 2. WRAPPERS (Concrete types)
+  // Implement 4 conversion operators and delegate work to FEngine.
   // ===========================================================================
 
   // --- OLIntegerArray ---
@@ -340,7 +340,7 @@ begin
   Result := FIndex < System.Length(FItems);
 end;
 
-{ OLArray<T> - GENERYCZNY SILNIK }
+{ OLArray<T> - GENERIC ENGINE }
 
 procedure OLArray<T>.Add(const Value: T);
 begin
@@ -373,14 +373,14 @@ var
   Item: T;
   FoundIndex: Integer;
 begin
-  // OPTYMALIZACJA: Jeśli posortowana -> Binary Search (O(log N))
+  // OPTIMIZATION: If sorted -> Binary Search (O(log N))
   if FSorted then
   begin
     Result := TArray.BinarySearch<T>(arr, v, FoundIndex, TComparer<T>.Default);
     Exit;
   end;
 
-  // Jeśli nie -> Liniowo (O(N))
+  // If not -> Linear (O(N))
   Comparer := TEqualityComparer<T>.Default;
   Result := False;
   for Item in arr do
@@ -529,11 +529,11 @@ begin
 end;
 
 { ========================================================================== }
-{ IMPLEMENTACJA WRAPPERÓW (KONKRETNYCH TYPÓW)                                }
+{ WRAPPER IMPLEMENTATION (CONCRETE TYPES)                                }
 { ========================================================================== }
 
 // Helper macro-like structure to implement standard proxy methods
-// (Niestety w Pascalu trzeba to wypisać ręcznie dla każdego typu)
+// (Unfortunately in Pascal this has to be written out manually for each type)
 
 // --- OLIntegerArray ---
 procedure OLIntegerArray.Add(Value: OLInteger); begin FEngine.Add(Value); end;
