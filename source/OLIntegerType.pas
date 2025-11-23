@@ -3,15 +3,17 @@ unit OLIntegerType;
 interface
 
 uses
-  variants, SysUtils, OLBooleanType, OLDoubleType, System.Threading;
+  variants, SysUtils, OLBooleanType, OLDoubleType;
 
 type
   OLInteger = record
   private
     Value: integer;
-    NullFlag: string;
-
-    FutureObject: IFuture<OLInteger>;
+    {$IF CompilerVersion >= 34.0}
+    FHasValue: Boolean;
+    {$ELSE}
+    FHasValue: string;
+    {$IFEND}
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(const Value: OLBoolean);
@@ -26,7 +28,6 @@ type
     procedure SetNumeralSystem64(const Value: string);
     procedure SetOctal(const Value: string);
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
-    procedure WaitForFuture();
   public
     function IsDividableBy(const i: integer): OLBoolean;
     function IsOdd(): OLBoolean;
@@ -51,7 +52,6 @@ type
     function Increased(const IncreasedBy: integer = 1): OLInteger;
     function Decreased(const DecreasedBy: integer = 1): OLInteger;
     function Replaced(const FromValue: OLInteger; const ToValue: OLInteger): OLInteger;
-
 
     function ToNumeralSystem(const Base: Integer): string;
 
@@ -94,25 +94,28 @@ type
     class operator Implicit(const a: OLInteger): Variant;
     class operator Implicit(const a: OLInteger): OLDouble;
 
-    class operator Implicit(const a: IFuture<OLInteger>): OLInteger;
 
     class operator Inc(a: OLInteger): OLInteger;
     class operator Dec(a: OLInteger): OLInteger;
     class operator Negative(const a: OLInteger): OLInteger;
 
-    class operator Equal(const a, b: OLInteger): OLBoolean; overload;
-    class operator NotEqual(const a, b: OLInteger): OLBoolean;  overload;
-    class operator GreaterThan(const a, b: OLInteger): OLBoolean;  overload;
-    class operator GreaterThanOrEqual(const a, b: OLInteger): OLBoolean;  overload;
-    class operator LessThan(const a, b: OLInteger): OLBoolean;  overload;
-    class operator LessThanOrEqual(const a, b: OLInteger): OLBoolean;  overload;
+    class operator Equal(const a, b: OLInteger): Boolean; overload;
+    class operator NotEqual(const a, b: OLInteger): Boolean;  overload;
+    class operator GreaterThan(const a, b: OLInteger): Boolean;  overload;
+    class operator GreaterThanOrEqual(const a, b: OLInteger): Boolean;  overload;
+    class operator LessThan(const a, b: OLInteger): Boolean;  overload;
+    class operator LessThanOrEqual(const a, b: OLInteger): Boolean;  overload;
 
-    class operator Equal(const a: OLInteger; const b: Extended): OLBoolean;  overload;
-    class operator NotEqual(const a: OLInteger; const b: Extended): OLBoolean;  overload;
-    class operator GreaterThan(const a: OLInteger; const b: Extended): OLBoolean;  overload;
-    class operator GreaterThanOrEqual(const a: OLInteger; const b: Extended): OLBoolean;  overload;
-    class operator LessThan(const a: OLInteger; const b: Extended): OLBoolean;  overload;
-    class operator LessThanOrEqual(const a: OLInteger; const b: Extended): OLBoolean;  overload;
+    class operator Equal(const a: OLInteger; const b: Extended): Boolean;  overload;
+    class operator NotEqual(const a: OLInteger; const b: Extended): Boolean;  overload;
+    class operator GreaterThan(const a: OLInteger; const b: Extended): Boolean;  overload;
+    class operator GreaterThanOrEqual(const a: OLInteger; const b: Extended): Boolean;  overload;
+    class operator LessThan(const a: OLInteger; const b: Extended): Boolean;  overload;
+    class operator LessThanOrEqual(const a: OLInteger; const b: Extended): Boolean;  overload;
+
+    {$IF CompilerVersion >= 34.0}
+    class operator Initialize(out Dest: OLInteger);
+    {$IFEND}
 
     property Binary: string read GetBinary write SetBinary;
     property Octal: string read GetOctal write SetOctal;
@@ -131,21 +134,8 @@ uses
 const
   NonEmptyStr = ' ';
 
-var
-  primes: array of integer;
-
-procedure AddPrime(n: integer);
-var
-  l: integer;
-begin
-  l := length(primes);
-  SetLength(primes, l + 1);
-  primes[l] := n;
-end;
-
 function OLInteger.Abs(): OLInteger;
 begin
-  WaitForFuture();
 
   if Self.ValuePresent then
     Result := System.Abs(Self.Value)
@@ -157,9 +147,8 @@ class operator OLInteger.Add(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
-
+  if not (a.ValuePresent and b.ValuePresent) then
+    Exit(Null);
   returnrec.Value := a.Value + b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
@@ -167,7 +156,6 @@ end;
 
 function OLInteger.AsInteger(const NullReplacement: Integer): Integer;
 begin
-  WaitForFuture();
 
   Result := IfNull(NullReplacement);
 end;
@@ -177,7 +165,6 @@ function OLInteger.Between(const BottomIncluded, TopIncluded: OLInteger):
 var
   OutPut: OLBoolean;
 begin
-  WaitForFuture();
 
   if HasValue() then
     OutPut := ((Value <= TopIncluded) and (Value >= BottomIncluded))
@@ -191,8 +178,6 @@ class operator OLInteger.BitwiseXor(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   returnrec.Value := a.Value xor b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
@@ -201,7 +186,6 @@ end;
 
 function OLInteger.ToNumeralSystem(const Base: Integer): string;
 begin
-  WaitForFuture();
 
   Result := ConvertNumeralSystem(Self, Base);
 end;
@@ -219,7 +203,6 @@ class operator OLInteger.Implicit(const a: OLInteger): integer;
 var
   OutPut: integer;
 begin
-  a.WaitForFuture();
 
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as integer value');
@@ -229,7 +212,6 @@ end;
 
 class operator OLInteger.Dec(a: OLInteger): OLInteger;
 begin
-  a.WaitForFuture();
 
   System.Dec(&a.Value);
   Result := a;
@@ -240,7 +222,6 @@ class operator OLInteger.Divide(const a: Extended; const b: OLInteger):
 var
   OutPut: OLDouble;
 begin
-  b.WaitForFuture();
 
   if not b.ValuePresent then
     OutPut := Null
@@ -255,7 +236,6 @@ class operator OLInteger.Divide(const a: OLInteger; const b: Extended):
 var
   OutPut: OLDouble;
 begin
-  a.WaitForFuture();
 
   if not a.ValuePresent then
     OutPut := Null
@@ -266,9 +246,8 @@ begin
 end;
 
 class operator OLInteger.Equal(const a: OLInteger; const b: Extended):
-    OLBoolean;
+    Boolean;
 begin
-  a.WaitForFuture();
 
   Result := (a.Value = b) and a.ValuePresent;
 end;
@@ -277,8 +256,6 @@ class operator OLInteger.Divide(const a, b: OLInteger): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   if (not a.ValuePresent) or (not b.ValuePresent) then
     OutPut := Null
@@ -290,15 +267,14 @@ end;
 
 function OLInteger.IsDividableBy(const i: integer): OLBoolean;
 begin
-  WaitForFuture();
-
-  Result := Self.ValuePresent and ((Self.Value mod i) = 0);
+  if not Self.ValuePresent then
+    Result := Null
+  else
+    Result := (Self.Value mod i) = 0;
 end;
 
-class operator OLInteger.Equal(const a, b: OLInteger): OLBoolean;
+class operator OLInteger.Equal(const a, b: OLInteger): Boolean;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -308,7 +284,6 @@ procedure OLInteger.ForLoop(const InitialValue: integer; const ToValue:
 var
   iterator: integer;
 begin
-  WaitForFuture();
 
   if InitialValue < ToValue then
   begin
@@ -330,65 +305,57 @@ end;
 
 function OLInteger.IsEven: OLBoolean;
 begin
-  WaitForFuture();
 
   Result := Self.IsDividableBy(2);
 end;
 
 function OLInteger.GetBinary: string;
 begin
-  WaitForFuture();
 
   Result := ToNumeralSystem(2);
 end;
 
 function OLInteger.GetHasValue: OLBoolean;
 begin
-  WaitForFuture();
-
-  Result := (NullFlag <> EmptyStr);
+  {$IF CompilerVersion >= 34.0}
+  Result := FHasValue;
+  {$ELSE}
+  Result := FHasValue = ' ';
+  {$IFEND}
 end;
 
 function OLInteger.GetHexidecimal: string;
 begin
-  WaitForFuture();
 
   Result := ToNumeralSystem(16);
 end;
 
 function OLInteger.GetNumeralSystem32: string;
 begin
-  WaitForFuture();
 
   Result := ToNumeralSystem(32);
 end;
 
 function OLInteger.GetNumeralSystem64: string;
 begin
-  WaitForFuture();
 
   Result := ToNumeralSystem(64);
 end;
 
 function OLInteger.GetOctal: string;
 begin
-  WaitForFuture();
 
   Result := ToNumeralSystem(8);
 end;
 
-class operator OLInteger.GreaterThan(const a, b: OLInteger): OLBoolean;
+class operator OLInteger.GreaterThan(const a, b: OLInteger): Boolean;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLInteger.GreaterThanOrEqual(const a, b: OLInteger): OLBoolean;
+class operator OLInteger.GreaterThanOrEqual(const a, b: OLInteger): Boolean;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -397,7 +364,6 @@ function OLInteger.IfNull(const i: OLInteger): OLInteger;
 var
   Output: OLInteger;
 begin
-  WaitForFuture();
 
   if ValuePresent then
     Output := Self
@@ -411,7 +377,6 @@ class operator OLInteger.Implicit(const a: OLInteger): Double;
 var
   OutPut: Double;
 begin
-  a.WaitForFuture();
 
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Double value');
@@ -444,7 +409,6 @@ end;
 
 class operator OLInteger.Inc(a: OLInteger): OLInteger;
 begin
-  a.WaitForFuture();
 
   System.Inc(&a.Value);
   Result := a;
@@ -452,14 +416,19 @@ end;
 
 function OLInteger.Increased(const IncreasedBy: integer = 1): OLInteger;
 begin
-  WaitForFuture();
 
   Result := Self + IncreasedBy;
 end;
 
+{$IF CompilerVersion >= 34.0}
+class operator OLInteger.Initialize(out Dest: OLInteger);
+begin
+  Dest.FHasValue := False;
+end;
+{$IFEND}
+
 function OLInteger.Decreased(const DecreasedBy: integer = 1): OLInteger;
 begin
-  WaitForFuture();
 
   Result := Self - DecreasedBy;
 end;
@@ -468,8 +437,6 @@ class operator OLInteger.IntDivide(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
 
@@ -481,55 +448,44 @@ end;
 
 function OLInteger.IsNull: OLBoolean;
 begin
-  WaitForFuture();
 
   Result := not ValuePresent;
 end;
 
-class operator OLInteger.LessThan(const a, b: OLInteger): OLBoolean;
+class operator OLInteger.LessThan(const a, b: OLInteger): Boolean;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLInteger.LessThanOrEqual(const a, b: OLInteger): OLBoolean;
+class operator OLInteger.LessThanOrEqual(const a, b: OLInteger): Boolean;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLInteger.Max(const i: OLInteger): OLInteger;
 begin
-  WaitForFuture();
-  i.WaitForFuture();
   
   if (not ValuePresent) or (i = Null) then
-    raise Exception.Create('Null value cannot be compared to integer.');
-
-  Result := Math.Max(Value, i);
+    Result := Null
+  else
+    Result := Math.Max(Value, i);
 end;
 
 function OLInteger.Min(const i: OLInteger): OLInteger;
 begin
-  WaitForFuture();
-  i.WaitForFuture();
 
   if (not ValuePresent) or (i = Null) then
-    raise Exception.Create('Null value cannot be compared to integer.');
-
-  Result := Math.Min(Value, i);
+    Result := Null
+  else
+    Result := Math.Min(Value, i);
 end;
 
 class operator OLInteger.Modulus(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   returnrec.Value := a.Value mod b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
@@ -541,7 +497,6 @@ class operator OLInteger.Multiply(const a: Extended;
 var
   OutPut: OLDouble;
 begin
-  b.WaitForFuture();
 
   if b.IsNull then
     OutPut := Null
@@ -556,7 +511,6 @@ class operator OLInteger.Multiply(const a: OLInteger;
 var
   OutPut: OLDouble;
 begin
-  a.WaitForFuture();
 
   if not a.ValuePresent then
     OutPut := Null
@@ -571,7 +525,6 @@ class operator OLInteger.Multiply(const a: OLDouble;
 var
   OutPut: OLDouble;
 begin
-  b.WaitForFuture();
 
   if (a.IsNull()) or (not b.ValuePresent) then
     OutPut := Null
@@ -586,7 +539,6 @@ class operator OLInteger.Multiply(const a: OLInteger;
 var
   OutPut: OLDouble;
 begin
-  a.WaitForFuture();
 
   if (not a.ValuePresent) or (b.IsNull) then
     OutPut := Null
@@ -601,7 +553,6 @@ class operator OLInteger.Multiply(const a: OLInteger;
 var
   returnrec: OLInteger;
 begin
-  a.WaitForFuture();
 
   returnrec.Value := a.Value * b;
   returnrec.ValuePresent := a.ValuePresent;
@@ -613,7 +564,6 @@ class operator OLInteger.Multiply(const a: Integer;
 var
   returnrec: OLInteger;
 begin
-  b.WaitForFuture();
 
   returnrec.Value := a * b.Value;
   returnrec.ValuePresent := b.ValuePresent;
@@ -624,8 +574,6 @@ class operator OLInteger.Multiply(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   returnrec.Value := a.Value * b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
@@ -636,7 +584,6 @@ class operator OLInteger.Negative(const a: OLInteger): OLInteger;
 var
   b: OLInteger;
 begin
-  a.WaitForFuture();
 
   b.Value := -a.Value;
   b.ValuePresent := a.ValuePresent;
@@ -644,38 +591,38 @@ begin
 end;
 
 class operator OLInteger.NotEqual(const a: OLInteger; const b: Extended):
-    OLBoolean;
+    Boolean;
 begin
-  a.WaitForFuture();
 
   Result := (a.Value <> b) and a.ValuePresent;
 end;
 
 function OLInteger.Power(const Exponent: integer): Double;
 begin
-  WaitForFuture();
 
   Result := Math.IntPower(Value, Exponent);
 end;
 
 function OLInteger.IsNegative: OLBoolean;
 begin
-  WaitForFuture();
 
-  Result := ValuePresent and (Value < 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value < 0;
 end;
 
 function OLInteger.IsNonNegative: OLBoolean;
 begin
-  WaitForFuture();
 
-  Result := ValuePresent and (Value >= 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value >= 0;
 end;
 
-class operator OLInteger.NotEqual(const a, b: OLInteger): OLBoolean;
+class operator OLInteger.NotEqual(const a, b: OLInteger): Boolean;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
@@ -684,7 +631,6 @@ function OLInteger.Power(const Exponent: LongWord): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  WaitForFuture();
 
   returnrec.Value := Math.Floor(Math.IntPower(Value, Exponent));
   returnrec.ValuePresent := ValuePresent;
@@ -712,140 +658,93 @@ end;
 
 function OLInteger.IsOdd: OLBoolean;
 begin
-  WaitForFuture();
 
-  Result := ValuePresent and (not IsEven());
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := not IsEven();
 end;
 
 function OLInteger.IsPositive: OLBoolean;
 begin
-  WaitForFuture();
 
-  Result := ValuePresent and (Value > 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value > 0;
 end;
 
 function OLInteger.IsPrime: OLBoolean;
 var
-  i, j: integer;
-  PrimeLen: integer;
-  OutPut: OLBoolean;
-  MaxPrimeDivader: integer;
-  PrimeAddStart, PrimeAddFinnish: integer;
-  LoopCount: integer;
-  k: OLInteger;
+  i: Integer;
+  Limit: Integer;
 begin
-  WaitForFuture();
+  if not Self.ValuePresent then
+    Exit(Null);
 
-  if Self.ValuePresent then
+  if Value <= 1 then
+    Exit(False);
+
+  if Value <= 3 then
+    Exit(True);
+
+  if (Value mod 2 = 0) or (Value mod 3 = 0) then
+    Exit(False);
+
+  i := 5;
+  Limit := Trunc(Sqrt(Value));
+
+  while i <= Limit do
   begin
-    i := 0;
-    PrimeLen := Length(primes);
+    if (Value mod i = 0) or (Value mod (i + 2) = 0) then
+      Exit(False);
+    Inc(i, 6);
+  end;
 
-    MaxPrimeDivader := Ceil(Sqrt(Value));
-    LoopCount := Math.Min(PrimeLen, MaxPrimeDivader);
-
-    while (i < LoopCount) and (Value mod primes[i] > 0) do
-      system.inc(i);
-
-    if (i < LoopCount) then
-      OutPut := False
-    else
-    begin
-      OutPut := true;
-
-      if MaxPrimeDivader > PrimeLen then
-      begin
-        OutPut := true;
-
-        PrimeAddStart := (primes[PrimeLen - 1] div 6) + 1;
-        PrimeAddFinnish := Math.Max(PrimeAddStart, (MaxPrimeDivader div 6));
-
-        j := PrimeAddStart;
-        while j <= PrimeAddFinnish do
-        begin
-          k := 6 * j + 1;
-
-          if k.IsPrime() then
-          begin
-            AddPrime(6 * j + 1);
-            if Value mod (6 * j + 1) = 0 then
-            begin
-              OutPut := false;
-              break;
-            end;
-          end;
-
-          k := 6 * j + 5;
-
-          if k.IsPrime() then
-          begin
-            AddPrime(6 * j + 5);
-            if Value mod (6 * j + 5) = 0 then
-            begin
-              OutPut := false;
-              break;
-            end;
-          end;
-
-          system.inc(j);
-        end;
-      end;
-    end;
-  end
-  else
-    OutPut := False;
-
-  Result := OutPut;
+  Result := True;
 end;
 
 procedure OLInteger.SetBinary(const Value: string);
 begin
-  WaitForFuture();
 
   Self := ConvertNumeralSystem(Value, 2);
 end;
 
 procedure OLInteger.SetHasValue(const Value: OLBoolean);
 begin
-  WaitForFuture();
-
-  if Value then
-    NullFlag := NonEmptyStr
-  else
-    NullFlag := EmptyStr;
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := Value.IfThen(' ', '');
+  {$IFEND}
 end;
 
 procedure OLInteger.SetHexidecimal(const Value: string);
 begin
-  WaitForFuture();
 
   Self := ConvertNumeralSystem(Value, 16);
 end;
 
 procedure OLInteger.SetNumeralSystem32(const Value: string);
 begin
-  WaitForFuture();
 
   Self := ConvertNumeralSystem(Value, 32);
 end;
 
 procedure OLInteger.SetNumeralSystem64(const Value: string);
 begin
-  WaitForFuture();
 
   Self := ConvertNumeralSystem(Value, 64);
 end;
 
 procedure OLInteger.SetOctal(const Value: string);
 begin
-  WaitForFuture();
 
   Self := ConvertNumeralSystem(Value, 8);
 end;
 
 procedure OLInteger.SetRandom(const MaxValue:Integer = MaxInt);
 begin
-  WaitForFuture();
 
   Self.Value := OLInteger.Random(MaxValue);
   Self.ValuePresent := True;
@@ -853,7 +752,6 @@ end;
 
 procedure OLInteger.SetRandom(const MinValue: Integer; const MaxValue:Integer);
 begin
-  WaitForFuture();
 
   Self.Value := OLInteger.Random(MinValue, MaxValue);
   Self.ValuePresent := True;
@@ -861,7 +759,6 @@ end;
 
 procedure OLInteger.SetRandomPrime(const MaxValue:Integer = MaxInt);
 begin
-  WaitForFuture();
 
   Self.Value := OLInteger.RandomPrime(MaxValue);
   Self.ValuePresent := True;
@@ -870,7 +767,6 @@ end;
 procedure OLInteger.SetRandomPrime(const MinValue: Integer; const
     MaxValue:Integer);
 begin
-  WaitForFuture();
 
   Self.Value := OLInteger.RandomPrime(MinValue, MaxValue);
   Self.ValuePresent := True;
@@ -880,7 +776,6 @@ function OLInteger.Sqr: OLInteger;
 var
   returnrec: OLInteger;
 begin
-  WaitForFuture();
 
   returnrec.Value := Value * Value;
   returnrec.ValuePresent := ValuePresent;
@@ -891,8 +786,6 @@ class operator OLInteger.Subtract(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  a.WaitForFuture();
-  b.WaitForFuture();
 
   returnrec.Value := a.Value - b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
@@ -903,7 +796,6 @@ function OLInteger.ToSQLString: string;
 var
   OutPut: string;
 begin
-  WaitForFuture();
 
   if HasValue then
     OutPut := ToString()
@@ -913,22 +805,10 @@ begin
   Result := OutPut;
 end;
 
-procedure OLInteger.WaitForFuture();
-begin
-  if Assigned(FutureObject) then
-  begin
-    FutureObject.Wait();
-    Self := FutureObject.Value;
-    FutureObject := nil;
-  end;
-
-end;
-
 function OLInteger.ToString: string;
 var
   Output: string;
 begin
-  WaitForFuture();
 
   if ValuePresent then
     Output := IntToStr(Value)
@@ -954,7 +834,6 @@ function OLInteger.Replaced(const FromValue: OLInteger; const ToValue:
 var
   Output: OLInteger;
 begin
-  WaitForFuture();
 
   if Self = FromValue then
     Output := ToValue
@@ -966,8 +845,6 @@ end;
 
 function OLInteger.Round(const Digits: OLInteger): OLInteger;
 begin
-  WaitForFuture();
-  Digits.WaitForFuture();
   
   Result := Math.RoundTo(Self, Digits);
 end;
@@ -976,7 +853,6 @@ class operator OLInteger.Implicit(const a: OLInteger): Variant;
 var
   OutPut: Variant;
 begin
-  a.WaitForFuture();
 
   if a.ValuePresent then
     OutPut := a.Value
@@ -986,41 +862,35 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.GreaterThan(const a: OLInteger; const b: Extended):
-    OLBoolean;
+class operator OLInteger.GreaterThan(const a: OLInteger; const b: Extended): Boolean;
 begin
-  a.WaitForFuture();
 
   Result := (a.Value > b) and a.ValuePresent;
 end;
 
 class operator OLInteger.GreaterThanOrEqual(const a: OLInteger; const b:
-    Extended): OLBoolean;
+    Extended): Boolean;
 begin
-  a.WaitForFuture();
 
   Result := (a.Value >= b) and a.ValuePresent;
 end;
 
 function OLInteger.HasValue: OLBoolean;
 begin
-  WaitForFuture();
 
   Result := ValuePresent;
 end;
 
 class operator OLInteger.LessThan(const a: OLInteger; const b: Extended):
-    OLBoolean;
+    Boolean;
 begin
-  a.WaitForFuture();
 
   Result := (a.Value < b) and a.ValuePresent;
 end;
 
 class operator OLInteger.LessThanOrEqual(const a: OLInteger; const b:
-    Extended): OLBoolean;
+    Extended): Boolean;
 begin
-  a.WaitForFuture();
 
   Result := (a.Value <= b) and a.ValuePresent;
 end;
@@ -1029,7 +899,6 @@ class operator OLInteger.Implicit(const a: OLInteger): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  a.WaitForFuture();
 
   if a.ValuePresent then
     OutPut := a.Value
@@ -1039,20 +908,12 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Implicit(const a: IFuture<OLInteger>): OLInteger;
-var
-  OutPut: OLInteger;
-begin
-  OutPut.FutureObject := a;
-  Result := OutPut;
-end;
 
 class operator OLInteger.Divide(const a: OLDouble; const b: OLInteger):
     OLDouble;
 var
   OutPut: OLDouble;
 begin
-  b.WaitForFuture();
 
   if (a.IsNull()) or (not b.ValuePresent) then
     OutPut := Null
@@ -1067,7 +928,6 @@ class operator OLInteger.Divide(const a: OLInteger; const b: OLDouble):
 var
   OutPut: OLDouble;
 begin
-  a.WaitForFuture();
 
   if (not a.ValuePresent) or (b.IsNull) then
     OutPut := Null
@@ -1078,9 +938,6 @@ begin
 end;
 
 initialization
-  setlength(primes, 3);
-  primes[0] := 2;
-  primes[1] := 3;
-  primes[2] := 5;
+
 
 end.
