@@ -3,7 +3,14 @@
 interface
 
 uses
-  variants, SysUtils, StrUtils, Types, Vcl.Graphics, OLBooleanType, OLCurrencyType,
+  variants, SysUtils, StrUtils, Types,
+  {$IFDEF VCL}
+  Vcl.Graphics,
+  {$ENDIF}
+  {$IFDEF FMX}
+  FMX.Graphics, FMX.TextLayout,
+  {$ENDIF}
+  OLBooleanType, OLCurrencyType,
   OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType, OLInt64Type, SmartToDate;
 
 type
@@ -19,20 +26,18 @@ type
     ParamValue: string;
   end;
 
-  OLStringPOLInteger = record
-    ParamName: string;
-    p: POLInteger;
-  end;
-
   OLString = record
   private
     Val: string;
-    NullFlag: string;
+    {$IF CompilerVersion >= 34.0}
+    FHasValue: Boolean;
+    {$ELSE}
+    FHasValue: string;
+    {$IFEND}
     DefaultValueFlag: string;
 
     ValBeforeParams: string;
     Parameters: array of OLStringParamPair;
-    ParamIntegerLinks: array of OLStringPOLInteger;
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(const Value: OLBoolean);
@@ -59,14 +64,11 @@ type
     function GetUrlEncodedText: OLString;
     procedure SetUrlEncodedText(const Value: OLString);
     function Utf8Code(const c: Char): OLString;
-    function NullForNull(F: TFunc<String>): OLString;
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
 
     function GetCharAtIndex(const Index: integer): Char;
     procedure SetCharAtIndex(const Index: integer; const Value: Char);
     procedure TurnDefaultValueFlagOff();
-
-    function IntegerLinksReplaced(): string;
 
     property Value: string read GetValue write SetValue;
   public
@@ -175,7 +177,7 @@ type
     function ToDateTime(): OLDateTime;
     function ToFloat(): OLDouble;
     function ToInt(): OLInteger;
-    function ToInt64(): Int64;
+    function ToInt64(): OLInt64;
 
     function TryToCurr(): OLBoolean; overload;
     function TryToDate(): OLBoolean; overload;
@@ -227,7 +229,9 @@ type
     function LeadingApostropheExcluded(): OLString;
     function LeadingApostropheIncluded(): OLString;
 
+    {$IF DEFINED(VCL) OR DEFINED(FMX)}
     function PixelWidth(const F: TFont): OLInteger;
+    {$ENDIF}
 
     function OccurrencesCount(const SubString: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
     function OccurrencesPosition(const SubString: string; const Index: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
@@ -257,9 +261,6 @@ type
     function IsValidIBAN(): OLBoolean;
     function ToPWideChar(): PWideChar;
 
-    procedure SetParamLink(ParamName: string; var i: OLInteger);
-
-
     class function RandomFrom(const AValues: array of string): OLString; static;
     class function RandomString(const Length: integer): OLString; static;
 
@@ -271,12 +272,12 @@ type
     class operator Implicit(const a: Variant): OLString;
     class operator Implicit(const a: OLString): Variant;
 
-    class operator Equal(const a, b: OLString): OLBoolean;
-    class operator NotEqual(const a, b: OLString): OLBoolean;
-    class operator GreaterThan(const a, b: OLString): OLBoolean;
-    class operator GreaterThanOrEqual(const a, b: OLString): OLBoolean;
-    class operator LessThan(const a, b: OLString): OLBoolean;
-    class operator LessThanOrEqual(const a, b: OLString): OLBoolean;
+    class operator Equal(const a, b: OLString): Boolean;
+    class operator NotEqual(const a, b: OLString): Boolean;
+    class operator GreaterThan(const a, b: OLString): Boolean;
+    class operator GreaterThanOrEqual(const a, b: OLString): Boolean;
+    class operator LessThan(const a, b: OLString): Boolean;
+    class operator LessThanOrEqual(const a, b: OLString): Boolean;
 
     function CSVIndex(const ValueToFind: OLString): OLInteger;
     function CSVFieldName(const index: Integer): OLString;
@@ -294,6 +295,10 @@ type
 
     property HtmlUnicodeText: OLString read GetHtmlUnicodeText write SetHtmlUnicodeText;
     property UrlEncodedText: OLString read GetUrlEncodedText write SetUrlEncodedText;
+
+    {$IF CompilerVersion >= 34.0}
+    class operator Initialize(out Dest: OLString);
+    {$IFEND}
   end;
 
   POLString = ^OLString;
@@ -367,15 +372,21 @@ end;
 
 function OLString.EndsStr(const ASubString: OLString): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.EndsStr(ASubString, Self);
 end;
 
 function OLString.EndsText(const ASubString: OLString): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.EndsText(ASubString, Self);
 end;
 
-class operator OLString.Equal(const a, b: OLString): OLBoolean;
+class operator OLString.Equal(const a, b: OLString): Boolean;
 begin
   AllowToSetEmptyStrAsDefaultValue := False;
 
@@ -384,11 +395,17 @@ end;
 
 function OLString.TrailingApostropheExcluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.TrailingCharExcluded('''');
 end;
 
 function OLString.TrailingApostropheIncluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.TrailingCharIncluded('''');
 end;
 
@@ -396,6 +413,9 @@ function OLString.TrailingCharExcluded(const c: Char): OLString;
 var
   OutPut: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   if Self.RightStr(1) = c then
     OutPut := Self.EndingRemoved(1)
   else
@@ -406,36 +426,57 @@ end;
 
 function OLString.TrailingComaExcluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.TrailingCharExcluded(',');
 end;
 
 function OLString.TrailingPathDelimiterExcluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.ExcludeTrailingPathDelimiter(Self);
 end;
 
 function OLString.ExtractedFileDir: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.ExtractFileDir(Self);
 end;
 
 function OLString.ExtractedFileDriveString: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.ExtractFileDrive(Self);
 end;
 
 function OLString.ExtractedFileExt: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.ExtractFileExt(Self);
 end;
 
 function OLString.ExtractedFileName: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.ExtractFileName(Self);
 end;
 
 function OLString.ExtractedFilePath: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.ExtractFilePath(Self);
 end;
 
@@ -448,6 +489,14 @@ var
   start, stop: integer;
   SearchIn: OLString;
 begin
+  // Returns empty match with 0 position if input is null (Pattern finder record structure doesn't support null)
+  if IsNull then
+  begin
+    OutPut.Value := '';
+    OutPut.Position := 0;
+    Exit(OutPut);
+  end;
+
   if CaseSensitivity = csCaseInsensitive then
   begin
     SearchIn := Self.UpperCase();
@@ -490,6 +539,13 @@ var
   TagStartPosition: OLInteger;
   OutPut: TStringPatternFind;
 begin
+  if IsNull then
+  begin
+    OutPut.Value := '';
+    OutPut.Position := 0;
+    Exit(OutPut);
+  end;
+
   if CaseSensitivity = csCaseInsensitive then
   begin
     SearchIn := Self.UpperCase();
@@ -522,8 +578,10 @@ function OLString.Formated(const Data: array of const ): OLString;
 var
   s: string;
 begin
-  s := Self;
+  if IsNull then
+    Exit(Null);
 
+  s := Self;
   Result := SysUtils.Format(s, Data);
 end;
 
@@ -552,6 +610,9 @@ end;
 
 function OLString.GetCSV(const Index: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.CSVFieldValue(Index);
 end;
 
@@ -603,96 +664,111 @@ begin
   Self := TextFromUrl;
 end;
 
-//procedure OLString.GetFromUrl(const URL: string; Timeout: LongWord = 0);
-//var
-//  TextFromUrl: string;
-//  http: TIdHTTP;
-//  IdSSLIOHandler: TIdSSLIOHandlerSocketOpenSSL;
-//  responseStream : TMemoryStream;
-//begin
-//  TextFromUrl := '';
-//
-//  responseStream := TMemoryStream.Create;
-//
-//  IdSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-//  IdSSLIOHandler.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
-//
-//  http := TIdHTTP.Create(nil);
-//  http.IOHandler := IdSSLIOHandler;
-//
-//  try
-//    http.ReadTimeout := Timeout;
-//    http.ConnectTimeout := Timeout;
-//
-//    http.Request.ContentType := 'text/xml; charset=utf-8';
-//    http.Request.ContentEncoding := 'utf-8';
-//    http.HTTPOptions := [hoForceEncodeParams];
-//    http.Request.CharSet := 'utf-8';
-//
-//    http.Get(URL, responseStream);
-//
-//    SetString(TextFromUrl, PAnsiChar(responseStream.Memory), responseStream.Size);
-//  finally
-//    try
-//      http.Disconnect;
-//    except
-//    end;
-//
-//    responseStream.Free;
-//    http.Free();
-//
-//    IdSSLIOHandler.Free();
-//  end;
-//
-//  Self := TextFromUrl;
-//end;
 
 function OLString.GetHasValue: OLBoolean;
 begin
-  Result := (NullFlag <> EmptyStr) or ((DefaultValueFlag = EmptyStr) and EmptyStrAsDefaultValue);
+  {$IF CompilerVersion >= 34.0}
+  Result := FHasValue or ((DefaultValueFlag = EmptyStr) and EmptyStrAsDefaultValue);
+  {$ELSE}
+  Result := (FHasValue = ' ') or ((DefaultValueFlag = EmptyStr) and EmptyStrAsDefaultValue);
+  {$IFEND}
 end;
 
 function OLString.GetHtmlUnicodeText: OLString;
 var
-  I: Integer;
-  OutPut: OLString;
+  I, J: Integer;
+  sb: TStringBuilder;
+  CurrentChar: Char;
+  Found: Boolean;
 begin
-  OutPut := Value;
+  if IsNull then
+    Exit(Null);
 
-  for I := 0 to System.Length(HtmlUnicodeTranslation) - 1 do
-  begin
-    if HtmlUnicodeTranslation[i].LiteralCode <> EmptyStr then
-      OutPut := OutPut.Replaced(HtmlUnicodeTranslation[i].UnicodeChar, HtmlUnicodeTranslation[i].LiteralCode)
-    else
-      OutPut := OutPut.Replaced(HtmlUnicodeTranslation[i].UnicodeChar, HtmlUnicodeTranslation[i].NumericalCode);
+  sb := TStringBuilder.Create;
+  try
+    for I := 1 to System.Length(Value) do
+    begin
+      CurrentChar := Value[I];
+      Found := False;
+
+      // Check if character needs translation
+      for J := 0 to System.Length(HtmlUnicodeTranslation) - 1 do
+      begin
+        if HtmlUnicodeTranslation[J].UnicodeChar = CurrentChar then
+        begin
+          if HtmlUnicodeTranslation[J].LiteralCode <> EmptyStr then
+            sb.Append(HtmlUnicodeTranslation[J].LiteralCode)
+          else
+            sb.Append(HtmlUnicodeTranslation[J].NumericalCode);
+
+          Found := True;
+          Break;
+        end;
+      end;
+
+      // If no translation found, append original character
+      if not Found then
+        sb.Append(CurrentChar);
+    end;
+
+    Result := sb.ToString;
+  finally
+    sb.Free;
   end;
-
-  Result := OutPut;
 end;
 
 function OLString.GetLine(const Index: integer): OLString;
 var
-  sl: TStringList;
-  OutPut: OLString;
+  P, StartP: PChar;
+  CurrentIndex: Integer;
+  Len: Integer;
 begin
-  sl := TStringList.Create();
-  try
-    if (Index = 0) and Self.IsEmptyStr() then
-      OutPut := EmptyStr
-    else
-    begin
-      sl.Text := Self;
-      OutPut := sl[Index];
-    end;
-  finally
-    sl.Free();
+  if not ValuePresent then
+  begin
+    Result := Null;
+    Exit;
   end;
 
-  Result := OutPut;
+  P := PChar(Self.Val);
+  Len := System.Length(Self.Val);
+  StartP := P;
+  CurrentIndex := 0;
+
+  while (CurrentIndex < Index) and ((P - StartP) < Len) do
+  begin
+    while ((P - StartP) < Len) and (P^ <> #10) and (P^ <> #13) do
+      Inc(P);
+
+    if (P - StartP) < Len then
+    begin
+      if P^ = #13 then
+      begin
+        Inc(P);
+        if ((P - StartP) < Len) and (P^ = #10) then Inc(P);
+      end
+      else if P^ = #10 then
+        Inc(P);
+
+      Inc(CurrentIndex);
+    end;
+  end;
+
+  if CurrentIndex <> Index then
+    raise Exception.Create('List index out of bounds (' + IntToStr(Index) + ')');
+
+  StartP := P;
+  while ((P - PChar(Self.Val)) < Len) and (P^ <> #10) and (P^ <> #13) do
+    Inc(P);
+
+  SetString(Result.Val, StartP, P - StartP);
+  Result.ValuePresent := True;
 end;
 
 function OLString.GetLineEndPosition(const Index: integer): OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.PosEx(sLineBreak, GetLineStartPosition(Index)).Increased(System.Length(sLineBreak) - 1).Replaced(System.Length(sLineBreak) - 1, 0);
 end;
 
@@ -701,6 +777,9 @@ var
   OutPut: integer;
   LineBreak: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   LineBreak := sLineBreak;
 
   if Index = 0 then
@@ -738,6 +817,9 @@ var
   sOutPut: string;
   Name: string;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := Null;
 
   JSONValue := TJSONObject.ParseJSONValue(self.Val);
@@ -761,57 +843,72 @@ function OLString.Utf8Code(const c: Char): OLString;
 var
   b: TBytes;
   es: RawByteString;
-  OutPut: OLString;
+  sb: TStringBuilder;
   I: Integer;
 begin
-  es :=  UTF8Encode(c);
-
+  es := UTF8Encode(c);
   b := BytesOf(es);
 
-  for I := 0 to System.Length(b) - 1 do
-   OutPut := OutPut + '%' + IntToHex(b[i],2);
+  sb := TStringBuilder.Create;
+  try
+    for I := 0 to System.Length(b) - 1 do
+      sb.Append('%').Append(IntToHex(b[i], 2));
 
-  Result := OutPut;
+    Result := sb.ToString;
+  finally
+    sb.Free;
+  end;
 end;
 
 function OLString.GetUrlEncodedText: OLString;
 var
   I: Integer;
-  OutPut: string;
+  sb: TStringBuilder;
   c: Char;
 begin
-  for I := 1 to Self.Length do
-  begin
-    c := Self[i];
-    if c in ['0'..'9', 'A'..'Z', 'a'..'z'] then
-      OutPut := OutPut + c
-    else
-      OutPut := OutPut + Utf8Code(c);
-  end;
+  if IsNull then
+    Exit(Null);
 
-  Result := OutPut;
+  sb := TStringBuilder.Create;
+  try
+    for I := 1 to Self.Length do
+    begin
+      c := Self[i];
+      if c in ['0'..'9', 'A'..'Z', 'a'..'z'] then
+        sb.Append(c)
+      else
+        sb.Append(Utf8Code(c));
+    end;
+
+    Result := sb.ToString;
+  finally
+    sb.Free;
+  end;
 end;
 
 function OLString.GetValue: string;
 begin
-  Result := Self.IntegerLinksReplaced();
+  Result := Self.Val;
 end;
 
 function OLString.FindPatternStr(const InFront: OLString; const Behind:
     OLString; const StartingPosition: integer = 1; const CaseSensitivity:
     TCaseSensitivity = csCaseSensitive): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.FindPattern(InFront, Behind, StartingPosition, CaseSensitivity).Value;
 end;
 
-class operator OLString.GreaterThan(const a, b: OLString): OLBoolean;
+class operator OLString.GreaterThan(const a, b: OLString): Boolean;
 begin
   AllowToSetEmptyStrAsDefaultValue := False;
 
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLString.GreaterThanOrEqual(const a, b: OLString): OLBoolean;
+class operator OLString.GreaterThanOrEqual(const a, b: OLString): Boolean;
 begin
   AllowToSetEmptyStrAsDefaultValue := False;
 
@@ -824,6 +921,9 @@ function OLString.Hash(const Salt: string = ''): cardinal;
    i:integer;
    OutPut: Cardinal;
 begin
+  if IsNull then
+    Exit(0); // Cardinal cannot be null, returns 0
+
   OutPut:=0;
   s := Self + Salt;
 
@@ -847,6 +947,9 @@ end;
 
 function OLString.HashStr(const Salt: string = ''): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := IntToHex(Self.Hash(Salt), 4);
 end;
 
@@ -876,7 +979,7 @@ begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as string value')
   else
-    OutPut := a.IntegerLinksReplaced();
+    OutPut := a.Val;
 
   AllowToSetEmptyStrAsDefaultValue := False;
 
@@ -946,28 +1049,50 @@ end;
 
 function OLString.TrailingComaIncluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.TrailingCharIncluded(',');
 end;
 
 function OLString.TrailingPathDelimiterIncluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.IncludeTrailingPathDelimiter(Self);
 end;
 
 function OLString.IndexStr(const AValues: array of string): OLInteger;
+var
+  index: Integer;
 begin
+  // Changed to return NULL instead of -1 when not found
   if not Self.ValuePresent then
-    raise Exception.Create('Cannot determine index of null value.');
+    Exit(Null);
 
-  Result := StrUtils.IndexStr(Self.Value, AValues);
+  index := StrUtils.IndexStr(Self.Value, AValues);
+
+  if index = -1 then
+    Result := Null
+  else
+    Result := index;
 end;
 
 function OLString.IndexText(const AValues: array of string): OLInteger;
+var
+  index: Integer;
 begin
+  // Changed to return NULL instead of -1 when not found
   if not Self.ValuePresent then
-    raise Exception.Create('Cannot determine index of null value.');
+    Exit(Null);
 
-  Result := StrUtils.IndexText(Self.Value, AValues);
+  index := StrUtils.IndexText(Self.Value, AValues);
+
+  if index = -1 then
+    Result := Null
+  else
+    Result := index;
 end;
 
 function OLString.InitCaps: OLString;
@@ -975,9 +1100,13 @@ var
   i: integer;
   OutPut: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := Self;
 
-  OutPut[1] := UpCase(OutPut[1]);
+  if OutPut.Length > 0 then
+    OutPut[1] := UpCase(OutPut[1]);
 
   for i := 2 to OutPut.Length do
   begin
@@ -995,24 +1124,12 @@ function OLString.Inserted(const InsertStr: string; const Position: integer):
 var
   s: string;
 begin
+  if IsNull then
+    Exit(Null);
+
   s := Self;
   System.Insert(InsertStr, s, Position);
   Result := s;
-end;
-
-function OLString.IntegerLinksReplaced: string;
-var
-  I: Integer;
-  OutPut: string;
-begin
-  OutPut := Self.Val;
-
-  for I := 0 to System.Length(Self.ParamIntegerLinks) - 1 do
-  begin
-    OutPut := ReplaceStr(OutPut, ':#' + Self.ParamIntegerLinks[i].ParamName,  (Self.ParamIntegerLinks[i].p^).ToString());
-  end;
-
-  Result := OutPut;
 end;
 
 function OLString.IsEmptyStr: OLBoolean;
@@ -1048,6 +1165,9 @@ end;
 
 function OLString.LastDelimiterPosition(const Delimiters: string): OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.LastDelimiter(Delimiters, Self);
 end;
 
@@ -1058,6 +1178,9 @@ end;
 
 function OLString.LeftStr(const ACount: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.LeftStr(Self, ACount);
 end;
 
@@ -1073,14 +1196,14 @@ begin
   Result := OutPut;
 end;
 
-class operator OLString.LessThan(const a, b: OLString): OLBoolean;
+class operator OLString.LessThan(const a, b: OLString): Boolean;
 begin
   AllowToSetEmptyStrAsDefaultValue := False;
 
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLString.LessThanOrEqual(const a, b: OLString): OLBoolean;
+class operator OLString.LessThanOrEqual(const a, b: OLString): Boolean;
 begin
   AllowToSetEmptyStrAsDefaultValue := False;
 
@@ -1099,6 +1222,9 @@ var
   SegmentMatch: Boolean;
   SegmentCount: OLInteger;
 begin
+  if IsNull or Pattern.IsNull then
+    Exit(Null);
+
   s := Self;
 
   OutPut := True;
@@ -1198,26 +1324,30 @@ end;
 
 procedure OLString.LineAdd(const NewLine: string);
 var
-  sl: TStringList;
+  CurrentText: string;
 begin
-  sl := TStringList.Create();
-  try
-    sl.Text := Self.ToString();//LineAdd possible when self is null
+  CurrentText := Self.ToString();//LineAdd possible when self is null
 
-    //When adding line to empty string do not add second line
-    //unless developer want to add empty line
-    if (sl.Text = EmptyStr) then
-    begin
-      if (NewLine <> EmptyStr) then
-        sl.Text := NewLine
-      else
-        sl.Text := sl.Text + sLineBreak;
-    end
+  //When adding line to empty string do not add second line
+  //unless developer want to add empty line
+  if (CurrentText = EmptyStr) then
+  begin
+    if (NewLine <> EmptyStr) then
+      Self := NewLine
     else
-      sl.Add(NewLine);
-    Self := sl.Text;
-  finally
-    sl.Free();
+      Self := sLineBreak;
+  end
+  else
+  begin
+    if NewLine = EmptyStr then
+      Self := CurrentText + sLineBreak
+    else
+    begin
+      if strutils.RightStr(CurrentText, 2) = sLineBreak then
+        Self := CurrentText + NewLine
+      else
+        Self := CurrentText + sLineBreak + NewLine;
+    end;
   end;
 end;
 
@@ -1253,21 +1383,49 @@ end;
 
 procedure OLString.LineDelete(const LineIndex: integer);
 var
-  sl: TStringList;
+  StartPos, EndPos: OLInteger;
+  LineBreakLen: integer;
 begin
-  sl := TStringList.Create();
-  try
-    sl.Text := Self;
-    sl.Delete(LineIndex);
-    Self := sl.Text;
-  finally
-    sl.Free();
+  if IsNull then
+    Exit;
+
+  if LineIndex < 0 then
+    Exit;
+
+  LineBreakLen := System.Length(sLineBreak);
+  StartPos := GetLineStartPosition(LineIndex);
+
+  // Find the end of the line including line break
+  EndPos := Self.PosEx(sLineBreak, StartPos);
+
+  if EndPos.HasValue() then
+    // Delete line with its line break
+    Self := Self.Deleted(StartPos, EndPos - StartPos + LineBreakLen)
+  else
+  begin
+    // Last line - need to delete the previous line break if it exists
+    if (LineIndex > 0) and (StartPos > 1) then
+      Self := Self.Deleted(StartPos - LineBreakLen, Self.Length() - StartPos + LineBreakLen + 1)
+    else
+      Self := Self.Deleted(StartPos, Self.Length() - StartPos + 1);
   end;
 end;
 
 function OLString.LineEndAt(const LineIndex: Integer): OLInteger;
+var
+  StartPos: OLInteger;
+  LineBreakPos: OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
 
+  StartPos := GetLineStartPosition(LineIndex);
+  LineBreakPos := Self.PosEx(sLineBreak, StartPos);
+
+  if LineBreakPos.HasValue() then
+    Result := LineBreakPos.Decreased(1)
+  else
+    Result := Self.Length(); // Last line - return string length
 end;
 
 function OLString.LineIndexLike(const s: string; StartingFrom: Integer): OLInteger;
@@ -1275,6 +1433,9 @@ var
   i: Integer;
   OutPut: OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
   for i := StartingFrom to Self.LineCount - 1 do
   begin
     if Self.Lines[i].Like(s) then
@@ -1289,15 +1450,22 @@ end;
 
 function OLString.LineIndexOf(const s: string): OLInteger;
 var
-  sl: TStringList;
-  OutPut: integer;
+  i: Integer;
+  OutPut: OLInteger;
 begin
-  sl := TStringList.Create();
-  try
-    sl.Text := Self;
-    OutPut := sl.IndexOf(s);
-  finally
-    sl.Free();
+  // Changed to return NULL instead of -1 when not found (previously used TStringList.IndexOf)
+  OutPut := Null;
+
+  if not Self.IsNull() then
+  begin
+    for i := 0 to Self.LineCount - 1 do
+    begin
+      if Self.Lines[i] = s then
+      begin
+        OutPut := i;
+        Break;
+      end;
+    end;
   end;
 
   Result := OutPut;
@@ -1305,15 +1473,32 @@ end;
 
 procedure OLString.LineInsertAt(const LineIndex: integer; const s: string);
 var
-  sl: TStringList;
+  StartPos: integer;
+  BeforePart, AfterPart: OLString;
 begin
-  sl := TStringList.Create();
-  try
-    sl.Text := Self;
-    sl.Insert(LineIndex, s);
-    Self := sl.Text;
-  finally
-    sl.Free();
+  if LineIndex < 0 then
+    Exit;
+
+  if LineIndex = 0 then
+  begin
+    // Insert at the beginning
+    if Self.IsEmptyStr() then
+      Self := s
+    else
+      Self := s + sLineBreak + Self;
+  end
+  else if LineIndex >= Self.LineCount() then
+  begin
+    // Insert at the end
+    Self.LineAdd(s);
+  end
+  else
+  begin
+    // Insert in the middle
+    StartPos := GetLineStartPosition(LineIndex);
+    BeforePart := Self.MidStr(1, StartPos - 1);
+    AfterPart := Self.RightStrFrom(StartPos);
+    Self := BeforePart + s + sLineBreak + AfterPart;
   end;
 end;
 
@@ -1323,6 +1508,9 @@ var
   sl: TStringList;
   OutPut: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   sl := TStringList.Create();
   try
     sl.Text := Self;
@@ -1363,30 +1551,45 @@ end;
 
 function OLString.LowerCase: OLString;
 begin
-  Result := SysUtils.AnsiLowerCase(Self)
+  if IsNull then
+    Exit(Null);
+
+  Result := SysUtils.LowerCase(Self)
 end;
 
 function OLString.MatchStr(const AValues: array of string): OLBoolean;
 begin
-  Result := Self.IndexStr(AValues) > 0;
+  if IsNull then
+    Exit(Null);
+
+  Result := Self.IndexStr(AValues) > -1; // Adjusted logic since IndexStr now returns Null on miss
 end;
 
 function OLString.MatchText(const AValues: array of string): OLBoolean;
 begin
-  Result := Self.IndexText(AValues) > 0;
+  if IsNull then
+    Exit(Null);
+
+  Result := Self.IndexText(AValues) > -1; // Adjusted logic since IndexText now returns Null on miss
 end;
 
 function OLString.MidStr(const AStart, ACount: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.MidStr(Self, AStart, ACount);
 end;
 
 function OLString.MidStrEx(const AStart, AEnd: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := MidStr(AStart, AEnd - AStart + 1);
 end;
 
-class operator OLString.NotEqual(const a, b: OLString): OLBoolean;
+class operator OLString.NotEqual(const a, b: OLString): Boolean;
 begin
   AllowToSetEmptyStrAsDefaultValue := False;
 
@@ -1403,32 +1606,73 @@ begin
   Self := Clipboard.AsText;
 end;
 
+{$IFDEF VCL}
 function OLString.PixelWidth(const F: TFont): OLInteger;
 var
   bmp: TBitmap;
 begin
+  if IsNull then
+    Exit(Null);
+
   bmp := TBitmap.Create;
   try
     bmp.Canvas.Font := F;
     Result := bmp.Canvas.TextWidth(Self);
   finally
-    FreeAndNil(bmp);
+    bmp.Free;
   end;
 end;
+{$ENDIF}
+
+{$IFDEF FMX}
+function OLString.PixelWidth(const F: TFont): OLInteger;
+var
+  Layout: TTextLayout;
+begin
+  if IsNull then
+    Exit(Null);
+
+  Layout := TTextLayoutManager.DefaultTextLayout.Create;
+  try
+    Layout.BeginUpdate;
+    try
+      Layout.Font.Assign(F);
+      Layout.Text := Self.ToString();
+      Layout.WordWrap := False;
+    finally
+      Layout.EndUpdate;
+    end;
+
+    Result := Ceil(Layout.TextWidth);
+  finally
+    Layout.Free;
+  end;
+end;
+{$ENDIF}
 
 function OLString.Pos(const SubStr: string; const CaseSensitivity:
     TCaseSensitivity = csCaseSensitive): OLInteger;
 var
   OutPut: OLInteger;
   UpperSubString: string;
+  position: Integer;
 begin
+  if IsNull then
+    Exit(Null);
+
+  // Changed to return NULL instead of 0 when not found
   if CaseSensitivity = csCaseSensitive then
-    OutPut := System.Pos(SubStr, Self)
+    position := System.Pos(SubStr, Self)
   else
   begin
     UpperSubString := SysUtils.UpperCase(SubStr);
-    OutPut := System.Pos(UpperSubString, Self.UpperCase())
+    position := System.Pos(UpperSubString, Self.UpperCase());
   end;
+
+  if position = 0 then
+    OutPut := Null
+  else
+    OutPut := position;
 
   Result := OutPut;
 end;
@@ -1438,14 +1682,24 @@ function OLString.PosEx(const SubStr: string; const Offset: integer; const
 var
   OutPut: OLInteger;
   UpperSubString: string;
+  position: Integer;
 begin
+  if IsNull then
+    Exit(Null);
+
+  // Changed to return NULL instead of 0 when not found
   if CaseSensitivity = csCaseSensitive then
-    OutPut := StrUtils.PosEx(SubStr, Self, Offset)
+    position := StrUtils.PosEx(SubStr, Self, Offset)
   else
   begin
     UpperSubString := SysUtils.UpperCase(SubStr);
-    OutPut := StrUtils.PosEx(UpperSubString, Self.UpperCase(), Offset)
+    position := StrUtils.PosEx(UpperSubString, Self.UpperCase(), Offset);
   end;
+
+  if position = 0 then
+    OutPut := Null
+  else
+    OutPut := position;
 
   Result := OutPut;
 end;
@@ -1456,12 +1710,16 @@ var
   SubStringLength: Integer;
   myCharPtr : PChar;
   i: Integer;
-  OutPut: Integer;
+  OutPut: OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
+  // Changed to consistently return NULL instead of 0 when not found
+  OutPut := Null;
+
   if Self.HasValue() then
   begin
-    OutPut := 0;
-
     SubStringLength := System.Length(SubStr);
 
     i := Self.Length() - SubStringLength + 1;
@@ -1485,7 +1743,7 @@ begin
     begin
       while i > 0 do
       begin
-        if SysUtils.AnsiUpperCase(StrUtils.LeftStr(myCharPtr, SubStringLength)) = SysUtils.AnsiUpperCase(SubStr) then
+        if SysUtils.UpperCase(StrUtils.LeftStr(myCharPtr, SubStringLength)) = SysUtils.UpperCase(SubStr) then
         begin
           OutPut := i;
           Break;
@@ -1495,10 +1753,7 @@ begin
         Dec(myCharPtr);
       end;
     end;
-  end
-  else
-    OutPut := NULL;
-
+  end;
 
   Result := OutPut;
 end;
@@ -1510,12 +1765,16 @@ var
   SubStringLength: Integer;
   myCharPtr : PChar;
   i: Integer;
-  OutPut: Integer;
+  OutPut: OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
+  // Changed to consistently return NULL instead of 0 when not found
+  OutPut := Null;
+
   if Self.HasValue() then
   begin
-    OutPut := 0;
-
     SubStringLength := System.Length(SubStr);
 
     i := Min(Self.Length() - SubStringLength + 1, NotAfterPosition);
@@ -1539,7 +1798,7 @@ begin
     begin
       while i > 0 do
       begin
-        if SysUtils.AnsiUpperCase(StrUtils.LeftStr(myCharPtr, SubStringLength)) = SysUtils.AnsiUpperCase(SubStr) then
+        if SysUtils.UpperCase(StrUtils.LeftStr(myCharPtr, SubStringLength)) = SysUtils.UpperCase(SubStr) then
         begin
           OutPut := i;
           Break;
@@ -1549,9 +1808,7 @@ begin
         Dec(myCharPtr);
       end;
     end;
-  end
-  else
-    OutPut := Null;
+  end;
 
   Result := OutPut;
 end;
@@ -1603,77 +1860,94 @@ end;
 
 function OLString.EndingRemoved(const ACount: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.LeftStr(Self.Length() - ACount);
 end;
 
 function OLString.ReplacedFirst(const AFromText, AToText: string): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.StringReplace(Self, AFromText, AToText, []);
 end;
 
 function OLString.ReplacedFirstText(const AFromText, AToText: string): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.StringReplace(Self, AFromText, AToText, [rfIgnoreCase]);
 end;
 
 function OLString.ReplacedStartingAt(const Position: Cardinal; const NewValue:
     OLString): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.StuffString(Self, Position, NewValue.Length, NewValue);
-end;
-
-function OLString.NullForNull(F: TFunc<String>): OLString;
-var
-  Output: OlString;
-begin
-  if Self.HasValue then
-    Output := F()
-  else
-    Output := Null;
-
-  Result := Output;
 end;
 
 function OLString.Replaced(const AFromText, AToText: string): OLString;
 var
   s: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   s := Self;
 
-  Result := NullForNull(
-    function: string
-    begin
-      Result := StrUtils.ReplaceStr(s, AFromText, AToText);
-    end);
+  Result := StrUtils.ReplaceStr(s, AFromText, AToText);
 end;
 
 function OLString.ReplacedText(const AFromText, AToText: string): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.ReplaceText(Self, AFromText, AToText);
 end;
 
 function OLString.ReversedString(): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.ReverseString(Self);
 end;
 
 function OLString.RightStr(const ACount: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.RightStr(Self, ACount);
 end;
 
 function OLString.RightStrFrom(const StartFrom: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.RightStr(Self.Length() - StartFrom + 1);
 end;
 
 function OLString.SameStr(s: OLString): OLBoolean;
 begin
+  if IsNull or s.IsNull then
+    Exit(Null);
+
   Result := SysUtils.SameStr(Self, s);
 end;
 
 function OLString.SameText(s: OLString): OLBoolean;
 begin
+  if IsNull or s.IsNull then
+    Exit(Null);
+
   Result := SysUtils.SameText(Self, s);
 end;
 
@@ -1729,6 +2003,9 @@ procedure OLString.SetCSVFieldValue(const FieldIndex: integer; const Value:
 var
   sl: TStringList;
 begin
+  if IsNull then
+    Exit; // Cannot set CSV field on null string, or should it initialize? Defaulting to exit/exception safety.
+
   sl := TStringList.Create();
   try
     sl.Delimiter := Delimiter;
@@ -1748,11 +2025,19 @@ end;
 
 procedure OLString.SetHasValue(const Value: OLBoolean);
 begin
-  if Value then
-    NullFlag := NonEmptyStr
-  else
-    NullFlag := EmptyStr;
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := Value.IfThen(' ', '');
+  {$IFEND}
 end;
+
+{$IF CompilerVersion >= 34.0}
+class operator OLString.Initialize(out Dest: OLString);
+begin
+  Dest.FHasValue := False;
+end;
+{$IFEND}
 
 procedure OLString.SetHtmlUnicodeText(const Value: OLString);
 var
@@ -1773,20 +2058,62 @@ end;
 
 procedure OLString.SetLine(const Index: integer; const Value: OLString);
 var
-  sl: TStringList;
+  P, StartP: PChar;
+  CurrentIndex: Integer;
+  Len: Integer;
+  LineStartOffset, LineEndOffset: Integer;
+  OldVal: string;
 begin
-  sl := TStringList.Create();
-  try
-    sl.Text := Self;
+  if not ValuePresent then Self.Val := '';
 
-    while sl.Count <= Index do
-      sl.Add('');
+  OldVal := Self.Val;
+  Len := System.Length(OldVal);
+  P := PChar(OldVal);
+  StartP := P;
+  CurrentIndex := 0;
 
-    sl[Index] := Value;
-    Self := sl.Text;
-  finally
-    sl.Free();
+  while (CurrentIndex < Index) and ((P - StartP) < Len) do
+  begin
+    while ((P - StartP) < Len) and (P^ <> #10) and (P^ <> #13) do
+      Inc(P);
+
+    if (P - StartP) < Len then
+    begin
+      if P^ = #13 then
+      begin
+        Inc(P);
+        if ((P - StartP) < Len) and (P^ = #10) then Inc(P);
+      end
+      else if P^ = #10 then
+        Inc(P);
+
+      Inc(CurrentIndex);
+    end;
   end;
+
+  while CurrentIndex < Index do
+  begin
+    OldVal := OldVal + sLineBreak;
+    Inc(CurrentIndex);
+  end;
+
+  if System.Length(OldVal) > Len then
+  begin
+    Self.Val := OldVal + Value.Value;
+    Exit;
+  end;
+
+  LineStartOffset := P - StartP + 1;
+
+  while ((P - StartP) < Len) and (P^ <> #10) and (P^ <> #13) do
+    Inc(P);
+
+  LineEndOffset := P - StartP + 1;
+
+  System.Delete(OldVal, LineStartOffset, LineEndOffset - LineStartOffset);
+  System.Insert(Value.Value, OldVal, LineStartOffset);
+
+  Self.Val := OldVal;
 end;
 
 class procedure OLString.SetNullAsDefault;
@@ -1828,7 +2155,7 @@ begin
       TempArray.AddElement(JSONArray.Items[i].Clone as TJSONValue);
   end;
 
-  // Zamień całą zawartość tablicy
+  // Replace array content
   while JSONArray.Count > 0 do
     JSONArray.Remove(0);
 
@@ -1909,17 +2236,17 @@ begin
     end;
   end;
 
-  // Ustaw ostatni element w ścieżce
+  // Set last element
   Part := Parts[High(Parts)];
 
-  // Obsługa elementu tablicy np. items[0]
+  // Handle array element like items[0]
   Match := TRegEx.Match(Part, '^(\w+)\[(\d+)\]$');
   if Match.Success then
   begin
     ArrayName := Match.Groups[1].Value;
     Index := Match.Groups[2].Value.ToInteger;
 
-    // Znajdź tablicę o nazwie ArrayName
+    // Find array
     if CurrObj is TJSONObject then
     begin
       Arr := (CurrObj as TJSONObject).GetValue(ArrayName) as TJSONArray;
@@ -1929,7 +2256,7 @@ begin
         (CurrObj as TJSONObject).AddPair(ArrayName, Arr);
       end;
 
-      // Dodaj puste obiekty jeśli potrzeba
+      // Add empty objects if needed
       while Arr.Count <= Index do
         Arr.AddElement(TJSONObject.Create);
 
@@ -1974,7 +2301,7 @@ begin
       Arr := CurrObj as TJSONArray;
 
       while Arr.Count <= Index do
-        Arr.AddElement(TJSONNull.Create);  // lub pusty string/liczba, jeśli wolisz
+        Arr.AddElement(TJSONNull.Create);  // or empty string/number
 
       if Value.IsNull then
         ReplaceJSONArrayElement(Arr, Index, TJSONNull.Create())
@@ -1994,95 +2321,6 @@ begin
   end;
 
   Self.val := JSONValue.ToString;
-end;
-
-//procedure OLString.SetJSON(const JsonFieldName: string; const Value: OLString);
-//var
-//  JSONValue: TJSONValue;
-//  JSONObject: TJSONObject;
-//
-//  Parts: TArray<string>;
-//  i: Integer;
-//  CurrObj: TJSONObject;
-//  JSONValueValue: TJSONValue;
-//begin
-//  JSONValue := TJSONObject.ParseJSONValue(self.Val);
-//  if not Assigned(JSONValue) then
-//    JSONValue := TJSONObject.Create;
-//
-//  Parts := JsonFieldName.Split(['.']);
-//  CurrObj := JSONValue as TJSONObject;
-//  for i := 0 to High(Parts) - 1 do
-//  begin
-//    JSONValueValue := CurrObj.GetValue(Parts[i]);
-//    if not Assigned(JSONValueValue) then
-//    begin
-//      JSONValueValue := TJSONObject.Create;
-//      CurrObj.AddPair(Parts[i], Value);
-//    end;
-//    CurrObj := JSONValueValue as TJSONObject;
-//  end;
-//
-//  CurrObj.RemovePair(Parts[High(Parts)]);
-//  CurrObj.AddPair(Parts[High(Parts)], Value);
-//
-//  Self.val := JSONValue.ToString;
-//
-//
-////  JSONValue := TJSONObject.ParseJSONValue(self.Val);
-////  if not Assigned(JSONValue) then
-////    JSONValue := TJSONObject.Create;
-////
-////  try
-////    if JSONValue is TJSONObject then
-////    begin
-////      JSONObject := JSONValue as TJSONObject;
-////
-////      JSONObject.RemovePair(JsonFieldName);
-////
-////      if Value.IsNull then
-////        JSONObject.AddPair(JsonFieldName, TJSONNull.Create())
-////      else if Value.trytoint64() then
-////        JSONObject.AddPair(JsonFieldName, TJSONNumber.Create(Value.ToInt64()))
-////      else if Value.TryToFloat() then
-////        JSONObject.AddPair(JsonFieldName, TJSONNumber.Create(Value.ToFloat()))
-////      else if Value.UpperCase() = 'TRUE' then
-////        JSONObject.AddPair(JsonFieldName, TJSONBool.Create(true))
-////      else if Value.UpperCase() = 'FALSE' then
-////        JSONObject.AddPair(JsonFieldName, TJSONBool.Create(false))
-////      else
-////        JSONObject.AddPair(JsonFieldName, Value.ToString());
-////
-////      Self.val := JSONObject.ToString;
-////    end;
-////  finally
-////    JSONValue.Free;
-////  end;
-//end;
-
-procedure OLString.SetParamLink(ParamName: string; var i: OLInteger);
-  var
-    j: Integer;
-    Found: Boolean;
-    len: integer;
-begin
-  Found := False;
-  len := System.Length(ParamIntegerLinks);
-
-  for j := 0 to len - 1 do
-  if ParamIntegerLinks[j].ParamName = ParamName then
-  begin
-    ParamIntegerLinks[j].p := @j;
-    Found := True;
-    break;
-  end;
-
-  if not Found then
-  begin
-    SetLength(ParamIntegerLinks, len + 1);
-    ParamIntegerLinks[len].ParamName := ParamName;
-    ParamIntegerLinks[len].p := @i;
-  end;
 end;
 
 procedure OLString.SetUrlEncodedText(const Value: OLString);
@@ -2219,6 +2457,9 @@ end;
 
 function OLString.SpacesRemoved: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.Replaced(' ', '');
 end;
 
@@ -2228,6 +2469,9 @@ var
   OutPut: TStringDynArray;
   TempStr: string;
 begin
+  if IsNull then
+    Exit(nil); // Return nil array if input is null
+
   //Result := StrUtils.SplitString(Self, Delimiters)
 
   for i := 1 to Self.Length do
@@ -2255,11 +2499,17 @@ end;
 
 function OLString.StartsStr(const ASubString: string): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.StartsStr(ASubString, Self);
 end;
 
 function OLString.StartsText(const ASubText: string): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.StartsText(ASubText, Self);
 end;
 
@@ -2343,7 +2593,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.ToInt64: Int64;
+function OLString.ToInt64: OLInt64;
 var  OutPut: Int64;
 begin
   if Self.IsNull() then
@@ -2392,6 +2642,9 @@ function OLString.TryToCurr: OLBoolean;
 var
   c: Currency;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToCurr(Self, c);
 end;
 
@@ -2433,6 +2686,9 @@ end;
 
 function OLString.TryToCurr(var c: Currency): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToCurr(Self, c);
 end;
 
@@ -2441,6 +2697,9 @@ var
   dt: TDateTime;
   OutPut: OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   if SysUtils.TryStrToDate(Self, dt) then
   begin
     d := Trunc(dt);
@@ -2456,6 +2715,9 @@ function OLString.TryToDate: OLBoolean;
 var
   d: TDateTime;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToDate(Self, d);
 end;
 
@@ -2463,6 +2725,9 @@ function OLString.TryToDateTime: OLBoolean;
 var
   dt: TDateTime;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToDateTime(Self, dt);
 end;
 
@@ -2471,6 +2736,9 @@ var
   dat: TDate;
   OutPut: OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := Self.TryToDate(dat);
   if OutPut then
     d := dat;
@@ -2483,6 +2751,9 @@ var
  dattim: TDateTime;
  OutPut: OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := TryToDateTime(dattim);
   if OutPut then
     dt := dattim;
@@ -2495,6 +2766,9 @@ var
   ext: Extended;
   OutPut: OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := TryToFloat(ext);
   if OutPut then
     e := ext;
@@ -2507,6 +2781,9 @@ var
   ext: Extended;
   OutPut: OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := TryToFloat(ext);
   if OutPut then
     e := ext;
@@ -2516,11 +2793,17 @@ end;
 
 function OLString.TryToDateTime(var dt: TDateTime): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToDateTime(Self, dt);
 end;
 
 function OLString.TryToFloat(var e: Extended): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToFloat(Self, e);
 end;
 
@@ -2528,11 +2811,17 @@ function OLString.TryToFloat: OLBoolean;
 var
   e: Extended;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToFloat(Self, e);
 end;
 
 function OLString.TryToInt(var i: integer): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToInt(Self, i);
 end;
 
@@ -2540,6 +2829,9 @@ function OLString.TryToInt: OLBoolean;
 var
   i: integer;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToInt(Self, i);
 end;
 
@@ -2548,6 +2840,9 @@ var
   OutPut: OLBoolean;
   int: Integer;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := TryToInt(int);
   if OutPut then
     i := int;
@@ -2560,6 +2855,9 @@ var
   OutPut: OLBoolean;
   int: Int64;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := TryToInt64(int);
   if OutPut then
     i := int;
@@ -2569,6 +2867,9 @@ end;
 
 function OLString.TryToInt64(var i: Int64): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToInt64(Self, i);
 end;
 
@@ -2581,28 +2882,43 @@ function OLString.TryToInt64: OLBoolean;
 var
   i: Int64;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := SysUtils.TryStrToInt64(Self, i);
 end;
 
 function OLString.UpperCase: OLString;
 begin
-  Result := SysUtils.AnsiUpperCase(Self)
+  if IsNull then
+    Exit(Null);
+
+  Result := SysUtils.UpperCase(Self)
 end;
 
 function OLString.LeadingApostropheExcluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.LeadingCharExcluded('''');
 end;
 
 function OLString.LeadingApostropheIncluded: OLString;
 begin
-  Result := Self.LeadingCharIncluded(',');
+  if IsNull then
+    Exit(Null);
+
+  Result := Self.LeadingCharIncluded('''');
 end;
 
 function OLString.LeadingCharExcluded(const c: Char): OLString;
 var
   OutPut: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   if Self.LeftStr(1) = c then
     OutPut := Self.RightStrFrom(2)
   else
@@ -2615,6 +2931,9 @@ function OLString.LeadingCharIncluded(const c: Char): OLString;
 var
   OutPut: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   if Self.LeftStr(1) = c then
     OutPut := Self
   else
@@ -2628,6 +2947,9 @@ function OLString.LeadingCharsAdded(const C: Char; const NewLength: integer):
 var
   OutPut: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := Self;
 
   while OutPut.Length < NewLength do
@@ -2638,21 +2960,33 @@ end;
 
 function OLString.LeadingComaExcluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.LeadingCharExcluded(',');
 end;
 
 function OLString.LeadingComaIncluded: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.LeadingCharIncluded(',');
 end;
 
 function OLString.LeadingSpacesAdded(const NewLength: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.LeadingCharsAdded(' ', NewLength);
 end;
 
 function OLString.LeadingZerosAdded(const NewLength: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.LeadingCharsAdded('0', NewLength)
 end;
 
@@ -2661,6 +2995,9 @@ function OLString.TrailingCharsAdded(const C: Char; const NewLength: integer):
 var
   OutPut: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := Self;
 
   while OutPut.Length < NewLength do
@@ -2671,6 +3008,9 @@ end;
 
 function OLString.TrailingSpacesAdded(const NewLength: integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.TrailingCharsAdded(' ', NewLength);
 end;
 
@@ -2684,11 +3024,13 @@ var
 
   OutPut: string;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut:= '';
   strInput:= TStringStream.Create(Self);
   strOutput:= TStringStream.Create;
   try
-    //Zipper:= TZCompressionStream.Create(strOutput, zcMax);
     Zipper:= TZCompressionStream.Create(clMax, strOutput);
     try
       Zipper.CopyFrom(strInput, strInput.Size);
@@ -2706,11 +3048,17 @@ end;
 
 function OLString.ContainsStr(const ASubString: OLString): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.ContainsStr(Self, ASubString);
 end;
 
 function OLString.ContainsText(const ASubText: OLString): OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := StrUtils.ContainsText(Self, ASubText);
 end;
 
@@ -2722,15 +3070,18 @@ end;
 function OLString.OccurrencesCount(const SubString: string; const
     CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 var
-  Position, OutPut: integer;
+  Position, OutPut: OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := 0;
 
   if not Self.IsNull then
   begin
     Position := Self.Pos(SubString, CaseSensitivity);
 
-    while Position > 0 do
+    while Position.HasValue() do
     begin
       inc(OutPut);
       Position := Self.PosEx(SubString, Position + 1, CaseSensitivity);
@@ -2744,13 +3095,19 @@ function OLString.OccurrencesPosition(const SubString: string; const Index:
     integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive):
     OLInteger;
 var
-  Position, Counter, OutPut: integer;
+  Position: OLInteger;
+  Counter: integer;
+  OutPut: OLInteger;
 begin
-  OutPut := 0;
+  if IsNull then
+    Exit(Null);
+
+  // Changed to return NULL instead of 0 when not found
+  OutPut := Null;
   Counter := -1;
   Position := Self.Pos(SubString, CaseSensitivity);
 
-  while Position > 0 do
+  while not Position.IsNull() do
   begin
     inc(Counter);
 
@@ -2773,6 +3130,9 @@ var
   Output: OLString;
   Header: OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Output := Null;
 
   Header := self.Lines[0].UpperCase();
@@ -2789,6 +3149,9 @@ var
   sl: TStringList;
   OutPut: OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
   sl := TStringList.Create();
   try
     sl.Delimiter := Delimiter;
@@ -2805,6 +3168,9 @@ end;
 
 function OLString.CSVFieldName(const index: Integer): OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.Lines[0].CSV[index];
 end;
 
@@ -2814,6 +3180,9 @@ var
   sl: TStringList;
   OutPut: string;
 begin
+  if IsNull then
+    Exit(Null);
+
   sl := TStringList.Create();
   try
     sl.Delimiter := Delimiter;
@@ -2834,6 +3203,9 @@ var
   I: Integer;
   OutPut: OLInteger;
 begin
+  if IsNull then
+    Exit(Null);
+
   for I := 0 to CSVFieldCount() - 1 do
     if GetCSV(i) = ValueToFind then
     begin
@@ -2873,6 +3245,9 @@ var
 
   OutPut: string;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut:= '';
   strInput := TStringStream.Create(Self);
   strOutput := TStringStream.Create;
@@ -2899,6 +3274,9 @@ function OLString.Deleted(const FromPosition: integer; const Count: integer =
 var
   s: String;
 begin
+  if IsNull then
+    Exit(Null);
+
   s := Self;
 
   System.Delete(s, FromPosition, Count);
@@ -2910,54 +3288,69 @@ function OLString.DigitsOnly: OLString;
 const
   Digits = ['0'..'9'];
 var
-  OutPut: OLString;
+  sb: TStringBuilder;
   i: integer;
 begin
-  OutPut := '';
+  if IsNull then
+    Exit(Null);
 
-  for i := 1 to Self.Length() do
-  begin
-    if Self[i] in Digits then
-      OutPut := OutPut + Self[i];
+  sb := TStringBuilder.Create;
+  try
+    for i := 1 to Self.Length() do
+    begin
+      if Self[i] in Digits then
+        sb.Append(Self[i]);
+    end;
+    Result := sb.ToString;
+  finally
+    sb.Free;
   end;
-
-  Result := OutPut;
 end;
 
 function OLString.NoDigits(): OLString;
 const
   Digits = ['0'..'9'];
 var
-  OutPut: OLString;
+  sb: TStringBuilder;
   i: integer;
 begin
-  OutPut := '';
+  if IsNull then
+    Exit(Null);
 
-  for i := 1 to Self.Length() do
-  begin
-    if not (Self[i] in Digits) then
-      OutPut := OutPut + Self[i];
+  sb := TStringBuilder.Create;
+  try
+    for i := 1 to Self.Length() do
+    begin
+      if not (Self[i] in Digits) then
+        sb.Append(Self[i]);
+    end;
+    Result := sb.ToString;
+  finally
+    sb.Free;
   end;
-
-  Result := OutPut;
 end;
 
 function OLString.AlphanumericsOnly: OLString;
 const
   Alphanumerics = ['0'..'9', 'a'..'z', 'A'..'Z'];
 var
-  OutPut: OLString;
+  sb: TStringBuilder;
   i: integer;
 begin
-  OutPut := '';
+  if IsNull then
+    Exit(Null);
 
-  for i := 1 to Self.Length() do
-  begin
-    if Self[i] in Alphanumerics then
-      OutPut := OutPut + Self[i];
+  sb := TStringBuilder.Create;
+  try
+    for i := 1 to Self.Length() do
+    begin
+      if Self[i] in Alphanumerics then
+        sb.Append(Self[i]);
+    end;
+    Result := sb.ToString;
+  finally
+    sb.Free;
   end;
-
-  Result := OutPut;
 end;
 
 function OLString.RepeatedString(const ACount: integer): OLString;
@@ -2965,6 +3358,9 @@ var
   OutPut: OLString;
   i: integer;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := '';
 
   for i := 1 to ACount do
@@ -2979,6 +3375,9 @@ function OLString.FindPatternStr(const Tag: OLString; const StartingPosition:
     integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive):
     OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.FindPattern(Tag, StartingPosition, CaseSensitivity).Value;
 end;
 
@@ -2986,6 +3385,9 @@ function OLString.FindTagStr(const Tag: OLString; const StartingPosition:
     integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive):
     OLString;
 begin
+  if IsNull then
+    Exit(Null);
+
   Result := Self.FindPattern(Tag, StartingPosition, CaseSensitivity).Value;
 end;
 
@@ -3009,6 +3411,9 @@ var
   number: Longint;
   rest: Integer;
 begin
+  if iban.IsNull then
+    Exit(Null);
+
   iban := iban.Replaced(' ', '').UpperCase();
   if iban.Pos('IBAN') > 0 then
     iban.Deleted(iban.Pos('IBAN'), 4);
@@ -3039,8 +3444,17 @@ end;
 
 
 function OLString.IsValidIBAN(): OLBoolean;
+var
+  res: OLInteger;
 begin
-  Result := (IBANCalculateDigits(Self) = 1);
+  if IsNull then
+    Exit(Null);
+
+  res := IBANCalculateDigits(Self);
+  if res.IsNull then
+    Result := Null
+  else
+    Result := (res = 1);
 end;
 
 
@@ -3064,6 +3478,9 @@ var
   OutPut: OLBoolean;
   dat: TDate;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := TrySmartStrToDate(dat);
   if OutPut then
     d := dat;
@@ -3101,6 +3518,9 @@ var
   OutPut: OLBoolean;
   cur: Currency;
 begin
+  if IsNull then
+    Exit(Null);
+
   OutPut := SysUtils.TryStrToCurr(Self, cur);
 
   c := cur;
@@ -3112,6 +3532,9 @@ var
   dt: TDateTime;
   OutPut: OLBoolean;
 begin
+  if IsNull then
+    Exit(Null);
+
   if SysUtils.TryStrToDate(Self, dt) then
   begin
     d := Trunc(dt);
@@ -3129,6 +3552,8 @@ function TStringPatternFind.Found: boolean;
 begin
   Result := (Position > 0);
 end;
+
+
 
 initialization
 
