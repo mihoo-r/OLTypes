@@ -2152,23 +2152,25 @@ var
   i: Integer;
 begin
   TempArray := TJSONArray.Create;
+  try
+    for i := 0 to JSONArray.Count - 1 do
+    begin
+      if i = Index then
+        TempArray.AddElement(NewValue) // Take ownership, do not clone
+      else
+        TempArray.AddElement(JSONArray.Items[i].Clone as TJSONValue);
+    end;
 
-  for i := 0 to JSONArray.Count - 1 do
-  begin
-    if i = Index then
-      TempArray.AddElement(NewValue.Clone as TJSONValue)
-    else
-      TempArray.AddElement(JSONArray.Items[i].Clone as TJSONValue);
+    // Replace array content
+    while JSONArray.Count > 0 do
+      JSONArray.Remove(0).Free; // Free removed element
+
+    for i := 0 to TempArray.Count - 1 do
+      JSONArray.AddElement(TempArray.Items[i].Clone as TJSONValue);
+
+  finally
+    TempArray.Free;
   end;
-
-  // Replace array content
-  while JSONArray.Count > 0 do
-    JSONArray.Remove(0);
-
-  for i := 0 to TempArray.Count - 1 do
-    JSONArray.AddElement(TempArray.Items[i].Clone as TJSONValue);
-
-  TempArray.Free;
 end;
 
 {$IF CompilerVersion >= 26.0}
@@ -2191,19 +2193,70 @@ begin
   if not Assigned(JSONValue) then
     JSONValue := TJSONObject.Create;
 
-  Parts := JsonFieldName.Split(['.']);
-  CurrObj := JSONValue as TJSONObject;
+  try
+    Parts := JsonFieldName.Split(['.']);
+    CurrObj := JSONValue as TJSONObject;
 
-  for i := 0 to High(Parts) - 1 do
-  begin
-    Part := Parts[i];
+    for i := 0 to High(Parts) - 1 do
+    begin
+      Part := Parts[i];
 
+      Match := TRegEx.Match(Part, '^(\w+)\[(\d+)\]$');
+      if Match.Success then
+      begin
+        ArrayName := Match.Groups[1].Value;
+        Index := Match.Groups[2].Value.ToInteger;
+
+        if CurrObj is TJSONObject then
+        begin
+          Arr := (CurrObj as TJSONObject).GetValue(ArrayName) as TJSONArray;
+          if Arr = nil then
+          begin
+            Arr := TJSONArray.Create;
+            (CurrObj as TJSONObject).AddPair(ArrayName, Arr);
+          end;
+
+          while Arr.Count <= Index do
+            Arr.AddElement(TJSONObject.Create);
+
+          CurrObj := Arr.Items[Index];
+        end;
+      end
+      else
+      begin
+        if CurrObj is TJSONObject then
+        begin
+          var o := CurrObj as TJSONObject;
+          if o.GetValue(Part) is TJSONString then
+          begin
+            o.RemovePair(Part).Free;
+            o.AddPair(Part, Value);
+          end
+          else
+          begin
+            Obj := (CurrObj as TJSONObject).GetValue(Part) as TJSONObject;
+            if Obj = nil then
+            begin
+              Obj := TJSONObject.Create;
+              (CurrObj as TJSONObject).AddPair(Part, Obj);
+            end;
+            CurrObj := Obj;
+          end;
+        end;
+      end;
+    end;
+
+    // Set last element
+    Part := Parts[High(Parts)];
+
+    // Handle array element like items[0]
     Match := TRegEx.Match(Part, '^(\w+)\[(\d+)\]$');
     if Match.Success then
     begin
       ArrayName := Match.Groups[1].Value;
       Index := Match.Groups[2].Value.ToInteger;
 
+      // Find array
       if CurrObj is TJSONObject then
       begin
         Arr := (CurrObj as TJSONObject).GetValue(ArrayName) as TJSONArray;
@@ -2213,121 +2266,74 @@ begin
           (CurrObj as TJSONObject).AddPair(ArrayName, Arr);
         end;
 
+        // Add empty objects if needed
         while Arr.Count <= Index do
           Arr.AddElement(TJSONObject.Create);
 
-        CurrObj := Arr.Items[Index];
+        if Value.IsNull then
+          ReplaceJSONArrayElement(Arr, Index, TJSONNull.Create())
+        else if Value.trytoint64() then
+          ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToInt64()))
+        else if Value.TryToFloat() then
+          ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToFloat()))
+        else if Value.UpperCase() = 'TRUE' then
+          ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(true))
+        else if Value.UpperCase() = 'FALSE' then
+          ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(false))
+        else
+          ReplaceJSONArrayElement(Arr, Index, TJSONString.Create(Value));
       end;
     end
-    else
+    else if CurrObj is TJSONObject then
     begin
-      if CurrObj is TJSONObject then
+      var o := CurrObj as TJSONObject;
+      o.RemovePair(Part).Free;
+
+      if Value.IsNull then
+        o.AddPair(Part, TJSONNull.Create())
+      else if Value.trytoint64() then
+        o.AddPair(Part, TJSONNumber.Create(Value.ToInt64()))
+      else if Value.TryToFloat() then
+        o.AddPair(Part, TJSONNumber.Create(Value.ToFloat()))
+      else if Value.UpperCase() = 'TRUE' then
+        o.AddPair(Part, TJSONBool.Create(true))
+      else if Value.UpperCase() = 'FALSE' then
+        o.AddPair(Part, TJSONBool.Create(false))
+      else
+        o.AddPair(Part, Value.ToString());
+    end
+    else if CurrObj is TJSONArray then
+    begin
+      Match := TRegEx.Match(Part, '^\[(\d+)\]$');
+      if Match.Success then
       begin
-        var o := CurrObj as TJSONObject;
-        if o.GetValue(Part) is TJSONString then
-        begin
-          o.RemovePair(Part);
-          o.AddPair(Part, Value);
-        end
+        Index := Match.Groups[1].Value.ToInteger;
+        Arr := CurrObj as TJSONArray;
+
+        while Arr.Count <= Index do
+          Arr.AddElement(TJSONNull.Create);  // or empty string/number
+
+        if Value.IsNull then
+          ReplaceJSONArrayElement(Arr, Index, TJSONNull.Create())
+        else if Value.trytoint64() then
+          ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToInt64()))
+        else if Value.TryToFloat() then
+          ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToFloat()))
+        else if Value.UpperCase() = 'TRUE' then
+          ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(true))
+        else if Value.UpperCase() = 'FALSE' then
+          ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(false))
         else
-        begin
-          Obj := (CurrObj as TJSONObject).GetValue(Part) as TJSONObject;
-          if Obj = nil then
-          begin
-            Obj := TJSONObject.Create;
-            (CurrObj as TJSONObject).AddPair(Part, Obj);
-          end;
-          CurrObj := Obj;
-        end;
+          ReplaceJSONArrayElement(Arr, Index, TJSONString.Create(Value));
+
+  //      ReplaceJSONArrayElement(Arr, Index, TJSONString.Create(Value));
       end;
     end;
+
+    Self.val := JSONValue.ToString;
+  finally
+    JSONValue.Free;
   end;
-
-  // Set last element
-  Part := Parts[High(Parts)];
-
-  // Handle array element like items[0]
-  Match := TRegEx.Match(Part, '^(\w+)\[(\d+)\]$');
-  if Match.Success then
-  begin
-    ArrayName := Match.Groups[1].Value;
-    Index := Match.Groups[2].Value.ToInteger;
-
-    // Find array
-    if CurrObj is TJSONObject then
-    begin
-      Arr := (CurrObj as TJSONObject).GetValue(ArrayName) as TJSONArray;
-      if Arr = nil then
-      begin
-        Arr := TJSONArray.Create;
-        (CurrObj as TJSONObject).AddPair(ArrayName, Arr);
-      end;
-
-      // Add empty objects if needed
-      while Arr.Count <= Index do
-        Arr.AddElement(TJSONObject.Create);
-
-      if Value.IsNull then
-        ReplaceJSONArrayElement(Arr, Index, TJSONNull.Create())
-      else if Value.trytoint64() then
-        ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToInt64()))
-      else if Value.TryToFloat() then
-        ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToFloat()))
-      else if Value.UpperCase() = 'TRUE' then
-        ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(true))
-      else if Value.UpperCase() = 'FALSE' then
-        ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(false))
-      else
-        ReplaceJSONArrayElement(Arr, Index, TJSONString.Create(Value));
-    end;
-  end
-  else if CurrObj is TJSONObject then
-  begin
-    var o := CurrObj as TJSONObject;
-    o.RemovePair(Part);
-
-    if Value.IsNull then
-      o.AddPair(Part, TJSONNull.Create())
-    else if Value.trytoint64() then
-      o.AddPair(Part, TJSONNumber.Create(Value.ToInt64()))
-    else if Value.TryToFloat() then
-      o.AddPair(Part, TJSONNumber.Create(Value.ToFloat()))
-    else if Value.UpperCase() = 'TRUE' then
-      o.AddPair(Part, TJSONBool.Create(true))
-    else if Value.UpperCase() = 'FALSE' then
-      o.AddPair(Part, TJSONBool.Create(false))
-    else
-      o.AddPair(Part, Value.ToString());
-  end
-  else if CurrObj is TJSONArray then
-  begin
-    Match := TRegEx.Match(Part, '^\[(\d+)\]$');
-    if Match.Success then
-    begin
-      Index := Match.Groups[1].Value.ToInteger;
-      Arr := CurrObj as TJSONArray;
-
-      while Arr.Count <= Index do
-        Arr.AddElement(TJSONNull.Create);  // or empty string/number
-
-      if Value.IsNull then
-        ReplaceJSONArrayElement(Arr, Index, TJSONNull.Create())
-      else if Value.trytoint64() then
-        ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToInt64()))
-      else if Value.TryToFloat() then
-        ReplaceJSONArrayElement(Arr, Index, TJSONNumber.Create(Value.ToFloat()))
-      else if Value.UpperCase() = 'TRUE' then
-        ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(true))
-      else if Value.UpperCase() = 'FALSE' then
-        ReplaceJSONArrayElement(Arr, Index, TJSONBool.Create(false))
-      else
-        ReplaceJSONArrayElement(Arr, Index, TJSONString.Create(Value));
-
-//      ReplaceJSONArrayElement(Arr, Index, TJSONString.Create(Value));
-    end;
-  end;
-
-  Self.val := JSONValue.ToString;
 end;
 {$IFEND}
 
