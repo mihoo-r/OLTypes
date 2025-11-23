@@ -1,430 +1,1159 @@
-unit OLDictionaries;
+﻿unit OLDictionaries;
 
 interface
 
-uses OLTypes, System.Generics.Collections, OLStringType;
+uses
+  System.SysUtils,
+  System.Generics.Collections,
+  System.Generics.Defaults,
+  // Twoje typy
+  OLBooleanType,
+  OLCurrencyType,
+  OLDateTimeType,
+  OLDateType,
+  OLDoubleType,
+  OLIntegerType,
+  OLInt64Type,
+  OLStringType;
 
 type
+  /// <summary>
+  /// Wewnetrzny generyczny wrapper na TDictionary.
+  /// Nie uzywaj bezposrednio - uzywaj dedykowanych wrapperow.
+  /// </summary>
+  OLGenericDictionary<K, V> = record
+  private
+    FDict: TDictionary<K, V>;
+    function GetValue(const Key: K): V;
+    procedure SetValue(const Key: K; const Value: V);
+    function GetKeys: TArray<K>;
+  public
+    class operator Initialize(out Dest: OLGenericDictionary<K, V>);
+    class operator Finalize(var Dest: OLGenericDictionary<K, V>);
+    class operator Assign(var Dest: OLGenericDictionary<K, V>; const [ref] Src: OLGenericDictionary<K, V>);
+
+    procedure Clear;
+    procedure Add(const Key: K; const Value: V);
+    function Remove(const Key: K): OLBoolean;
+    function TryGetValue(const Key: K; out Value: V): OLBoolean;
+    function ContainsKey(const Key: K): OLBoolean;
+    function Count: Integer;
+
+    function GetEnumerator: TDictionary<K, V>.TPairEnumerator;
+    function ToArray: TArray<TPair<K, V>>;
+
+
+
+    property Values[const Key: K]: V read GetValue write SetValue; default;
+    property Keys: TArray<K> read GetKeys;
+  end;
+
   OLIntIntDictionary = record
+  private
+    FEngine: OLGenericDictionary<Integer, OLInteger>;
+    function GetValue(const Key: Integer): OLInteger;
+    procedure SetValue(const Key: Integer; const Value: OLInteger);
+    function GetKeys: TArray<Integer>;
+  public
+    class operator Assign(var Dest: OLIntIntDictionary; const [ref] Src: OLIntIntDictionary);
 
+
+    procedure Clear;
+    procedure Add(const Key: Integer; const Value: OLInteger);
+    function Remove(const Key: Integer): OLBoolean;
+    function TryGetValue(const Key: Integer; out Value: OLInteger): OLBoolean;
+    function ContainsKey(const Key: Integer): OLBoolean;
+    function ContainsValue(const Value: OLInteger): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<Integer, OLInteger>.TPairEnumerator;
+    function ToArray: TArray<TPair<Integer, OLInteger>>;
+
+    property Values[const Key: Integer]: OLInteger read GetValue write SetValue; default;
+    property Keys: TArray<Integer> read GetKeys;
   end;
-
   OLIntStrDictionary = record
+  private
+    FEngine: OLGenericDictionary<Integer, OLString>;
+    function GetValue(const Key: Integer): OLString;
+    procedure SetValue(const Key: Integer; const Value: OLString);
+    function GetKeys: TArray<Integer>;
+  public
+    class operator Assign(var Dest: OLIntStrDictionary; const [ref] Src: OLIntStrDictionary);
 
+
+    procedure Clear;
+    procedure Add(const Key: Integer; const Value: OLString);
+    function Remove(const Key: Integer): OLBoolean;
+    function TryGetValue(const Key: Integer; out Value: OLString): OLBoolean;
+    function ContainsKey(const Key: Integer): OLBoolean;
+    function ContainsValue(const Value: OLString): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<Integer, OLString>.TPairEnumerator;
+    function ToArray: TArray<TPair<Integer, OLString>>;
+
+    property Values[const Key: Integer]: OLString read GetValue write SetValue; default;
+    property Keys: TArray<Integer> read GetKeys;
   end;
+  OLIntDblDictionary = record
+  private
+    FEngine: OLGenericDictionary<Integer, OLDouble>;
+    function GetValue(const Key: Integer): OLDouble;
+    procedure SetValue(const Key: Integer; const Value: OLDouble);
+    function GetKeys: TArray<Integer>;
+  public
+    class operator Assign(var Dest: OLIntDblDictionary; const [ref] Src: OLIntDblDictionary);
 
-  OLIntFloatDictionary = record
 
+    procedure Clear;
+    procedure Add(const Key: Integer; const Value: OLDouble);
+    function Remove(const Key: Integer): OLBoolean;
+    function TryGetValue(const Key: Integer; out Value: OLDouble): OLBoolean;
+    function ContainsKey(const Key: Integer): OLBoolean;
+    function ContainsValue(const Value: OLDouble): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<Integer, OLDouble>.TPairEnumerator;
+    function ToArray: TArray<TPair<Integer, OLDouble>>;
+
+    property Values[const Key: Integer]: OLDouble read GetValue write SetValue; default;
+    property Keys: TArray<Integer> read GetKeys;
   end;
-
   OLIntCurrDictionary = record
+  private
+    FEngine: OLGenericDictionary<Integer, OLCurrency>;
+    function GetValue(const Key: Integer): OLCurrency;
+    procedure SetValue(const Key: Integer; const Value: OLCurrency);
+    function GetKeys: TArray<Integer>;
+  public
+    class operator Assign(var Dest: OLIntCurrDictionary; const [ref] Src: OLIntCurrDictionary);
 
+
+    procedure Clear;
+    procedure Add(const Key: Integer; const Value: OLCurrency);
+    function Remove(const Key: Integer): OLBoolean;
+    function TryGetValue(const Key: Integer; out Value: OLCurrency): OLBoolean;
+    function ContainsKey(const Key: Integer): OLBoolean;
+    function ContainsValue(const Value: OLCurrency): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<Integer, OLCurrency>.TPairEnumerator;
+    function ToArray: TArray<TPair<Integer, OLCurrency>>;
+
+    property Values[const Key: Integer]: OLCurrency read GetValue write SetValue; default;
+    property Keys: TArray<Integer> read GetKeys;
   end;
-
   OLIntBooleanDictionary = record
   private
-    Dict: TDictionary<integer, OLBoolean>;
-    function GetValue(Key: integer): OLBoolean;
-    procedure SetValue(Key: integer; const Value: OLBoolean);
-    function GetKeys: TDictionary<integer, OLBoolean>.TKeyCollection;
+    FEngine: OLGenericDictionary<Integer, OLBoolean>;
+    function GetValue(const Key: Integer): OLBoolean;
+    procedure SetValue(const Key: Integer; const Value: OLBoolean);
+    function GetKeys: TArray<Integer>;
   public
-     class operator Initialize (out Dest: OLIntBooleanDictionary);
-     class operator Finalize(var Dest: OLIntBooleanDictionary);
+    class operator Assign(var Dest: OLIntBooleanDictionary; const [ref] Src: OLIntBooleanDictionary);
 
-     class operator Assign (var Dest: OLIntBooleanDictionary; const [ref] Src: OLIntBooleanDictionary);
-     procedure Clear();
-     function ContainsKey(Key: OLInteger): OLBoolean;
-     function GetEnumerator: TDictionary<integer, OLBoolean>.TPairEnumerator;
 
-     property Values[Key: integer]: OLBoolean read GetValue write SetValue;  default;
-     property Keys: TDictionary<integer, OLBoolean>.TKeyCollection read GetKeys;
-     function ToArray(): TArray<TPair<integer, OLBoolean>>;
+    procedure Clear;
+    procedure Add(const Key: Integer; const Value: OLBoolean);
+    function Remove(const Key: Integer): OLBoolean;
+    function TryGetValue(const Key: Integer; out Value: OLBoolean): OLBoolean;
+    function ContainsKey(const Key: Integer): OLBoolean;
+    function ContainsValue(const Value: OLBoolean): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<Integer, OLBoolean>.TPairEnumerator;
+    function ToArray: TArray<TPair<Integer, OLBoolean>>;
+
+    property Values[const Key: Integer]: OLBoolean read GetValue write SetValue; default;
+    property Keys: TArray<Integer> read GetKeys;
   end;
-
-  OLStrStrDictionary = record
-  private
-    Dict: TDictionary<string, OLString>;
-    function GetValue(Key: string): OLString;
-    procedure SetValue(Key: string; const Value: OLString);
-    function GetKeys: TDictionary<string, OLString>.TKeyCollection;
-  public
-     class operator Initialize (out Dest: OLStrStrDictionary);
-     class operator Finalize(var Dest: OLStrStrDictionary);
-
-     class operator Assign (var Dest: OLStrStrDictionary; const [ref] Src: OLStrStrDictionary);
-     procedure Clear();
-     function ContainsKey(Key: OLString): OLBoolean;
-     function GetEnumerator: TDictionary<string, OLString>.TPairEnumerator;
-
-     property Values[Key: string]: OLString read GetValue write SetValue;  default;
-     property Keys: TDictionary<string, OLString>.TKeyCollection read GetKeys;
-     function ToArray(): TArray<TPair<string, OLString>>;
-  end;
-
-  OLStrIntDictionary = record
-  private
-    Dict: TDictionary<string, OLInteger>;
-    function GetValue(Key: string): OLInteger;
-    procedure SetValue(Key: string; const Value: OLInteger);
-    function GetKeys: TDictionary<string, OLInteger>.TKeyCollection;
-  public
-     class operator Initialize (out Dest: OLStrIntDictionary);
-     class operator Finalize(var Dest: OLStrIntDictionary);
-
-     class operator Assign (var Dest: OLStrIntDictionary; const [ref] Src: OLStrIntDictionary);
-     procedure Clear();
-     function ContainsKey(Key: string): OLBoolean;
-     function GetEnumerator: TDictionary<string, OLInteger>.TPairEnumerator;
-
-     property Values[Key: string]: OLInteger read GetValue write SetValue;  default;
-     property Keys: TDictionary<string, OLInteger>.TKeyCollection read GetKeys;
-     function ToArray(): TArray<TPair<string, OLInteger>>;
-  end;
-
-  OLStrCurrDictionary = record
-  private
-    Dict: TDictionary<string, OLCurrency>;
-    function GetValue(Key: string): OLCurrency;
-    procedure SetValue(Key: string; const Value: OLCurrency);
-    function GetKeys: TDictionary<string, OLCurrency>.TKeyCollection;
-  public
-     class operator Initialize (out Dest: OLStrCurrDictionary);
-     class operator Finalize(var Dest: OLStrCurrDictionary);
-
-     class operator Assign (var Dest: OLStrCurrDictionary; const [ref] Src: OLStrCurrDictionary);
-     procedure Clear();
-     function ContainsKey(Key: OLString): OLBoolean;
-     function GetEnumerator: TDictionary<string, OLCurrency>.TPairEnumerator;
-
-     property Values[Key: string]: OLCurrency read GetValue write SetValue;  default;
-     property Keys: TDictionary<string, OLCurrency>.TKeyCollection read GetKeys;
-     function ToArray(): TArray<TPair<string, OLCurrency>>;
-  end;
-
   OLIntDateDictionary = record
   private
-    Dict: TDictionary<integer, OLDate>;
-    function GetValue(Key: integer): OLDate;
-    procedure SetValue(Key: integer; const Value: OLDate);
-    function GetKeys: TDictionary<integer, OLDate>.TKeyCollection;
+    FEngine: OLGenericDictionary<Integer, OLDate>;
+    function GetValue(const Key: Integer): OLDate;
+    procedure SetValue(const Key: Integer; const Value: OLDate);
+    function GetKeys: TArray<Integer>;
   public
-     class operator Initialize (out Dest: OLIntDateDictionary);
-     class operator Finalize(var Dest: OLIntDateDictionary);
+    class operator Assign(var Dest: OLIntDateDictionary; const [ref] Src: OLIntDateDictionary);
 
-     class operator Assign (var Dest: OLIntDateDictionary; const [ref] Src: OLIntDateDictionary);
-     procedure Clear();
-     function ContainsKey(Key: OLInteger): OLBoolean;
-     function GetEnumerator: TDictionary<integer, OLDate>.TPairEnumerator;
 
-     property Values[Key: integer]: OLDate read GetValue write SetValue;  default;
-     property Keys: TDictionary<integer, OLDate>.TKeyCollection read GetKeys;
-     function ToArray(): TArray<TPair<integer, OLDate>>;
+    procedure Clear;
+    procedure Add(const Key: Integer; const Value: OLDate);
+    function Remove(const Key: Integer): OLBoolean;
+    function TryGetValue(const Key: Integer; out Value: OLDate): OLBoolean;
+    function ContainsKey(const Key: Integer): OLBoolean;
+    function ContainsValue(const Value: OLDate): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<Integer, OLDate>.TPairEnumerator;
+    function ToArray: TArray<TPair<Integer, OLDate>>;
+
+    property Values[const Key: Integer]: OLDate read GetValue write SetValue; default;
+    property Keys: TArray<Integer> read GetKeys;
   end;
+  OLStrStrDictionary = record
+  private
+    FEngine: OLGenericDictionary<string, OLString>;
+    function GetValue(const Key: string): OLString;
+    procedure SetValue(const Key: string; const Value: OLString);
+    function GetKeys: TArray<string>;
+  public
+    class operator Assign(var Dest: OLStrStrDictionary; const [ref] Src: OLStrStrDictionary);
 
-  OLStrFloatDictionary = record
 
+    procedure Clear;
+    procedure Add(const Key: string; const Value: OLString);
+    function Remove(const Key: string): OLBoolean;
+    function TryGetValue(const Key: string; out Value: OLString): OLBoolean;
+    function ContainsKey(const Key: string): OLBoolean;
+    function ContainsValue(const Value: OLString): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<string, OLString>.TPairEnumerator;
+    function ToArray: TArray<TPair<string, OLString>>;
+
+    property Values[const Key: string]: OLString read GetValue write SetValue; default;
+    property Keys: TArray<string> read GetKeys;
   end;
+  OLStrIntDictionary = record
+  private
+    FEngine: OLGenericDictionary<string, OLInteger>;
+    function GetValue(const Key: string): OLInteger;
+    procedure SetValue(const Key: string; const Value: OLInteger);
+    function GetKeys: TArray<string>;
+  public
+    class operator Assign(var Dest: OLStrIntDictionary; const [ref] Src: OLStrIntDictionary);
 
 
+    procedure Clear;
+    procedure Add(const Key: string; const Value: OLInteger);
+    function Remove(const Key: string): OLBoolean;
+    function TryGetValue(const Key: string; out Value: OLInteger): OLBoolean;
+    function ContainsKey(const Key: string): OLBoolean;
+    function ContainsValue(const Value: OLInteger): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<string, OLInteger>.TPairEnumerator;
+    function ToArray: TArray<TPair<string, OLInteger>>;
+
+    property Values[const Key: string]: OLInteger read GetValue write SetValue; default;
+    property Keys: TArray<string> read GetKeys;
+  end;
+  OLStrCurrDictionary = record
+  private
+    FEngine: OLGenericDictionary<string, OLCurrency>;
+    function GetValue(const Key: string): OLCurrency;
+    procedure SetValue(const Key: string; const Value: OLCurrency);
+    function GetKeys: TArray<string>;
+  public
+    class operator Assign(var Dest: OLStrCurrDictionary; const [ref] Src: OLStrCurrDictionary);
+
+
+    procedure Clear;
+    procedure Add(const Key: string; const Value: OLCurrency);
+    function Remove(const Key: string): OLBoolean;
+    function TryGetValue(const Key: string; out Value: OLCurrency): OLBoolean;
+    function ContainsKey(const Key: string): OLBoolean;
+    function ContainsValue(const Value: OLCurrency): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<string, OLCurrency>.TPairEnumerator;
+    function ToArray: TArray<TPair<string, OLCurrency>>;
+
+    property Values[const Key: string]: OLCurrency read GetValue write SetValue; default;
+    property Keys: TArray<string> read GetKeys;
+  end;
+  OLStrDblDictionary = record
+  private
+    FEngine: OLGenericDictionary<string, OLDouble>;
+    function GetValue(const Key: string): OLDouble;
+    procedure SetValue(const Key: string; const Value: OLDouble);
+    function GetKeys: TArray<string>;
+  public
+    class operator Assign(var Dest: OLStrDblDictionary; const [ref] Src: OLStrDblDictionary);
+
+
+    procedure Clear;
+    procedure Add(const Key: string; const Value: OLDouble);
+    function Remove(const Key: string): OLBoolean;
+    function TryGetValue(const Key: string; out Value: OLDouble): OLBoolean;
+    function ContainsKey(const Key: string): OLBoolean;
+    function ContainsValue(const Value: OLDouble): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<string, OLDouble>.TPairEnumerator;
+    function ToArray: TArray<TPair<string, OLDouble>>;
+
+    property Values[const Key: string]: OLDouble read GetValue write SetValue; default;
+    property Keys: TArray<string> read GetKeys;
+  end;
 implementation
 
-uses
-  System.SysUtils, System.Generics.Defaults;
+{ OLGenericDictionary<K, V> }
 
-class operator OLStrCurrDictionary.Initialize (out Dest: OLStrCurrDictionary);
+class operator OLGenericDictionary<K, V>.Initialize(out Dest: OLGenericDictionary<K, V>);
 begin
-  Dest.Dict := TDictionary<string, OLCurrency>.Create();
+  Dest.FDict := TDictionary<K, V>.Create;
 end;
 
-class operator OLStrCurrDictionary.Finalize(var Dest: OLStrCurrDictionary);
+class operator OLGenericDictionary<K, V>.Finalize(var Dest: OLGenericDictionary<K, V>);
 begin
-  Dest.Dict.Free();
+  if Assigned(Dest.FDict) then
+    Dest.FDict.Free;
 end;
 
-procedure OLStrCurrDictionary.Clear();
-begin
-  Dict.Clear();
-end;
-
-function OLStrCurrDictionary.ContainsKey(Key: OLString): OLBoolean;
-begin
-  Result := Dict.ContainsKey(Key);
-end;
-
-function OLStrCurrDictionary.GetKeys: TDictionary<string, OLCurrency>.TKeyCollection;
-begin
-  Result := Dict.Keys;
-end;
-
-function OLStrCurrDictionary.GetValue(Key: string): OLCurrency;
+class operator OLGenericDictionary<K, V>.Assign(var Dest: OLGenericDictionary<K, V>; const [ref] Src: OLGenericDictionary<K, V>);
 var
-  OutPut: OLCurrency;
+  Pair: TPair<K, V>;
 begin
-  if Dict.ContainsKey(Key) then
-    OutPut := Dict[Key];
+  if @Dest = @Src then
+    Exit;
 
-  Result := OutPut;
+  if not Assigned(Dest.FDict) then
+    Dest.FDict := TDictionary<K, V>.Create;
+
+  Dest.FDict.Clear;
+
+  if Assigned(Src.FDict) then
+  begin
+    for Pair in Src.FDict do
+    begin
+      Dest.FDict.AddOrSetValue(Pair.Key, Pair.Value);
+    end;
+  end;
 end;
 
-class operator OLStrCurrDictionary.Assign (var Dest: OLStrCurrDictionary; const [ref] Src: OLStrCurrDictionary);
+procedure OLGenericDictionary<K, V>.Clear;
 begin
-  Dest.Dict.Clear();
-
-  for var p in Src.Dict do
-    Dest.Dict.AddOrSetValue(p.Key, p.Value);
+  if Assigned(FDict) then
+    FDict.Clear;
 end;
 
-procedure OLStrCurrDictionary.SetValue(Key: string; const Value: OLCurrency);
+procedure OLGenericDictionary<K, V>.Add(const Key: K; const Value: V);
 begin
-  Dict.AddOrSetValue(Key, Value);
+  if Assigned(FDict) then
+    FDict.Add(Key, Value);
 end;
 
-function OLStrCurrDictionary.GetEnumerator: TDictionary<string, OLCurrency>.TPairEnumerator;
-begin
-  result :=  Dict.GetEnumerator();
-end;
-
-function OLStrCurrDictionary.ToArray(): TArray<TPair<string, OLCurrency>>;
-begin
-  Result := Dict.ToArray();
-end;
-
-//===OLIntBooleanDictionary
-class operator OLIntBooleanDictionary.Initialize (out Dest: OLIntBooleanDictionary);
-begin
-  Dest.Dict := TDictionary<integer, OLBoolean>.Create();
-end;
-
-class operator OLIntBooleanDictionary.Finalize(var Dest: OLIntBooleanDictionary);
-begin
-  Dest.Dict.Free();
-end;
-
-procedure OLIntBooleanDictionary.Clear();
-begin
-  Dict.Clear();
-end;
-
-function OLIntBooleanDictionary.ContainsKey(Key: OLInteger): OLBoolean;
-begin
-  Result := Dict.ContainsKey(Key);
-end;
-
-function OLIntBooleanDictionary.GetKeys: TDictionary<integer, OLBoolean>.TKeyCollection;
-begin
-  Result := Dict.Keys;
-end;
-
-function OLIntBooleanDictionary.GetValue(Key: integer): OLBoolean;
+function OLGenericDictionary<K, V>.Remove(const Key: K): OLBoolean;
 var
-  OutPut: OLBoolean;
+  Found: Boolean;
 begin
-  if Dict.ContainsKey(Key) then
-    OutPut := Dict[Key];
-
-  Result := OutPut;
+  if Assigned(FDict) then
+  begin
+    Found := FDict.ContainsKey(Key);
+    if Found then
+      FDict.Remove(Key);
+    Result := Found;
+  end
+  else
+    Result := False;
 end;
 
-class operator OLIntBooleanDictionary.Assign (var Dest: OLIntBooleanDictionary; const [ref] Src: OLIntBooleanDictionary);
+function OLGenericDictionary<K, V>.TryGetValue(const Key: K; out Value: V): OLBoolean;
 begin
-  Dest.Dict.Clear();
-
-  for var p in Src.Dict do
-    Dest.Dict.AddOrSetValue(p.Key, p.Value);
+  if Assigned(FDict) then
+    Result := FDict.TryGetValue(Key, Value)
+  else
+  begin
+    Value := Default(V);
+    Result := False;
+  end;
 end;
 
-procedure OLIntBooleanDictionary.SetValue(Key: integer; const Value: OLBoolean);
+function OLGenericDictionary<K, V>.ContainsKey(const Key: K): OLBoolean;
 begin
-  Dict.AddOrSetValue(Key, Value);
+  if Assigned(FDict) then
+    Result := FDict.ContainsKey(Key)
+  else
+    Result := False;
 end;
 
-function OLIntBooleanDictionary.GetEnumerator: TDictionary<integer, OLBoolean>.TPairEnumerator;
+function OLGenericDictionary<K, V>.Count: Integer;
 begin
-  result :=  Dict.GetEnumerator();
+  if Assigned(FDict) then
+    Result := FDict.Count
+  else
+    Result := 0;
 end;
 
-function OLIntBooleanDictionary.ToArray(): TArray<TPair<integer, OLBoolean>>;
+function OLGenericDictionary<K, V>.GetEnumerator: TDictionary<K, V>.TPairEnumerator;
 begin
-  Result := Dict.ToArray();
+  if not Assigned(FDict) then
+    FDict := TDictionary<K, V>.Create;
+  Result := FDict.GetEnumerator;
+end;
+
+function OLGenericDictionary<K, V>.GetKeys: TArray<K>;
+begin
+  if Assigned(FDict) then
+    Result := FDict.Keys.ToArray
+  else
+    SetLength(Result, 0);
+end;
+
+function OLGenericDictionary<K, V>.GetValue(const Key: K): V;
+begin
+  if not Assigned(FDict) or not FDict.TryGetValue(Key, Result) then
+  begin
+    Result := Default(V);
+  end;
+end;
+
+procedure OLGenericDictionary<K, V>.SetValue(const Key: K; const Value: V);
+begin
+  if Assigned(FDict) then
+    FDict.AddOrSetValue(Key, Value);
+end;
+
+function OLGenericDictionary<K, V>.ToArray: TArray<TPair<K, V>>;
+begin
+  if Assigned(FDict) then
+    Result := FDict.ToArray
+  else
+    SetLength(Result, 0);
 end;
 
 
-//===OLStrStrDictionary
-class operator OLStrStrDictionary.Initialize (out Dest: OLStrStrDictionary);
+{ OLIntIntDictionary }
+
+class operator OLIntIntDictionary.Assign(var Dest: OLIntIntDictionary; const [ref] Src: OLIntIntDictionary);
 begin
-  Dest.Dict := TDictionary<string, OLString>.Create();
+  Dest.FEngine := Src.FEngine;
 end;
 
-class operator OLStrStrDictionary.Finalize(var Dest: OLStrStrDictionary);
+
+
+procedure OLIntIntDictionary.Clear;
 begin
-  Dest.Dict.Free();
+  FEngine.Clear;
 end;
 
-procedure OLStrStrDictionary.Clear();
+procedure OLIntIntDictionary.Add(const Key: Integer; const Value: OLInteger);
 begin
-  Dict.Clear();
+  FEngine.Add(Key, Value);
 end;
 
-function OLStrStrDictionary.ContainsKey(Key: OLString): OLBoolean;
+function OLIntIntDictionary.Remove(const Key: Integer): OLBoolean;
 begin
-  Result := Dict.ContainsKey(Key);
+  Result := FEngine.Remove(Key);
 end;
 
-function OLStrStrDictionary.GetKeys: TDictionary<string, OLString>.TKeyCollection;
+function OLIntIntDictionary.TryGetValue(const Key: Integer; out Value: OLInteger): OLBoolean;
 begin
-  Result := Dict.Keys;
+  Result := FEngine.TryGetValue(Key, Value);
 end;
 
-function OLStrStrDictionary.GetValue(Key: string): OLString;
+function OLIntIntDictionary.ContainsKey(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLIntIntDictionary.ContainsValue(const Value: OLInteger): OLBoolean;
 var
-  OutPut: OLString;
+  Pair: TPair<Integer, OLInteger>;
 begin
-  if Dict.ContainsKey(Key) then
-    OutPut := Dict[Key];
-
-  Result := OutPut;
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
 end;
 
-class operator OLStrStrDictionary.Assign (var Dest: OLStrStrDictionary; const [ref] Src: OLStrStrDictionary);
+function OLIntIntDictionary.Count: Integer;
 begin
-  Dest.Dict.Clear();
-
-  for var p in Src.Dict do
-    Dest.Dict.AddOrSetValue(p.Key, p.Value);
+  Result := FEngine.Count;
 end;
 
-procedure OLStrStrDictionary.SetValue(Key: string; const Value: OLString);
+function OLIntIntDictionary.GetEnumerator: TDictionary<Integer, OLInteger>.TPairEnumerator;
 begin
-  Dict.AddOrSetValue(Key, Value);
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLIntIntDictionary.ToArray: TArray<TPair<Integer, OLInteger>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLIntIntDictionary.GetValue(const Key: Integer): OLInteger;
+begin
+  Result := FEngine.GetValue(Key);
+end;
+
+procedure OLIntIntDictionary.SetValue(const Key: Integer; const Value: OLInteger);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLIntIntDictionary.GetKeys: TArray<Integer>;
+begin
+  Result := FEngine.GetKeys;
+end;
+{ OLIntStrDictionary }
+
+class operator OLIntStrDictionary.Assign(var Dest: OLIntStrDictionary; const [ref] Src: OLIntStrDictionary);
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+
+
+procedure OLIntStrDictionary.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLIntStrDictionary.Add(const Key: Integer; const Value: OLString);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLIntStrDictionary.Remove(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLIntStrDictionary.TryGetValue(const Key: Integer; out Value: OLString): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLIntStrDictionary.ContainsKey(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLIntStrDictionary.ContainsValue(const Value: OLString): OLBoolean;
+var
+  Pair: TPair<Integer, OLString>;
+begin
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+function OLIntStrDictionary.Count: Integer;
+begin
+  Result := FEngine.Count;
+end;
+
+function OLIntStrDictionary.GetEnumerator: TDictionary<Integer, OLString>.TPairEnumerator;
+begin
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLIntStrDictionary.ToArray: TArray<TPair<Integer, OLString>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLIntStrDictionary.GetValue(const Key: Integer): OLString;
+begin
+  Result := FEngine.GetValue(Key);
+end;
+
+procedure OLIntStrDictionary.SetValue(const Key: Integer; const Value: OLString);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLIntStrDictionary.GetKeys: TArray<Integer>;
+begin
+  Result := FEngine.GetKeys;
+end;
+{ OLIntDblDictionary }
+
+class operator OLIntDblDictionary.Assign(var Dest: OLIntDblDictionary; const [ref] Src: OLIntDblDictionary);
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+
+
+procedure OLIntDblDictionary.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLIntDblDictionary.Add(const Key: Integer; const Value: OLDouble);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLIntDblDictionary.Remove(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLIntDblDictionary.TryGetValue(const Key: Integer; out Value: OLDouble): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLIntDblDictionary.ContainsKey(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLIntDblDictionary.ContainsValue(const Value: OLDouble): OLBoolean;
+var
+  Pair: TPair<Integer, OLDouble>;
+begin
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+function OLIntDblDictionary.Count: Integer;
+begin
+  Result := FEngine.Count;
+end;
+
+function OLIntDblDictionary.GetEnumerator: TDictionary<Integer, OLDouble>.TPairEnumerator;
+begin
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLIntDblDictionary.ToArray: TArray<TPair<Integer, OLDouble>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLIntDblDictionary.GetValue(const Key: Integer): OLDouble;
+begin
+  Result := FEngine.GetValue(Key);
+end;
+
+procedure OLIntDblDictionary.SetValue(const Key: Integer; const Value: OLDouble);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLIntDblDictionary.GetKeys: TArray<Integer>;
+begin
+  Result := FEngine.GetKeys;
+end;
+{ OLIntCurrDictionary }
+
+class operator OLIntCurrDictionary.Assign(var Dest: OLIntCurrDictionary; const [ref] Src: OLIntCurrDictionary);
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+
+
+procedure OLIntCurrDictionary.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLIntCurrDictionary.Add(const Key: Integer; const Value: OLCurrency);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLIntCurrDictionary.Remove(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLIntCurrDictionary.TryGetValue(const Key: Integer; out Value: OLCurrency): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLIntCurrDictionary.ContainsKey(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLIntCurrDictionary.ContainsValue(const Value: OLCurrency): OLBoolean;
+var
+  Pair: TPair<Integer, OLCurrency>;
+begin
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+function OLIntCurrDictionary.Count: Integer;
+begin
+  Result := FEngine.Count;
+end;
+
+function OLIntCurrDictionary.GetEnumerator: TDictionary<Integer, OLCurrency>.TPairEnumerator;
+begin
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLIntCurrDictionary.ToArray: TArray<TPair<Integer, OLCurrency>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLIntCurrDictionary.GetValue(const Key: Integer): OLCurrency;
+begin
+  Result := FEngine.GetValue(Key);
+end;
+
+procedure OLIntCurrDictionary.SetValue(const Key: Integer; const Value: OLCurrency);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLIntCurrDictionary.GetKeys: TArray<Integer>;
+begin
+  Result := FEngine.GetKeys;
+end;
+{ OLIntBooleanDictionary }
+
+class operator OLIntBooleanDictionary.Assign(var Dest: OLIntBooleanDictionary; const [ref] Src: OLIntBooleanDictionary);
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+
+
+procedure OLIntBooleanDictionary.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLIntBooleanDictionary.Add(const Key: Integer; const Value: OLBoolean);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLIntBooleanDictionary.Remove(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLIntBooleanDictionary.TryGetValue(const Key: Integer; out Value: OLBoolean): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLIntBooleanDictionary.ContainsKey(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLIntBooleanDictionary.ContainsValue(const Value: OLBoolean): OLBoolean;
+var
+  Pair: TPair<Integer, OLBoolean>;
+begin
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+function OLIntBooleanDictionary.Count: Integer;
+begin
+  Result := FEngine.Count;
+end;
+
+function OLIntBooleanDictionary.GetEnumerator: TDictionary<Integer, OLBoolean>.TPairEnumerator;
+begin
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLIntBooleanDictionary.ToArray: TArray<TPair<Integer, OLBoolean>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLIntBooleanDictionary.GetValue(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.GetValue(Key);
+end;
+
+procedure OLIntBooleanDictionary.SetValue(const Key: Integer; const Value: OLBoolean);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLIntBooleanDictionary.GetKeys: TArray<Integer>;
+begin
+  Result := FEngine.GetKeys;
+end;
+{ OLIntDateDictionary }
+
+class operator OLIntDateDictionary.Assign(var Dest: OLIntDateDictionary; const [ref] Src: OLIntDateDictionary);
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+
+
+procedure OLIntDateDictionary.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLIntDateDictionary.Add(const Key: Integer; const Value: OLDate);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLIntDateDictionary.Remove(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLIntDateDictionary.TryGetValue(const Key: Integer; out Value: OLDate): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLIntDateDictionary.ContainsKey(const Key: Integer): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLIntDateDictionary.ContainsValue(const Value: OLDate): OLBoolean;
+var
+  Pair: TPair<Integer, OLDate>;
+begin
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+function OLIntDateDictionary.Count: Integer;
+begin
+  Result := FEngine.Count;
+end;
+
+function OLIntDateDictionary.GetEnumerator: TDictionary<Integer, OLDate>.TPairEnumerator;
+begin
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLIntDateDictionary.ToArray: TArray<TPair<Integer, OLDate>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLIntDateDictionary.GetValue(const Key: Integer): OLDate;
+begin
+  Result := FEngine.GetValue(Key);
+end;
+
+procedure OLIntDateDictionary.SetValue(const Key: Integer; const Value: OLDate);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLIntDateDictionary.GetKeys: TArray<Integer>;
+begin
+  Result := FEngine.GetKeys;
+end;
+{ OLStrStrDictionary }
+
+class operator OLStrStrDictionary.Assign(var Dest: OLStrStrDictionary; const [ref] Src: OLStrStrDictionary);
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+
+
+procedure OLStrStrDictionary.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLStrStrDictionary.Add(const Key: string; const Value: OLString);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLStrStrDictionary.Remove(const Key: string): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLStrStrDictionary.TryGetValue(const Key: string; out Value: OLString): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLStrStrDictionary.ContainsKey(const Key: string): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLStrStrDictionary.ContainsValue(const Value: OLString): OLBoolean;
+var
+  Pair: TPair<string, OLString>;
+begin
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+function OLStrStrDictionary.Count: Integer;
+begin
+  Result := FEngine.Count;
 end;
 
 function OLStrStrDictionary.GetEnumerator: TDictionary<string, OLString>.TPairEnumerator;
 begin
-  result :=  Dict.GetEnumerator();
+  Result := FEngine.GetEnumerator;
 end;
 
-function OLStrStrDictionary.ToArray(): TArray<TPair<string, OLString>>;
+function OLStrStrDictionary.ToArray: TArray<TPair<string, OLString>>;
 begin
-  Result := Dict.ToArray();
+  Result := FEngine.ToArray;
 end;
 
-//===OLStrIntDictionary
-class operator OLStrIntDictionary.Initialize (out Dest: OLStrIntDictionary);
+function OLStrStrDictionary.GetValue(const Key: string): OLString;
 begin
-  Dest.Dict := TDictionary<string, OLInteger>.Create();
+  Result := FEngine.GetValue(Key);
 end;
 
-class operator OLStrIntDictionary.Finalize(var Dest: OLStrIntDictionary);
+procedure OLStrStrDictionary.SetValue(const Key: string; const Value: OLString);
 begin
-  Dest.Dict.Free();
+  FEngine.SetValue(Key, Value);
 end;
 
-procedure OLStrIntDictionary.Clear();
+function OLStrStrDictionary.GetKeys: TArray<string>;
 begin
-  Dict.Clear();
+  Result := FEngine.GetKeys;
 end;
+{ OLStrIntDictionary }
 
-function OLStrIntDictionary.ContainsKey(Key: string): OLBoolean;
+class operator OLStrIntDictionary.Assign(var Dest: OLStrIntDictionary; const [ref] Src: OLStrIntDictionary);
 begin
-  Result := Dict.ContainsKey(Key);
+  Dest.FEngine := Src.FEngine;
 end;
 
-function OLStrIntDictionary.GetKeys: TDictionary<string, OLInteger>.TKeyCollection;
+
+
+procedure OLStrIntDictionary.Clear;
 begin
-  Result := Dict.Keys;
+  FEngine.Clear;
 end;
 
-function OLStrIntDictionary.GetValue(Key: string): OLInteger;
+procedure OLStrIntDictionary.Add(const Key: string; const Value: OLInteger);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLStrIntDictionary.Remove(const Key: string): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLStrIntDictionary.TryGetValue(const Key: string; out Value: OLInteger): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLStrIntDictionary.ContainsKey(const Key: string): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLStrIntDictionary.ContainsValue(const Value: OLInteger): OLBoolean;
 var
-  OutPut: OLInteger;
+  Pair: TPair<string, OLInteger>;
 begin
-  if Dict.ContainsKey(Key) then
-    OutPut := Dict[Key];
-
-  Result := OutPut;
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
 end;
 
-class operator OLStrIntDictionary.Assign (var Dest: OLStrIntDictionary; const [ref] Src: OLStrIntDictionary);
+function OLStrIntDictionary.Count: Integer;
 begin
-  Dest.Dict.Clear();
-
-  for var p in Src.Dict do
-    Dest.Dict.AddOrSetValue(p.Key, p.Value);
-end;
-
-procedure OLStrIntDictionary.SetValue(Key: string; const Value: OLInteger);
-begin
-  Dict.AddOrSetValue(Key, Value);
+  Result := FEngine.Count;
 end;
 
 function OLStrIntDictionary.GetEnumerator: TDictionary<string, OLInteger>.TPairEnumerator;
 begin
-  result :=  Dict.GetEnumerator();
+  Result := FEngine.GetEnumerator;
 end;
 
-function OLStrIntDictionary.ToArray(): TArray<TPair<string, OLInteger>>;
+function OLStrIntDictionary.ToArray: TArray<TPair<string, OLInteger>>;
 begin
-  Result := Dict.ToArray();
+  Result := FEngine.ToArray;
 end;
 
-
-//===OLIntDateDictionary
-class operator OLIntDateDictionary.Initialize (out Dest: OLIntDateDictionary);
+function OLStrIntDictionary.GetValue(const Key: string): OLInteger;
 begin
-  Dest.Dict := TDictionary<integer, OLDate>.Create();
+  Result := FEngine.GetValue(Key);
 end;
 
-class operator OLIntDateDictionary.Finalize(var Dest: OLIntDateDictionary);
+procedure OLStrIntDictionary.SetValue(const Key: string; const Value: OLInteger);
 begin
-  Dest.Dict.Free();
+  FEngine.SetValue(Key, Value);
 end;
 
-procedure OLIntDateDictionary.Clear();
+function OLStrIntDictionary.GetKeys: TArray<string>;
 begin
-  Dict.Clear();
+  Result := FEngine.GetKeys;
 end;
+{ OLStrCurrDictionary }
 
-function OLIntDateDictionary.ContainsKey(Key: OLInteger): OLBoolean;
+class operator OLStrCurrDictionary.Assign(var Dest: OLStrCurrDictionary; const [ref] Src: OLStrCurrDictionary);
 begin
-  Result := Dict.ContainsKey(Key);
+  Dest.FEngine := Src.FEngine;
 end;
 
-function OLIntDateDictionary.GetKeys: TDictionary<integer, OLDate>.TKeyCollection;
+
+
+procedure OLStrCurrDictionary.Clear;
 begin
-  Result := Dict.Keys;
+  FEngine.Clear;
 end;
 
-function OLIntDateDictionary.GetValue(Key: integer): OLDate;
+procedure OLStrCurrDictionary.Add(const Key: string; const Value: OLCurrency);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLStrCurrDictionary.Remove(const Key: string): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLStrCurrDictionary.TryGetValue(const Key: string; out Value: OLCurrency): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLStrCurrDictionary.ContainsKey(const Key: string): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLStrCurrDictionary.ContainsValue(const Value: OLCurrency): OLBoolean;
 var
-  OutPut: OLDate;
+  Pair: TPair<string, OLCurrency>;
 begin
-  if Dict.ContainsKey(Key) then
-    OutPut := Dict[Key];
-
-  Result := OutPut;
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
 end;
 
-class operator OLIntDateDictionary.Assign (var Dest: OLIntDateDictionary; const [ref] Src: OLIntDateDictionary);
+function OLStrCurrDictionary.Count: Integer;
 begin
-  Dest.Dict.Clear();
-
-  for var p in Src.Dict do
-    Dest.Dict.AddOrSetValue(p.Key, p.Value);
+  Result := FEngine.Count;
 end;
 
-procedure OLIntDateDictionary.SetValue(Key: integer; const Value: OLDate);
+function OLStrCurrDictionary.GetEnumerator: TDictionary<string, OLCurrency>.TPairEnumerator;
 begin
-  Dict.AddOrSetValue(Key, Value);
+  Result := FEngine.GetEnumerator;
 end;
 
-function OLIntDateDictionary.GetEnumerator: TDictionary<integer, OLDate>.TPairEnumerator;
+function OLStrCurrDictionary.ToArray: TArray<TPair<string, OLCurrency>>;
 begin
-  result :=  Dict.GetEnumerator();
+  Result := FEngine.ToArray;
 end;
 
-function OLIntDateDictionary.ToArray(): TArray<TPair<integer, OLDate>>;
+function OLStrCurrDictionary.GetValue(const Key: string): OLCurrency;
 begin
-  Result := Dict.ToArray();
+  Result := FEngine.GetValue(Key);
 end;
 
+procedure OLStrCurrDictionary.SetValue(const Key: string; const Value: OLCurrency);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLStrCurrDictionary.GetKeys: TArray<string>;
+begin
+  Result := FEngine.GetKeys;
+end;
+{ OLStrDblDictionary }
+
+class operator OLStrDblDictionary.Assign(var Dest: OLStrDblDictionary; const [ref] Src: OLStrDblDictionary);
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+
+
+procedure OLStrDblDictionary.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLStrDblDictionary.Add(const Key: string; const Value: OLDouble);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLStrDblDictionary.Remove(const Key: string): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLStrDblDictionary.TryGetValue(const Key: string; out Value: OLDouble): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLStrDblDictionary.ContainsKey(const Key: string): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLStrDblDictionary.ContainsValue(const Value: OLDouble): OLBoolean;
+var
+  Pair: TPair<string, OLDouble>;
+begin
+  for Pair in FEngine do
+  begin
+    if Pair.Value = Value then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+function OLStrDblDictionary.Count: Integer;
+begin
+  Result := FEngine.Count;
+end;
+
+function OLStrDblDictionary.GetEnumerator: TDictionary<string, OLDouble>.TPairEnumerator;
+begin
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLStrDblDictionary.ToArray: TArray<TPair<string, OLDouble>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLStrDblDictionary.GetValue(const Key: string): OLDouble;
+begin
+  Result := FEngine.GetValue(Key);
+end;
+
+procedure OLStrDblDictionary.SetValue(const Key: string; const Value: OLDouble);
+begin
+  FEngine.SetValue(Key, Value);
+end;
+
+function OLStrDblDictionary.GetKeys: TArray<string>;
+begin
+  Result := FEngine.GetKeys;
+end;
 end.
