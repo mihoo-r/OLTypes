@@ -427,7 +427,8 @@ end;
 
 procedure TEditToOLInteger.RefreshEdit;
 begin
-  Edit.Text := (OLPointer^).ToString();
+  if Edit.Text <> (OLPointer^).ToString() then
+    Edit.Text := (OLPointer^).ToString();
 end;
 
 procedure TEditToOLInteger.SetEdit(const Value: TEdit);
@@ -467,7 +468,8 @@ end;
 
 procedure TEditToOLString.RefreshEdit;
 begin
-  Edit.Text := (OLPointer^).ToString();
+  if Edit.Text <> (OLPointer^).ToString() then
+    Edit.Text := (OLPointer^).ToString();
 end;
 
 procedure TEditToOLString.SetEdit(const Value: TEdit);
@@ -507,7 +509,8 @@ end;
 
 procedure TMemoToOLString.RefreshEdit;
 begin
-  Edit.Text := (OLPointer^).ToString();
+  if Edit.Text <> (OLPointer^).ToString() then
+    Edit.Text := (OLPointer^).ToString();
 end;
 
 procedure TMemoToOLString.SetEdit(const Value: TMemo);
@@ -580,11 +583,14 @@ end;
 procedure TEditToOLDouble.RefreshEdit;
 var
   fs: TFormatSettings;
+  s: string;
 begin
   if not Edit.Focused() then
   begin
     fs := TFormatSettings.Create();
-    Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, DOUBLE_FORMAT);
+    s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, DOUBLE_FORMAT);
+    if Edit.Text <> s then
+      Edit.Text := s;
   end;
 end;
 
@@ -670,11 +676,14 @@ end;
 procedure TEditToOLCurrency.RefreshEdit;
 var
   fs: TFormatSettings;
+  s: string;
 begin
   if not Edit.Focused() then
   begin
     fs := TFormatSettings.Create();
-    Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, '###,###,###,##0.00####');
+    s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, '###,###,###,##0.00####');
+    if Edit.Text <> s then
+      Edit.Text := s;
   end;
 end;
 
@@ -729,7 +738,8 @@ end;
 
 procedure TSpinEditToOLInteger.RefreshEdit;
 begin
-  Edit.Text := (OLPointer^).ToString();
+  if Edit.Text <> (OLPointer^).ToString() then
+    Edit.Text := (OLPointer^).ToString();
 end;
 
 procedure TSpinEditToOLInteger.SetEdit(const Value: TSpinEdit);
@@ -834,12 +844,15 @@ begin
 
     if d.HasValue then
     begin
-      Edit.DateTime := d;
-      Edit.Format := NotNullFormat;
+      if Edit.DateTime <> d then
+        Edit.DateTime := d;
+      if Edit.Format <> NotNullFormat then
+        Edit.Format := NotNullFormat;
     end
     else
     begin
-      edit.Format := NULL_FORMAT;
+      if Edit.Format <> NULL_FORMAT then
+        edit.Format := NULL_FORMAT;
     end;
   end;
 end;
@@ -958,12 +971,15 @@ begin
 
     if d.HasValue then
     begin
-      Edit.DateTime := d;
-      Edit.Format := NotNullFormat;
+      if Edit.DateTime <> d then
+        Edit.DateTime := d;
+      if Edit.Format <> NotNullFormat then
+        Edit.Format := NotNullFormat;
     end
     else
     begin
-      edit.Format := NULL_FORMAT;
+      if Edit.Format <> NULL_FORMAT then
+        edit.Format := NULL_FORMAT;
     end;
   end;
 end;
@@ -1014,7 +1030,8 @@ end;
 
 procedure TCheckBoxToOLBoolean.RefreshEdit;
 begin
-  Edit.Checked := (OLPointer^).IfNull(False);
+  if Edit.Checked <> (OLPointer^).IfNull(False) then
+    Edit.Checked := (OLPointer^).IfNull(False);
 end;
 
 procedure TCheckBoxToOLBoolean.SetEdit(const Value: TCheckBox);
@@ -1044,15 +1061,25 @@ begin
 end;
 
 procedure TOLIntegerToLabel.RefreshLabel;
+var
+  s: string;
 begin
   if OLPointer <> nil then
-    Lbl.Caption := (OLPointer^).ToString();
+  begin
+    s := (OLPointer^).ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
+  end;
 
   if Assigned(Calculation) then
   try
-    Lbl.Caption := Calculation().ToString();
+    s := Calculation().ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   except
-    Lbl.Caption := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   end;
 end;
 
@@ -1094,15 +1121,25 @@ begin
 end;
 
 procedure TOLStringToLabel.RefreshLabel;
+var
+  s: string;
 begin
   if OLPointer <> nil then
-    Lbl.Caption := (OLPointer^).ToString();
+  begin
+    s := (OLPointer^).ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
+  end;
 
   if Assigned(Calculation) then
   try
-    Lbl.Caption := Calculation().ToString();
+    s := Calculation().ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   except
-    Lbl.Caption := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   end;
 end;
 
@@ -1146,17 +1183,26 @@ end;
 procedure TOLDoubleToLabel.RefreshLabel;
 var
   fs: TFormatSettings;
+  s: string;
 begin
   fs := TFormatSettings.Create();
 
   if OLPointer <> nil then
-    Lbl.Caption := (OLPointer^).ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT);
+  begin
+    s := (OLPointer^).ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
+  end;
 
   if Assigned(Calculation) then
   try
-    Lbl.Caption := Calculation().ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT);
+    s := Calculation().ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   except
-    Lbl.Caption := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   end;
 end;
 
@@ -1200,17 +1246,26 @@ end;
 procedure TOLCurrencyToLabel.RefreshLabel;
 var
   fs: TFormatSettings;
+  s: string;
 begin
   fs := TFormatSettings.Create();
 
   if OLPointer <> nil then
-    Lbl.Caption := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT);
+  begin
+    s := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
+  end;
 
   if Assigned(Calculation) then
   try
-    Lbl.Caption := Calculation().ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT);
+    s := Calculation().ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   except
-    Lbl.Caption := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   end;
 end;
 
@@ -1252,15 +1307,25 @@ begin
 end;
 
 procedure TOLDateToLabel.RefreshLabel;
+var
+  s: string;
 begin
   if OLPointer <> nil then
-    Lbl.Caption := (OLPointer^).ToString();
+  begin
+    s := (OLPointer^).ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
+  end;
 
   if Assigned(Calculation) then
   try
-    Lbl.Caption := Calculation().ToString();
+    s := Calculation().ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   except
-    Lbl.Caption := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   end;
 end;
 
@@ -1302,15 +1367,25 @@ begin
 end;
 
 procedure TOLDateTimeToLabel.RefreshLabel;
+var
+  s: string;
 begin
   if OLPointer <> nil then
-    Lbl.Caption := (OLPointer^).ToString();
+  begin
+    s := (OLPointer^).ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
+  end;
 
   if Assigned(Calculation) then
   try
-    Lbl.Caption := Calculation().ToString();
+    s := Calculation().ToString();
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   except
-    Lbl.Caption := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+    if Lbl.Caption <> s then
+      Lbl.Caption := s;
   end;
 end;
 
@@ -1362,7 +1437,8 @@ end;
 
 procedure TScrollBarToILInteger.RefreshEdit;
 begin
-  Edit.Position := (OLPointer^).IfNull(0)
+  if Edit.Position <> (OLPointer^).IfNull(0) then
+    Edit.Position := (OLPointer^).IfNull(0);
 end;
 
 procedure TScrollBarToILInteger.SetEdit(const Value: TScrollBar);
@@ -1402,7 +1478,8 @@ end;
 
 procedure TTrackBarToILInteger.RefreshEdit;
 begin
-  Edit.Position := (OLPointer^).IfNull(0)
+  if Edit.Position <> (OLPointer^).IfNull(0) then
+    Edit.Position := (OLPointer^).IfNull(0);
 end;
 
 procedure TTrackBarToILInteger.SetEdit(const Value: TTrackBar);

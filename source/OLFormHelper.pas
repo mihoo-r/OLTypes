@@ -4,21 +4,22 @@ interface
 
 uses
   Vcl.Forms, Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls,
-  OLTypes, OLTypesToEdits, System.Classes;
+  OLTypes, OLTypesToEdits, System.Classes, System.Generics.Collections, Vcl.ExtCtrls;
 
 type
 
-TFormsOriginalEvents = record
-  strict private
-    Forms: array of TForm;
-    OnPaints: array of TNotifyEvent;
-    OnDestroys: array of TNotifyEvent;
-    function FormIndex(Form: TForm): Integer;
+  TFormTimerManager = class
+  private
+    FMap: TDictionary<TForm, TTimer>;
+    FOriginalOnDestroys: TDictionary<TForm, TNotifyEvent>;
+    procedure OnTimer(Sender: TObject);
+    procedure OnFormDestroy(Sender: TObject);
   public
-   procedure Add(Form: TForm);
-   function GetOnPaint(Form: TForm): TNotifyEvent;
-   function GetOnDestroy(Form: TForm): TNotifyEvent;
-end;
+    constructor Create;
+    destructor Destroy; override;
+    procedure EnsureTimer(Form: TForm);
+    procedure RemoveForm(Form: TForm);
+  end;
 
 TOLFormHelper = class helper for TForm
   procedure Link(const Edit: TEdit; var i: OLInteger; const Alignment:
@@ -110,15 +111,14 @@ uses
 
 var
   Links: TOLTypesToControlsLinks;
-  FormsOriginalEvents: TFormsOriginalEvents;
+  TimerManager: TFormTimerManager;
 
-procedure ReplaceFormsOnPaint(Control: TControl);
+procedure EnsureTimer(Control: TControl);
 var
   f: TForm;
 begin
   f := GetParentForm(Control) as TForm;
-  FormsOriginalEvents.Add(f);
-  f.OnPaint := f.NewOnPaint;
+  TimerManager.EnsureTimer(f);
   f.OnDestroy := f.NewOnDestroy;
 end;
 
@@ -126,66 +126,66 @@ end;
 
 procedure TOLFormHelper.Link(const Edit: TEdit; var s: OLString);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
   Links.Link(Edit, s);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TMemo; var s: OLString);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
   Links.Link(Edit, s);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TDateTimePicker; var d: OLDate);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
   Links.Link(Edit, d);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TDateTimePicker; var d: OLDateTime);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
   Links.Link(Edit, d);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TCheckBox; var b: OLBoolean);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
   Links.Link(Edit, b);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TEdit; var curr: OLCurrency; const
     Alignment: TAlignment=taRightJustify);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
 
   Links.Link(Edit, curr, Alignment);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TEdit; var i: OLInteger; const Alignment: TAlignment=taRightJustify);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
 
   Links.Link(Edit, i, Alignment);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TSpinEdit; var i: OLInteger);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
 
   Links.Link(Edit, i);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TTrackBar; var i: OLInteger);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
 
   Links.Link(Edit, i);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TScrollBar; var i: OLInteger);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
 
   Links.Link(Edit, i);
 end;
@@ -193,104 +193,91 @@ end;
 procedure TOLFormHelper.Link(const Edit: TEdit; var d: OLDouble; const
     Alignment: TAlignment=taRightJustify);
 begin
-  ReplaceFormsOnPaint(Edit);
+  EnsureTimer(Edit);
 
   Links.Link(Edit, d, Alignment);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var i: OLInteger);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, i);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var d: OLDate);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, d);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var d: OLDateTime);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, d);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
 end;
 
 procedure TOLFormHelper.NewOnPaint(Sender: TObject);
-var
- OriginalOnPaint: TNotifyEvent;
 begin
-  OriginalOnPaint := FormsOriginalEvents.GetOnPaint(Self);
-
-  if Assigned(OriginalOnPaint) then
-    OriginalOnPaint(Sender);
-
-  RefreshControls();
+  // This method is deprecated and replaced by TimerManager
 end;
 
 procedure TOLFormHelper.NewOnDestroy(Sender: TObject);
-var
- OriginalOnDestroy: TNotifyEvent;
 begin
   RemoveLinks();
-
-  OriginalOnDestroy := FormsOriginalEvents.GetOnDestroy(Self);
-
-  if Assigned(OriginalOnDestroy) then
-    OriginalOnDestroy(Sender);
+  TimerManager.OnFormDestroy(Sender);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var curr: OLCurrency);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, curr);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var s: OLString);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, s);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var d: OLDouble);
 begin
-  ReplaceFormsOnPaint(Lbl);
+  EnsureTimer(Lbl);
   Links.Link(Lbl, d);
 end;
 
@@ -507,66 +494,85 @@ end;
 
 { TFormsOriginalEvents }
 
-procedure TFormsOriginalEvents.Add(Form: TForm);
-var
-  idx, i: Integer;
+{ TFormTimerManager }
+
+type
+  TRefreshTimer = class(TTimer)
+  public
+    Form: TForm;
+  end;
+
+constructor TFormTimerManager.Create;
 begin
-  idx := FormIndex(Form);
+  FMap := TDictionary<TForm, TTimer>.Create;
+  FOriginalOnDestroys := TDictionary<TForm, TNotifyEvent>.Create;
+end;
 
-  if idx = -1 then
+destructor TFormTimerManager.Destroy;
+begin
+  FMap.Free;
+  FOriginalOnDestroys.Free;
+  inherited;
+end;
+
+procedure TFormTimerManager.EnsureTimer(Form: TForm);
+var
+  T: TRefreshTimer;
+begin
+  if not FMap.ContainsKey(Form) then
   begin
-    i := Length(Forms);
+    T := TRefreshTimer.Create(nil);
+    T.Form := Form;
+    T.Interval := 100;
+    T.OnTimer := OnTimer;
+    FMap.Add(Form, T);
 
-    SetLength(Forms, i + 1);
-    SetLength(OnPaints, i + 1);
-    SetLength(OnDestroys, i + 1);
-
-    Forms[i] := Form;
-    OnPaints[i] := Form.OnPaint;
-    OnDestroys[i] := Form.OnDestroy;
+    if Assigned(Form.OnDestroy) and (TMethod(Form.OnDestroy).Code <> TMethod(Form.NewOnDestroy).Code) then
+      FOriginalOnDestroys.Add(Form, Form.OnDestroy);
   end;
 end;
 
-function TFormsOriginalEvents.FormIndex(Form: TForm): Integer;
+procedure TFormTimerManager.OnFormDestroy(Sender: TObject);
 var
-  i: Integer;
-  Output: Integer;
+  Form: TForm;
+  OriginalOnDestroy: TNotifyEvent;
 begin
-  Output := -1;
+  Form := Sender as TForm;
+  RemoveForm(Form);
 
-  for i := 0 to Length(Forms) - 1 do
+  if FOriginalOnDestroys.TryGetValue(Form, OriginalOnDestroy) then
   begin
-    if Forms[i] = Form then
-      Output := i;
+    FOriginalOnDestroys.Remove(Form);
+    if Assigned(OriginalOnDestroy) then
+      OriginalOnDestroy(Sender);
   end;
-
-  Result := Output;
 end;
 
-function TFormsOriginalEvents.GetOnDestroy(Form: TForm): TNotifyEvent;
+procedure TFormTimerManager.OnTimer(Sender: TObject);
 var
-  idx: Integer;
-  Output: TNotifyEvent;
+  T: TRefreshTimer;
 begin
-  idx := FormIndex(Form);
-
-  if idx > -1 then
-    Output := OnDestroys[idx];
-
-  Result := Output;
+  T := Sender as TRefreshTimer;
+  if Assigned(T.Form) then
+    Links.RefreshControls(T.Form);
 end;
 
-function TFormsOriginalEvents.GetOnPaint(Form: TForm): TNotifyEvent;
+procedure TFormTimerManager.RemoveForm(Form: TForm);
 var
-  idx: Integer;
-  Output: TNotifyEvent;
+  T: TTimer;
 begin
-  idx := FormIndex(Form);
-
-  if idx > -1 then
-    Output := OnPaints[idx];
-
-  Result := Output;
+  if FMap.TryGetValue(Form, T) then
+  begin
+    T.Enabled := False;
+    T.Free;
+    FMap.Remove(Form);
+  end;
 end;
+
+initialization
+  TimerManager := TFormTimerManager.Create;
+
+finalization
+  TimerManager.Free;
 
 end.
