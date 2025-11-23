@@ -9,7 +9,11 @@ type
   OLCurrency = record
   private
     Value: Currency;
-    NullFlag: string;
+    {$IF CompilerVersion >= 34.0}
+    FHasValue: Boolean;
+    {$ELSE}
+    FHasValue: string;
+    {$IFEND}
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(const Value: OLBoolean);
@@ -63,26 +67,30 @@ type
     class operator Implicit(const a: OLCurrency): Variant;
     class operator Implicit(const a: OLCurrency): Currency;
 
-    class operator Equal(const a, b: OLCurrency): OLBoolean; overload;
-    class operator NotEqual(const a, b: OLCurrency): OLBoolean; overload;
-    class operator GreaterThan(const a, b: OLCurrency): OLBoolean; overload;
-    class operator GreaterThanOrEqual(const a, b: OLCurrency): OLBoolean; overload;
-    class operator LessThan(const a, b: OLCurrency): OLBoolean; overload;
-    class operator LessThanOrEqual(const a, b: OLCurrency): OLBoolean; overload;
+    class operator Equal(const a, b: OLCurrency): Boolean; overload;
+    class operator NotEqual(const a, b: OLCurrency): Boolean; overload;
+    class operator GreaterThan(const a, b: OLCurrency): Boolean; overload;
+    class operator GreaterThanOrEqual(const a, b: OLCurrency): Boolean; overload;
+    class operator LessThan(const a, b: OLCurrency): Boolean; overload;
+    class operator LessThanOrEqual(const a, b: OLCurrency): Boolean; overload;
 
-    class operator Equal(const a: OLCurrency; const b: Currency): OLBoolean; overload;
-    class operator NotEqual(const a: OLCurrency; const b: Currency): OLBoolean; overload;
-    class operator GreaterThan(const a: OLCurrency; const b: Currency): OLBoolean; overload;
-    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean; overload;
-    class operator LessThan(const a: OLCurrency; const b: Currency): OLBoolean; overload;
-    class operator LessThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean; overload;
+    class operator Equal(const a: OLCurrency; const b: Currency): Boolean; overload;
+    class operator NotEqual(const a: OLCurrency; const b: Currency): Boolean; overload;
+    class operator GreaterThan(const a: OLCurrency; const b: Currency): Boolean; overload;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Currency): Boolean; overload;
+    class operator LessThan(const a: OLCurrency; const b: Currency): Boolean; overload;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: Currency): Boolean; overload;
 
-    class operator Equal(const a: OLCurrency; const b: Extended): OLBoolean; overload;
-    class operator NotEqual(const a: OLCurrency; const b: Extended): OLBoolean; overload;
-    class operator GreaterThan(const a: OLCurrency; const b: Extended): OLBoolean; overload;
-    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Extended): OLBoolean; overload;
-    class operator LessThan(const a: OLCurrency; const b: Extended): OLBoolean; overload;
-    class operator LessThanOrEqual(const a: OLCurrency; const b: Extended): OLBoolean; overload;
+    class operator Equal(const a: OLCurrency; const b: Extended): Boolean; overload;
+    class operator NotEqual(const a: OLCurrency; const b: Extended): Boolean; overload;
+    class operator GreaterThan(const a: OLCurrency; const b: Extended): Boolean; overload;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Extended): Boolean; overload;
+    class operator LessThan(const a: OLCurrency; const b: Extended): Boolean; overload;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: Extended): Boolean; overload;
+
+    {$IF CompilerVersion >= 34.0}
+    class operator Initialize(out Dest: OLCurrency);
+    {$IFEND}
   end;
 
   OLDecimal = OLCurrency;
@@ -179,12 +187,12 @@ begin
 end;
 
 class operator OLCurrency.Equal(const a: OLCurrency; const b: Extended):
-    OLBoolean;
+    Boolean;
 begin
   Result := (System.Abs(a.Value - b) < 1e-10) and a.ValuePresent;
 end;
 
-class operator OLCurrency.Equal(const a: OLCurrency; const b: Currency): OLBoolean;
+class operator OLCurrency.Equal(const a: OLCurrency; const b: Currency): Boolean;
 begin
   Result := (a.Value = b) and a.ValuePresent;
 end;
@@ -215,22 +223,26 @@ begin
 end;
 
 
-class operator OLCurrency.Equal(const a, b: OLCurrency): OLBoolean;
+class operator OLCurrency.Equal(const a, b: OLCurrency): Boolean;
 begin
   Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLCurrency.GetHasValue: OLBoolean;
 begin
-  Result := (NullFlag <> EmptyStr);
+  {$IF CompilerVersion >= 34.0}
+  Result := FHasValue;
+  {$ELSE}
+  Result := FHasValue = ' ';
+  {$IFEND}
 end;
 
-class operator OLCurrency.GreaterThan(const a, b: OLCurrency): OLBoolean;
+class operator OLCurrency.GreaterThan(const a, b: OLCurrency): Boolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLCurrency.GreaterThanOrEqual(const a, b: OLCurrency): OLBoolean;
+class operator OLCurrency.GreaterThanOrEqual(const a, b: OLCurrency): Boolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -297,12 +309,12 @@ begin
   Result := not ValuePresent;
 end;
 
-class operator OLCurrency.LessThan(const a, b: OLCurrency): OLBoolean;
+class operator OLCurrency.LessThan(const a, b: OLCurrency): Boolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLCurrency.LessThanOrEqual(const a, b: OLCurrency): OLBoolean;
+class operator OLCurrency.LessThanOrEqual(const a, b: OLCurrency): Boolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -310,17 +322,17 @@ end;
 function OLCurrency.Max(const i: OLCurrency): OLCurrency;
 begin
   if (not ValuePresent) or (i = Null) then
-    raise Exception.Create('Null value cannot be compared to integer.');
-
-  Result := Math.Max(Value, i);
+    Result := Null
+  else
+    Result := Math.Max(Value, i);
 end;
 
 function OLCurrency.Min(const i: OLCurrency): OLCurrency;
 begin
   if (not ValuePresent) or (i = Null) then
-    raise Exception.Create('Null value cannot be compared to integer.');
-
-  Result := Math.Min(Value, i);
+    Result := Null
+  else
+    Result := Math.Min(Value, i);
 end;
 
 
@@ -361,27 +373,33 @@ begin
 end;
 
 class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Extended):
-    OLBoolean;
+    Boolean;
 begin
   Result := (System.Abs(a.Value - b) > 1e-10) and a.ValuePresent;
 end;
 
-class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Currency): OLBoolean;
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Currency): Boolean;
 begin
   Result := (a.Value <> b) and a.ValuePresent;
 end;
 
 function OLCurrency.IsNegative: OLBoolean;
 begin
-  Result := ValuePresent and (Value < 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value < 0;
 end;
 
 function OLCurrency.IsNonNegative: OLBoolean;
 begin
-  Result := ValuePresent and (Value >= 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value >= 0;
 end;
 
-class operator OLCurrency.NotEqual(const a, b: OLCurrency): OLBoolean;
+class operator OLCurrency.NotEqual(const a, b: OLCurrency): Boolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
@@ -411,17 +429,28 @@ end;
 
 function OLCurrency.IsPositive: OLBoolean;
 begin
-  Result := ValuePresent and (Value > 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value > 0;
 end;
 
 
 procedure OLCurrency.SetHasValue(const Value: OLBoolean);
 begin
-  if Value then
-    NullFlag := NonEmptyStr
-  else
-    NullFlag := EmptyStr;
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := Value.IfThen(' ', '');
+  {$IFEND}
 end;
+
+{$IF CompilerVersion >= 34.0}
+class operator OLCurrency.Initialize(out Dest: OLCurrency);
+begin
+  Dest.FHasValue := False;
+end;
+{$IFEND}
 
 function OLCurrency.Sqr: OLCurrency;
 var
@@ -505,23 +534,23 @@ end;
 
 
 class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Extended):
-    OLBoolean;
+    Boolean;
 begin
   Result := (a.Value > b) and a.ValuePresent;
 end;
 
-class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Currency): OLBoolean;
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Currency): Boolean;
 begin
   Result := (a.Value > b) and a.ValuePresent;
 end;
 
-class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean;
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
 begin
   Result := (a.Value >= b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b:
-    Extended): OLBoolean;
+    Extended): Boolean;
 begin
   Result := (a.Value >= b) and a.ValuePresent;
 end;
@@ -532,23 +561,23 @@ begin
 end;
 
 class operator OLCurrency.LessThan(const a: OLCurrency; const b: Extended):
-    OLBoolean;
+    Boolean;
 begin
   Result := (a.Value < b) and a.ValuePresent;
 end;
 
-class operator OLCurrency.LessThan(const a: OLCurrency; const b: Currency): OLBoolean;
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: Currency): Boolean;
 begin
   Result := (a.Value < b) and a.ValuePresent;
 end;
 
-class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Currency): OLBoolean;
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
 begin
   Result := (a.Value <= b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b:
-    Extended): OLBoolean;
+    Extended): Boolean;
 begin
   Result := (a.Value <= b) and a.ValuePresent;
 end;
