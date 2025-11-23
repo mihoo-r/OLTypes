@@ -9,7 +9,11 @@ type
   OLDateTime = record
   private
     Value: TDateTime;
-    NullFlag: string;
+    {$IF CompilerVersion >= 34.0}
+    FHasValue: Boolean;
+    {$ELSE}
+    FHasValue: string;
+    {$IFEND}
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(const Value: OLBoolean);
@@ -60,12 +64,12 @@ type
     class operator Implicit(const a: Extended): OLDateTime;
     class operator Implicit(const a: string): OLDateTime;
 
-    class operator Equal(const a, b: OLDateTime): OLBoolean;
-    class operator NotEqual(const a, b: OLDateTime): OLBoolean;
-    class operator GreaterThan(const a, b: OLDateTime): OLBoolean;
-    class operator GreaterThanOrEqual(const a, b: OLDateTime): OLBoolean;
-    class operator LessThan(const a, b: OLDateTime): OLBoolean;
-    class operator LessThanOrEqual(const a, b: OLDateTime): OLBoolean;
+    class operator Equal(const a, b: OLDateTime): Boolean;
+    class operator NotEqual(const a, b: OLDateTime): Boolean;
+    class operator GreaterThan(const a, b: OLDateTime): Boolean;
+    class operator GreaterThanOrEqual(const a, b: OLDateTime): Boolean;
+    class operator LessThan(const a, b: OLDateTime): Boolean;
+    class operator LessThanOrEqual(const a, b: OLDateTime): Boolean;
 
     class operator Add(const a: OLDateTime; const b: Extended): OLDateTime;
     class operator Subtract(const a: OLDateTime; const b: Extended): OLDateTime;
@@ -198,6 +202,10 @@ type
 
     function Max(const CompareDate: OLDateTime): OLDateTime;
     function Min(const CompareDate: OLDateTime): OLDateTime;
+
+    {$IF CompilerVersion >= 34.0}
+    class operator Initialize(out Dest: OLDateTime);
+    {$IFEND}
   end;
 
   POLDateTime = ^OLDateTime;
@@ -343,7 +351,7 @@ begin
   Result := DateUtils.EndOfTheYear(Self);
 end;
 
-class operator OLDateTime.Equal(const a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.Equal(const a, b: OLDateTime): Boolean;
 begin
   Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1.1574e-8)) or (a.IsNull() and b.IsNull());  //Less than a millisecond difference
 end;
@@ -355,7 +363,11 @@ end;
 
 function OLDateTime.GetHasValue: OLBoolean;
 begin
-  Result := (NullFlag <> EmptyStr);
+  {$IF CompilerVersion >= 34.0}
+  Result := FHasValue;
+  {$ELSE}
+  Result := FHasValue = ' ';
+  {$IFEND}
 end;
 
 function OLDateTime.GetHour: OLInteger;
@@ -396,12 +408,12 @@ begin
   Result := d.SecondsBetween(OLDateTime.StartOfAYear(StartingYear));
 end;
 
-class operator OLDateTime.GreaterThan(const a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.GreaterThan(const a, b: OLDateTime): Boolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLDateTime.GreaterThanOrEqual(const a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.GreaterThanOrEqual(const a, b: OLDateTime): Boolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -538,12 +550,12 @@ begin
   Result := DateUtils.IsToday(Self);
 end;
 
-class operator OLDateTime.LessThan(const a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.LessThan(const a, b: OLDateTime): Boolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLDateTime.LessThanOrEqual(const a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.LessThanOrEqual(const a, b: OLDateTime): Boolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -720,7 +732,7 @@ begin
   Result := DateUtils.MonthSpan(Self, AThen);
 end;
 
-class operator OLDateTime.NotEqual(const a, b: OLDateTime): OLBoolean;
+class operator OLDateTime.NotEqual(const a, b: OLDateTime): Boolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
@@ -827,11 +839,19 @@ end;
 
 procedure OLDateTime.SetHasValue(const Value: OLBoolean);
 begin
-  if Value then
-    NullFlag := NonEmptyStr
-  else
-    NullFlag := EmptyStr;
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := Value.IfThen(' ', '');
+  {$IFEND}
 end;
+
+{$IF CompilerVersion >= 34.0}
+class operator OLDateTime.Initialize(out Dest: OLDateTime);
+begin
+  Dest.FHasValue := False;
+end;
+{$IFEND}
 
 procedure OLDateTime.SetHour(const Value: OLInteger);
 begin
