@@ -55,8 +55,10 @@ type
     procedure ApplyParams;
     function GetParam(const ParamName: string): OLString;
     procedure SetParam(const ParamName: string; const Value: OLString);
+    {$IF CompilerVersion >= 26.0}
     function GetJSON(const JsonFieldName: string): OLString;
     procedure SetJSON(const JsonFieldName: string; const Value: OLString);
+    {$IFEND}
     function GetHtmlUnicodeText: OLString;
     procedure SetHtmlUnicodeText(const Value: OLString);
     function GetBase64: OLString;
@@ -291,7 +293,9 @@ type
     property Lines[const Index: integer]: OLString read GetLine write SetLine;
     property CSV[const Index: integer]: OLString read GetCSV write SetCSV;
     property Params[const ParamName: string]: OLString read GetParam write SetParam;
+    {$IF CompilerVersion >= 26.0}
     property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
+    {$IFEND}
 
     property HtmlUnicodeText: OLString read GetHtmlUnicodeText write SetHtmlUnicodeText;
     property UrlEncodedText: OLString read GetUrlEncodedText write SetUrlEncodedText;
@@ -809,6 +813,7 @@ begin
   Result := OutPut;
 end;
 
+{$IF CompilerVersion >= 26.0}
 function OLString.GetJSON(const JsonFieldName: string): OLString;
 var
   JSONValue: TJSONValue;
@@ -837,6 +842,7 @@ begin
 
   Result := OutPut;
 end;
+{$IFEND}
 
 
 function OLString.Utf8Code(const c: Char): OLString;
@@ -2165,6 +2171,7 @@ begin
   TempArray.Free;
 end;
 
+{$IF CompilerVersion >= 26.0}
 procedure OLString.SetJSON(const JsonFieldName: string; const Value: OLString);
 var
   JSONValue: TJSONValue;
@@ -2322,6 +2329,7 @@ begin
 
   Self.val := JSONValue.ToString;
 end;
+{$IFEND}
 
 procedure OLString.SetUrlEncodedText(const Value: OLString);
 var

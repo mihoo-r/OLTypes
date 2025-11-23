@@ -40,13 +40,8 @@ type
   OLBooleanArray = OLArrays.OLBooleanArray;
   OLCurrencyArray = OLArrays.OLCurrencyArray;
   OLDateTimeArray = OLArrays.OLDateTimeArray;
-  OLDateArray = OLArrays.OLDateArray;
-  OLDoubleArray = OLArrays.OLDoubleArray;
-  OLIntegerArray = OLArrays.OLIntegerArray;
-  OLInt64Array = OLArrays.OLInt64Array;
-  OLByteArray = OLArrays.OLByteArray;
-  OLStringArray = OLArrays.OLStringArray;
-
+  
+  {$IF CompilerVersion >= 34.0}
   OLIntIntDictionary = OLDictionaries.OLIntIntDictionary;
   OLIntStrDictionary = OLDictionaries.OLIntStrDictionary;
   OLIntDblDictionary = OLDictionaries.OLIntDblDictionary;
@@ -57,6 +52,7 @@ type
   OLStrCurrDictionary = OLDictionaries.OLStrCurrDictionary;
   OLIntDateDictionary = OLDictionaries.OLIntDateDictionary;
   OLStrDblDictionary = OLDictionaries.OLStrDblDictionary;
+  {$IFEND}
 
 
   TStringPatternFind = OLStringType.TStringPatternFind;

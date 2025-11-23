@@ -2,8 +2,12 @@ unit OLTypesToEdits;
 
 interface
 
-uses OLTypes, Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls,
-  Vcl.Forms, System.Classes;
+uses OLTypes,
+  {$IF CompilerVersion >= 23.0}
+  Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms, System.Classes;
+  {$ELSE}
+  StdCtrls, SysUtils, Spin, ComCtrls, Forms, Classes;
+  {$IFEND}
 
 const
   ERROR_STRING = '#ERROR';
@@ -1737,6 +1741,7 @@ var
   OLDateTimeToLabel: TOLDateTimeToLabel;
 
   i: Integer;
+  j: Integer;
   RemovedCount: Integer;
 begin
   if length(EditsToOLIntegers) > 0 then
@@ -1748,7 +1753,7 @@ begin
       if (GetParentForm(EditsToOLIntegers[i].Edit) = DestroyedForm) then
       begin
         if i < length(EditsToOLIntegers) - 1 then
-        for var j := i to length(EditsToOLIntegers) - 2 do
+        for j := i to length(EditsToOLIntegers) - 2 do
         begin
           EditsToOLIntegers[j] := EditsToOLIntegers[j + 1];
         end;
@@ -1771,7 +1776,7 @@ begin
       if (GetParentForm(SpinEditsToOLIntegers[i].Edit) = DestroyedForm) then
       begin
         if i < length(SpinEditsToOLIntegers) - 1 then
-        for var j := i to length(SpinEditsToOLIntegers) - 2 do
+        for j := i to length(SpinEditsToOLIntegers) - 2 do
         begin
           SpinEditsToOLIntegers[j] := SpinEditsToOLIntegers[j + 1];
         end;
@@ -1794,7 +1799,7 @@ begin
       if (GetParentForm(TrackBarsToOLIntegers[i].Edit) = DestroyedForm) then
       begin
         if i < length(TrackBarsToOLIntegers) - 1 then
-        for var j := i to length(TrackBarsToOLIntegers) - 2 do
+        for j := i to length(TrackBarsToOLIntegers) - 2 do
         begin
           TrackBarsToOLIntegers[j] := TrackBarsToOLIntegers[j + 1];
         end;

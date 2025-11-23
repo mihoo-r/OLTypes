@@ -2,6 +2,8 @@
 
 interface
 
+{$IF CompilerVersion >= 34.0}
+
 uses
   System.SysUtils,
   System.Generics.Collections,
@@ -278,7 +280,11 @@ type
     property Values[const Key: string]: OLDouble read GetValue write SetValue; default;
     property Keys: TArray<string> read GetKeys;
   end;
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion >= 34.0}
 
 { OLGenericDictionary<K, V> }
 
@@ -1156,4 +1162,5 @@ function OLStrDblDictionary.GetKeys: TArray<string>;
 begin
   Result := FEngine.GetKeys;
 end;
+{$IFEND}
 end.
