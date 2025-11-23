@@ -3,13 +3,17 @@ unit OLDoubleType;
 interface
 
 uses
-  variants, SysUtils, Math, OLBooleanType;
+  variants, SysUtils, Math, Types, OLBooleanType;
 
 type
   OLDouble = record
   private
     Value: Double;
-    NullFlag: string;
+    {$IF CompilerVersion >= 34.0}
+    FHasValue: Boolean;
+    {$ELSE}
+    FHasValue: string;
+    {$IFEND}
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(const Value: OLBoolean);
@@ -69,12 +73,16 @@ type
     class operator Dec(const a: OLDouble): OLDouble;
     class operator Negative(const a: OLDouble): OLDouble;
 
-    class operator Equal(const a, b: OLDouble): OLBoolean;
-    class operator NotEqual(const a, b: OLDouble): OLBoolean;
-    class operator GreaterThan(const a, b: OLDouble): OLBoolean;
-    class operator GreaterThanOrEqual(const a, b: OLDouble): OLBoolean;
-    class operator LessThan(const a, b: OLDouble): OLBoolean;
-    class operator LessThanOrEqual(const a, b: OLDouble): OLBoolean;
+    class operator Equal(const a, b: OLDouble): Boolean;
+    class operator NotEqual(const a, b: OLDouble): Boolean;
+    class operator GreaterThan(const a, b: OLDouble): Boolean;
+    class operator GreaterThanOrEqual(const a, b: OLDouble): Boolean;
+    class operator LessThan(const a, b: OLDouble): Boolean;
+    class operator LessThanOrEqual(const a, b: OLDouble): Boolean;
+
+    {$IF CompilerVersion >= 34.0}
+    class operator Initialize(out Dest: OLDouble);
+    {$IFEND}
   end;
 
   POLDouble = ^OLDouble;
@@ -86,6 +94,10 @@ implementation
 
 const
   NonEmptyStr = ' ';
+  // Tolerance for floating point comparisons.
+  // 1E-9 handles standard arithmetic noise while keeping business precision safe.
+  // This resolves issues where -1.85 * -3 results in 5.550000000000001
+  OLEpsilon = 1E-9;
 
 function OLDouble.Abs(): OLDouble;
 begin
@@ -96,7 +108,6 @@ begin
 end;
 
 class operator OLDouble.Add(const a, b: OLDouble): OLDouble;
-
 var
   returnrec: OLDouble;
 begin
@@ -110,7 +121,6 @@ var
   d: Double;
 begin
   d := Self;
-
   Result := Math.Ceil(d);
 end;
 
@@ -155,9 +165,27 @@ begin
   Result := Math.EnsureRange(Self, AMin, AMax);
 end;
 
-class operator OLDouble.Equal(const a, b: OLDouble): OLBoolean;
+class operator OLDouble.Equal(const a, b: OLDouble): Boolean;
 begin
-  Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1e-10)) or (a.IsNull() and b.IsNull());
+  // Handle Null logic:
+  // 1. If both are NULL -> they are effectively Equal in this context
+  if a.IsNull and b.IsNull then
+    begin
+      Result := True;
+      Exit;
+    end;
+
+  // 2. If one is NULL and the other is not -> Not Equal
+  if a.IsNull or b.IsNull then
+    begin
+      Result := False;
+      Exit;
+    end;
+
+  // 3. Value comparison using fixed pragmatic epsilon (OLEpsilon).
+  // This handles floating point noise (e.g. 5.550000000000001 vs 5.55)
+  // while maintaining consistency across all comparison operators.
+  Result := Math.SameValue(a.Value, b.Value, OLEpsilon);
 end;
 
 function OLDouble.Floor: Integer;
@@ -170,17 +198,45 @@ end;
 
 function OLDouble.GetHasValue: OLBoolean;
 begin
-  Result := (NullFlag <> EmptyStr);
+  {$IF CompilerVersion >= 34.0}
+  Result := FHasValue;
+  {$ELSE}
+  Result := FHasValue = ' ';
+  {$IFEND}
 end;
 
-class operator OLDouble.GreaterThan(const a, b: OLDouble): OLBoolean;
+class operator OLDouble.GreaterThan(const a, b: OLDouble): Boolean;
 begin
-  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
+  // Strict comparison: Any NULL results in False
+  if not (a.ValuePresent and b.ValuePresent) then
+    begin
+      Result := False;
+      Exit;
+    end;
+
+  // Use CompareValue with OLEpsilon.
+  // Returns True only if a is strictly greater than b (beyond epsilon noise).
+  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) = GreaterThanValue;
 end;
 
-class operator OLDouble.GreaterThanOrEqual(const a, b: OLDouble): OLBoolean;
+class operator OLDouble.GreaterThanOrEqual(const a, b: OLDouble): Boolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  // Handle Null logic: Null >= Null is True
+  if a.IsNull and b.IsNull then
+    begin
+      Result := True;
+      Exit;
+    end;
+
+  if not (a.ValuePresent and b.ValuePresent) then
+    begin
+      Result := False;
+      Exit;
+    end;
+
+  // Equivalent to: NOT LessThan.
+  // Covers both Equals (within epsilon) and GreaterThan.
+  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) <> LessThanValue;
 end;
 
 function OLDouble.HasValue: OLBoolean;
@@ -238,30 +294,54 @@ begin
   Result := not ValuePresent;
 end;
 
-class operator OLDouble.LessThan(const a, b: OLDouble): OLBoolean;
+class operator OLDouble.LessThan(const a, b: OLDouble): Boolean;
 begin
-  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
+  // Strict comparison: Any NULL results in False
+  if not (a.ValuePresent and b.ValuePresent) then
+    begin
+      Result := False;
+      Exit;
+    end;
+
+  // Use CompareValue with OLEpsilon.
+  // Returns True only if a is strictly less than b (beyond epsilon noise).
+  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) = LessThanValue;
 end;
 
-class operator OLDouble.LessThanOrEqual(const a, b: OLDouble): OLBoolean;
+class operator OLDouble.LessThanOrEqual(const a, b: OLDouble): Boolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  // Handle Null logic: Null <= Null is True
+  if a.IsNull and b.IsNull then
+    begin
+      Result := True;
+      Exit;
+    end;
+
+  if not (a.ValuePresent and b.ValuePresent) then
+    begin
+      Result := False;
+      Exit;
+    end;
+
+  // Equivalent to: NOT GreaterThan.
+  // Covers both Equals (within epsilon) and LessThan.
+  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) <> GreaterThanValue;
 end;
 
 function OLDouble.Max(const d: OLDouble): OLDouble;
 begin
   if (not ValuePresent) or (d.IsNull()) then
-    raise Exception.Create('Null value cannot be compared to double.');
-
-  Result := Math.Max(Value, d);
+    Result := Null
+  else
+    Result := Math.Max(Value, d);
 end;
 
 function OLDouble.Min(const d: OLDouble): OLDouble;
 begin
   if (not ValuePresent) or (d.IsNull) then
-    raise Exception.Create('Null value cannot be compared to double.');
-
-  Result := Math.Min(Value, d);
+    Result := Null
+  else
+    Result := Math.Min(Value, d);
 end;
 
 
@@ -275,7 +355,6 @@ begin
 end;
 
 class operator OLDouble.Negative(const a: OLDouble): OLDouble;
-
 var
   b: OLDouble;
 begin
@@ -287,31 +366,48 @@ function OLDouble.IsInfinite: OLBoolean;
 var
   d: Double;
 begin
-  d := Self;
-  Result := Math.IsInfinite(d);
+  if not ValuePresent then
+    Result := Null
+  else
+  begin
+    d := Self;
+    Result := Math.IsInfinite(d);
+  end;
 end;
 
 function OLDouble.IsNan: OLBoolean;
 var
   d: Double;
 begin
-  d := Self;
-  Result := Math.IsNan(d);
+  if not ValuePresent then
+    Result := Null
+  else
+  begin
+    d := Self;
+    Result := Math.IsNan(d);
+  end;
 end;
 
 function OLDouble.IsNegative: OLBoolean;
 begin
-  Result := ValuePresent and (Value < 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value < 0;
 end;
 
 function OLDouble.IsNonNegative: OLBoolean;
 begin
-  Result := ValuePresent and (Value >= 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value >= 0;
 end;
 
-class operator OLDouble.NotEqual(const a, b: OLDouble): OLBoolean;
+class operator OLDouble.NotEqual(const a, b: OLDouble): Boolean;
 begin
-  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
+  // Inverting the logic of Equal operator
+  Result := not (a = b);
 end;
 
 function OLDouble.Power(const Exponent: Extended): OLDouble;
@@ -337,27 +433,41 @@ end;
 
 function OLDouble.IsPositive: OLBoolean;
 begin
-  Result := ValuePresent and (Value > 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value > 0;
 end;
 
 function OLDouble.IsZero(const Epsilon: Extended = 0): OLBoolean;
 begin
-  Result := Math.IsZero(Self, Epsilon);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Math.IsZero(Self.Value, Epsilon);
 end;
 
 function OLDouble.SameValue(const B: Extended; const Epsilon: Extended = 0):
     OLBoolean;
 begin
-  Result := Math.SameValue(Self, B, Epsilon);
+  Result := Math.SameValue(Self.Value, B, Epsilon);
 end;
 
 procedure OLDouble.SetHasValue(const Value: OLBoolean);
 begin
-  if Value then
-    NullFlag := NonEmptyStr
-  else
-    NullFlag := EmptyStr;
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := Value.IfThen(' ', '');
+  {$IFEND}
 end;
+
+{$IF CompilerVersion >= 34.0}
+class operator OLDouble.Initialize(out Dest: OLDouble);
+begin
+  Dest.FHasValue := False;
+end;
+{$IFEND}
 
 function OLDouble.Round(const PowerOfTen: integer): OLDouble;
 var
@@ -382,11 +492,13 @@ end;
 
 function OLDouble.Sqrt: OLDouble;
 begin
-  Result := System.Sqrt(Self);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := System.Sqrt(Self);
 end;
 
 class operator OLDouble.Subtract(const a, b: OLDouble): OLDouble;
-
 var
   returnrec: OLDouble;
 begin
