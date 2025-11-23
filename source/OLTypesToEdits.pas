@@ -1822,7 +1822,7 @@ begin
       if (GetParentForm(ScrollBarsToOLIntegers[i].Edit) = DestroyedForm) then
       begin
         if i < length(ScrollBarsToOLIntegers) - 1 then
-        for var j := i to length(ScrollBarsToOLIntegers) - 2 do
+        for j := i to length(ScrollBarsToOLIntegers) - 2 do
         begin
           ScrollBarsToOLIntegers[j] := ScrollBarsToOLIntegers[j + 1];
         end;
@@ -1845,7 +1845,7 @@ begin
       if (GetParentForm(EditsToOLDoubles[i].Edit) = DestroyedForm) then
       begin
         if i < length(EditsToOLDoubles) - 1 then
-        for var j := i to length(EditsToOLDoubles) - 2 do
+        for j := i to length(EditsToOLDoubles) - 2 do
         begin
           EditsToOLDoubles[j] := EditsToOLDoubles[j + 1];
         end;
@@ -1869,7 +1869,7 @@ begin
       if (GetParentForm(EditsToOLCurrencies[i].Edit) = DestroyedForm) then
       begin
         if i < length(EditsToOLCurrencies) - 1 then
-        for var j := i to length(EditsToOLCurrencies) - 2 do
+        for j := i to length(EditsToOLCurrencies) - 2 do
         begin
           EditsToOLCurrencies[j] := EditsToOLCurrencies[j + 1];
         end;
@@ -1893,7 +1893,7 @@ begin
       if (GetParentForm(EditsToOLStrings[i].Edit) = DestroyedForm) then
       begin
         if i < length(EditsToOLStrings) - 1 then
-        for var j := i to length(EditsToOLStrings) - 2 do
+        for j := i to length(EditsToOLStrings) - 2 do
         begin
           EditsToOLStrings[j] := EditsToOLStrings[j + 1];
         end;
@@ -1917,7 +1917,7 @@ begin
       if (GetParentForm(MemosToOLStrings[i].Edit) = DestroyedForm) then
       begin
         if i < length(MemosToOLStrings) - 1 then
-        for var j := i to length(MemosToOLStrings) - 2 do
+        for j := i to length(MemosToOLStrings) - 2 do
         begin
           MemosToOLStrings[j] := MemosToOLStrings[j + 1];
         end;
@@ -1942,7 +1942,7 @@ begin
       if (GetParentForm(DataTimerPickersToOLDates[i].Edit) = DestroyedForm) then
       begin
         if i < length(DataTimerPickersToOLDates) - 1 then
-        for var j := i to length(DataTimerPickersToOLDates) - 2 do
+        for j := i to length(DataTimerPickersToOLDates) - 2 do
         begin
           DataTimerPickersToOLDates[j] := DataTimerPickersToOLDates[j + 1];
         end;
@@ -1966,7 +1966,7 @@ begin
       if (GetParentForm(DataTimerPickersToOLDateTimes[i].Edit) = DestroyedForm) then
       begin
         if i < length(DataTimerPickersToOLDateTimes) - 1 then
-        for var j := i to length(DataTimerPickersToOLDateTimes) - 2 do
+        for j := i to length(DataTimerPickersToOLDateTimes) - 2 do
         begin
           DataTimerPickersToOLDateTimes[j] := DataTimerPickersToOLDateTimes[j + 1];
         end;
@@ -1990,7 +1990,7 @@ begin
       if (GetParentForm(CheckBoxesToOLBooleans[i].Edit) = DestroyedForm) then
       begin
         if i < length(CheckBoxesToOLBooleans) - 1 then
-        for var j := i to length(CheckBoxesToOLBooleans) - 2 do
+        for j := i to length(CheckBoxesToOLBooleans) - 2 do
         begin
           CheckBoxesToOLBooleans[j] := CheckBoxesToOLBooleans[j + 1];
         end;
@@ -2015,7 +2015,7 @@ begin
       if (GetParentForm(OLIntegersToLabels[i].Lbl) = DestroyedForm) then
       begin
         if i < length(OLIntegersToLabels) - 1 then
-        for var j := i to length(OLIntegersToLabels) - 2 do
+        for j := i to length(OLIntegersToLabels) - 2 do
         begin
           OLIntegersToLabels[j] := OLIntegersToLabels[j + 1];
         end;
@@ -2038,7 +2038,7 @@ begin
       if (GetParentForm(OLStringToLabels[i].Lbl) = DestroyedForm) then
       begin
         if i < length(OLStringToLabels) - 1 then
-        for var j := i to length(OLStringToLabels) - 2 do
+        for j := i to length(OLStringToLabels) - 2 do
         begin
           OLStringToLabels[j] := OLStringToLabels[j + 1];
         end;
@@ -2061,7 +2061,7 @@ begin
       if (GetParentForm(OLDoublesToLabels[i].Lbl) = DestroyedForm) then
       begin
         if i < length(OLDoublesToLabels) - 1 then
-        for var j := i to length(OLDoublesToLabels) - 2 do
+        for j := i to length(OLDoublesToLabels) - 2 do
         begin
           OLDoublesToLabels[j] := OLDoublesToLabels[j + 1];
         end;
@@ -2085,7 +2085,7 @@ begin
       if (GetParentForm(OLCurrencyToLabels[i].Lbl) = DestroyedForm) then
       begin
         if i < length(OLCurrencyToLabels) - 1 then
-        for var j := i to length(OLCurrencyToLabels) - 2 do
+        for j := i to length(OLCurrencyToLabels) - 2 do
         begin
           OLCurrencyToLabels[j] := OLCurrencyToLabels[j + 1];
         end;
@@ -2109,7 +2109,7 @@ begin
       if (GetParentForm(OLDatesToLabels[i].Lbl) = DestroyedForm) then
       begin
         if i < length(OLDatesToLabels) - 1 then
-        for var j := i to length(OLDatesToLabels) - 2 do
+        for j := i to length(OLDatesToLabels) - 2 do
         begin
           OLDatesToLabels[j] := OLDatesToLabels[j + 1];
         end;
@@ -2133,7 +2133,7 @@ begin
       if (GetParentForm(OLDateTimesToLabels[i].Lbl) = DestroyedForm) then
       begin
         if i < length(OLDateTimesToLabels) - 1 then
-        for var j := i to length(OLDateTimesToLabels) - 2 do
+        for j := i to length(OLDateTimesToLabels) - 2 do
         begin
           OLDateTimesToLabels[j] := OLDateTimesToLabels[j + 1];
         end;
