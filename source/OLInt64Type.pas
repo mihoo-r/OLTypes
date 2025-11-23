@@ -9,7 +9,11 @@ type
   OLInt64 = record
   private
     Value: Int64;
-    NullFlag: string;
+    {$IF CompilerVersion >= 34.0}
+    FHasValue: Boolean;
+    {$ELSE}
+    FHasValue: string;
+    {$IFEND}
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(Value: OLBoolean);
@@ -95,25 +99,29 @@ type
     class operator Dec(a: OLInt64): OLInt64;
     class operator Negative(a: OLInt64): OLInt64;
 
-    class operator Equal(a, b: OLInt64): OLBoolean; overload;
-    class operator NotEqual(a, b: OLInt64): OLBoolean;  overload;
-    class operator GreaterThan(a, b: OLInt64): OLBoolean;  overload;
-    class operator GreaterThanOrEqual(a, b: OLInt64): OLBoolean;  overload;
-    class operator LessThan(a, b: OLInt64): OLBoolean;  overload;
-    class operator LessThanOrEqual(a, b: OLInt64): OLBoolean;  overload;
+    class operator Equal(a, b: OLInt64): Boolean; overload;
+    class operator NotEqual(a, b: OLInt64): Boolean;  overload;
+    class operator GreaterThan(a, b: OLInt64): Boolean;  overload;
+    class operator GreaterThanOrEqual(a, b: OLInt64): Boolean;  overload;
+    class operator LessThan(a, b: OLInt64): Boolean;  overload;
+    class operator LessThanOrEqual(a, b: OLInt64): Boolean;  overload;
 
-    class operator Equal(a: OLInt64; b: Extended): OLBoolean;  overload;
-    class operator NotEqual(a: OLInt64; b: Extended): OLBoolean;  overload;
-    class operator GreaterThan(a: OLInt64; b: Extended): OLBoolean;  overload;
-    class operator GreaterThanOrEqual(a: OLInt64; b: Extended): OLBoolean;  overload;
-    class operator LessThan(a: OLInt64; b: Extended): OLBoolean;  overload;
-    class operator LessThanOrEqual(a: OLInt64; b: Extended): OLBoolean;  overload;
+    class operator Equal(a: OLInt64; b: Extended): Boolean;  overload;
+    class operator NotEqual(a: OLInt64; b: Extended): Boolean;  overload;
+    class operator GreaterThan(a: OLInt64; b: Extended): Boolean;  overload;
+    class operator GreaterThanOrEqual(a: OLInt64; b: Extended): Boolean;  overload;
+    class operator LessThan(a: OLInt64; b: Extended): Boolean;  overload;
+    class operator LessThanOrEqual(a: OLInt64; b: Extended): Boolean;  overload;
 
     property Binary: string read GetBinary write SetBinary;
     property Octal: string read GetOctal write SetOctal;
     property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
     property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
     property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
+
+    {$IF CompilerVersion >= 34.0}
+    class operator Initialize(out Dest: OLInt64);
+    {$IFEND}
   end;
 
   POLInt64 = ^OLInt64;
@@ -229,7 +237,7 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInt64.Equal(a: OLInt64; b: Extended): OLBoolean;
+class operator OLInt64.Equal(a: OLInt64; b: Extended): Boolean;
 begin
   Result := (a.Value = b) and a.ValuePresent;
 end;
@@ -248,10 +256,13 @@ end;
 
 function OLInt64.IsDividableBy(i: Int64): OLBoolean;
 begin
-  Result := Self.ValuePresent and ((Self.Value mod i) = 0);
+  if not Self.ValuePresent then
+    Result := Null
+  else
+    Result := (Self.Value mod i) = 0;
 end;
 
-class operator OLInt64.Equal(a, b: OLInt64): OLBoolean;
+class operator OLInt64.Equal(a, b: OLInt64): Boolean;
 begin
   Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -294,7 +305,11 @@ end;
 
 function OLInt64.GetHasValue: OLBoolean;
 begin
-  Result := (NullFlag <> EmptyStr);
+  {$IF CompilerVersion >= 34.0}
+  Result := FHasValue;
+  {$ELSE}
+  Result := FHasValue = ' ';
+  {$IFEND}
 end;
 
 function OLInt64.GetHexidecimal: string;
@@ -317,12 +332,12 @@ begin
   Result := ToNumeralSystem(8);
 end;
 
-class operator OLInt64.GreaterThan(a, b: OLInt64): OLBoolean;
+class operator OLInt64.GreaterThan(a, b: OLInt64): Boolean;
 begin
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLInt64.GreaterThanOrEqual(a, b: OLInt64): OLBoolean;
+class operator OLInt64.GreaterThanOrEqual(a, b: OLInt64): Boolean;
 begin
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -400,12 +415,12 @@ begin
   Result := not ValuePresent;
 end;
 
-class operator OLInt64.LessThan(a, b: OLInt64): OLBoolean;
+class operator OLInt64.LessThan(a, b: OLInt64): Boolean;
 begin
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
-class operator OLInt64.LessThanOrEqual(a, b: OLInt64): OLBoolean;
+class operator OLInt64.LessThanOrEqual(a, b: OLInt64): Boolean;
 begin
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
@@ -413,17 +428,17 @@ end;
 function OLInt64.Max(i: OLInt64): OLInt64;
 begin
   if (not ValuePresent) or (i = Null) then
-    raise Exception.Create('Null value cannot be compared to Int64.');
-
-  Result := Math.Max(Value, i);
+    Result := Null
+  else
+    Result := Math.Max(Value, i);
 end;
 
 function OLInt64.Min(i: OLInt64): OLInt64;
 begin
   if (not ValuePresent) or (i = Null) then
-    raise Exception.Create('Null value cannot be compared to Int64.');
-
-  Result := Math.Min(Value, i);
+    Result := Null
+  else
+    Result := Math.Min(Value, i);
 end;
 
 class operator OLInt64.Modulus(a, b: OLInt64): OLInt64;
@@ -454,7 +469,7 @@ begin
   Result := b;
 end;
 
-class operator OLInt64.NotEqual(a: OLInt64; b: Extended): OLBoolean;
+class operator OLInt64.NotEqual(a: OLInt64; b: Extended): Boolean;
 begin
   Result := (a.Value <> b) and a.ValuePresent;
 end;
@@ -466,15 +481,21 @@ end;
 
 function OLInt64.IsNegative: OLBoolean;
 begin
-  Result := ValuePresent and (Value < 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value < 0;
 end;
 
 function OLInt64.IsNonNegative: OLBoolean;
 begin
-  Result := ValuePresent and (Value >= 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value >= 0;
 end;
 
-class operator OLInt64.NotEqual(a, b: OLInt64): OLBoolean;
+class operator OLInt64.NotEqual(a, b: OLInt64): Boolean;
 begin
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
@@ -530,12 +551,18 @@ end;
 
 function OLInt64.IsOdd: OLBoolean;
 begin
-  Result := ValuePresent and (not IsEven());
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := not IsEven();
 end;
 
 function OLInt64.IsPositive: OLBoolean;
 begin
-  Result := ValuePresent and (Value > 0);
+  if not ValuePresent then
+    Result := Null
+  else
+    Result := Value > 0;
 end;
 
 function OLInt64.IsPrime: OLBoolean;
@@ -548,7 +575,14 @@ var
   LoopCount: Int64;
   k: OLInt64;
 begin
-  if Self.ValuePresent then
+  if not Self.ValuePresent then
+    Exit(Null);
+
+  if Value <= 1 then
+  begin
+    OutPut := False;
+  end
+  else
   begin
     i := 0;
     PrimeLen := Length(primes);
@@ -603,9 +637,7 @@ begin
         end;
       end;
     end;
-  end
-  else
-    OutPut := False;
+  end;
 
   Result := OutPut;
 end;
@@ -617,11 +649,19 @@ end;
 
 procedure OLInt64.SetHasValue(Value: OLBoolean);
 begin
-  if Value then
-    NullFlag := NonEmptyStr
-  else
-    NullFlag := EmptyStr;
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := Value.IfThen(' ', '');
+  {$IFEND}
 end;
+
+{$IF CompilerVersion >= 34.0}
+class operator OLInt64.Initialize(out Dest: OLInt64);
+begin
+  Dest.FHasValue := False;
+end;
+{$IFEND}
 
 procedure OLInt64.SetHexidecimal(const Value: string);
 begin
@@ -749,13 +789,13 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInt64.GreaterThan(a: OLInt64; b: Extended): OLBoolean;
+class operator OLInt64.GreaterThan(a: OLInt64; b: Extended): Boolean;
 begin
   Result := (a.Value > b) and a.ValuePresent;
 end;
 
 class operator OLInt64.GreaterThanOrEqual(a: OLInt64;
-  b: Extended): OLBoolean;
+  b: Extended): Boolean;
 begin
   Result := (a.Value >= b) and a.ValuePresent;
 end;
@@ -765,12 +805,12 @@ begin
   Result := ValuePresent;
 end;
 
-class operator OLInt64.LessThan(a: OLInt64; b: Extended): OLBoolean;
+class operator OLInt64.LessThan(a: OLInt64; b: Extended): Boolean;
 begin
   Result := (a.Value < b) and a.ValuePresent;
 end;
 
-class operator OLInt64.LessThanOrEqual(a: OLInt64; b: Extended): OLBoolean;
+class operator OLInt64.LessThanOrEqual(a: OLInt64; b: Extended): Boolean;
 begin
   Result := (a.Value <= b) and a.ValuePresent;
 end;
