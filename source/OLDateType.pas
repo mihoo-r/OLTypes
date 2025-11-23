@@ -40,12 +40,12 @@ type
     class operator Implicit(const a: Extended): OLDate;
     class operator Implicit(const a: string): OLDate;
 
-    class operator Equal(const a, b: OLDate): OLBoolean;
-    class operator NotEqual(const a, b: OLDate): OLBoolean;
-    class operator GreaterThan(const a, b: OLDate): OLBoolean;
-    class operator GreaterThanOrEqual(const a, b: OLDate): OLBoolean;
-    class operator LessThan(const a, b: OLDate): OLBoolean;
-    class operator LessThanOrEqual(const a, b: OLDate): OLBoolean;
+    class operator Equal(const a, b: OLDate): Boolean;
+    class operator NotEqual(const a, b: OLDate): Boolean;
+    class operator GreaterThan(const a, b: OLDate): Boolean;
+    class operator GreaterThanOrEqual(const a, b: OLDate): Boolean;
+    class operator LessThan(const a, b: OLDate): Boolean;
+    class operator LessThanOrEqual(const a, b: OLDate): Boolean;
 
     class operator Add(const a: OLDate; b: integer): OLDate;
     class operator Subtract(const a: OLDate; const b: integer): OLDate;
@@ -200,7 +200,7 @@ begin
   Result := Self.Value.EndOfTheYear();
 end;
 
-class operator OLDate.Equal(const a, b: OLDate): OLBoolean;
+class operator OLDate.Equal(const a, b: OLDate): Boolean;
 begin
   Result := (a.Value = b.Value);
 end;
@@ -220,12 +220,12 @@ begin
   Result := Self.Value.Year;
 end;
 
-class operator OLDate.GreaterThan(const a, b: OLDate): OLBoolean;
+class operator OLDate.GreaterThan(const a, b: OLDate): Boolean;
 begin
   Result := (a.Value > b.Value);
 end;
 
-class operator OLDate.GreaterThanOrEqual(const a, b: OLDate): OLBoolean;
+class operator OLDate.GreaterThanOrEqual(const a, b: OLDate): Boolean;
 begin
   Result := (a.Value >= b.Value);
 end;
@@ -373,12 +373,12 @@ begin
   Result := (Month > 0) and (Day > 0) and (DaysInAMonth(Year, Month) >= Day);
 end;
 
-class operator OLDate.LessThan(const a, b: OLDate): OLBoolean;
+class operator OLDate.LessThan(const a, b: OLDate): Boolean;
 begin
   Result := (a.Value < b.Value);
 end;
 
-class operator OLDate.LessThanOrEqual(const a, b: OLDate): OLBoolean;
+class operator OLDate.LessThanOrEqual(const a, b: OLDate): Boolean;
 begin
   Result := (a.Value <= b.Value);
 end;
@@ -429,7 +429,7 @@ begin
   Result := Self.Value.MonthSpan(AThen);
 end;
 
-class operator OLDate.NotEqual(const a, b: OLDate): OLBoolean;
+class operator OLDate.NotEqual(const a, b: OLDate): Boolean;
 begin
   Result := (a.Value <> b.Value);
 end;
