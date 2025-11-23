@@ -45,6 +45,8 @@ begin
 end;
 
 begin
+  ReportMemoryLeaksOnShutdown := True;
+
   Application.Initialize;
 
   DirtyStack();

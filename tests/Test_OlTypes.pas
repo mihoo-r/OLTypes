@@ -3887,6 +3887,29 @@ begin
 
   s.JSON['name'] := 'Jane';
   Check(s.JSON['name'] = 'Jane');
+
+  s := '{"User":{"name":"John","age":30,"city":"NYC"}}';
+  Check(s.JSON['User.name'] = 'John');
+  Check(s.JSON['User.age'] = '30');
+  Check(s.JSON['User.city'] = 'NYC');
+
+  s.JSON['User.name'] := 'Jane';
+  Check(s.JSON['User.name'] = 'Jane');
+
+
+  s :='{"People":[{"name":"John"},{"name":"Anna"},{"name":"Nick"}]}';
+  Check(s.JSON['People[0].name'] = 'John');
+  Check(s.JSON['People[1].name'] = 'Anna');
+  Check(s.JSON['People[2].name'] = 'Nick');
+
+  s.JSON['People[1].name'] := 'Joanna';
+  Check(s.JSON['People[1].name'] = 'Joanna');
+  Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"}]}');
+
+  s.JSON['People[3].name'] := 'Kate';
+  s.JSON['People[3].age'] := 15;
+
+  Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"},{"name":"Kate","age":15}]}');
 end;
 
 // Static Methods

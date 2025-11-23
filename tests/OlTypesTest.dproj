@@ -101,7 +101,9 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Test_OlTypes.pas"/>
+        <DCCReference Include="Test_NullPropagation.pas"/>
         <DCCReference Include="TestOLArrays.pas"/>
+        <DCCReference Include="Test_OLTypesToEdits.pas"/>
         <DCCReference Include="..\source\OLBooleanType.pas"/>
         <DCCReference Include="..\source\OLCurrencyType.pas"/>
         <DCCReference Include="..\source\OLDateTimeType.pas"/>
@@ -110,6 +112,7 @@
         <DCCReference Include="..\source\OLIntegerType.pas"/>
         <DCCReference Include="..\source\OLStringType.pas"/>
         <DCCReference Include="..\source\OLTypes.pas"/>
+        <DCCReference Include="..\source\OLTypesToEdits.pas"/>
         <DCCReference Include="..\source\SmartToDate.pas"/>
         <DCCReference Include="TestOLDictionaries.pas"/>
         <BuildConfiguration Include="Base">
