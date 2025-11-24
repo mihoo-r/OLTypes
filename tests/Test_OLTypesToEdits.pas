@@ -109,6 +109,23 @@ type
     procedure TestNullFormatDisplay;
   end;
 
+  // Test class for TDateTimePickerToOLDateTime binding
+  TestDateTimePickerToOLDateTime = class(TTestCase)
+  private
+    FPicker: TDateTimePicker;
+    FValue: OLDateTime;
+    FLinks: TOLTypesToControlsLinks;
+    FForm: TForm;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestPickerToValueSync;
+    procedure TestValueToPickerSync;
+    procedure TestNullHandling;
+    procedure TestNullFormatDisplay;
+  end;
+
   // Test class for TCheckBoxToOLBoolean binding
   TestCheckBoxToOLBoolean = class(TTestCase)
   private
@@ -441,7 +458,7 @@ procedure TestDateTimePickerToOLDate.TestPickerToValueSync;
 var
   TestDate: TDate;
 begin
-  TestDate := EncodeDate(2025, 11, 23);
+  TestDate := EncodeDate(2025, 11, 22);
   FPicker.Date := TestDate;
   
   CheckEquals(TestDate, TDate(FValue), 'Value should be synced from DateTimePicker');
@@ -468,6 +485,64 @@ begin
 end;
 
 procedure TestDateTimePickerToOLDate.TestNullFormatDisplay;
+begin
+  FValue := Null;
+  FLinks.RefreshControls(FForm);
+  
+  // Check that format changed to "- - -"
+  CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
+end;
+
+{ TestDateTimePickerToOLDateTime }
+
+procedure TestDateTimePickerToOLDateTime.SetUp;
+begin
+  FForm := TForm.Create(nil);
+  FPicker := TDateTimePicker.Create(FForm);
+  FPicker.Parent := FForm;
+  FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
+  FPicker.Kind := dtkDateTime;
+  FValue := OLDateTime.Now;
+  FLinks.Link(FPicker, FValue);
+end;
+
+procedure TestDateTimePickerToOLDateTime.TearDown;
+begin
+  FLinks.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestDateTimePickerToOLDateTime.TestPickerToValueSync;
+var
+  TestDateTime: TDateTime;
+begin
+  TestDateTime := EncodeDate(2025, 11, 22) + EncodeTime(14, 30, 45, 0);
+  FPicker.DateTime := TestDateTime;
+  
+  CheckEquals(TestDateTime, TDateTime(FValue), 0.001, 'Value should be synced from DateTimePicker');
+end;
+
+procedure TestDateTimePickerToOLDateTime.TestValueToPickerSync;
+var
+  TestDateTime: TDateTime;
+begin
+  TestDateTime := EncodeDate(2024, 1, 1) + EncodeTime(10, 15, 30, 0);
+  FValue := TestDateTime;
+  FLinks.RefreshControls(FForm);
+  
+  CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'DateTimePicker should display new value');
+end;
+
+procedure TestDateTimePickerToOLDateTime.TestNullHandling;
+begin
+  FValue := Null;
+  FLinks.RefreshControls(FForm);
+  
+  // When NULL, format should change to NULL_FORMAT
+  CheckTrue(FValue.IsNull, 'Value should be NULL');
+end;
+
+procedure TestDateTimePickerToOLDateTime.TestNullFormatDisplay;
 begin
   FValue := Null;
   FLinks.RefreshControls(FForm);
@@ -722,6 +797,7 @@ initialization
   RegisterTest(TestEditToOLCurrency.Suite);
   RegisterTest(TestSpinEditToOLInteger.Suite);
   RegisterTest(TestDateTimePickerToOLDate.Suite);
+  RegisterTest(TestDateTimePickerToOLDateTime.Suite);
   RegisterTest(TestCheckBoxToOLBoolean.Suite);
   RegisterTest(TestOLTypesToControlsLinks.Suite);
   RegisterTest(TestMemorySafety.Suite);
