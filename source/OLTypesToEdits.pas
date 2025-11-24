@@ -6,9 +6,9 @@ interface
 
 uses OLTypes, System.Generics.Collections,
   {$IF CompilerVersion >= 23.0}
-  Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms, System.Classes;
+  Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms, System.Classes, Vcl.Controls, Messages, Winapi.Windows, Vcl.ExtCtrls;
   {$ELSE}
-  StdCtrls, SysUtils, Spin, ComCtrls, Forms, Classes;
+  StdCtrls, SysUtils, Spin, ComCtrls, Forms, Classes, Controls, Messages, Windows, ExtCtrls;
   {$IFEND}
 
 const
@@ -35,7 +35,13 @@ type
   TFunctionReturningOLDate = reference to function(): OLDate;
   TFunctionReturningOLDateTime= reference to function(): OLDateTime;
 
-  TEditToOLInteger = class
+  TOLLinkBase = class(TComponent)
+  public
+    constructor Create; reintroduce;
+    procedure RefreshControl; virtual; abstract;
+  end;
+
+  TEditToOLInteger = class(TOLLinkBase)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -45,12 +51,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TSpinEditToOLInteger = class
+  TSpinEditToOLInteger = class(TOLLinkBase)
   private
     FEdit: TSpinEdit;
     FEditOnChange: TEditOnChange;
@@ -60,12 +66,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TSpinEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TScrollBarToILInteger = class
+  TScrollBarToILInteger = class(TOLLinkBase)
   private
     FEdit: TScrollBar;
     FEditOnChange: TEditOnChange;
@@ -75,12 +81,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TScrollBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TTrackBarToILInteger = class
+  TTrackBarToILInteger = class(TOLLinkBase)
   private
     FEdit: TTrackBar;
     FEditOnChange: TEditOnChange;
@@ -90,12 +96,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TTrackBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TEditToOLDouble = class
+  TEditToOLDouble = class(TOLLinkBase)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -105,12 +111,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
   end;
 
-  TEditToOLCurrency = class
+  TEditToOLCurrency = class(TOLLinkBase)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -120,12 +126,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
   end;
 
-  TEditToOLString = class
+  TEditToOLString = class(TOLLinkBase)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -135,12 +141,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
   end;
 
-  TMemoToOLString = class
+  TMemoToOLString = class(TOLLinkBase)
   private
     FEdit: TMemo;
     FEditOnChange: TEditOnChange;
@@ -150,12 +156,12 @@ type
   public
     constructor Create;
     procedure NewOnChange(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TMemo read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
   end;
 
-  TDateTimePickerToOLDate = class
+  TDateTimePickerToOLDate = class(TOLLinkBase)
   private
     FEdit: TDateTimePicker;
     FEditOnChange: TEditOnChange;
@@ -164,19 +170,27 @@ type
     FOLPointer: POLDate;
     NotNullFormat: string;
     LastTwoKeys, LastThreeKeys: OLString;
+    FOriginalWindowProc: TWndMethod;
+    FUpdatingFromRefresh: Boolean;
+    FUpdatingFromControl: Boolean;
+
+    procedure NewWindowProc(var Message: TMessage);
     procedure SetEdit(const Value: TDateTimePicker);
     procedure SetOLPointer(const Value: POLDate);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
     procedure NewOnEnter(Sender: TObject);
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
   end;
 
-  TDateTimePickerToOLDateTime = class
+  TDateTimePickerToOLDateTime = class(TOLLinkBase)
   private
     FEdit: TDateTimePicker;
     FEditOnChange: TEditOnChange;
@@ -185,19 +199,27 @@ type
     FOLPointer: POLDateTime;
     NotNullFormat: string;
     LastTwoKeys, LastThreeKeys: OLString;
+    FOriginalWindowProc: TWndMethod;
+    FUpdatingFromRefresh: Boolean;
+    FUpdatingFromControl: Boolean;
+
+    procedure NewWindowProc(var Message: TMessage);
     procedure SetEdit(const Value: TDateTimePicker);
     procedure SetOLPointer(const Value: POLDateTime);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
     procedure NewOnEnter(Sender: TObject);
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
   end;
 
-  TCheckBoxToOLBoolean = class
+  TCheckBoxToOLBoolean = class(TOLLinkBase)
   private
     FEdit: TCheckBox;
     FEditOnClick: TEditOnClick;
@@ -207,12 +229,12 @@ type
   public
     constructor Create;
     procedure NewOnClick(Sender: TObject);
-    procedure RefreshEdit();
+    procedure RefreshControl; override;
     property Edit: TCheckBox read FEdit write SetEdit;
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
   end;
 
-  TOLIntegerToLabel = class
+  TOLIntegerToLabel = class(TOLLinkBase)
   private
     FLabel: TLabel;
     FOLPointer: POLInteger;
@@ -224,14 +246,14 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
-    procedure RefreshLabel;
+    procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLInteger read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLStringToLabel = class
+  TOLStringToLabel = class(TOLLinkBase)
   private
     FLabel: TLabel;
     FOLPointer: POLString;
@@ -243,14 +265,14 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
-    procedure RefreshLabel;
+    procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLString read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLDoubleToLabel = class
+  TOLDoubleToLabel = class(TOLLinkBase)
   private
     FLabel: TLabel;
     FOLPointer: POLDouble;
@@ -262,14 +284,14 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
-    procedure RefreshLabel;
+    procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDouble read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLCurrencyToLabel = class
+  TOLCurrencyToLabel = class(TOLLinkBase)
   private
     FLabel: TLabel;
     FOLPointer: POLCurrency;
@@ -281,14 +303,14 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
-    procedure RefreshLabel;
+    procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLCurrency read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLDateToLabel = class
+  TOLDateToLabel = class(TOLLinkBase)
   private
     FLabel: TLabel;
     FOLPointer: POLDate;
@@ -300,14 +322,14 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
-    procedure RefreshLabel;
+    procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDate read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLDateTimeToLabel = class
+  TOLDateTimeToLabel = class(TOLLinkBase)
   private
     FLabel: TLabel;
     FOLPointer: POLDateTime;
@@ -318,7 +340,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLDateTime);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
-    procedure RefreshLabel;
+    procedure RefreshControl; override;
     constructor Create;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
@@ -328,23 +350,13 @@ type
 
   TOLTypesToControlsLinks = record
   private
-    EditsToOLIntegers: TObjectList<TEditToOLInteger>;
-    SpinEditsToOLIntegers: TObjectList<TSpinEditToOLInteger>;
-    TrackBarsToOLIntegers: TObjectList<TTrackBarToILInteger>;
-    ScrollBarsToOLIntegers: TObjectList<TScrollBarToILInteger>;
-    EditsToOLDoubles: TObjectList<TEditToOLDouble>;
-    EditsToOLCurrencies: TObjectList<TEditToOLCurrency>;
-    EditsToOLStrings: TObjectList<TEditToOLString>;
-    MemosToOLStrings: TObjectList<TMemoToOLString>;
-    DataTimerPickersToOLDates: TObjectList<TDateTimePickerToOLDate>;
-    DataTimerPickersToOLDateTimes: TObjectList<TDateTimePickerToOLDateTime>;
-    CheckBoxesToOLBooleans: TObjectList<TCheckBoxToOLBoolean>;
-    OLIntegersToLabels: TObjectList<TOLIntegerToLabel>;
-    OLStringToLabels: TObjectList<TOLStringToLabel>;
-    OLDoublesToLabels: TObjectList<TOLDoubleToLabel>;
-    OLCurrencyToLabels: TObjectList<TOLCurrencyToLabel>;
-    OLDatesToLabels: TObjectList<TOLDateToLabel>;
-    OLDateTimesToLabels: TObjectList<TOLDateTimeToLabel>;
+
+  private
+  private
+    FLinks: TDictionary<TForm, TObjectList<TOLLinkBase>>;
+    FTimers: TDictionary<TForm, TTimer>;
+    FWatchers: TDictionary<TForm, TComponent>;
+    procedure AddLink(Control: TControl; Link: TOLLinkBase);
   public
     class operator Initialize(out Dest: TOLTypesToControlsLinks);
     class operator Finalize(var Dest: TOLTypesToControlsLinks);
@@ -377,6 +389,9 @@ type
     procedure RemoveLinks(DestroyedForm: TForm = nil);
   end;
 
+var
+  Links: TOLTypesToControlsLinks;
+
 
 implementation
 
@@ -392,6 +407,67 @@ const
 
 type
   THackDateTimePicker = class(TDateTimePicker);
+
+  TRefreshTimer = class(TTimer)
+  private
+    FForm: TForm;
+    procedure TimerEvent(Sender: TObject);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+  public
+    constructor Create(AOwner: TComponent; AForm: TForm); reintroduce;
+    destructor Destroy; override;
+  end;
+
+  TOLFormWatcher = class(TComponent)
+  public
+    destructor Destroy; override;
+  end;
+
+constructor TRefreshTimer.Create(AOwner: TComponent; AForm: TForm);
+begin
+  inherited Create(AOwner);
+  FForm := AForm;
+  if Assigned(FForm) then
+    FForm.FreeNotification(Self);
+  Interval := 100;
+  OnTimer := TimerEvent;
+end;
+
+destructor TRefreshTimer.Destroy;
+begin
+  if Assigned(FForm) then
+    FForm.RemoveFreeNotification(Self);
+  inherited;
+end;
+
+procedure TRefreshTimer.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FForm) then
+  begin
+    FForm := nil;
+    Enabled := False;
+    if Assigned(Links.FTimers) then
+       Links.FTimers.Remove(AComponent as TForm);
+    
+    // Ensure we free ourselves since we are owned by nil
+    Self.Free;
+  end;
+end;
+
+procedure TRefreshTimer.TimerEvent(Sender: TObject);
+begin
+  if Assigned(FForm) then
+    Links.RefreshControls(FForm);
+end;
+
+destructor TOLFormWatcher.Destroy;
+begin
+  if Owner is TForm then
+    Links.RemoveLinks(Owner as TForm);
+  inherited;
+end;
 
 constructor TEditToOLInteger.Create;
 begin
@@ -425,7 +501,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TEditToOLInteger.RefreshEdit;
+procedure TEditToOLInteger.RefreshControl;
 begin
   if Edit.Text <> (OLPointer^).ToString() then
     Edit.Text := (OLPointer^).ToString();
@@ -466,7 +542,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TEditToOLString.RefreshEdit;
+procedure TEditToOLString.RefreshControl;
 begin
   if Edit.Text <> (OLPointer^).ToString() then
     Edit.Text := (OLPointer^).ToString();
@@ -507,7 +583,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TMemoToOLString.RefreshEdit;
+procedure TMemoToOLString.RefreshControl;
 begin
   if Edit.Text <> (OLPointer^).ToString() then
     Edit.Text := (OLPointer^).ToString();
@@ -553,17 +629,24 @@ begin
   j := Edit.SelStart;
   l := Edit.SelLength;
 
-  if TryStrToFloat(s, d) then
+  if s = '' then
+  begin
+    OLPointer^ := Null;
+
+    if Edit.Focused() then
+      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT)
+    else
+      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, DOUBLE_FORMAT);
+
+    j := j - 1;
+  end
+  else if TryStrToFloat(s, d) then
   begin
     OLPointer^ := d;
     l := 0;
   end
   else
   begin
-    if s = '' then
-      OLPointer^ := Null;
-
-
     if Edit.Focused() then
       Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT)
     else
@@ -580,7 +663,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TEditToOLDouble.RefreshEdit;
+procedure TEditToOLDouble.RefreshControl;
 var
   fs: TFormatSettings;
   s: string;
@@ -646,17 +729,24 @@ begin
     end;
   end;
 
-  if TryStrToCurr(s, curr) then
+  if s = '' then
+  begin
+    OLPointer^ := Null;
+
+    if Edit.Focused() then
+      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT)
+    else
+      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, CURRENCY_FORMAT);
+
+    j := j - 1;
+  end
+  else if TryStrToCurr(s, curr) then
   begin
     OLPointer^ := curr;
     l := 0;
   end
   else
   begin
-    if s = '' then
-      OLPointer^ := Null;
-
-
     if Edit.Focused() then
       Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT)
     else
@@ -673,7 +763,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TEditToOLCurrency.RefreshEdit;
+procedure TEditToOLCurrency.RefreshControl;
 var
   fs: TFormatSettings;
   s: string;
@@ -736,7 +826,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TSpinEditToOLInteger.RefreshEdit;
+procedure TSpinEditToOLInteger.RefreshControl;
 begin
   if Edit.Text <> (OLPointer^).ToString() then
     Edit.Text := (OLPointer^).ToString();
@@ -757,6 +847,13 @@ begin
   FOLPointer := Value;
 end;
 
+{ TOLLinkBase }
+
+constructor TOLLinkBase.Create;
+begin
+  inherited Create(nil);
+end;
+
 { TDateTimePickerToOLDate }
 
 constructor TDateTimePickerToOLDate.Create;
@@ -770,16 +867,93 @@ begin
   NotNullFormat := '';
   LastTwoKeys := '';
   LastThreeKeys := '';
+  FUpdatingFromRefresh := False;
+  FUpdatingFromControl := False;
+end;
+
+destructor TDateTimePickerToOLDate.Destroy;
+begin
+  if Assigned(FEdit) then
+  begin
+    if Assigned(FOriginalWindowProc) then
+      FEdit.WindowProc := FOriginalWindowProc;
+    if Assigned(FEditOnChange) then
+      FEdit.OnChange := FEditOnChange;
+    if Assigned(FEditOnEnter) then
+      FEdit.OnEnter := FEditOnEnter;
+    if Assigned(FEditOnKeyPress) then
+      FEdit.OnKeyPress := FEditOnKeyPress;
+  end;
+  inherited;
+end;
+
+procedure TDateTimePickerToOLDate.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FEdit) then
+    FEdit := nil;
 end;
 
 procedure TDateTimePickerToOLDate.NewOnChange(Sender: TObject);
 begin
-  OLPointer^ := Edit.DateTime;
+  FUpdatingFromControl := True;
+  try
+    OLPointer^ := Edit.DateTime;
 
-  GetParentForm(Edit).Invalidate();
+    if GetParentForm(Edit) <> nil then
+      GetParentForm(Edit).Invalidate();
 
-  if Assigned(FEditOnChange) then
-    FEditOnChange(Edit);
+    if Assigned(FEditOnChange) then
+      FEditOnChange(Edit);
+  finally
+    FUpdatingFromControl := False;
+  end;
+end;
+
+procedure TDateTimePickerToOLDate.NewWindowProc(var Message: TMessage);
+const
+  DTM_SETSYSTEMTIME = $1002;
+  GDT_VALID = 0;
+  CM_PARENTCHANGED = $B001;
+var
+  SysTime: PSystemTime;
+  NewDate: TDateTime;
+  IsSetSystemTime: Boolean;
+begin
+  IsSetSystemTime := (Message.Msg = DTM_SETSYSTEMTIME) and (not FUpdatingFromRefresh);
+
+  if IsSetSystemTime then
+  begin
+    FUpdatingFromControl := True;
+    try
+      if Message.WParam = GDT_VALID then
+      begin
+        SysTime := PSystemTime(Message.LParam);
+        NewDate := SystemTimeToDateTime(SysTime^);
+        OLPointer^ := NewDate;
+      end
+      else
+        OLPointer^ := Null;
+
+      FOriginalWindowProc(Message);
+
+      if GetParentForm(Edit) <> nil then
+        GetParentForm(Edit).Invalidate();
+
+      if Assigned(FEditOnChange) then
+        FEditOnChange(Edit);
+    finally
+      FUpdatingFromControl := False;
+    end;
+  end
+  else if Message.Msg = CM_PARENTCHANGED then
+  begin
+    FOriginalWindowProc(Message);
+    if (Edit <> nil) and (Edit.Parent <> nil) then
+      Edit.HandleNeeded;
+  end
+  else
+    FOriginalWindowProc(Message);
 end;
 
 procedure TDateTimePickerToOLDate.NewOnEnter(Sender: TObject);
@@ -834,10 +1008,13 @@ begin
     FEditOnKeyPress(Sender, Key);
 end;
 
-procedure TDateTimePickerToOLDate.RefreshEdit;
+procedure TDateTimePickerToOLDate.RefreshControl;
 var
   d: OLDate;
 begin
+  if FUpdatingFromControl then
+    Exit;
+
   if not Edit.Focused() then
   begin
     d := (OLPointer^);
@@ -845,7 +1022,14 @@ begin
     if d.HasValue then
     begin
       if Edit.DateTime <> d then
-        Edit.DateTime := d;
+      begin
+        FUpdatingFromRefresh := True;
+        try
+          Edit.DateTime := d;
+        finally
+          FUpdatingFromRefresh := False;
+        end;
+      end;
       if Edit.Format <> NotNullFormat then
         Edit.Format := NotNullFormat;
     end
@@ -863,6 +1047,8 @@ begin
 
   if Assigned(Value) then
   begin
+    Value.FreeNotification(Self);
+
     NotNullFormat := Value.Format;
 
     FEditOnChange := Value.OnChange;
@@ -873,6 +1059,12 @@ begin
 
     FEditOnKeyPress := Value.OnKeyPress;
     Value.OnKeyPress := NewOnKeyPress;
+
+    FOriginalWindowProc := Value.WindowProc;
+    Value.WindowProc := NewWindowProc;
+
+    if Value.Parent <> nil then
+      Value.HandleNeeded;
   end;
 end;
 
@@ -894,20 +1086,97 @@ begin
   NotNullFormat := '';
   LastTwoKeys := '';
   LastThreeKeys := '';
+  FUpdatingFromRefresh := False;
+  FUpdatingFromControl := False;
+end;
+
+destructor TDateTimePickerToOLDateTime.Destroy;
+begin
+  if Assigned(FEdit) then
+  begin
+    if Assigned(FOriginalWindowProc) then
+      FEdit.WindowProc := FOriginalWindowProc;
+    if Assigned(FEditOnChange) then
+      FEdit.OnChange := FEditOnChange;
+    if Assigned(FEditOnEnter) then
+      FEdit.OnEnter := FEditOnEnter;
+    if Assigned(FEditOnKeyPress) then
+      FEdit.OnKeyPress := FEditOnKeyPress;
+  end;
+  inherited;
+end;
+
+procedure TDateTimePickerToOLDateTime.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FEdit) then
+    FEdit := nil;
 end;
 
 procedure TDateTimePickerToOLDateTime.NewOnChange(Sender: TObject);
 begin
-  //OLPointer^ := Edit.Date + Edit.Time;
+  FUpdatingFromControl := True;
+  try
+    //OLPointer^ := Edit.Date + Edit.Time;
 
-  //OLPointer^ := StrToDateTime(THackDateTimePicker(Edit).Caption);
+    //OLPointer^ := StrToDateTime(THackDateTimePicker(Edit).Caption);
 
-  OLPointer^ := Edit.DateTime;
+    OLPointer^ := Edit.DateTime;
 
-  GetParentForm(Edit).Invalidate();
+    if GetParentForm(Edit) <> nil then
+      GetParentForm(Edit).Invalidate();
 
-  if Assigned(FEditOnChange) then
-    FEditOnChange(Edit);
+    if Assigned(FEditOnChange) then
+      FEditOnChange(Edit);
+  finally
+    FUpdatingFromControl := False;
+  end;
+end;
+
+procedure TDateTimePickerToOLDateTime.NewWindowProc(var Message: TMessage);
+const
+  DTM_SETSYSTEMTIME = $1002;
+  GDT_VALID = 0;
+  CM_PARENTCHANGED = $B001;
+var
+  SysTime: PSystemTime;
+  NewDate: TDateTime;
+  IsSetSystemTime: Boolean;
+begin
+  IsSetSystemTime := (Message.Msg = DTM_SETSYSTEMTIME) and (not FUpdatingFromRefresh);
+
+  if IsSetSystemTime then
+  begin
+    FUpdatingFromControl := True;
+    try
+      if Message.WParam = GDT_VALID then
+      begin
+        SysTime := PSystemTime(Message.LParam);
+        NewDate := SystemTimeToDateTime(SysTime^);
+        OLPointer^ := NewDate;
+      end
+      else
+        OLPointer^ := Null;
+
+      FOriginalWindowProc(Message);
+
+      if GetParentForm(Edit) <> nil then
+        GetParentForm(Edit).Invalidate();
+
+      if Assigned(FEditOnChange) then
+        FEditOnChange(Edit);
+    finally
+      FUpdatingFromControl := False;
+    end;
+  end
+  else if Message.Msg = CM_PARENTCHANGED then
+  begin
+    FOriginalWindowProc(Message);
+    if (Edit <> nil) and (Edit.Parent <> nil) then
+      Edit.HandleNeeded;
+  end
+  else
+    FOriginalWindowProc(Message);
 end;
 
 procedure TDateTimePickerToOLDateTime.NewOnEnter(Sender: TObject);
@@ -961,10 +1230,13 @@ begin
     FEditOnKeyPress(Sender, Key);
 end;
 
-procedure TDateTimePickerToOLDateTime.RefreshEdit;
+procedure TDateTimePickerToOLDateTime.RefreshControl;
 var
   d: OLDateTime;
 begin
+  if FUpdatingFromControl then
+    Exit;
+
   if not Edit.Focused() then
   begin
     d := (OLPointer^);
@@ -972,7 +1244,14 @@ begin
     if d.HasValue then
     begin
       if Edit.DateTime <> d then
-        Edit.DateTime := d;
+      begin
+        FUpdatingFromRefresh := True;
+        try
+          Edit.DateTime := d;
+        finally
+          FUpdatingFromRefresh := False;
+        end;
+      end;
       if Edit.Format <> NotNullFormat then
         Edit.Format := NotNullFormat;
     end
@@ -990,6 +1269,8 @@ begin
 
   if Assigned(Value) then
   begin
+    Value.FreeNotification(Self);
+
     NotNullFormat := Value.Format;
 
     FEditOnChange := Value.OnChange;
@@ -1000,6 +1281,12 @@ begin
 
     FEditOnKeyPress := Value.OnKeyPress;
     Value.OnKeyPress := NewOnKeyPress;
+
+    FOriginalWindowProc := Value.WindowProc;
+    Value.WindowProc := NewWindowProc;
+
+    if Value.Parent <> nil then
+      Value.HandleNeeded;
   end;
 end;
 
@@ -1028,7 +1315,7 @@ begin
     FEditOnClick(Edit);
 end;
 
-procedure TCheckBoxToOLBoolean.RefreshEdit;
+procedure TCheckBoxToOLBoolean.RefreshControl;
 begin
   if Edit.Checked <> (OLPointer^).IfNull(False) then
     Edit.Checked := (OLPointer^).IfNull(False);
@@ -1060,7 +1347,7 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
-procedure TOLIntegerToLabel.RefreshLabel;
+procedure TOLIntegerToLabel.RefreshControl;
 var
   s: string;
 begin
@@ -1120,7 +1407,7 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
-procedure TOLStringToLabel.RefreshLabel;
+procedure TOLStringToLabel.RefreshControl;
 var
   s: string;
 begin
@@ -1180,7 +1467,7 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
-procedure TOLDoubleToLabel.RefreshLabel;
+procedure TOLDoubleToLabel.RefreshControl;
 var
   fs: TFormatSettings;
   s: string;
@@ -1243,7 +1530,7 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
-procedure TOLCurrencyToLabel.RefreshLabel;
+procedure TOLCurrencyToLabel.RefreshControl;
 var
   fs: TFormatSettings;
   s: string;
@@ -1306,7 +1593,7 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
-procedure TOLDateToLabel.RefreshLabel;
+procedure TOLDateToLabel.RefreshControl;
 var
   s: string;
 begin
@@ -1366,7 +1653,7 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
-procedure TOLDateTimeToLabel.RefreshLabel;
+procedure TOLDateTimeToLabel.RefreshControl;
 var
   s: string;
 begin
@@ -1435,7 +1722,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TScrollBarToILInteger.RefreshEdit;
+procedure TScrollBarToILInteger.RefreshControl;
 begin
   if Edit.Position <> (OLPointer^).IfNull(0) then
     Edit.Position := (OLPointer^).IfNull(0);
@@ -1476,7 +1763,7 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TTrackBarToILInteger.RefreshEdit;
+procedure TTrackBarToILInteger.RefreshControl;
 begin
   if Edit.Position <> (OLPointer^).IfNull(0) then
     Edit.Position := (OLPointer^).IfNull(0);
@@ -1501,44 +1788,69 @@ end;
 
 class operator TOLTypesToControlsLinks.Initialize(out Dest: TOLTypesToControlsLinks);
 begin
-  Dest.EditsToOLIntegers := TObjectList<TEditToOLInteger>.Create(True);
-  Dest.SpinEditsToOLIntegers := TObjectList<TSpinEditToOLInteger>.Create(True);
-  Dest.TrackBarsToOLIntegers := TObjectList<TTrackBarToILInteger>.Create(True);
-  Dest.ScrollBarsToOLIntegers := TObjectList<TScrollBarToILInteger>.Create(True);
-  Dest.EditsToOLDoubles := TObjectList<TEditToOLDouble>.Create(True);
-  Dest.EditsToOLCurrencies := TObjectList<TEditToOLCurrency>.Create(True);
-  Dest.EditsToOLStrings := TObjectList<TEditToOLString>.Create(True);
-  Dest.MemosToOLStrings := TObjectList<TMemoToOLString>.Create(True);
-  Dest.DataTimerPickersToOLDates := TObjectList<TDateTimePickerToOLDate>.Create(True);
-  Dest.DataTimerPickersToOLDateTimes := TObjectList<TDateTimePickerToOLDateTime>.Create(True);
-  Dest.CheckBoxesToOLBooleans := TObjectList<TCheckBoxToOLBoolean>.Create(True);
-  Dest.OLIntegersToLabels := TObjectList<TOLIntegerToLabel>.Create(True);
-  Dest.OLStringToLabels := TObjectList<TOLStringToLabel>.Create(True);
-  Dest.OLDoublesToLabels := TObjectList<TOLDoubleToLabel>.Create(True);
-  Dest.OLCurrencyToLabels := TObjectList<TOLCurrencyToLabel>.Create(True);
-  Dest.OLDatesToLabels := TObjectList<TOLDateToLabel>.Create(True);
-  Dest.OLDateTimesToLabels := TObjectList<TOLDateTimeToLabel>.Create(True);
+  Dest.FLinks := TDictionary<TForm, TObjectList<TOLLinkBase>>.Create;
+  Dest.FTimers := TDictionary<TForm, TTimer>.Create;
+  Dest.FWatchers := TDictionary<TForm, TComponent>.Create;
 end;
 
 class operator TOLTypesToControlsLinks.Finalize(var Dest: TOLTypesToControlsLinks);
+var
+  List: TObjectList<TOLLinkBase>;
 begin
-  Dest.EditsToOLIntegers.Free;
-  Dest.SpinEditsToOLIntegers.Free;
-  Dest.TrackBarsToOLIntegers.Free;
-  Dest.ScrollBarsToOLIntegers.Free;
-  Dest.EditsToOLDoubles.Free;
-  Dest.EditsToOLCurrencies.Free;
-  Dest.EditsToOLStrings.Free;
-  Dest.MemosToOLStrings.Free;
-  Dest.DataTimerPickersToOLDates.Free;
-  Dest.DataTimerPickersToOLDateTimes.Free;
-  Dest.CheckBoxesToOLBooleans.Free;
-  Dest.OLIntegersToLabels.Free;
-  Dest.OLStringToLabels.Free;
-  Dest.OLDoublesToLabels.Free;
-  Dest.OLCurrencyToLabels.Free;
-  Dest.OLDatesToLabels.Free;
-  Dest.OLDateTimesToLabels.Free;
+  if Assigned(Dest.FLinks) then
+  begin
+    for List in Dest.FLinks.Values do
+      List.Free;
+    Dest.FLinks.Free;
+  end;
+  if Assigned(Dest.FTimers) then
+  begin
+    // Free all timers to avoid leaks and AVs
+    for var Timer in Dest.FTimers.Values do
+    begin
+      Timer.Enabled := False;
+      Timer.Free;
+    end;
+    Dest.FTimers.Free;
+  end;
+  if Assigned(Dest.FWatchers) then
+    Dest.FWatchers.Free;
+end;
+
+procedure TOLTypesToControlsLinks.AddLink(Control: TControl; Link: TOLLinkBase);
+var
+  Form: TForm;
+  List: TObjectList<TOLLinkBase>;
+  Timer: TTimer;
+  Watcher: TOLFormWatcher;
+begin
+  Form := GetParentForm(Control) as TForm;
+  if Form = nil then Exit;
+
+  if not Assigned(FLinks) then Exit;
+
+  if not FLinks.TryGetValue(Form, List) then
+  begin
+    List := TObjectList<TOLLinkBase>.Create(True);
+    FLinks.Add(Form, List);
+  end;
+
+  List.Add(Link);
+
+  // Ensure Timer
+  if not FTimers.ContainsKey(Form) then
+  begin
+    Timer := TRefreshTimer.Create(nil, Form); // Owned by nil, we manage it
+    Timer.Enabled := True;
+    FTimers.Add(Form, Timer);
+  end;
+
+  // Ensure Watcher
+  if not FWatchers.ContainsKey(Form) then
+  begin
+    Watcher := TOLFormWatcher.Create(Form); // Owned by Form, so it dies with Form
+    FWatchers.Add(Form, Watcher);
+  end;
 end;
 
 
@@ -1549,7 +1861,7 @@ begin
   Link := TSpinEditToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
-  SpinEditsToOLIntegers.Add(Link);
+  AddLink(Edit, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var i: OLInteger;
@@ -1560,7 +1872,7 @@ begin
   Link := TEditToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
-  EditsToOLIntegers.Add(Link);
+  AddLink(Edit, Link);
   
   Edit.Alignment := Alignment;
 end;
@@ -1572,7 +1884,7 @@ begin
   Link := TTrackBarToILInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
-  TrackBarsToOLIntegers.Add(Link);
+  AddLink(Edit, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TScrollBar; var i: OLInteger);
@@ -1582,7 +1894,7 @@ begin
   Link := TScrollBarToILInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
-  ScrollBarsToOLIntegers.Add(Link);
+  AddLink(Edit, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var d: OLDouble; const Alignment: TAlignment=taRightJustify);
@@ -1592,7 +1904,7 @@ begin
   Link := TEditToOLDouble.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @d;
-  EditsToOLDoubles.Add(Link);
+  AddLink(Edit, Link);
   
   Edit.Alignment := Alignment;
 end;
@@ -1605,7 +1917,7 @@ begin
   Link := TEditToOLCurrency.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @curr;
-  EditsToOLCurrencies.Add(Link);
+  AddLink(Edit, Link);
   
   Edit.Alignment := Alignment;
 end;
@@ -1617,7 +1929,7 @@ begin
   Link := TEditToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
-  EditsToOLStrings.Add(Link);
+  AddLink(Edit, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TMemo; var s: OLString);
@@ -1627,7 +1939,7 @@ begin
   Link := TMemoToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
-  MemosToOLStrings.Add(Link);
+  AddLink(Edit, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TDateTimePicker; var d: OLDate);
@@ -1637,14 +1949,13 @@ var
 begin
   if Edit.Format = '' then
   begin
-    fs := TFormatSettings.Create();
-    Edit.Format := OLType(fs.ShortDateFormat).Replaced('/', fs.DateSeparator);
+    Edit.Format := OLType(FormatSettings.ShortDateFormat);
   end;
   
   Link := TDateTimePickerToOLDate.Create;
-  Link.Edit := Edit;
   Link.FOLPointer := @d;
-  DataTimerPickersToOLDates.Add(Link);
+  Link.Edit := Edit;
+  AddLink(Edit, Link);
 end;
 
 
@@ -1666,9 +1977,9 @@ begin
   end;
   
   Link := TDateTimePickerToOLDateTime.Create;
-  Link.Edit := Edit;
   Link.FOLPointer := @d;
-  DataTimerPickersToOLDateTimes.Add(Link);
+  Link.Edit := Edit;
+  AddLink(Edit, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TCheckBox; var b: OLBoolean);
@@ -1678,7 +1989,7 @@ begin
   Link := TCheckBoxToOLBoolean.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @b;
-  CheckBoxesToOLBooleans.Add(Link);
+  AddLink(Edit, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var i: OLInteger);
@@ -1688,7 +1999,7 @@ begin
   Link := TOLIntegerToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @i;
-  OLIntegersToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f:
@@ -1701,7 +2012,7 @@ begin
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  OLIntegersToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f:
@@ -1714,7 +2025,7 @@ begin
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  OLStringToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var s: OLString);
@@ -1724,7 +2035,7 @@ begin
   Link := TOLStringToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @s;
-  OLStringToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string);
@@ -1735,7 +2046,7 @@ begin
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  OLDoublesToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDouble);
@@ -1745,7 +2056,7 @@ begin
   Link := TOLDoubleToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
-  OLDoublesToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string);
@@ -1756,7 +2067,7 @@ begin
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  OLCurrencyToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var curr: OLCurrency);
@@ -1766,7 +2077,7 @@ begin
   Link := TOLCurrencyToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @curr;
-  OLCurrencyToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
@@ -1777,7 +2088,7 @@ begin
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  OLDatesToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDate);
@@ -1787,7 +2098,7 @@ begin
   Link := TOLDateToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
-  OLDatesToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
 
 
@@ -1800,174 +2111,8 @@ begin
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  OLDateTimesToLabels.Add(Link);
+  AddLink(Lbl, Link);
 end;
-
-procedure TOLTypesToControlsLinks.RefreshControls(FormToRefresh: TForm = nil);
-var
-  EditToOLInteger: TEditToOLInteger;
-  SpinEditToOLInteger: TSpinEditToOLInteger;
-  TrackBarToILInteger: TTrackBarToILInteger;
-  ScrollBarToILInteger: TScrollBarToILInteger;
-  EditToOLDouble: TEditToOLDouble;
-  EditToOLCurrency: TEditToOLCurrency;
-  EditToOLString: TEditToOLString;
-  MemoToOLString: TMemoToOLString;
-  DateTimePickerToOLDate: TDateTimePickerToOLDate;
-  DateTimePickerToOLDateTime: TDateTimePickerToOLDateTime;
-  CheckBoxToOLBoolean: TCheckBoxToOLBoolean;
-  OLIntegerToLabel: TOLIntegerToLabel;
-  OLStringToLabel: TOLStringToLabel;
-  OLDoubleToLabel: TOLDoubleToLabel;
-  OLCurrencyToLabel: TOLCurrencyToLabel;
-  OLDateToLabel: TOLDateToLabel;
-  OLDateTimeToLabel: TOLDateTimeToLabel;
-begin
-  for EditToOLInteger in EditsToOLIntegers do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(EditToOLInteger.Edit) = FormToRefresh) then
-      EditToOLInteger.RefreshEdit();
-
-  for SpinEditToOLInteger in SpinEditsToOLIntegers do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(SpinEditToOLInteger.Edit) = FormToRefresh) then
-      SpinEditToOLInteger.RefreshEdit();
-
-  for TrackBarToILInteger in TrackBarsToOLIntegers do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(TrackBarToILInteger.Edit) = FormToRefresh) then
-      TrackBarToILInteger.RefreshEdit();
-
-  for ScrollBarToILInteger in ScrollBarsToOLIntegers do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(ScrollBarToILInteger.Edit) = FormToRefresh) then
-      ScrollBarToILInteger.RefreshEdit();
-
-  for EditToOLDouble in EditsToOLDoubles do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(EditToOLDouble.Edit) = FormToRefresh) then
-      EditToOLDouble.RefreshEdit();
-
-  for EditToOLCurrency in EditsToOLCurrencies do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(EditToOLCurrency.Edit) = FormToRefresh) then
-      EditToOLCurrency.RefreshEdit();
-
-  for EditToOLString in EditsToOLStrings do
-    if (not Assigned(FormToRefresh)) or (Assigned(EditToOLString.Edit) and Assigned(EditToOLString.Edit.Parent) and (GetParentForm(EditToOLString.Edit) = FormToRefresh)) then
-      EditToOLString.RefreshEdit();
-
-  for MemoToOLString in MemosToOLStrings do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(MemoToOLString.Edit) = FormToRefresh) then
-      MemoToOLString.RefreshEdit();
-
-  for DateTimePickerToOLDate in DataTimerPickersToOLDates do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(DateTimePickerToOLDate.Edit) = FormToRefresh) then
-      DateTimePickerToOLDate.RefreshEdit();
-
-  for DateTimePickerToOLDateTime in DataTimerPickersToOLDateTimes do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(DateTimePickerToOLDateTime.Edit) = FormToRefresh) then
-      DateTimePickerToOLDateTime.RefreshEdit();
-
-  for CheckBoxToOLBoolean in CheckBoxesToOLBooleans do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(CheckBoxToOLBoolean.Edit) = FormToRefresh) then
-      CheckBoxToOLBoolean.RefreshEdit();
-
-  for OLIntegerToLabel in OLIntegersToLabels do
-    if (not Assigned(FormToRefresh)) or (Assigned(OLIntegerToLabel.Lbl) and Assigned(OLIntegerToLabel.Lbl.Parent) and (GetParentForm(OLIntegerToLabel.Lbl) = FormToRefresh)) then
-      OLIntegerToLabel.RefreshLabel();
-
-  for OLStringToLabel in OLStringToLabels do
-    if (not Assigned(FormToRefresh)) or (Assigned(OLStringToLabel.Lbl) and Assigned(OLStringToLabel.Lbl.Parent) and (GetParentForm(OLStringToLabel.Lbl) = FormToRefresh)) then
-      OLStringToLabel.RefreshLabel();
-
-  for OLDoubleToLabel in OLDoublesToLabels do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(OLDoubleToLabel.Lbl) = FormToRefresh) then
-      OLDoubleToLabel.RefreshLabel();
-
-  for OLCurrencyToLabel in OLCurrencyToLabels do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(OLCurrencyToLabel.Lbl) = FormToRefresh) then
-      OLCurrencyToLabel.RefreshLabel();
-
-  for OLDateToLabel in OLDatesToLabels do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(OLDateToLabel.Lbl) = FormToRefresh) then
-      OLDateToLabel.RefreshLabel();
-
-  for OLDateTimeToLabel in OLDateTimesToLabels do
-    if (not Assigned(FormToRefresh)) or (GetParentForm(OLDateTimeToLabel.Lbl) = FormToRefresh) then
-      OLDateTimeToLabel.RefreshLabel();
-
-end;
-
-procedure TOLTypesToControlsLinks.RemoveLinks(DestroyedForm: TForm);
-var
-  i: Integer;
-begin
-  // Remove links for destroyed form - iterate backwards for safe deletion
-  for i := EditsToOLIntegers.Count - 1 downto 0 do
-    if GetParentForm(EditsToOLIntegers[i].Edit) = DestroyedForm then
-      EditsToOLIntegers.Delete(i);
-
-  for i := SpinEditsToOLIntegers.Count - 1 downto 0 do
-    if GetParentForm(SpinEditsToOLIntegers[i].Edit) = DestroyedForm then
-      SpinEditsToOLIntegers.Delete(i);
-
-  for i := TrackBarsToOLIntegers.Count - 1 downto 0 do
-    if GetParentForm(TrackBarsToOLIntegers[i].Edit) = DestroyedForm then
-      TrackBarsToOLIntegers.Delete(i);
-
-  for i := ScrollBarsToOLIntegers.Count - 1 downto 0 do
-    if GetParentForm(ScrollBarsToOLIntegers[i].Edit) = DestroyedForm then
-      ScrollBarsToOLIntegers.Delete(i);
-
-  for i := EditsToOLDoubles.Count - 1 downto 0 do
-    if GetParentForm(EditsToOLDoubles[i].Edit) = DestroyedForm then
-      EditsToOLDoubles.Delete(i);
-
-  for i := EditsToOLCurrencies.Count - 1 downto 0 do
-    if GetParentForm(EditsToOLCurrencies[i].Edit) = DestroyedForm then
-      EditsToOLCurrencies.Delete(i);
-
-  for i := EditsToOLStrings.Count - 1 downto 0 do
-    if GetParentForm(EditsToOLStrings[i].Edit) = DestroyedForm then
-      EditsToOLStrings.Delete(i);
-
-  for i := MemosToOLStrings.Count - 1 downto 0 do
-    if GetParentForm(MemosToOLStrings[i].Edit) = DestroyedForm then
-      MemosToOLStrings.Delete(i);
-
-  for i := DataTimerPickersToOLDates.Count - 1 downto 0 do
-    if GetParentForm(DataTimerPickersToOLDates[i].Edit) = DestroyedForm then
-      DataTimerPickersToOLDates.Delete(i);
-
-  for i := DataTimerPickersToOLDateTimes.Count - 1 downto 0 do
-    if GetParentForm(DataTimerPickersToOLDateTimes[i].Edit) = DestroyedForm then
-      DataTimerPickersToOLDateTimes.Delete(i);
-
-  for i := CheckBoxesToOLBooleans.Count - 1 downto 0 do
-    if GetParentForm(CheckBoxesToOLBooleans[i].Edit) = DestroyedForm then
-      CheckBoxesToOLBooleans.Delete(i);
-
-  for i := OLIntegersToLabels.Count - 1 downto 0 do
-    if (OLIntegersToLabels[i].Lbl <> nil) and (GetParentForm(OLIntegersToLabels[i].Lbl) = DestroyedForm) then
-      OLIntegersToLabels.Delete(i);
-
-  for i := OLStringToLabels.Count - 1 downto 0 do
-    if (OLStringToLabels[i].Lbl <> nil) and (GetParentForm(OLStringToLabels[i].Lbl) = DestroyedForm) then
-      OLStringToLabels.Delete(i);
-
-  for i := OLDoublesToLabels.Count - 1 downto 0 do
-    if (OLDoublesToLabels[i].Lbl <> nil) and (GetParentForm(OLDoublesToLabels[i].Lbl) = DestroyedForm) then
-      OLDoublesToLabels.Delete(i);
-
-  for i := OLCurrencyToLabels.Count - 1 downto 0 do
-    if (OLCurrencyToLabels[i].Lbl <> nil) and (GetParentForm(OLCurrencyToLabels[i].Lbl) = DestroyedForm) then
-      OLCurrencyToLabels.Delete(i);
-
-  for i := OLDatesToLabels.Count - 1 downto 0 do
-    if (OLDatesToLabels[i].Lbl <> nil) and (GetParentForm(OLDatesToLabels[i].Lbl) = DestroyedForm) then
-      OLDatesToLabels.Delete(i);
-
-  for i := OLDateTimesToLabels.Count - 1 downto 0 do
-    if (OLDateTimesToLabels[i].Lbl <> nil) and (GetParentForm(OLDateTimesToLabels[i].Lbl) = DestroyedForm) then
-      OLDateTimesToLabels.Delete(i);
-end;
-
-
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDateTime);
 var
@@ -1976,7 +2121,58 @@ begin
   Link := TOLDateTimeToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
-  OLDateTimesToLabels.Add(Link);
+  AddLink(Lbl, Link);
+end;
+
+procedure TOLTypesToControlsLinks.RefreshControls(FormToRefresh: TForm = nil);
+var
+  List: TObjectList<TOLLinkBase>;
+  Link: TOLLinkBase;
+begin
+  if FormToRefresh = nil then Exit;
+
+  if not Assigned(FLinks) then Exit;
+
+  if FLinks.TryGetValue(FormToRefresh, List) then
+  begin
+    for Link in List do
+      Link.RefreshControl();
+  end;
+end;
+
+procedure TOLTypesToControlsLinks.RemoveLinks(DestroyedForm: TForm = nil);
+var
+  List: TObjectList<TOLLinkBase>;
+  Timer: TTimer;
+  Watcher: TComponent;
+begin
+  if DestroyedForm <> nil then
+  begin
+    if not Assigned(FLinks) then Exit;
+
+    // Remove Watcher
+    if FWatchers.TryGetValue(DestroyedForm, Watcher) then
+    begin
+      FWatchers.Remove(DestroyedForm);
+      // Only free if it's not being destroyed already (e.g. Form destruction)
+      if not (csDestroying in Watcher.ComponentState) then
+        Watcher.Free;
+    end;
+
+    // Remove Timer
+    if FTimers.TryGetValue(DestroyedForm, Timer) then
+    begin
+      FTimers.Remove(DestroyedForm);
+      Timer.Enabled := False;
+      Timer.Free;
+    end;
+
+    if FLinks.TryGetValue(DestroyedForm, List) then
+    begin
+      List.Free;  // Free the list and all its link objects
+      FLinks.Remove(DestroyedForm);
+    end;
+  end;
 end;
 
 {$IFEND}
