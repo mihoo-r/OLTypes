@@ -16,8 +16,8 @@ TOLFormHelper = class helper for TForm
   procedure Link(const Edit: TSpinEdit; var i: OLInteger); overload;
   procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
   procedure Link(const Edit: TScrollBar; var i: OLInteger); overload;
-  procedure Link(const Edit: TEdit; var d: OLDouble; const Alignment: TAlignment=taRightJustify); overload;
-  procedure Link(const Edit: TEdit; var curr: OLCurrency; const Alignment: TAlignment=taRightJustify); overload;
+  procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+  procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
   procedure Link(const Edit: TEdit; var s: OLString); overload;
   procedure Link(const Edit: TMemo; var s: OLString); overload;
   procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
@@ -28,10 +28,10 @@ TOLFormHelper = class helper for TForm
   procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
   procedure Link(const Lbl: TLabel; var s: OLString); overload;
   procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(const Lbl: TLabel; var d: OLDouble); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(const Lbl: TLabel; var curr: OLCurrency); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+  procedure Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+  procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
   procedure Link(const Lbl: TLabel; var d: OLDate); overload;
   procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
   procedure Link(const Lbl: TLabel; var d: OLDateTime); overload;
@@ -44,8 +44,8 @@ end;
 
 TOLEditHelper = class helper for TEdit
   procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
-  procedure Link(var d: OLDouble); overload;
-  procedure Link(var curr: OLCurrency); overload;
+  procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+  procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
   procedure Link(var s: OLString); overload;
 end;
 
@@ -79,10 +79,10 @@ TOLLableHelper = class helper for TLabel
   procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
   procedure Link(var s: OLString); overload;
   procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(var d: OLDouble); overload;
-  procedure Link(const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(var curr: OLCurrency); overload;
-  procedure Link(const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+  procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+  procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+  procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+  procedure Link(const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
   procedure Link(var d: OLDate); overload;
   procedure Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
   procedure Link(var d: OLDateTime); overload;
@@ -125,10 +125,10 @@ begin
   Links.Link(Edit, b);
 end;
 
-procedure TOLFormHelper.Link(const Edit: TEdit; var curr: OLCurrency; const
+procedure TOLFormHelper.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const
     Alignment: TAlignment=taRightJustify);
 begin
-  Links.Link(Edit, curr, Alignment);
+  Links.Link(Edit, curr, Format, Alignment);
 end;
 
 procedure TOLFormHelper.Link(const Edit: TEdit; var i: OLInteger; const Alignment: TAlignment=taRightJustify);
@@ -151,10 +151,9 @@ begin
   Links.Link(Edit, i);
 end;
 
-procedure TOLFormHelper.Link(const Edit: TEdit; var d: OLDouble; const
-    Alignment: TAlignment=taRightJustify);
+procedure TOLFormHelper.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
 begin
-  Links.Link(Edit, d, Alignment);
+  Links.Link(Edit, d, Format, Alignment);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var i: OLInteger);
@@ -162,9 +161,11 @@ begin
   Links.Link(Lbl, i);
 end;
 
-procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string);
+procedure TOLFormHelper.Link(const Lbl: TLabel; const f:
+    TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const
+    ValueOnErrorInCalculation: string = ERROR_STRING);
 begin
-  Links.Link(Lbl, f, ValueOnErrorInCalculation);
+  Links.Link(Lbl, f, Format, ValueOnErrorInCalculation);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var d: OLDate);
@@ -194,9 +195,10 @@ end;
 
 
 
-procedure TOLFormHelper.Link(const Lbl: TLabel; var curr: OLCurrency);
+procedure TOLFormHelper.Link(const Lbl: TLabel; var curr: OLCurrency; const
+    Format: string = CURRENCY_FORMAT);
 begin
-  Links.Link(Lbl, curr);
+  Links.Link(Lbl, curr, Format);
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
@@ -214,14 +216,17 @@ begin
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string);
+procedure TOLFormHelper.Link(const Lbl: TLabel; const f:
+    TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const
+    ValueOnErrorInCalculation: string = ERROR_STRING);
 begin
-  Links.Link(Lbl, f, ValueOnErrorInCalculation);
+  Links.Link(Lbl, f, Format, ValueOnErrorInCalculation);
 end;
 
-procedure TOLFormHelper.Link(const Lbl: TLabel; var d: OLDouble);
+procedure TOLFormHelper.Link(const Lbl: TLabel; var d: OLDouble; const Format:
+    string = DOUBLE_FORMAT);
 begin
-  Links.Link(Lbl, d);
+  Links.Link(Lbl, d, Format);
 end;
 
 procedure TOLFormHelper.RefreshControls;
@@ -245,20 +250,22 @@ begin
   F.Link(Self, i, Alignment);
 end;
 
-procedure TOLEditHelper.Link(var d: OLDouble);
+procedure TOLEditHelper.Link(var d: OLDouble; const Format: string =
+    DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, d);
+  F.Link(Self, d, Format, Alignment);
 end;
 
-procedure TOLEditHelper.Link(var curr: OLCurrency);
+procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string =
+    CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, curr);
+  F.Link(Self, curr, Format, Alignment);
 end;
 
 procedure TOLEditHelper.Link(var s: OLString);
@@ -347,20 +354,23 @@ begin
   Frm.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLableHelper.Link(var d: OLDouble);
+procedure TOLLableHelper.Link(var d: OLDouble; const Format: string =
+    DOUBLE_FORMAT);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, d);
+  Frm.Link(Self, d, Format);
 end;
 
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string);
+procedure TOLLableHelper.Link(const f: TFunctionReturningOLDouble; const
+    Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string =
+    ERROR_STRING);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, ValueOnErrorInCalculation);
+  Frm.Link(Self, f, format, ValueOnErrorInCalculation);
 end;
 
 procedure TOLLableHelper.Link(var i: OLInteger);
@@ -411,20 +421,23 @@ begin
   Frm.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLableHelper.Link(var curr: OLCurrency);
+procedure TOLLableHelper.Link(var curr: OLCurrency; const Format: string =
+    CURRENCY_FORMAT);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, curr);
+  Frm.Link(Self, curr, Format);
 end;
 
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string);
+procedure TOLLableHelper.Link(const f: TFunctionReturningOLCurrency; const
+    Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string =
+    ERROR_STRING);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, ValueOnErrorInCalculation);
+  Frm.Link(Self, f, format, ValueOnErrorInCalculation);
 end;
 
 procedure TOLLableHelper.Link(var d: OLDate);

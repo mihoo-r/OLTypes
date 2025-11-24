@@ -13,6 +13,8 @@ uses OLTypes, System.Generics.Collections,
 
 const
   ERROR_STRING = '#ERROR';
+  DOUBLE_FORMAT = '###,###,###,##0.0####';
+  CURRENCY_FORMAT = '###,###,###,##0.00##';
 
 type
   POLInteger = ^OLInteger;
@@ -106,6 +108,7 @@ type
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
     FOLPointer: POLDouble;
+    FFormat: string;
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLDouble);
   public
@@ -121,6 +124,7 @@ type
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
     FOLPointer: POLCurrency;
+    FFormat: string;
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLCurrency);
   public
@@ -278,6 +282,7 @@ type
     FOLPointer: POLDouble;
     FCalculation: TFunctionReturningOLDouble;
     FValueOnErrorInCalculation: OLString;
+    FFormat: string;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLDouble);
     procedure SetCalculation(const Value: TFunctionReturningOLDouble);
@@ -297,6 +302,7 @@ type
     FOLPointer: POLCurrency;
     FCalculation: TFunctionReturningOLCurrency;
     FValueOnErrorInCalculation: OLString;
+    FFormat: string;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLCurrency);
     procedure SetCalculation(const Value: TFunctionReturningOLCurrency);
@@ -350,9 +356,6 @@ type
 
   TOLTypesToControlsLinks = record
   private
-
-  private
-  private
     FLinks: TDictionary<TForm, TObjectList<TOLLinkBase>>;
     FTimers: TDictionary<TForm, TTimer>;
     FWatchers: TDictionary<TForm, TComponent>;
@@ -364,8 +367,8 @@ type
     procedure Link(const Edit: TSpinEdit; var i: OLInteger); overload;
     procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
     procedure Link(const Edit: TScrollBar; var i: OLInteger); overload;
-    procedure Link(const Edit: TEdit; var d: OLDouble; const Alignment: TAlignment=taRightJustify); overload;
-    procedure Link(const Edit: TEdit; var curr: OLCurrency; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var s: OLString); overload;
     procedure Link(const Edit: TMemo; var s: OLString); overload;
     procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
@@ -376,10 +379,10 @@ type
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var s: OLString); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-    procedure Link(const Lbl: TLabel; var d: OLDouble); overload;
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-    procedure Link(const Lbl: TLabel; var curr: OLCurrency); overload;
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var d: OLDate); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var d: OLDateTime); overload;
@@ -402,8 +405,6 @@ const
   NULL_FORMAT = '- - -';
   CALCULATION_ASSIGN_ERROR = 'Calculation cannot be set when OLPointer property is other then nil.';
   OLPOINTER_ASSIGN_ERROR = 'OLPointer cannot be set when Calculation property is other then nil.';
-  DOUBLE_FORMAT = '###,###,###,##0.0####';
-  CURRENCY_FORMAT = '###,###,###,##0.00##';
 
 type
   THackDateTimePicker = class(TDateTimePicker);
@@ -606,6 +607,7 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+  FFormat := DOUBLE_FORMAT;
 end;
 
 procedure TEditToOLDouble.NewOnChange(Sender: TObject);
@@ -628,9 +630,9 @@ begin
     OLPointer^ := Null;
 
     if Edit.Focused() then
-      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT)
+      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, FFormat)
     else
-      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, DOUBLE_FORMAT);
+      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
 
     j := j - 1;
   end
@@ -642,9 +644,9 @@ begin
   else
   begin
     if Edit.Focused() then
-      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT)
+      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, FFormat)
     else
-      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, DOUBLE_FORMAT);
+      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
 
     j := j - 1;
   end;
@@ -663,7 +665,7 @@ begin
   if not Edit.Focused() then
   begin
     fs := TFormatSettings.Create();
-    s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, DOUBLE_FORMAT);
+    s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Edit.Text <> s then
       Edit.Text := s;
   end;
@@ -692,6 +694,7 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+  FFormat := CURRENCY_FORMAT;
 end;
 
 procedure TEditToOLCurrency.NewOnChange(Sender: TObject);
@@ -1439,6 +1442,7 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+  FFormat := DOUBLE_FORMAT;
 end;
 
 procedure TOLDoubleToLabel.RefreshControl;
@@ -1450,14 +1454,14 @@ begin
 
   if OLPointer <> nil then
   begin
-    s := (OLPointer^).ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT);
+    s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Lbl.Caption <> s then
       Lbl.Caption := s;
   end;
 
   if Assigned(Calculation) then
   try
-    s := Calculation().ToString(#0, fs.DecimalSeparator, DOUBLE_FORMAT);
+    s := Calculation().ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Lbl.Caption <> s then
       Lbl.Caption := s;
   except
@@ -1502,6 +1506,7 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+  FFormat := CURRENCY_FORMAT;
 end;
 
 procedure TOLCurrencyToLabel.RefreshControl;
@@ -1513,14 +1518,14 @@ begin
 
   if OLPointer <> nil then
   begin
-    s := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT);
+    s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Lbl.Caption <> s then
       Lbl.Caption := s;
   end;
 
   if Assigned(Calculation) then
   try
-    s := Calculation().ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT);
+    s := Calculation().ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Lbl.Caption <> s then
       Lbl.Caption := s;
   except
@@ -1832,6 +1837,8 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var i: OLInteger;
@@ -1845,6 +1852,8 @@ begin
   AddLink(Edit, Link);
   
   Edit.Alignment := Alignment;
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TTrackBar; var i: OLInteger);
@@ -1855,6 +1864,8 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TScrollBar; var i: OLInteger);
@@ -1865,31 +1876,38 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var d: OLDouble; const Alignment: TAlignment=taRightJustify);
+procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLDouble;
 begin
   Link := TEditToOLDouble.Create;
+  Link.FFormat := Format;
   Link.Edit := Edit;
   Link.FOLPointer := @d;
   AddLink(Edit, Link);
-  
+
   Edit.Alignment := Alignment;
+
+  Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var curr: OLCurrency;
-    const Alignment: TAlignment=taRightJustify);
+procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLCurrency;
 begin
   Link := TEditToOLCurrency.Create;
+  Link.FFormat := Format;
   Link.Edit := Edit;
   Link.FOLPointer := @curr;
   AddLink(Edit, Link);
   
   Edit.Alignment := Alignment;
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var s: OLString);
@@ -1900,6 +1918,8 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @s;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TMemo; var s: OLString);
@@ -1910,6 +1930,8 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @s;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TDateTimePicker; var d: OLDate);
@@ -1926,6 +1948,8 @@ begin
   Link.FOLPointer := @d;
   Link.Edit := Edit;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
 
@@ -1950,6 +1974,8 @@ begin
   Link.FOLPointer := @d;
   Link.Edit := Edit;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TCheckBox; var b: OLBoolean);
@@ -1960,6 +1986,8 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @b;
   AddLink(Edit, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var i: OLInteger);
@@ -1970,6 +1998,8 @@ begin
   Link.Lbl := Lbl;
   Link.FOLPointer := @i;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f:
@@ -1983,6 +2013,8 @@ begin
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f:
@@ -1996,6 +2028,8 @@ begin
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var s: OLString);
@@ -2006,48 +2040,62 @@ begin
   Link.Lbl := Lbl;
   Link.FOLPointer := @s;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const ValueOnErrorInCalculation: string);
+procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
 var
   Link: TOLDoubleToLabel;
 begin
   Link := TOLDoubleToLabel.Create;
+  Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDouble);
+procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT);
 var
   Link: TOLDoubleToLabel;
 begin
   Link := TOLDoubleToLabel.Create;
+  Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const ValueOnErrorInCalculation: string);
+procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
 var
   Link: TOLCurrencyToLabel;
 begin
   Link := TOLCurrencyToLabel.Create;
+  Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var curr: OLCurrency);
+procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT);
 var
   Link: TOLCurrencyToLabel;
 begin
   Link := TOLCurrencyToLabel.Create;
+  Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @curr;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
@@ -2059,6 +2107,8 @@ begin
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDate);
@@ -2069,9 +2119,9 @@ begin
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
-
-
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 var
@@ -2082,6 +2132,8 @@ begin
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDateTime);
@@ -2092,6 +2144,8 @@ begin
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   AddLink(Lbl, Link);
+
+  Link.RefreshControl();
 end;
 
 procedure TOLTypesToControlsLinks.RefreshControls(FormToRefresh: TForm = nil);
