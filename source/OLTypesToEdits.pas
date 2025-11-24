@@ -495,8 +495,6 @@ begin
     end;
   end;
 
-  GetParentForm(Edit).Invalidate();
-
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
 end;
@@ -536,8 +534,6 @@ procedure TEditToOLString.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Text;
 
-  GetParentForm(Edit).Invalidate();
-
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
 end;
@@ -576,8 +572,6 @@ end;
 procedure TMemoToOLString.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Text;
-
-  GetParentForm(Edit).Invalidate();
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -656,8 +650,6 @@ begin
   end;
 
   Edit.SelStart := j;
-
-  GetParentForm(Edit).Invalidate();
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -757,8 +749,6 @@ begin
 
   Edit.SelStart := j;
 
-  GetParentForm(Edit).Invalidate();
-
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
 end;
@@ -819,8 +809,6 @@ begin
       Edit.SelStart := j - 1;
     end;
   end;
-
-  GetParentForm(Edit).Invalidate();
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -900,9 +888,6 @@ begin
   try
     OLPointer^ := Edit.DateTime;
 
-    if GetParentForm(Edit) <> nil then
-      GetParentForm(Edit).Invalidate();
-
     if Assigned(FEditOnChange) then
       FEditOnChange(Edit);
   finally
@@ -936,9 +921,6 @@ begin
         OLPointer^ := Null;
 
       FOriginalWindowProc(Message);
-
-      if GetParentForm(Edit) <> nil then
-        GetParentForm(Edit).Invalidate();
 
       if Assigned(FEditOnChange) then
         FEditOnChange(Edit);
@@ -1123,9 +1105,6 @@ begin
 
     OLPointer^ := Edit.DateTime;
 
-    if GetParentForm(Edit) <> nil then
-      GetParentForm(Edit).Invalidate();
-
     if Assigned(FEditOnChange) then
       FEditOnChange(Edit);
   finally
@@ -1159,9 +1138,6 @@ begin
         OLPointer^ := Null;
 
       FOriginalWindowProc(Message);
-
-      if GetParentForm(Edit) <> nil then
-        GetParentForm(Edit).Invalidate();
 
       if Assigned(FEditOnChange) then
         FEditOnChange(Edit);
@@ -1308,8 +1284,6 @@ end;
 procedure TCheckBoxToOLBoolean.NewOnClick(Sender: TObject);
 begin
   OLPointer^ := Edit.Checked;
-
-  GetParentForm(Edit).Invalidate();
 
   if Assigned(FEditOnClick) then
     FEditOnClick(Edit);
@@ -1716,8 +1690,6 @@ procedure TScrollBarToILInteger.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Position;
 
-  GetParentForm(Edit).Invalidate();
-
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
 end;
@@ -1756,8 +1728,6 @@ end;
 procedure TTrackBarToILInteger.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Position;
-
-  GetParentForm(Edit).Invalidate();
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
