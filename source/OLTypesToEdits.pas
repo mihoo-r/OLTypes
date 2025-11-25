@@ -123,7 +123,9 @@ type
     procedure SetOLPointer(const Value: POLDouble);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
@@ -309,6 +311,8 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
+    destructor Destroy; override;
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
@@ -685,6 +689,17 @@ begin
   FFormat := DOUBLE_FORMAT;
 end;
 
+destructor TEditToOLDouble.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
 procedure TEditToOLDouble.NewOnChange(Sender: TObject);
 var
   d: Double;
@@ -730,6 +745,11 @@ begin
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TEditToOLDouble.OnOLChange(Sender: TObject);
+begin
+  RefreshControl();
 end;
 
 procedure TEditToOLDouble.RefreshControl;
@@ -1597,6 +1617,22 @@ begin
   FFormat := DOUBLE_FORMAT;
 end;
 
+destructor TOLDoubleToLabel.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
+procedure TOLDoubleToLabel.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
+end;
+
 procedure TOLDoubleToLabel.RefreshControl;
 var
   fs: TFormatSettings;
@@ -2132,6 +2168,9 @@ begin
   Link.FFormat := Format;
   Link.Edit := Edit;
   Link.FOLPointer := @d;
+  {$IF CompilerVersion >= 34.0}
+  d.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
 
   Edit.Alignment := Alignment;
@@ -2351,6 +2390,9 @@ begin
   Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
+  {$IF CompilerVersion >= 34.0}
+  d.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();

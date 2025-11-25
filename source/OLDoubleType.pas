@@ -3,14 +3,15 @@ unit OLDoubleType;
 interface
 
 uses
-  variants, SysUtils, Math, Types, OLBooleanType;
+  variants, SysUtils, Math, Types, OLBooleanType, System.Classes;
 
 type
   OLDouble = record
   private
-    Value: Double;
+    FValue: Double;
     {$IF CompilerVersion >= 34.0}
     FHasValue: Boolean;
+    FOnChange: TNotifyEvent;
     {$ELSE}
     FHasValue: string;
     {$IFEND}
@@ -82,6 +83,8 @@ type
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLDouble);
+    class operator Assign(var Dest: OLDouble; const [ref] Src: OLDouble);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;
 
@@ -102,7 +105,7 @@ const
 function OLDouble.Abs(): OLDouble;
 begin
   if Self.ValuePresent then
-    Result := System.Abs(Self.Value)
+    Result := System.Abs(Self.FValue)
   else
     Result := Null;
 end;
@@ -111,7 +114,7 @@ class operator OLDouble.Add(const a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
 begin
-  returnrec.Value := a.Value + b.Value;
+  returnrec.FValue := a.FValue + b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
@@ -128,7 +131,7 @@ class operator OLDouble.Implicit(const a: Double): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -139,7 +142,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as double value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -155,7 +158,7 @@ begin
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
 
   if returnrec.ValuePresent then
-    returnrec.Value := a.Value / b.Value;
+    returnrec.FValue := a.FValue / b.FValue;
 
   Result := returnrec;
 end;
@@ -185,7 +188,7 @@ begin
   // 3. Value comparison using fixed pragmatic epsilon (OLEpsilon).
   // This handles floating point noise (e.g. 5.550000000000001 vs 5.55)
   // while maintaining consistency across all comparison operators.
-  Result := Math.SameValue(a.Value, b.Value, OLEpsilon);
+  Result := Math.SameValue(a.FValue, b.FValue, OLEpsilon);
 end;
 
 function OLDouble.Floor: Integer;
@@ -216,7 +219,7 @@ begin
 
   // Use CompareValue with OLEpsilon.
   // Returns True only if a is strictly greater than b (beyond epsilon noise).
-  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) = GreaterThanValue;
+  Result := Math.CompareValue(a.FValue, b.FValue, OLEpsilon) = GreaterThanValue;
 end;
 
 class operator OLDouble.GreaterThanOrEqual(const a, b: OLDouble): Boolean;
@@ -236,7 +239,7 @@ begin
 
   // Equivalent to: NOT LessThan.
   // Covers both Equals (within epsilon) and GreaterThan.
-  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) <> LessThanValue;
+  Result := Math.CompareValue(a.FValue, b.FValue, OLEpsilon) <> LessThanValue;
 end;
 
 function OLDouble.HasValue: OLBoolean;
@@ -267,7 +270,7 @@ begin
   begin
     if TryStrToFloat(a, f) then
     begin
-      OutPut.Value := f;
+      OutPut.FValue := f;
       OutPut.ValuePresent := true;
     end
     else
@@ -305,7 +308,7 @@ begin
 
   // Use CompareValue with OLEpsilon.
   // Returns True only if a is strictly less than b (beyond epsilon noise).
-  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) = LessThanValue;
+  Result := Math.CompareValue(a.FValue, b.FValue, OLEpsilon) = LessThanValue;
 end;
 
 class operator OLDouble.LessThanOrEqual(const a, b: OLDouble): Boolean;
@@ -325,7 +328,7 @@ begin
 
   // Equivalent to: NOT GreaterThan.
   // Covers both Equals (within epsilon) and LessThan.
-  Result := Math.CompareValue(a.Value, b.Value, OLEpsilon) <> GreaterThanValue;
+  Result := Math.CompareValue(a.FValue, b.FValue, OLEpsilon) <> GreaterThanValue;
 end;
 
 function OLDouble.Max(const d: OLDouble): OLDouble;
@@ -333,7 +336,7 @@ begin
   if (not ValuePresent) or (d.IsNull()) then
     Result := Null
   else
-    Result := Math.Max(Value, d);
+    Result := Math.Max(FValue, d);
 end;
 
 function OLDouble.Min(const d: OLDouble): OLDouble;
@@ -341,7 +344,7 @@ begin
   if (not ValuePresent) or (d.IsNull) then
     Result := Null
   else
-    Result := Math.Min(Value, d);
+    Result := Math.Min(FValue, d);
 end;
 
 
@@ -349,7 +352,7 @@ class operator OLDouble.Multiply(const a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
 begin
-  returnrec.Value := a.Value * b.Value;
+  returnrec.FValue := a.FValue * b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
@@ -358,7 +361,7 @@ class operator OLDouble.Negative(const a: OLDouble): OLDouble;
 var
   b: OLDouble;
 begin
-  b := -a.Value;
+  b := -a.FValue;
   Result := b;
 end;
 
@@ -393,7 +396,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value < 0;
+    Result := FValue < 0;
 end;
 
 function OLDouble.IsNonNegative: OLBoolean;
@@ -401,7 +404,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value >= 0;
+    Result := FValue >= 0;
 end;
 
 class operator OLDouble.NotEqual(const a, b: OLDouble): Boolean;
@@ -419,7 +422,7 @@ function OLDouble.Power(const Exponent: integer): OLDouble;
 var
   returnrec: OLDouble;
 begin
-  returnrec.Value := Math.IntPower(Value, Exponent);
+  returnrec.FValue := Math.IntPower(FValue, Exponent);
   returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
@@ -436,7 +439,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value > 0;
+    Result := FValue > 0;
 end;
 
 function OLDouble.IsZero(const Epsilon: Extended = 0): OLBoolean;
@@ -444,13 +447,13 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Math.IsZero(Self.Value, Epsilon);
+    Result := Math.IsZero(Self.FValue, Epsilon);
 end;
 
 function OLDouble.SameValue(const B: Extended; const Epsilon: Extended = 0):
     OLBoolean;
 begin
-  Result := Math.SameValue(Self.Value, B, Epsilon);
+  Result := Math.SameValue(Self.FValue, B, Epsilon);
 end;
 
 procedure OLDouble.SetHasValue(const Value: OLBoolean);
@@ -466,6 +469,18 @@ end;
 class operator OLDouble.Initialize(out Dest: OLDouble);
 begin
   Dest.FHasValue := False;
+  Dest.FOnChange := nil;
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+class operator OLDouble.Assign(var Dest: OLDouble; const [ref] Src: OLDouble);
+begin
+  Dest.FValue := Src.FValue;
+  Dest.FHasValue := Src.FHasValue;
+
+  if Assigned(Dest.FOnChange) then
+    Dest.FOnChange(nil);
 end;
 {$IFEND}
 
@@ -485,7 +500,7 @@ function OLDouble.Sqr: OLDouble;
 var
   returnrec: OLDouble;
 begin
-  returnrec.Value := Value * Value;
+  returnrec.FValue := FValue * FValue;
   returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
@@ -502,7 +517,7 @@ class operator OLDouble.Subtract(const a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
 begin
-  returnrec.Value := a.Value - b.Value;
+  returnrec.FValue := a.FValue - b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
@@ -538,7 +553,7 @@ begin
   begin
     fs.ThousandSeparator := ThousandSeparator;
     fs.DecimalSeparator := DecimalSeparator;
-    Output := FormatFloat(Format, Value, fs)
+    Output := FormatFloat(Format, FValue, fs)
   end
   else
     Output := '';
@@ -551,7 +566,7 @@ var
   Output: string;
 begin
   if ValuePresent then
-    Output := FloatToStr(Value)
+    Output := FloatToStr(FValue)
   else
     Output := '';
 
@@ -575,7 +590,7 @@ class operator OLDouble.Implicit(const a: Integer): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -584,7 +599,7 @@ class operator OLDouble.Implicit(const a: Extended): OLDouble;
 var
   OutPut: OLDouble;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -595,7 +610,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as extended value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -604,7 +619,7 @@ var
   OutPut: Variant;
 begin
   if a.ValuePresent then
-    OutPut := a.Value
+    OutPut := a.FValue
   else
     OutPut := Null;
 
