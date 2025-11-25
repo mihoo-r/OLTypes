@@ -139,7 +139,9 @@ type
     procedure SetOLPointer(const Value: POLCurrency);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
@@ -327,6 +329,8 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
+    destructor Destroy; override;
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
@@ -768,6 +772,23 @@ begin
   FFormat := CURRENCY_FORMAT;
 end;
 
+destructor TEditToOLCurrency.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+
+  if Assigned(FEdit) then
+  begin
+    if Assigned(FEditOnChange) then
+      FEdit.OnChange := FEditOnChange;
+  end;
+  inherited;
+end;
+
 procedure TEditToOLCurrency.NewOnChange(Sender: TObject);
 var
   curr: Currency;
@@ -825,6 +846,11 @@ begin
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TEditToOLCurrency.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TEditToOLCurrency.RefreshControl;
@@ -1635,6 +1661,22 @@ begin
   FFormat := CURRENCY_FORMAT;
 end;
 
+destructor TOLCurrencyToLabel.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
+procedure TOLCurrencyToLabel.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
+end;
+
 procedure TOLCurrencyToLabel.RefreshControl;
 var
   fs: TFormatSettings;
@@ -2105,6 +2147,9 @@ begin
   Link.FFormat := Format;
   Link.Edit := Edit;
   Link.FOLPointer := @curr;
+  {$IF CompilerVersion >= 34.0}
+  curr.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
   
   Edit.Alignment := Alignment;
@@ -2333,6 +2378,9 @@ begin
   Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @curr;
+  {$IF CompilerVersion >= 34.0}
+  curr.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();

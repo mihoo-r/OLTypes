@@ -3,14 +3,15 @@ unit OLCurrencyType;
 interface
 
 uses
-  variants, SysUtils, OLIntegerType, OlBooleanType, OLDoubleType;
+  variants, SysUtils, OLIntegerType, OlBooleanType, OLDoubleType, System.Classes;
 
 type
   OLCurrency = record
   private
-    Value: Currency;
+    FValue: Currency;
     {$IF CompilerVersion >= 34.0}
     FHasValue: Boolean;
+    FOnChange: TNotifyEvent;
     {$ELSE}
     FHasValue: string;
     {$IFEND}
@@ -90,6 +91,8 @@ type
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLCurrency);
+    class operator Assign(var Dest: OLCurrency; const [ref] Src: OLCurrency);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;
 
@@ -107,7 +110,7 @@ const
 function OLCurrency.Abs(): OLCurrency;
 begin
   if Self.ValuePresent then
-    Result := System.Abs(Self.Value)
+    Result := System.Abs(FValue)
   else
     Result := Null;
 end;
@@ -117,14 +120,14 @@ class operator OLCurrency.Add(const a, b: OLCurrency): OLCurrency;
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := a.Value + b.Value;
+  returnrec.FValue := a.FValue + b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
 function OLCurrency.Between(const BottomIncluded, TopIncluded: OLInteger): OLBoolean;
 begin
-  Result := HasValue.IfThen((Value <= TopIncluded) and (Value >= BottomIncluded), null);
+  Result := HasValue.IfThen((FValue <= TopIncluded) and (FValue >= BottomIncluded), null);
 end;
 
 function OLCurrency.Ceil: OLInteger;
@@ -143,7 +146,7 @@ class operator OLCurrency.Implicit(const a: Extended): OLCurrency;
 var
   OutPut: OLCurrency;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -154,7 +157,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Extended value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -167,7 +170,7 @@ begin
   if (a.IsNull()) or (not b.ValuePresent) then
     OutPut := Null
   else
-    OutPut := a / b.Value;
+    OutPut := a / b.FValue;
 
   Result := OutPut;
 end;
@@ -180,7 +183,7 @@ begin
   if (not a.ValuePresent) or (b.IsNull()) then
     OutPut := Null
   else
-    OutPut := a.Value / b;
+    OutPut := a.FValue / b;
 
 
   Result := OutPut;
@@ -189,12 +192,12 @@ end;
 class operator OLCurrency.Equal(const a: OLCurrency; const b: Extended):
     Boolean;
 begin
-  Result := (System.Abs(a.Value - b) < 1e-10) and a.ValuePresent;
+  Result := (System.Abs(a.FValue - b) < 1e-10) and a.ValuePresent;
 end;
 
 class operator OLCurrency.Equal(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  Result := (a.Value = b) and a.ValuePresent;
+  Result := (a.FValue = b) and a.ValuePresent;
 end;
 
 function OLCurrency.Floor: OLInteger;
@@ -216,7 +219,7 @@ begin
   if (not a.ValuePresent) or (not b.ValuePresent) then
     OutPut := Null
   else
-    OutPut := a.Value / b.Value;
+    OutPut := a.FValue / b.FValue;
 
 
   Result := OutPut;
@@ -225,7 +228,7 @@ end;
 
 class operator OLCurrency.Equal(const a, b: OLCurrency): Boolean;
 begin
-  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue = b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLCurrency.GetHasValue: OLBoolean;
@@ -239,12 +242,12 @@ end;
 
 class operator OLCurrency.GreaterThan(const a, b: OLCurrency): Boolean;
 begin
-  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue > b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThanOrEqual(const a, b: OLCurrency): Boolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue >= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLCurrency.IfNull(const i: OLCurrency): OLCurrency;
@@ -264,7 +267,7 @@ var
   OutPut: Variant;
 begin
   if a.ValuePresent then
-    OutPut := a.Value
+    OutPut := a.FValue
   else
     OutPut := Null;
 
@@ -277,7 +280,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Double value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -292,7 +295,7 @@ begin
   begin
     if TryStrToCurr(a, i) then
     begin
-      OutPut.Value := i;
+      OutPut.FValue := i;
       OutPut.ValuePresent := true;
     end
     else
@@ -311,12 +314,12 @@ end;
 
 class operator OLCurrency.LessThan(const a, b: OLCurrency): Boolean;
 begin
-  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue < b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLCurrency.LessThanOrEqual(const a, b: OLCurrency): Boolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue <= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLCurrency.Max(const i: OLCurrency): OLCurrency;
@@ -324,7 +327,7 @@ begin
   if (not ValuePresent) or (i = Null) then
     Result := Null
   else
-    Result := Math.Max(Value, i);
+    Result := Math.Max(FValue, i);
 end;
 
 function OLCurrency.Min(const i: OLCurrency): OLCurrency;
@@ -332,7 +335,7 @@ begin
   if (not ValuePresent) or (i = Null) then
     Result := Null
   else
-    Result := Math.Min(Value, i);
+    Result := Math.Min(FValue, i);
 end;
 
 
@@ -340,7 +343,7 @@ class operator OLCurrency.Multiply(const a: OLCurrency; b: Extended): OLCurrency
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := a.Value * b;
+  returnrec.FValue := a.FValue * b;
   returnrec.ValuePresent := a.ValuePresent;
   Result := returnrec;
 end;
@@ -349,7 +352,7 @@ class operator OLCurrency.Multiply(const a: OLCurrency; b: OLInteger): OLCurrenc
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := a.Value * b.AsInteger();
+  returnrec.FValue := a.FValue * b.AsInteger();
   returnrec.ValuePresent := a.ValuePresent and b.HasValue();
   Result := returnrec;
 end;
@@ -358,7 +361,7 @@ class operator OLCurrency.Multiply(const a, b: OLCurrency): OLCurrency;
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := a.Value * b.Value;
+  returnrec.FValue := a.FValue * b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
@@ -367,7 +370,7 @@ class operator OLCurrency.Negative(const a: OLCurrency): OLCurrency;
 var
   b: OLCurrency;
 begin
-  b.Value := -a.Value;
+  b.FValue := -a.FValue;
   b.ValuePresent := a.ValuePresent;
   Result := b;
 end;
@@ -375,12 +378,12 @@ end;
 class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Extended):
     Boolean;
 begin
-  Result := (System.Abs(a.Value - b) > 1e-10) and a.ValuePresent;
+  Result := (System.Abs(a.FValue - b) > 1e-10) and a.ValuePresent;
 end;
 
 class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  Result := (a.Value <> b) and a.ValuePresent;
+  Result := (a.FValue <> b) and a.ValuePresent;
 end;
 
 function OLCurrency.IsNegative: OLBoolean;
@@ -388,7 +391,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value < 0;
+    Result := FValue < 0;
 end;
 
 function OLCurrency.IsNonNegative: OLBoolean;
@@ -396,12 +399,12 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value >= 0;
+    Result := FValue >= 0;
 end;
 
 class operator OLCurrency.NotEqual(const a, b: OLCurrency): Boolean;
 begin
-  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
+  Result := ((a.FValue <> b.FValue) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 function OLCurrency.Power(const Exponent: integer): OLCurrency;
@@ -410,7 +413,7 @@ var
 begin
   returnrec.ValuePresent := self.ValuePresent;
   if returnrec.ValuePresent then
-    returnrec.Value := Math.IntPower(Value, Exponent);
+    returnrec.FValue := Math.IntPower(FValue, Exponent);
   Result := returnrec;
 end;
 
@@ -432,7 +435,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value > 0;
+    Result := FValue > 0;
 end;
 
 
@@ -449,6 +452,18 @@ end;
 class operator OLCurrency.Initialize(out Dest: OLCurrency);
 begin
   Dest.FHasValue := False;
+  Dest.FOnChange := nil;
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+class operator OLCurrency.Assign(var Dest: OLCurrency; const [ref] Src: OLCurrency);
+begin
+  Dest.FValue := Src.FValue;
+  Dest.FHasValue := Src.FHasValue;
+
+  if Assigned(Dest.FOnChange) then
+    Dest.FOnChange(nil);
 end;
 {$IFEND}
 
@@ -456,7 +471,7 @@ function OLCurrency.Sqr: OLCurrency;
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := Value * Value;
+  returnrec.FValue := FValue * FValue;
   returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
@@ -465,7 +480,7 @@ class operator OLCurrency.Subtract(const a, b: OLCurrency): OLCurrency;
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := a.Value - b.Value;
+  returnrec.FValue := a.FValue - b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
@@ -496,7 +511,7 @@ var
   Output: string;
 begin
   if ValuePresent then
-    Output := CurrToStrF(Value, Format, Digits)
+    Output := CurrToStrF(FValue, Format, Digits)
   else
     Output := EmptyStr;
 
@@ -512,7 +527,7 @@ begin
   begin
     fs.ThousandSeparator := ThousandSeparator;
     fs.DecimalSeparator := DecimalSeparator;
-    Output := FormatFloat(Format, Value, fs)
+    Output := FormatFloat(Format, FValue, fs)
   end
   else
     Output := '';
@@ -536,23 +551,23 @@ end;
 class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Extended):
     Boolean;
 begin
-  Result := (a.Value > b) and a.ValuePresent;
+  Result := (a.FValue > b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  Result := (a.Value > b) and a.ValuePresent;
+  Result := (a.FValue > b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  Result := (a.Value >= b) and a.ValuePresent;
+  Result := (a.FValue >= b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b:
     Extended): Boolean;
 begin
-  Result := (a.Value >= b) and a.ValuePresent;
+  Result := (a.FValue >= b) and a.ValuePresent;
 end;
 
 function OLCurrency.HasValue: OLBoolean;
@@ -563,23 +578,23 @@ end;
 class operator OLCurrency.LessThan(const a: OLCurrency; const b: Extended):
     Boolean;
 begin
-  Result := (a.Value < b) and a.ValuePresent;
+  Result := (a.FValue < b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.LessThan(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  Result := (a.Value < b) and a.ValuePresent;
+  Result := (a.FValue < b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  Result := (a.Value <= b) and a.ValuePresent;
+  Result := (a.FValue <= b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b:
     Extended): Boolean;
 begin
-  Result := (a.Value <= b) and a.ValuePresent;
+  Result := (a.FValue <= b) and a.ValuePresent;
 end;
 
 class operator OLCurrency.Implicit(const a: OLCurrency): Currency;
@@ -588,7 +603,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Currency value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -596,7 +611,7 @@ class operator OLCurrency.Implicit(const a: Integer): OLCurrency;
 var
   OutPut: OLCurrency;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -607,7 +622,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Real value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -615,7 +630,7 @@ class operator OLCurrency.Implicit(const a: Real): OLCurrency;
 var
   OutPut: OLCurrency;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -627,7 +642,7 @@ begin
   if a.IsNull then
     OutPut := Null
   else
-    OutPut := a.Value;
+    OutPut := a.FValue;
 
   Result := OutPut;
 end;
@@ -638,7 +653,7 @@ var
 begin
   OutPut.ValuePresent := a.HasValue;
   if a.HasValue then
-    OutPut.Value := a;
+    OutPut.FValue := a;
 
   Result := OutPut;
 end;
@@ -647,7 +662,7 @@ class operator OLCurrency.Implicit(const a: Double): OLCurrency;
 var
   OutPut: OLCurrency;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -660,7 +675,7 @@ begin
   if (not b.ValuePresent) then
     OutPut := Null
   else
-    OutPut := a / b.Value;
+    OutPut := a / b.FValue;
 
   Result := OutPut;
 end;
@@ -673,7 +688,7 @@ begin
   if (not a.ValuePresent) then
     OutPut := Null
   else
-    OutPut := a.Value / b;
+    OutPut := a.FValue / b;
 
 
   Result := OutPut;
@@ -683,7 +698,7 @@ class operator OLCurrency.Multiply(const a: OLCurrency; b: Double): OLCurrency;
 var
   returnrec: OLCurrency;
 begin
-  returnrec.Value := a.Value * b;
+  returnrec.FValue := a.FValue * b;
   returnrec.ValuePresent := a.ValuePresent;
   Result := returnrec;
 end;
@@ -695,10 +710,11 @@ begin
   if (not a.ValuePresent) or (b.IsNull()) then
     OutPut := Null
   else
-    OutPut := a.Value * b;
+    OutPut := a.FValue * b;
 
 
   Result := OutPut;
 end;
 
 end.
+
