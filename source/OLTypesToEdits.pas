@@ -6,7 +6,9 @@ interface
 
 uses OLTypes, System.Generics.Collections,
   {$IF CompilerVersion >= 23.0}
-  Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms, System.Classes, Vcl.Controls, Messages, Winapi.Windows, Vcl.ExtCtrls;
+  Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms,
+  System.Classes, Vcl.Controls, Messages, Winapi.Windows, Vcl.ExtCtrls,
+  OLStringType;
   {$ELSE}
   StdCtrls, SysUtils, Spin, ComCtrls, Forms, Classes, Controls, Messages, Windows, ExtCtrls;
   {$IFEND}
@@ -201,6 +203,7 @@ type
     procedure NewOnChange(Sender: TObject);
     procedure NewOnEnter(Sender: TObject);
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
@@ -230,6 +233,7 @@ type
     procedure NewOnChange(Sender: TObject);
     procedure NewOnEnter(Sender: TObject);
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
@@ -342,6 +346,8 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
+    destructor Destroy; override;
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
@@ -360,8 +366,10 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLDateTime);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
-    procedure RefreshControl; override;
     constructor Create;
+    destructor Destroy; override;
+    procedure OnOLChange(Sender: TObject);
+    procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDateTime read FCalculation write SetCalculation;
@@ -374,6 +382,7 @@ type
     FTimers: TDictionary<TForm, TTimer>;
     FWatchers: TDictionary<TForm, TComponent>;
     procedure AddLink(Control: TControl; Link: TOLLinkBase);
+    function DelphiDateTimeFormatToWindowsFormat(const DelphiFormat: OLString): OLString;
   public
     class operator Initialize(out Dest: TOLTypesToControlsLinks);
     class operator Finalize(var Dest: TOLTypesToControlsLinks);
@@ -942,6 +951,13 @@ end;
 
 destructor TDateTimePickerToOLDate.Destroy;
 begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+
   if Assigned(FEdit) then
   begin
     if Assigned(FOriginalWindowProc) then
@@ -1063,12 +1079,16 @@ begin
       OLPointer^ := d;
     end;
 
-
     key := #0;
   end;
 
   if Assigned(FEditOnKeyPress) then
     FEditOnKeyPress(Sender, Key);
+end;
+
+procedure TDateTimePickerToOLDate.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TDateTimePickerToOLDate.RefreshControl;
@@ -1155,6 +1175,13 @@ end;
 
 destructor TDateTimePickerToOLDateTime.Destroy;
 begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+
   if Assigned(FEdit) then
   begin
     if Assigned(FOriginalWindowProc) then
@@ -1285,6 +1312,11 @@ begin
 
   if Assigned(FEditOnKeyPress) then
     FEditOnKeyPress(Sender, Key);
+end;
+
+procedure TDateTimePickerToOLDateTime.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TDateTimePickerToOLDateTime.RefreshControl;
@@ -1666,6 +1698,22 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
+destructor TOLDateToLabel.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
+procedure TOLDateToLabel.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
+end;
+
 procedure TOLDateToLabel.RefreshControl;
 var
   s: string;
@@ -1724,6 +1772,22 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+end;
+
+destructor TOLDateTimeToLabel.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
+procedure TOLDateTimeToLabel.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TOLDateTimeToLabel.RefreshControl;
@@ -2075,19 +2139,54 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Edit: TDateTimePicker; var d: OLDate);
 var
   Link: TDateTimePickerToOLDate;
-  fs: TFormatSettings;
 begin
   if Edit.Format = '' then
   begin
-    Edit.Format := OLType(FormatSettings.ShortDateFormat);
+    Edit.Format := DelphiDateTimeFormatToWindowsFormat(FormatSettings.ShortDateFormat);
   end;
   
   Link := TDateTimePickerToOLDate.Create;
   Link.FOLPointer := @d;
+  {$IF CompilerVersion >= 34.0}
+  d.OnChange := Link.OnOLChange;
+  {$IFEND}
   Link.Edit := Edit;
   AddLink(Edit, Link);
 
   Link.RefreshControl();
+end;
+
+{*
+  Converts a Delphi-style date/time format string to a Windows (WinAPI)
+  DateTimePicker format string.
+
+  Delphi and Windows use different tokens for months, minutes, and hours:
+    - Delphi:  mm = month, nn = minute, hh = hour (24-hour)
+    - Windows: MM = month, mm = minute, HH = hour (24-hour)
+
+  The order of replacements is important to avoid collisions:
+    1. Convert Delphi month ("mm") to Windows month ("MM")
+       - Must be done first, otherwise "mm" introduced later for minutes
+         would also be incorrectly converted.
+    2. Convert Delphi hours ("hh") to Windows hours ("HH")
+    3. Convert Delphi minutes ("nn") to Windows minutes ("mm")
+
+  After these conversions the resulting format string is compatible with
+  TDateTimePicker.Format and DTM_SETFORMAT in the Windows API.
+*}
+function TOLTypesToControlsLinks.DelphiDateTimeFormatToWindowsFormat(const
+    DelphiFormat: OLString): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := DelphiFormat;
+  OutPut := OutPut.Replaced('mm', 'MM');
+  OutPut := OutPut.Replaced('hh', 'HH');
+  OutPut := OutPut.Replaced('nn', 'mm');
+
+  OutPut := OutPut.Replaced('/', FormatSettings.DateSeparator);
+
+  Result := OutPut;
 end;
 
 
@@ -2095,21 +2194,21 @@ procedure TOLTypesToControlsLinks.Link(const Edit: TDateTimePicker; var d:
     OLDateTime);
 var
   Link: TDateTimePickerToOLDateTime;
-  fs: TFormatSettings;
 begin
   if Edit.Format  = '' then
   begin
-    fs := TFormatSettings.Create();
-    
     if Edit.Kind = dtkTime then
-      Edit.Format := OLType(fs.LongTimeFormat).Replaced(':', fs.TimeSeparator)
+      Edit.Format := FormatSettings.LongTimeFormat
     else
-      Edit.Format := OLType(fs.ShortDateFormat).Replaced('/', fs.DateSeparator) + ' ' +
-                     OLType(fs.LongTimeFormat).Replaced(':', fs.TimeSeparator);
+      Edit.Format := DelphiDateTimeFormatToWindowsFormat(
+        FormatSettings.ShortDateFormat + ' ' + FormatSettings.LongTimeFormat);
   end;
   
   Link := TDateTimePickerToOLDateTime.Create;
   Link.FOLPointer := @d;
+  {$IF CompilerVersion >= 34.0}
+  d.OnChange := Link.OnOLChange;
+  {$IFEND}
   Link.Edit := Edit;
   AddLink(Edit, Link);
 
@@ -2259,6 +2358,9 @@ begin
   Link := TOLDateToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
+  {$IF CompilerVersion >= 34.0}
+  d.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
@@ -2284,6 +2386,9 @@ begin
   Link := TOLDateTimeToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
+  {$IF CompilerVersion >= 34.0}
+  d.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();

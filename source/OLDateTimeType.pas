@@ -3,14 +3,16 @@ unit OLDateTimeType;
 interface
 
 uses
-  Variants, SysUtils, DateUtils, OlBooleanType, OLIntegerType, OLDoubleType;
+  Variants, SysUtils, DateUtils, OlBooleanType, OLIntegerType, OLDoubleType,
+  System.Classes;
 
 type
   OLDateTime = record
   private
-    Value: TDateTime;
+    FValue: TDateTime;
     {$IF CompilerVersion >= 34.0}
     FHasValue: Boolean;
+    FOnChange: TNotifyEvent;
     {$ELSE}
     FHasValue: string;
     {$IFEND}
@@ -205,6 +207,8 @@ type
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLDateTime);
+    class operator Assign(var Dest: OLDateTime; const [ref] Src: OLDateTime);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;
 
@@ -223,7 +227,7 @@ var
   OutPut: OLDateTime;
 begin
   if a.ValuePresent then
-    OutPut := a.Value + b
+    OutPut := a.FValue + b
   else
     OutPut := Null;
 
@@ -235,7 +239,7 @@ var
   OutPut: OLDateTime;
 begin
   if Self.ValuePresent then
-    OutPut := DateUtils.DateOf(Self.Value)
+    OutPut := DateUtils.DateOf(Self.FValue)
   else
     OutPut := Null;
 
@@ -353,7 +357,7 @@ end;
 
 class operator OLDateTime.Equal(const a, b: OLDateTime): Boolean;
 begin
-  Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.Value - b.Value) < 1.1574e-8)) or (a.IsNull() and b.IsNull());  //Less than a millisecond difference
+  Result := (a.ValuePresent and b.ValuePresent and (System.Abs(a.FValue - b.FValue) < 1.1574e-8)) or (a.IsNull() and b.IsNull());  //Less than a millisecond difference
 end;
 
 function OLDateTime.GetDay: OLInteger;
@@ -410,12 +414,12 @@ end;
 
 class operator OLDateTime.GreaterThan(const a, b: OLDateTime): Boolean;
 begin
-  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue > b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLDateTime.GreaterThanOrEqual(const a, b: OLDateTime): Boolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue >= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLDateTime.HasValue: OLBoolean;
@@ -470,7 +474,7 @@ var
   OutPut: Variant;
 begin
   if a.ValuePresent then
-    OutPut := a.Value
+    OutPut := a.FValue
   else
     OutPut := Null;
 
@@ -485,13 +489,13 @@ begin
   if VarIsNull(a) then
   begin
     OutPut.ValuePresent := false;
-    OutPut.Value := 0;
+    OutPut.FValue := 0;
   end
   else
   begin
     if TryStrToDateTime(a, b) then
     begin
-      OutPut.Value := b;
+      OutPut.FValue := b;
       OutPut.ValuePresent := True;
     end
     else
@@ -507,14 +511,14 @@ class operator OLDateTime.Implicit(const a: OLDateTime): TDateTime;
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as TDateTime value.');
-  Result := a.Value;
+  Result := a.FValue;
 end;
 
 class operator OLDateTime.Implicit(const a: TDateTime): OLDateTime;
 var
   OutPut: OLDateTime;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := True;
   Result := OutPut;
 end;
@@ -552,20 +556,20 @@ end;
 
 class operator OLDateTime.LessThan(const a, b: OLDateTime): Boolean;
 begin
-  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue < b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLDateTime.LessThanOrEqual(const a, b: OLDateTime): Boolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue <= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLDateTime.LongDayName: string;
 begin
   {$if CompilerVersion > 22} // Delphi XE or later
-     Result := SysUtils.FormatSettings.LongDayNames[DayOfWeek(Self.Value)];
+     Result := SysUtils.FormatSettings.LongDayNames[DayOfWeek(Self.FValue)];
   {$else}
-    Result := LongDayNames[DayOfWeek(Self.Value)];
+    Result := LongDayNames[DayOfWeek(Self.FValue)];
   {$ifend}
 end;
 
@@ -593,7 +597,7 @@ var
 begin
   if Self.ValuePresent and CompareDate.ValuePresent then
   begin
-    if Self.Value > CompareDate.Value then
+    if Self.FValue > CompareDate.FValue then
       OutPut := Self
     else
       OutPut := CompareDate;
@@ -655,7 +659,7 @@ var
 begin
   if Self.ValuePresent and CompareDate.ValuePresent then
   begin
-    if Self.Value < CompareDate.Value then
+    if Self.FValue < CompareDate.FValue then
       OutPut := Self
     else
       OutPut := CompareDate;
@@ -734,7 +738,7 @@ end;
 
 class operator OLDateTime.NotEqual(const a, b: OLDateTime): Boolean;
 begin
-  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
+  Result := ((a.FValue <> b.FValue) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 class function OLDateTime.Now: OLDateTime;
@@ -825,16 +829,28 @@ end;
 procedure OLDateTime.SetDay(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeDay(Self, Value);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetEndOfAMonth(const AYear, AMonth: Word);
 begin
   Self := OLDateTime.EndOfAMonth(AYear, AMonth);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetEndOfAYear(const AYear: Word);
 begin
   Self := OLDateTime.EndOfAYear(AYear);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetHasValue(const Value: OLBoolean);
@@ -850,6 +866,18 @@ end;
 class operator OLDateTime.Initialize(out Dest: OLDateTime);
 begin
   Dest.FHasValue := False;
+  Dest.FOnChange := nil;
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+class operator OLDateTime.Assign(var Dest: OLDateTime; const [ref] Src: OLDateTime);
+begin
+  Dest.FValue := Src.FValue;
+  Dest.FHasValue := Src.FHasValue;
+
+  if Assigned(Dest.FOnChange) then
+    Dest.FOnChange(nil);
 end;
 {$IFEND}
 
@@ -861,67 +889,115 @@ end;
 procedure OLDateTime.SetMilliSecond(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeMilliSecond(Self, Value);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetMinute(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeMinute(Self, Value);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetMonth(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeMonth(Self, Value);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetNow;
 begin
   Self := SysUtils.Now();
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetFromSecondCount(const Count: integer; const StartingYear: Integer);
 begin
-  Self := OLDateTime.DateTimeFromSecondCount(Count, StartingYear)
+  Self := OLDateTime.DateTimeFromSecondCount(Count, StartingYear);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetSecond(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeSecond(Self, Value);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetStartOfAMonth(const AYear, AMonth: Word);
 begin
   Self := OLDateTime.StartOfAMonth(AYear, AMonth);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetStartOfAYear(const AYear: Word);
 begin
   Self := OLDateTime.StartOfAYear(AYear);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetToday;
 begin
   Self := OLDateTime.Today();
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetTomorrow;
 begin
   Self := OLDateTime.Tomorrow();
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetYear(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeYear(Self, Value);
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 procedure OLDateTime.SetYesterday;
 begin
   Self := OLDateTime.Yesterday();
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 function OLDateTime.ShortDayName: string;
 begin
   {$if CompilerVersion > 22} // Delphi XE or later
-     Result := SysUtils.FormatSettings.ShortDayNames[DayOfWeek(Self.Value)];
+     Result := SysUtils.FormatSettings.ShortDayNames[DayOfWeek(Self.FValue)];
   {$else}
     Result := ShortDayNames[DayOfWeek(Self.Value)];
   {$ifend}
@@ -964,7 +1040,7 @@ var
   OutPut: OLDateTime;
 begin
   if a.ValuePresent then
-    OutPut := a.Value - b
+    OutPut := a.FValue - b
   else
     OutPut := Null;
 
@@ -976,7 +1052,7 @@ var
   OutPut: OLDateTime;
 begin
   if Self.ValuePresent then
-    OutPut := DateUtils.TimeOf(Self.Value)
+    OutPut := DateUtils.TimeOf(Self.FValue)
   else
     OutPut := Null;
 
@@ -998,7 +1074,7 @@ var
   OutPut: string;
 begin
   if Self.ValuePresent then
-    OutPut := FormatDateTime(Format, Self.Value)
+    OutPut := FormatDateTime(Format, Self.FValue)
   else
     OutPut := '';
 
@@ -1010,7 +1086,7 @@ var
   OutPut: string;
 begin
   if Self.ValuePresent then
-    OutPut := DateTimeToStr(Self.Value)
+    OutPut := DateTimeToStr(Self.FValue)
   else
     OutPut := '';
 
@@ -1077,7 +1153,7 @@ var
 begin
   dt := a;
 
-  OutPut.Value := dt;
+  OutPut.FValue := dt;
   OutPut.ValuePresent := True;
   Result := OutPut;
 end;
