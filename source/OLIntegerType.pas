@@ -3,13 +3,14 @@ unit OLIntegerType;
 interface
 
 uses
-  variants, SysUtils, OLBooleanType, OLDoubleType;
+  variants, SysUtils, OLBooleanType, OLDoubleType, System.Classes;
 
 type
   OLInteger = record
   private
-    Value: integer;
+    FValue: integer;
     {$IF CompilerVersion >= 34.0}
+    FOnChange: TNotifyEvent;
     FHasValue: Boolean;
     {$ELSE}
     FHasValue: string;
@@ -115,6 +116,8 @@ type
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLInteger);
+    class operator Assign(var Dest: OLInteger; const [ref] Src: OLInteger);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
 
     property Binary: string read GetBinary write SetBinary;
@@ -137,8 +140,8 @@ const
 function OLInteger.Abs(): OLInteger;
 begin
 
-  if Self.ValuePresent then
-    Result := System.Abs(Self.Value)
+  if Self.FHasValue then
+    Result := System.Abs(Self.FValue)
   else
     Result := Null;
 end;
@@ -147,10 +150,10 @@ class operator OLInteger.Add(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-  if not (a.ValuePresent and b.ValuePresent) then
+  if not (a.FHasValue and b.FHasValue) then
     Exit(Null);
-  returnrec.Value := a.Value + b.Value;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
+  returnrec.FValue := a.FValue + b.FValue;
+  returnrec.FHasValue := a.FHasValue and b.FHasValue;
   Result := returnrec;
 end;
 
@@ -167,7 +170,7 @@ var
 begin
 
   if HasValue() then
-    OutPut := ((Value <= TopIncluded) and (Value >= BottomIncluded))
+    OutPut := ((FValue <= TopIncluded) and (FValue >= BottomIncluded))
   else
     OutPut := Null;
 
@@ -179,8 +182,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := a.Value xor b.Value;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
+  returnrec.FValue := a.FValue xor b.FValue;
+  returnrec.FHasValue := a.FHasValue and b.FHasValue;
   Result := returnrec;
 end;
 
@@ -194,8 +197,8 @@ class operator OLInteger.Implicit(const a: integer): OLInteger;
 var
   OutPut: OLInteger;
 begin
-  OutPut.Value := a;
-  OutPut.ValuePresent := true;
+  OutPut.FValue := a;
+  OutPut.FHasValue := true;
   Result := OutPut;
 end;
 
@@ -204,16 +207,16 @@ var
   OutPut: integer;
 begin
 
-  if not a.ValuePresent then
+  if not a.FHasValue then
     raise Exception.Create('Null cannot be used as integer value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
 class operator OLInteger.Dec(a: OLInteger): OLInteger;
 begin
 
-  System.Dec(&a.Value);
+  System.Dec(&a.FValue);
   Result := a;
 end;
 
@@ -223,10 +226,10 @@ var
   OutPut: OLDouble;
 begin
 
-  if not b.ValuePresent then
+  if not b.FHasValue then
     OutPut := Null
   else
-    OutPut := a / b.Value;
+    OutPut := a / b.FValue;
 
   Result := OutPut;
 end;
@@ -237,10 +240,10 @@ var
   OutPut: OLDouble;
 begin
 
-  if not a.ValuePresent then
+  if not a.FHasValue then
     OutPut := Null
   else
-    OutPut := a.Value / b;
+    OutPut := a.FValue / b;
 
   Result := OutPut;
 end;
@@ -249,7 +252,7 @@ class operator OLInteger.Equal(const a: OLInteger; const b: Extended):
     Boolean;
 begin
 
-  Result := (a.Value = b) and a.ValuePresent;
+  Result := (a.FValue = b) and a.FHasValue;
 end;
 
 class operator OLInteger.Divide(const a, b: OLInteger): OLDouble;
@@ -257,26 +260,26 @@ var
   OutPut: OLDouble;
 begin
 
-  if (not a.ValuePresent) or (not b.ValuePresent) then
+  if (not a.FHasValue) or (not b.FHasValue) then
     OutPut := Null
   else
-    OutPut := a.Value / b.Value;
+    OutPut := a.FValue / b.FValue;
 
   Result := OutPut;
 end;
 
 function OLInteger.IsDividableBy(const i: integer): OLBoolean;
 begin
-  if not Self.ValuePresent then
+  if not Self.FHasValue then
     Result := Null
   else
-    Result := (Self.Value mod i) = 0;
+    Result := (Self.FValue mod i) = 0;
 end;
 
 class operator OLInteger.Equal(const a, b: OLInteger): Boolean;
 begin
 
-  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue = b.FValue) and (a.FHasValue and b.FHasValue)) or (a.IsNull() and b.IsNull());
 end;
 
 procedure OLInteger.ForLoop(const InitialValue: integer; const ToValue:
@@ -351,13 +354,13 @@ end;
 class operator OLInteger.GreaterThan(const a, b: OLInteger): Boolean;
 begin
 
-  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue > b.FValue) and a.FHasValue and b.FHasValue;
 end;
 
 class operator OLInteger.GreaterThanOrEqual(const a, b: OLInteger): Boolean;
 begin
 
-  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue >= b.FValue) and (a.FHasValue and b.FHasValue)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLInteger.IfNull(const i: OLInteger): OLInteger;
@@ -378,9 +381,9 @@ var
   OutPut: Double;
 begin
 
-  if not a.ValuePresent then
+  if not a.FHasValue then
     raise Exception.Create('Null cannot be used as Double value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -390,13 +393,13 @@ var
   i: integer;
 begin
   if VarIsNull(a) then
-    OutPut.ValuePresent := false
+    OutPut.FHasValue := false
   else
   begin
     if TryStrToInt(a, i) then
     begin
-      OutPut.Value := i;
-      OutPut.ValuePresent := true;
+      OutPut.FValue := i;
+      OutPut.FHasValue := true;
     end
     else
     begin
@@ -410,7 +413,7 @@ end;
 class operator OLInteger.Inc(a: OLInteger): OLInteger;
 begin
 
-  System.Inc(&a.Value);
+  System.Inc(&a.FValue);
   Result := a;
 end;
 
@@ -424,6 +427,15 @@ end;
 class operator OLInteger.Initialize(out Dest: OLInteger);
 begin
   Dest.FHasValue := False;
+  Dest.FOnChange := nil;
+end;
+
+class operator OLInteger.Assign(var Dest: OLInteger; const [ref] Src: OLInteger);
+begin
+  Dest.FValue := Src.FValue;
+  Dest.FHasValue := Src.FHasValue;
+  if Assigned(Dest.FOnChange) then
+    Dest.FOnChange(nil);
 end;
 {$IFEND}
 
@@ -438,10 +450,10 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
+  returnrec.FHasValue := a.FHasValue and b.FHasValue;
 
-  if (returnrec.ValuePresent) then
-    returnrec.Value := a.Value div b.Value;
+  if (returnrec.FHasValue) then
+    returnrec.FValue := a.FValue div b.FValue;
 
   Result := returnrec;
 end;
@@ -455,13 +467,13 @@ end;
 class operator OLInteger.LessThan(const a, b: OLInteger): Boolean;
 begin
 
-  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue < b.FValue) and a.FHasValue and b.FHasValue;
 end;
 
 class operator OLInteger.LessThanOrEqual(const a, b: OLInteger): Boolean;
 begin
 
-  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue <= b.FValue) and (a.FHasValue and b.FHasValue)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLInteger.Max(const i: OLInteger): OLInteger;
@@ -470,7 +482,7 @@ begin
   if (not ValuePresent) or (i = Null) then
     Result := Null
   else
-    Result := Math.Max(Value, i);
+    Result := Math.Max(FValue, i);
 end;
 
 function OLInteger.Min(const i: OLInteger): OLInteger;
@@ -479,7 +491,7 @@ begin
   if (not ValuePresent) or (i = Null) then
     Result := Null
   else
-    Result := Math.Min(Value, i);
+    Result := Math.Min(FValue, i);
 end;
 
 class operator OLInteger.Modulus(const a, b: OLInteger): OLInteger;
@@ -487,8 +499,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := a.Value mod b.Value;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
+  returnrec.FValue := a.FValue mod b.FValue;
+  returnrec.FHasValue := a.FHasValue and b.FHasValue;
   Result := returnrec;
 end;
 
@@ -501,7 +513,7 @@ begin
   if b.IsNull then
     OutPut := Null
   else
-    OutPut := a * b.Value;
+    OutPut := a * b.FValue;
 
   Result := OutPut;
 end;
@@ -512,10 +524,10 @@ var
   OutPut: OLDouble;
 begin
 
-  if not a.ValuePresent then
+  if not a.FHasValue then
     OutPut := Null
   else
-    OutPut := a.Value * b;
+    OutPut := a.FValue * b;
 
   Result := OutPut;
 end;
@@ -526,10 +538,10 @@ var
   OutPut: OLDouble;
 begin
 
-  if (a.IsNull()) or (not b.ValuePresent) then
+  if (a.IsNull()) or (not b.FHasValue) then
     OutPut := Null
   else
-    OutPut := a * b.Value;
+    OutPut := a * b.FValue;
 
   Result := OutPut;
 end;
@@ -540,10 +552,10 @@ var
   OutPut: OLDouble;
 begin
 
-  if (not a.ValuePresent) or (b.IsNull) then
+  if (not a.FHasValue) or (b.IsNull) then
     OutPut := Null
   else
-    OutPut := a.Value * b;
+    OutPut := a.FValue * b;
 
   Result := OutPut;
 end;
@@ -554,8 +566,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := a.Value * b;
-  returnrec.ValuePresent := a.ValuePresent;
+  returnrec.FValue := a.FValue * b;
+  returnrec.FHasValue := a.FHasValue;
   Result := returnrec;
 end;
 
@@ -565,8 +577,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := a * b.Value;
-  returnrec.ValuePresent := b.ValuePresent;
+  returnrec.FValue := a * b.FValue;
+  returnrec.FHasValue := b.FHasValue;
   Result := returnrec;
 end;
 
@@ -575,8 +587,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := a.Value * b.Value;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
+  returnrec.FValue := a.FValue * b.FValue;
+  returnrec.FHasValue := a.FHasValue and b.FHasValue;
   Result := returnrec;
 end;
 
@@ -585,8 +597,8 @@ var
   b: OLInteger;
 begin
 
-  b.Value := -a.Value;
-  b.ValuePresent := a.ValuePresent;
+  b.FValue := -a.FValue;
+  b.FHasValue := a.FHasValue;
   Result := b;
 end;
 
@@ -594,13 +606,13 @@ class operator OLInteger.NotEqual(const a: OLInteger; const b: Extended):
     Boolean;
 begin
 
-  Result := (a.Value <> b) and a.ValuePresent;
+  Result := (a.FValue <> b) and a.FHasValue;
 end;
 
 function OLInteger.Power(const Exponent: integer): Double;
 begin
 
-  Result := Math.IntPower(Value, Exponent);
+  Result := Math.IntPower(FValue, Exponent);
 end;
 
 function OLInteger.IsNegative: OLBoolean;
@@ -609,7 +621,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value < 0;
+    Result := FValue < 0;
 end;
 
 function OLInteger.IsNonNegative: OLBoolean;
@@ -618,13 +630,13 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value >= 0;
+    Result := FValue >= 0;
 end;
 
 class operator OLInteger.NotEqual(const a, b: OLInteger): Boolean;
 begin
 
-  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
+  Result := ((a.FValue <> b.FValue) and a.FHasValue and b.FHasValue) or (a.FHasValue <> b.FHasValue);
 end;
 
 function OLInteger.Power(const Exponent: LongWord): OLInteger;
@@ -632,8 +644,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := Math.Floor(Math.IntPower(Value, Exponent));
-  returnrec.ValuePresent := ValuePresent;
+  returnrec.FValue := Math.Floor(Math.IntPower(FValue, Exponent));
+  returnrec.FHasValue := ValuePresent;
   Result := returnrec;
 end;
 
@@ -671,7 +683,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value > 0;
+    Result := FValue > 0;
 end;
 
 function OLInteger.IsPrime: OLBoolean;
@@ -679,24 +691,24 @@ var
   i: Integer;
   Limit: Integer;
 begin
-  if not Self.ValuePresent then
+  if not Self.FHasValue then
     Exit(Null);
 
-  if Value <= 1 then
+  if FValue <= 1 then
     Exit(False);
 
-  if Value <= 3 then
+  if FValue <= 3 then
     Exit(True);
 
-  if (Value mod 2 = 0) or (Value mod 3 = 0) then
+  if (FValue mod 2 = 0) or (FValue mod 3 = 0) then
     Exit(False);
 
   i := 5;
-  Limit := Trunc(Sqrt(Value));
+  Limit := Trunc(Sqrt(FValue));
 
   while i <= Limit do
   begin
-    if (Value mod i = 0) or (Value mod (i + 2) = 0) then
+    if (FValue mod i = 0) or (FValue mod (i + 2) = 0) then
       Exit(False);
     Inc(i, 6);
   end;
@@ -746,30 +758,30 @@ end;
 procedure OLInteger.SetRandom(const MaxValue:Integer = MaxInt);
 begin
 
-  Self.Value := OLInteger.Random(MaxValue);
-  Self.ValuePresent := True;
+  Self.FValue := OLInteger.Random(MaxValue);
+  Self.FHasValue := True;
 end;
 
 procedure OLInteger.SetRandom(const MinValue: Integer; const MaxValue:Integer);
 begin
 
-  Self.Value := OLInteger.Random(MinValue, MaxValue);
-  Self.ValuePresent := True;
+  Self.FValue := OLInteger.Random(MinValue, MaxValue);
+  Self.FHasValue := True;
 end;
 
 procedure OLInteger.SetRandomPrime(const MaxValue:Integer = MaxInt);
 begin
 
-  Self.Value := OLInteger.RandomPrime(MaxValue);
-  Self.ValuePresent := True;
+  Self.FValue := OLInteger.RandomPrime(MaxValue);
+  Self.FHasValue := True;
 end;
 
 procedure OLInteger.SetRandomPrime(const MinValue: Integer; const
     MaxValue:Integer);
 begin
 
-  Self.Value := OLInteger.RandomPrime(MinValue, MaxValue);
-  Self.ValuePresent := True;
+  Self.FValue := OLInteger.RandomPrime(MinValue, MaxValue);
+  Self.FHasValue := True;
 end;
 
 function OLInteger.Sqr: OLInteger;
@@ -777,8 +789,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := Value * Value;
-  returnrec.ValuePresent := ValuePresent;
+  returnrec.FValue := FValue * FValue;
+  returnrec.FHasValue := ValuePresent;
   Result := returnrec;
 end;
 
@@ -787,8 +799,8 @@ var
   returnrec: OLInteger;
 begin
 
-  returnrec.Value := a.Value - b.Value;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
+  returnrec.FValue := a.FValue - b.FValue;
+  returnrec.FHasValue := a.FHasValue and b.FHasValue;
   Result := returnrec;
 end;
 
@@ -811,7 +823,7 @@ var
 begin
 
   if ValuePresent then
-    Output := IntToStr(Value)
+    Output := IntToStr(FValue)
   else
     Output := '';
 
@@ -854,8 +866,8 @@ var
   OutPut: Variant;
 begin
 
-  if a.ValuePresent then
-    OutPut := a.Value
+  if a.FHasValue then
+    OutPut := a.FValue
   else
     OutPut := Null;
 
@@ -865,14 +877,14 @@ end;
 class operator OLInteger.GreaterThan(const a: OLInteger; const b: Extended): Boolean;
 begin
 
-  Result := (a.Value > b) and a.ValuePresent;
+  Result := (a.FValue > b) and a.FHasValue;
 end;
 
 class operator OLInteger.GreaterThanOrEqual(const a: OLInteger; const b:
     Extended): Boolean;
 begin
 
-  Result := (a.Value >= b) and a.ValuePresent;
+  Result := (a.FValue >= b) and a.FHasValue;
 end;
 
 function OLInteger.HasValue: OLBoolean;
@@ -885,14 +897,14 @@ class operator OLInteger.LessThan(const a: OLInteger; const b: Extended):
     Boolean;
 begin
 
-  Result := (a.Value < b) and a.ValuePresent;
+  Result := (a.FValue < b) and a.FHasValue;
 end;
 
 class operator OLInteger.LessThanOrEqual(const a: OLInteger; const b:
     Extended): Boolean;
 begin
 
-  Result := (a.Value <= b) and a.ValuePresent;
+  Result := (a.FValue <= b) and a.FHasValue;
 end;
 
 class operator OLInteger.Implicit(const a: OLInteger): OLDouble;
@@ -900,8 +912,8 @@ var
   OutPut: OLDouble;
 begin
 
-  if a.ValuePresent then
-    OutPut := a.Value
+  if a.FHasValue then
+    OutPut := a.FValue
   else
     OutPut := Null;
 
@@ -915,10 +927,10 @@ var
   OutPut: OLDouble;
 begin
 
-  if (a.IsNull()) or (not b.ValuePresent) then
+  if (a.IsNull()) or (not b.FHasValue) then
     OutPut := Null
   else
-    OutPut := a / b.Value;
+    OutPut := a / b.FValue;
 
   Result := OutPut;
 end;
@@ -929,10 +941,10 @@ var
   OutPut: OLDouble;
 begin
 
-  if (not a.ValuePresent) or (b.IsNull) then
+  if (not a.FHasValue) or (b.IsNull) then
     OutPut := Null
   else
-    OutPut := a.Value / b;
+    OutPut := a.FValue / b;
 
   Result := OutPut;
 end;

@@ -52,7 +52,9 @@ type
     procedure SetOLPointer(const Value: POLInteger);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -67,7 +69,9 @@ type
     procedure SetOLPointer(const Value: POLInteger);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TSpinEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -82,7 +86,9 @@ type
     procedure SetOLPointer(const Value: POLInteger);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TScrollBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -97,7 +103,9 @@ type
     procedure SetOLPointer(const Value: POLInteger);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TTrackBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -250,6 +258,8 @@ type
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
     constructor Create;
+    destructor Destroy; override;
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -478,6 +488,17 @@ begin
   FOLPointer := nil;
 end;
 
+destructor TEditToOLInteger.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
 procedure TEditToOLInteger.NewOnChange(Sender: TObject);
 var
   i, j: integer;
@@ -498,6 +519,11 @@ begin
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TEditToOLInteger.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TEditToOLInteger.RefreshControl;
@@ -795,6 +821,17 @@ begin
   FOLPointer := nil;
 end;
 
+destructor TSpinEditToOLInteger.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
 procedure TSpinEditToOLInteger.NewOnChange(Sender: TObject);
 var
   i, j: integer;
@@ -815,6 +852,11 @@ begin
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TSpinEditToOLInteger.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TSpinEditToOLInteger.RefreshControl;
@@ -1324,6 +1366,22 @@ begin
   FValueOnErrorInCalculation := '';
 end;
 
+destructor TOLIntegerToLabel.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
+procedure TOLIntegerToLabel.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
+end;
+
 procedure TOLIntegerToLabel.RefreshControl;
 var
   s: string;
@@ -1691,12 +1749,28 @@ begin
   FOLPointer := nil;
 end;
 
+destructor TScrollBarToILInteger.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
 procedure TScrollBarToILInteger.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Position;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TScrollBarToILInteger.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TScrollBarToILInteger.RefreshControl;
@@ -1730,12 +1804,28 @@ begin
   FOLPointer := nil;
 end;
 
+destructor TTrackBarToILInteger.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
 procedure TTrackBarToILInteger.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Position;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TTrackBarToILInteger.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TTrackBarToILInteger.RefreshControl;
@@ -1836,6 +1926,9 @@ begin
   Link := TSpinEditToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
+  {$IF CompilerVersion >= 34.0}
+  i.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
@@ -1849,6 +1942,9 @@ begin
   Link := TEditToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
+  {$IF CompilerVersion >= 34.0}
+  i.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
   
   Edit.Alignment := Alignment;
@@ -1863,6 +1959,9 @@ begin
   Link := TTrackBarToILInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
+  {$IF CompilerVersion >= 34.0}
+  i.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
@@ -1875,6 +1974,9 @@ begin
   Link := TScrollBarToILInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
+  {$IF CompilerVersion >= 34.0}
+  i.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
@@ -1997,6 +2099,9 @@ begin
   Link := TOLIntegerToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @i;
+  {$IF CompilerVersion >= 34.0}
+  i.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
