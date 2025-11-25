@@ -11,7 +11,8 @@ uses
   FMX.Graphics, FMX.TextLayout,
   {$ENDIF}
   OLBooleanType, OLCurrencyType,
-  OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType, OLInt64Type, SmartToDate;
+  OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType, OLInt64Type,
+  SmartToDate, System.Classes;
 
 type
   TCaseSensitivity = (csCaseSensitive, csCaseInsensitive);
@@ -28,8 +29,9 @@ type
 
   OLString = record
   private
-    Val: string;
+    FValue: string;
     {$IF CompilerVersion >= 34.0}
+    FOnChange: TNotifyEvent;
     FHasValue: Boolean;
     {$ELSE}
     FHasValue: string;
@@ -302,6 +304,8 @@ type
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLString);
+    class operator Assign(var Dest: OLString; const [ref] Src: OLString);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;
 
@@ -313,7 +317,7 @@ type
 implementation
 
 uses
-  Classes, Clipbrd, WinInet, DateUtils, Math, EncdDecd,IdSSLOpenSSL,
+  Clipbrd, WinInet, DateUtils, Math, EncdDecd,IdSSLOpenSSL,
   {$if CompilerVersion > 22.0 }
   System.ZLib, IdHTTP, System.JSON, System.RegularExpressions;
   {$ELSE}
@@ -733,8 +737,8 @@ begin
     Exit;
   end;
 
-  P := PChar(Self.Val);
-  Len := System.Length(Self.Val);
+  P := PChar(Self.FValue);
+  Len := System.Length(Self.FValue);
   StartP := P;
   CurrentIndex := 0;
 
@@ -761,10 +765,10 @@ begin
     raise Exception.Create('List index out of bounds (' + IntToStr(Index) + ')');
 
   StartP := P;
-  while ((P - PChar(Self.Val)) < Len) and (P^ <> #10) and (P^ <> #13) do
+  while ((P - PChar(Self.FValue)) < Len) and (P^ <> #10) and (P^ <> #13) do
     Inc(P);
 
-  SetString(Result.Val, StartP, P - StartP);
+  SetString(Result.FValue, StartP, P - StartP);
   Result.ValuePresent := True;
 end;
 
@@ -827,7 +831,7 @@ begin
 
   OutPut := Null;
 
-  JSONValue := TJSONObject.ParseJSONValue(self.Val);
+  JSONValue := TJSONObject.ParseJSONValue(self.FValue);
   try
     if JSONValue is TJSONObject then
     begin
@@ -894,7 +898,7 @@ end;
 
 function OLString.GetValue: string;
 begin
-  Result := Self.Val;
+  Result := Self.FValue;
 end;
 
 function OLString.FindPatternStr(const InFront: OLString; const Behind:
@@ -985,7 +989,7 @@ begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as string value')
   else
-    OutPut := a.Val;
+    OutPut := a.FValue;
 
   AllowToSetEmptyStrAsDefaultValue := False;
 
@@ -1729,7 +1733,7 @@ begin
     SubStringLength := System.Length(SubStr);
 
     i := Self.Length() - SubStringLength + 1;
-    myCharPtr := Addr(Self.Val[i]);
+    myCharPtr := Addr(Self.FValue[i]);
 
     if CaseSensitivity = csCaseSensitive then
     begin
@@ -1784,7 +1788,7 @@ begin
     SubStringLength := System.Length(SubStr);
 
     i := Min(Self.Length() - SubStringLength + 1, NotAfterPosition);
-    myCharPtr := Addr(Self.Val[i]);
+    myCharPtr := Addr(Self.FValue[i]);
 
     if CaseSensitivity = csCaseSensitive then
     begin
@@ -1996,7 +2000,7 @@ begin
   if Self.Length < Index then
     raise Exception.Create('Index greater then string length.');
 
-  Self.Val[Index] := Value;
+  Self.FValue[Index] := Value;
 end;
 
 procedure OLString.SetCSV(const Index: integer; const Value: OLString);
@@ -2042,6 +2046,19 @@ end;
 class operator OLString.Initialize(out Dest: OLString);
 begin
   Dest.FHasValue := False;
+  Dest.FOnChange := nil;
+end;
+
+class operator OLString.Assign(var Dest: OLString; const [ref] Src: OLString);
+begin
+  Dest.FValue := Src.FValue;
+  Dest.FHasValue := Src.FHasValue;
+  Dest.DefaultValueFlag := Src.DefaultValueFlag;
+  Dest.ValBeforeParams := Src.ValBeforeParams;
+  Dest.Parameters := Src.Parameters;
+
+  if Assigned(Dest.FOnChange) then
+    Dest.FOnChange(nil);
 end;
 {$IFEND}
 
@@ -2070,9 +2087,9 @@ var
   LineStartOffset, LineEndOffset: Integer;
   OldVal: string;
 begin
-  if not ValuePresent then Self.Val := '';
+  if not ValuePresent then Self.FValue := '';
 
-  OldVal := Self.Val;
+  OldVal := Self.FValue;
   Len := System.Length(OldVal);
   P := PChar(OldVal);
   StartP := P;
@@ -2105,7 +2122,7 @@ begin
 
   if System.Length(OldVal) > Len then
   begin
-    Self.Val := OldVal + Value.Value;
+    Self.FValue := OldVal + Value.Value;
     Exit;
   end;
 
@@ -2119,7 +2136,7 @@ begin
   System.Delete(OldVal, LineStartOffset, LineEndOffset - LineStartOffset);
   System.Insert(Value.Value, OldVal, LineStartOffset);
 
-  Self.Val := OldVal;
+  Self.FValue := OldVal;
 end;
 
 class procedure OLString.SetNullAsDefault;
@@ -2135,7 +2152,7 @@ var
   ParIdx: OLInteger;
 begin
   if ValBeforeParams = '' then
-    ValBeforeParams := Val;
+    ValBeforeParams := FValue;
 
   ParIdx := ParamIndex(ParamName);
   if ParIdx.IsNull() then
@@ -2189,7 +2206,7 @@ var
   Obj: TJSONObject;
   i: Integer;
 begin
-  JSONValue := TJSONObject.ParseJSONValue(self.Val);
+  JSONValue := TJSONObject.ParseJSONValue(self.FValue);
   if not Assigned(JSONValue) then
     JSONValue := TJSONObject.Create;
 
@@ -2330,7 +2347,7 @@ begin
       end;
     end;
 
-    Self.val := JSONValue.ToString;
+    Self.FValue := JSONValue.ToString;
   finally
     JSONValue.Free;
   end;
@@ -2441,19 +2458,23 @@ procedure OLString.ApplyParams();
 var
   i: integer;
 begin
-  Self.Val := ValBeforeParams;
+  Self.FValue := ValBeforeParams;
 
   for i := 0 to System.Length(Self.Parameters) - 1 do
   begin
-    Self.Val := Self.Replaced(':' + Self.Parameters[i].ParamName, Self.Parameters[i].ParamValue)
+    Self.FValue := Self.Replaced(':' + Self.Parameters[i].ParamName, Self.Parameters[i].ParamValue)
   end;
 end;
 
 
 procedure OLString.SetValue(const Value: string);
 begin
-  Self.Val := Value;
+  Self.FValue := Value;
   Self.TurnDefaultValueFlagOff();
+  {$IF CompilerVersion >= 34.0}
+  if Assigned(FOnChange) then
+    FOnChange(nil);
+  {$IFEND}
 end;
 
 function OLString.SmartStrToDate: OLDate;
@@ -2630,7 +2651,7 @@ begin
   if Self.IsNull then
     OutPut := PWideChar(EmptyStr)
   else
-    OutPut := PWideChar(Self.Val);
+    OutPut := PWideChar(Self.FValue);
 
   Result := OutPut;
 end;

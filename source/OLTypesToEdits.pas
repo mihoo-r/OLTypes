@@ -152,7 +152,9 @@ type
     procedure SetOLPointer(const Value: POLString);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
@@ -167,7 +169,9 @@ type
     procedure SetOLPointer(const Value: POLString);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TMemo read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
@@ -557,12 +561,28 @@ begin
   FOLPointer := nil;
 end;
 
+destructor TEditToOLString.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
 procedure TEditToOLString.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Text;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TEditToOLString.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TEditToOLString.RefreshControl;
@@ -596,12 +616,28 @@ begin
   FOLPointer := nil;
 end;
 
+destructor TMemoToOLString.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  inherited;
+end;
+
 procedure TMemoToOLString.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Text;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TMemoToOLString.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
 end;
 
 procedure TMemoToOLString.RefreshControl;
