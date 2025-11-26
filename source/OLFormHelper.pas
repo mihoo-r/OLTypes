@@ -14,21 +14,50 @@ type
     procedure RemoveLinks();
   end;
 
-  TOLControlHelper = class helper for TControl
+  TOLEditHelper = class helper for TEdit
     procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(var s: OLString); overload;
+  end;
+
+  TOLSpinEditHelper = class helper for TSpinEdit
+    procedure Link(var i: OLInteger);
+  end;
+
+  TOLTrackBarHelper = class helper for TTrackBar
+    procedure Link(var i: OLInteger);
+  end;
+
+  TOLScrollBarHelper = class helper for TScrollBar
+    procedure Link(var i: OLInteger);
+  end;
+
+  TOLMemoHelper = class helper for TMemo
+    procedure Link(var s: OLString);
+  end;
+
+  TOLDateTimePickerHelper = class helper for TDateTimePicker
     procedure Link(var d: OLDate); overload;
     procedure Link(var d: OLDateTime); overload;
-    procedure Link(var b: OLBoolean); overload;
+  end;
 
-    // Calculation links (Label only)
+  TOLCheckBoxHelper = class helper for TCheckBox
+    procedure Link(var b: OLBoolean);
+  end;
+
+  TOLLabelHelper = class helper for TLabel
+    procedure Link(var i: OLInteger); overload;
     procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(var s: OLString); overload;
     procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
     procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
     procedure Link(const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(var d: OLDate); overload;
     procedure Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(var d: OLDateTime); overload;
     procedure Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
   end;
 
@@ -46,104 +75,135 @@ begin
   Links.RemoveLinks(Self);
 end;
 
-{ TOLControlHelper }
+{ TOLEditHelper }
 
-procedure TOLControlHelper.Link(var i: OLInteger; const Alignment: TAlignment);
+procedure TOLEditHelper.Link(var i: OLInteger; const Alignment: TAlignment);
 begin
-  if Self is TEdit then
-    Links.Link(TEdit(Self), i, Alignment)
-  else if Self is TSpinEdit then
-    Links.Link(TSpinEdit(Self), i)
-  else if Self is TTrackBar then
-    Links.Link(TTrackBar(Self), i)
-  else if Self is TScrollBar then
-    Links.Link(TScrollBar(Self), i)
-  else if Self is TLabel then
-    Links.Link(TLabel(Self), i);
+  Links.Link(Self, i, Alignment);
 end;
 
-procedure TOLControlHelper.Link(var d: OLDouble; const Format: string; const Alignment: TAlignment);
+procedure TOLEditHelper.Link(var d: OLDouble; const Format: string; const Alignment: TAlignment);
 begin
-  if Self is TEdit then
-    Links.Link(TEdit(Self), d, Format, Alignment)
-  else if Self is TLabel then
-    Links.Link(TLabel(Self), d, Format);
+  Links.Link(Self, d, Format, Alignment);
 end;
 
-procedure TOLControlHelper.Link(var curr: OLCurrency; const Format: string; const Alignment: TAlignment);
+procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string; const Alignment: TAlignment);
 begin
-  if Self is TEdit then
-    Links.Link(TEdit(Self), curr, Format, Alignment)
-  else if Self is TLabel then
-    Links.Link(TLabel(Self), curr, Format);
+  Links.Link(Self, curr, Format, Alignment);
 end;
 
-procedure TOLControlHelper.Link(var s: OLString);
+procedure TOLEditHelper.Link(var s: OLString);
 begin
-  if Self is TEdit then
-    Links.Link(TEdit(Self), s)
-  else if Self is TMemo then
-    Links.Link(TMemo(Self), s)
-  else if Self is TLabel then
-    Links.Link(TLabel(Self), s);
+  Links.Link(Self, s);
 end;
 
-procedure TOLControlHelper.Link(var d: OLDate);
+{ TOLSpinEditHelper }
+
+procedure TOLSpinEditHelper.Link(var i: OLInteger);
 begin
-  if Self is TDateTimePicker then
-    Links.Link(TDateTimePicker(Self), d)
-  else if Self is TLabel then
-    Links.Link(TLabel(Self), d);
+  Links.Link(Self, i);
 end;
 
-procedure TOLControlHelper.Link(var d: OLDateTime);
+{ TOLTrackBarHelper }
+
+procedure TOLTrackBarHelper.Link(var i: OLInteger);
 begin
-  if Self is TDateTimePicker then
-    Links.Link(TDateTimePicker(Self), d)
-  else if Self is TLabel then
-    Links.Link(TLabel(Self), d);
+  Links.Link(Self, i);
 end;
 
-procedure TOLControlHelper.Link(var b: OLBoolean);
+{ TOLScrollBarHelper }
+
+procedure TOLScrollBarHelper.Link(var i: OLInteger);
 begin
-  if Self is TCheckBox then
-    Links.Link(TCheckBox(Self), b);
+  Links.Link(Self, i);
 end;
 
-procedure TOLControlHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
+{ TOLMemoHelper }
+
+procedure TOLMemoHelper.Link(var s: OLString);
 begin
-  if Self is TLabel then
-    Links.Link(TLabel(Self), f, ValueOnErrorInCalculation);
+  Links.Link(Self, s);
 end;
 
-procedure TOLControlHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
+{ TOLDateTimePickerHelper }
+
+procedure TOLDateTimePickerHelper.Link(var d: OLDate);
 begin
-  if Self is TLabel then
-    Links.Link(TLabel(Self), f, ValueOnErrorInCalculation);
+  Links.Link(Self, d);
 end;
 
-procedure TOLControlHelper.Link(const f: TFunctionReturningOLDouble; const Format: string; const ValueOnErrorInCalculation: string);
+procedure TOLDateTimePickerHelper.Link(var d: OLDateTime);
 begin
-  if Self is TLabel then
-    Links.Link(TLabel(Self), f, Format, ValueOnErrorInCalculation);
+  Links.Link(Self, d);
 end;
 
-procedure TOLControlHelper.Link(const f: TFunctionReturningOLCurrency; const Format: string; const ValueOnErrorInCalculation: string);
+{ TOLCheckBoxHelper }
+
+procedure TOLCheckBoxHelper.Link(var b: OLBoolean);
 begin
-  if Self is TLabel then
-    Links.Link(TLabel(Self), f, Format, ValueOnErrorInCalculation);
+  Links.Link(Self, b);
 end;
 
-procedure TOLControlHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
+{ TOLLabelHelper }
+
+procedure TOLLabelHelper.Link(var i: OLInteger);
 begin
-  if Self is TLabel then
-    Links.Link(TLabel(Self), f, ValueOnErrorInCalculation);
+  Links.Link(Self, i);
 end;
 
-procedure TOLControlHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
+procedure TOLLabelHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
 begin
-  if Self is TLabel then
-    Links.Link(TLabel(Self), f, ValueOnErrorInCalculation);
+  Links.Link(Self, f, ValueOnErrorInCalculation);
+end;
+
+procedure TOLLabelHelper.Link(var s: OLString);
+begin
+  Links.Link(Self, s);
+end;
+
+procedure TOLLabelHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
+begin
+  Links.Link(Self, f, ValueOnErrorInCalculation);
+end;
+
+procedure TOLLabelHelper.Link(var d: OLDouble; const Format: string);
+begin
+  Links.Link(Self, d, Format);
+end;
+
+procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDouble; const Format: string; const ValueOnErrorInCalculation: string);
+begin
+  Links.Link(Self, f, Format, ValueOnErrorInCalculation);
+end;
+
+procedure TOLLabelHelper.Link(var curr: OLCurrency; const Format: string);
+begin
+  Links.Link(Self, curr, Format);
+end;
+
+procedure TOLLabelHelper.Link(const f: TFunctionReturningOLCurrency; const Format: string; const ValueOnErrorInCalculation: string);
+begin
+  Links.Link(Self, f, Format, ValueOnErrorInCalculation);
+end;
+
+procedure TOLLabelHelper.Link(var d: OLDate);
+begin
+  Links.Link(Self, d);
+end;
+
+procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
+begin
+  Links.Link(Self, f, ValueOnErrorInCalculation);
+end;
+
+procedure TOLLabelHelper.Link(var d: OLDateTime);
+begin
+  Links.Link(Self, d);
+end;
+
+procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
+begin
+  Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
 end.
