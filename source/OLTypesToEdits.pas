@@ -43,6 +43,7 @@ type
   public
     constructor Create; reintroduce;
     procedure RefreshControl; virtual; abstract;
+    function NeedsTimer: Boolean; virtual;
   end;
 
   TEditToOLInteger = class(TOLLinkBase)
@@ -266,6 +267,7 @@ type
     FOLPointer: POLInteger;
     FCalculation: TFunctionReturningOLInteger;
     FValueOnErrorInCalculation: OLString;
+    function NeedsTimer: Boolean;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetCalculation(const Value: TFunctionReturningOLInteger);
@@ -294,6 +296,7 @@ type
   public
     constructor Create;
     procedure RefreshControl; override;
+    function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLString read FCalculation write SetCalculation;
@@ -316,6 +319,7 @@ type
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDouble read FCalculation write SetCalculation;
@@ -338,6 +342,7 @@ type
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLCurrency read FCalculation write SetCalculation;
@@ -359,6 +364,7 @@ type
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDate read FCalculation write SetCalculation;
@@ -380,6 +386,7 @@ type
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDateTime read FCalculation write SetCalculation;
@@ -977,6 +984,11 @@ end;
 constructor TOLLinkBase.Create;
 begin
   inherited Create(nil);
+end;
+
+function TOLLinkBase.NeedsTimer: Boolean;
+begin
+  Result := false;
 end;
 
 { TDateTimePickerToOLDate }
@@ -2104,7 +2116,15 @@ begin
   List.Add(Link);
 
   // Ensure Timer
-  if not FTimers.ContainsKey(Form) then
+  var NeedTimer: Boolean;
+  NeedTimer := False;
+  {$IF CompilerVersion < 34.0}
+  NeedTimer := True;
+  {$ELSE}
+  NeedTimer := Link.NeedsTimer;
+  {$IFEND}
+
+  if NeedTimer and (not FTimers.ContainsKey(Form)) then
   begin
     Timer := TRefreshTimer.Create(nil, Form); // Owned by nil, we manage it
     Timer.Enabled := True;
@@ -2559,6 +2579,36 @@ begin
       FLinks.Remove(DestroyedForm);
     end;
   end;
+end;
+
+function TOLIntegerToLabel.NeedsTimer: Boolean;
+begin
+  Result := Assigned(FCalculation);
+end;
+
+function TOLStringToLabel.NeedsTimer: Boolean;
+begin
+  Result := Assigned(FCalculation);
+end;
+
+function TOLDoubleToLabel.NeedsTimer: Boolean;
+begin
+  Result := Assigned(FCalculation);
+end;
+
+function TOLCurrencyToLabel.NeedsTimer: Boolean;
+begin
+  Result := Assigned(FCalculation);
+end;
+
+function TOLDateToLabel.NeedsTimer: Boolean;
+begin
+  Result := Assigned(FCalculation);
+end;
+
+function TOLDateTimeToLabel.NeedsTimer: Boolean;
+begin
+  Result := Assigned(FCalculation);
 end;
 
 {$IFEND}
