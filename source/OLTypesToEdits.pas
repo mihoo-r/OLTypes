@@ -80,7 +80,7 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TScrollBarToILInteger = class(TOLLinkBase)
+  TScrollBarToOLInteger = class(TOLLinkBase)
   private
     FEdit: TScrollBar;
     FEditOnChange: TEditOnChange;
@@ -97,7 +97,7 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TTrackBarToILInteger = class(TOLLinkBase)
+  TTrackBarToOLInteger = class(TOLLinkBase)
   private
     FEdit: TTrackBar;
     FEditOnChange: TEditOnChange;
@@ -1959,9 +1959,9 @@ begin
   FValueOnErrorInCalculation := Value;
 end;
 
-{ TScrollBarToILInteger }
+{ TScrollBarToOLInteger }
 
-constructor TScrollBarToILInteger.Create;
+constructor TScrollBarToOLInteger.Create;
 begin
   inherited;
   FEdit := nil;
@@ -1969,7 +1969,7 @@ begin
   FOLPointer := nil;
 end;
 
-destructor TScrollBarToILInteger.Destroy;
+destructor TScrollBarToOLInteger.Destroy;
 begin
   if Assigned(FOLPointer) then
   begin
@@ -1980,7 +1980,7 @@ begin
   inherited;
 end;
 
-procedure TScrollBarToILInteger.NewOnChange(Sender: TObject);
+procedure TScrollBarToOLInteger.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Position;
 
@@ -1988,18 +1988,18 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TScrollBarToILInteger.OnOLChange(Sender: TObject);
+procedure TScrollBarToOLInteger.OnOLChange(Sender: TObject);
 begin
   RefreshControl;
 end;
 
-procedure TScrollBarToILInteger.RefreshControl;
+procedure TScrollBarToOLInteger.RefreshControl;
 begin
   if Edit.Position <> (OLPointer^).IfNull(0) then
     Edit.Position := (OLPointer^).IfNull(0);
 end;
 
-procedure TScrollBarToILInteger.SetEdit(const Value: TScrollBar);
+procedure TScrollBarToOLInteger.SetEdit(const Value: TScrollBar);
 begin
   FEdit := Value;
   if Assigned(Value) then
@@ -2009,14 +2009,14 @@ begin
   end;
 end;
 
-procedure TScrollBarToILInteger.SetOLPointer(const Value: POLInteger);
+procedure TScrollBarToOLInteger.SetOLPointer(const Value: POLInteger);
 begin
   FOLPointer := Value;
 end;
 
-{ TTrackBarToILInteger }
+{ TTrackBarToOLInteger }
 
-constructor TTrackBarToILInteger.Create;
+constructor TTrackBarToOLInteger.Create;
 begin
   inherited;
   FEdit := nil;
@@ -2024,7 +2024,7 @@ begin
   FOLPointer := nil;
 end;
 
-destructor TTrackBarToILInteger.Destroy;
+destructor TTrackBarToOLInteger.Destroy;
 begin
   if Assigned(FOLPointer) then
   begin
@@ -2035,7 +2035,7 @@ begin
   inherited;
 end;
 
-procedure TTrackBarToILInteger.NewOnChange(Sender: TObject);
+procedure TTrackBarToOLInteger.NewOnChange(Sender: TObject);
 begin
   OLPointer^ := Edit.Position;
 
@@ -2043,18 +2043,18 @@ begin
     FEditOnChange(Edit);
 end;
 
-procedure TTrackBarToILInteger.OnOLChange(Sender: TObject);
+procedure TTrackBarToOLInteger.OnOLChange(Sender: TObject);
 begin
   RefreshControl;
 end;
 
-procedure TTrackBarToILInteger.RefreshControl;
+procedure TTrackBarToOLInteger.RefreshControl;
 begin
   if Edit.Position <> (OLPointer^).IfNull(0) then
     Edit.Position := (OLPointer^).IfNull(0);
 end;
 
-procedure TTrackBarToILInteger.SetEdit(const Value: TTrackBar);
+procedure TTrackBarToOLInteger.SetEdit(const Value: TTrackBar);
 begin
   FEdit := Value;
   if Assigned(Value) then
@@ -2064,7 +2064,7 @@ begin
   end;
 end;
 
-procedure TTrackBarToILInteger.SetOLPointer(const Value: POLInteger);
+procedure TTrackBarToOLInteger.SetOLPointer(const Value: POLInteger);
 begin
   FOLPointer := Value;
 end;
@@ -2190,9 +2190,9 @@ end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TTrackBar; var i: OLInteger);
 var
-  Link: TTrackBarToILInteger;
+  Link: TTrackBarToOLInteger;
 begin
-  Link := TTrackBarToILInteger.Create;
+  Link := TTrackBarToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
@@ -2205,9 +2205,9 @@ end;
 
 procedure TOLTypesToControlsLinks.Link(const Edit: TScrollBar; var i: OLInteger);
 var
-  Link: TScrollBarToILInteger;
+  Link: TScrollBarToOLInteger;
 begin
-  Link := TScrollBarToILInteger.Create;
+  Link := TScrollBarToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
