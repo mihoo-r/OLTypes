@@ -2097,12 +2097,19 @@ end;
 
 procedure TOLTypesToControlsLinks.AddLink(Control: TControl; Link: TOLLinkBase);
 var
+  TempControl: TWinControl;
   Form: TForm;
   List: TObjectList<TOLLinkBase>;
   Timer: TTimer;
   Watcher: TOLFormWatcher;
 begin
-  Form := GetParentForm(Control) as TForm;
+  TempControl := GetParentForm(Control);
+
+  if TempControl is TForm then
+    Form := TForm(TempControl)
+  else
+    Form := nil;
+
   if Form = nil then Exit;
 
   if not Assigned(FLinks) then Exit;
