@@ -247,7 +247,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, i, Alignment);
+  if Assigned(F) then
+    F.Link(Self, i, Alignment);
 end;
 
 procedure TOLEditHelper.Link(var d: OLDouble; const Format: string =
@@ -256,7 +257,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, d, Format, Alignment);
+  if Assigned(F) then
+    F.Link(Self, d, Format, Alignment);
 end;
 
 procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string =
@@ -265,7 +267,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, curr, Format, Alignment);
+  if Assigned(F) then
+    F.Link(Self, curr, Format, Alignment);
 end;
 
 procedure TOLEditHelper.Link(var s: OLString);
@@ -273,7 +276,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, s);
+  if Assigned(F) then
+    F.Link(Self, s);
 end;
 
 { TOLSpinEditHelper }
@@ -283,7 +287,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, i);
+  if Assigned(F) then
+    F.Link(Self, i);
 end;
 
 { TOLTrackBarHelper }
@@ -293,7 +298,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, i);
+  if Assigned(F) then
+    F.Link(Self, i);
 end;
 
 { TOLScrollBarHelper }
@@ -303,7 +309,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, i);
+  if Assigned(F) then
+    F.Link(Self, i);
 end;
 
 { TOLMemoHelper }
@@ -313,7 +320,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, s);
+  if Assigned(F) then
+    F.Link(Self, s);
 end;
 
 { TOLDateTimePickerHelper }
@@ -323,7 +331,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, d);
+  if Assigned(F) then
+    F.Link(Self, d);
 end;
 
 procedure TOLDateTimePickerHelper.Link(var d: OLDate);
@@ -331,7 +340,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, d);
+  if Assigned(F) then
+    F.Link(Self, d);
 end;
 
 { TOLCheckBoxHelper }
@@ -341,7 +351,8 @@ var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  F.Link(Self, b);
+  if Assigned(F) then
+    F.Link(Self, b);
 end;
 
 { TOLLableHelper }
@@ -360,7 +371,8 @@ var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, d, Format);
+  if Assigned(Frm) then
+    Frm.Link(Self, d, Format);
 end;
 
 procedure TOLLableHelper.Link(const f: TFunctionReturningOLDouble; const
@@ -378,7 +390,8 @@ var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, i);
+  if Assigned(Frm) then
+    Frm.Link(Self, i);
 end;
 
 procedure TOLLableHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
@@ -394,7 +407,8 @@ var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, s);
+  if Assigned(Frm) then
+    Frm.Link(Self, s);
 end;
 
 procedure TOLLableHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
@@ -427,7 +441,8 @@ var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, curr, Format);
+  if Assigned(Frm) then
+    Frm.Link(Self, curr, Format);
 end;
 
 procedure TOLLableHelper.Link(const f: TFunctionReturningOLCurrency; const
