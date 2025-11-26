@@ -393,7 +393,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLTypesToControlsLinks = record
+  TOLTypesToControlsLinks = class
   private
     FLinks: TDictionary<TForm, TObjectList<TOLLinkBase>>;
     FTimers: TDictionary<TForm, TTimer>;
@@ -401,8 +401,8 @@ type
     procedure AddLink(Control: TControl; Link: TOLLinkBase);
     function DelphiDateTimeFormatToWindowsFormat(const DelphiFormat: OLString): OLString;
   public
-    class operator Initialize(out Dest: TOLTypesToControlsLinks);
-    class operator Finalize(var Dest: TOLTypesToControlsLinks);
+    constructor Create;
+    destructor Destroy; override;
     procedure Link(const Edit: TEdit; var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TSpinEdit; var i: OLInteger); overload;
     procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
@@ -432,8 +432,7 @@ type
     procedure RemoveLinks(DestroyedForm: TForm = nil);
   end;
 
-var
-  Links: TOLTypesToControlsLinks;
+   function Links(): TOLTypesToControlsLinks;
 
 implementation
 
@@ -444,6 +443,9 @@ const
   NULL_FORMAT = '- - -';
   CALCULATION_ASSIGN_ERROR = 'Calculation cannot be set when OLPointer property is other then nil.';
   OLPOINTER_ASSIGN_ERROR = 'OLPointer cannot be set when Calculation property is other then nil.';
+
+var
+  OLLinks: TOLTypesToControlsLinks;
 
 type
   THackDateTimePicker = class(TDateTimePicker);
@@ -463,6 +465,11 @@ type
   public
     destructor Destroy; override;
   end;
+
+function Links(): TOLTypesToControlsLinks;
+begin
+  Result := OLLinks;
+end;
 
 constructor TRefreshTimer.Create(AOwner: TComponent; AForm: TForm);
 begin
@@ -2064,35 +2071,36 @@ end;
 
 { TOLTypesToControlsLinks }
 
-class operator TOLTypesToControlsLinks.Initialize(out Dest: TOLTypesToControlsLinks);
+constructor TOLTypesToControlsLinks.Create;
 begin
-  Dest.FLinks := TDictionary<TForm, TObjectList<TOLLinkBase>>.Create;
-  Dest.FTimers := TDictionary<TForm, TTimer>.Create;
-  Dest.FWatchers := TDictionary<TForm, TComponent>.Create;
+  FLinks := TDictionary<TForm, TObjectList<TOLLinkBase>>.Create;
+  FTimers := TDictionary<TForm, TTimer>.Create;
+  FWatchers := TDictionary<TForm, TComponent>.Create;
 end;
 
-class operator TOLTypesToControlsLinks.Finalize(var Dest: TOLTypesToControlsLinks);
+destructor TOLTypesToControlsLinks.Destroy;
 var
   List: TObjectList<TOLLinkBase>;
 begin
-  if Assigned(Dest.FLinks) then
+  if Assigned(FLinks) then
   begin
-    for List in Dest.FLinks.Values do
+    for List in FLinks.Values do
       List.Free;
-    Dest.FLinks.Free;
+    FLinks.Free;
   end;
-  if Assigned(Dest.FTimers) then
+  if Assigned(FTimers) then
   begin
     // Free all timers to avoid leaks and AVs
-    for var Timer in Dest.FTimers.Values do
+    for var Timer in FTimers.Values do
     begin
       Timer.Enabled := False;
       Timer.Free;
     end;
-    Dest.FTimers.Free;
+    FTimers.Free;
   end;
-  if Assigned(Dest.FWatchers) then
-    Dest.FWatchers.Free;
+  if Assigned(FWatchers) then
+    FWatchers.Free;
+  inherited;
 end;
 
 procedure TOLTypesToControlsLinks.AddLink(Control: TControl; Link: TOLLinkBase);
@@ -2617,6 +2625,12 @@ function TOLDateTimeToLabel.NeedsTimer: Boolean;
 begin
   Result := Assigned(FCalculation);
 end;
+
+initialization
+  OLLinks := TOLTypesToControlsLinks.Create;
+
+finalization
+  OLLinks.Free;
 
 {$IFEND}
 
