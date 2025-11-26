@@ -4,99 +4,61 @@ interface
 
 uses
   Vcl.Forms, Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls,
-  OLTypes, OLTypesToEdits, System.Classes, System.Generics.Collections, Vcl.ExtCtrls;
+  OLTypes, OLTypesToEdits, System.Classes, System.Generics.Collections, Vcl.ExtCtrls,
+  Vcl.Controls;
 
 type
 
+  TOLFormHelper = class helper for TForm
+    procedure Link(const Edit: TEdit; var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(const Edit: TSpinEdit; var i: OLInteger); overload;
+    procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
+    procedure Link(const Edit: TScrollBar; var i: OLInteger); overload;
+    procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(const Edit: TEdit; var s: OLString); overload;
+    procedure Link(const Edit: TMemo; var s: OLString); overload;
+    procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
+    procedure Link(const Edit: TDateTimePicker; var d: OLDateTime); overload;
+    procedure Link(const Edit: TCheckBox; var b: OLBoolean); overload;
 
+    procedure Link(const Lbl: TLabel; var i: OLInteger); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const Lbl: TLabel; var s: OLString); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const Lbl: TLabel; var d: OLDate); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const Lbl: TLabel; var d: OLDateTime); overload;
+    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
 
-TOLFormHelper = class helper for TForm
-  procedure Link(const Edit: TEdit; var i: OLInteger; const Alignment:
-      TAlignment=taRightJustify); overload;
-  procedure Link(const Edit: TSpinEdit; var i: OLInteger); overload;
-  procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
-  procedure Link(const Edit: TScrollBar; var i: OLInteger); overload;
-  procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-  procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-  procedure Link(const Edit: TEdit; var s: OLString); overload;
-  procedure Link(const Edit: TMemo; var s: OLString); overload;
-  procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
-  procedure Link(const Edit: TDateTimePicker; var d: OLDateTime); overload;
-  procedure Link(const Edit: TCheckBox; var b: OLBoolean); overload;
+    procedure RefreshControls();
+    procedure RemoveLinks();
+    procedure NewOnPaint(Sender: TObject);
+  end;
 
-  procedure Link(const Lbl: TLabel; var i: OLInteger); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(const Lbl: TLabel; var s: OLString); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(const Lbl: TLabel; var d: OLDate); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(const Lbl: TLabel; var d: OLDateTime); overload;
-  procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+  TOLControlHelper = class helper for TControl
+    procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(var s: OLString); overload;
+    procedure Link(var d: OLDate); overload;
+    procedure Link(var d: OLDateTime); overload;
+    procedure Link(var b: OLBoolean); overload;
 
-  procedure RefreshControls();
-  procedure RemoveLinks();
-  procedure NewOnPaint(Sender: TObject);
-end;
-
-TOLEditHelper = class helper for TEdit
-  procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
-  procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-  procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-  procedure Link(var s: OLString); overload;
-end;
-
-TOLSpinEditHelper = class helper for TSpinEdit
-  procedure Link(var i: OLInteger);
-end;
-
-TOLTrackBarHelper = class helper for TTrackBar
-  procedure Link(var i: OLInteger);
-end;
-
-TOLScrollBarHelper = class helper for TScrollBar
-  procedure Link(var i: OLInteger);
-end;
-
-TOLMemoHelper = class helper for TMemo
-  procedure Link(var s: OLString);
-end;
-
-TOLDateTimePickerHelper = class helper for TDateTimePicker
-  procedure Link(var d: OLDate); overload;
-  procedure Link(var d: OLDateTime); overload;
-end;
-
-TOLCheckBoxHelper = class helper for TCheckBox
-  procedure Link(var b: OLBoolean);
-end;
-
-TOLLableHelper = class helper for TLabel
-  procedure Link(var i: OLInteger); overload;
-  procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(var s: OLString); overload;
-  procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
-  procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
-  procedure Link(const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(var d: OLDate); overload;
-  procedure Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-  procedure Link(var d: OLDateTime); overload;
-  procedure Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-end;
+    // Calculation links (Label only)
+    procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    procedure Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+  end;
 
 implementation
-
-uses
-  Vcl.Controls;
-
-{ TOLFormHelper }
-
-{ TOLFormHelper }
 
 { TOLFormHelper }
 
@@ -193,8 +155,6 @@ begin
   // This method is deprecated and replaced by TimerManager
 end;
 
-
-
 procedure TOLFormHelper.Link(const Lbl: TLabel; var curr: OLCurrency; const
     Format: string = CURRENCY_FORMAT);
 begin
@@ -239,235 +199,173 @@ begin
   Links.RemoveLinks(Self);
 end;
 
-{ TOLEditHelper }
+{ TOLControlHelper }
 
-procedure TOLEditHelper.Link(var i: OLInteger; const Alignment:
-    TAlignment=taRightJustify);
+procedure TOLControlHelper.Link(var i: OLInteger; const Alignment: TAlignment);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, i, Alignment);
+  if not Assigned(F) then Exit;
+
+  if Self is TEdit then
+    F.Link(TEdit(Self), i, Alignment)
+  else if Self is TSpinEdit then
+    F.Link(TSpinEdit(Self), i)
+  else if Self is TTrackBar then
+    F.Link(TTrackBar(Self), i)
+  else if Self is TScrollBar then
+    F.Link(TScrollBar(Self), i)
+  else if Self is TLabel then
+    F.Link(TLabel(Self), i);
 end;
 
-procedure TOLEditHelper.Link(var d: OLDouble; const Format: string =
-    DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
+procedure TOLControlHelper.Link(var d: OLDouble; const Format: string; const Alignment: TAlignment);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, d, Format, Alignment);
+  if not Assigned(F) then Exit;
+
+  if Self is TEdit then
+    F.Link(TEdit(Self), d, Format, Alignment)
+  else if Self is TLabel then
+    F.Link(TLabel(Self), d, Format);
 end;
 
-procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string =
-    CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
+procedure TOLControlHelper.Link(var curr: OLCurrency; const Format: string; const Alignment: TAlignment);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, curr, Format, Alignment);
+  if not Assigned(F) then Exit;
+
+  if Self is TEdit then
+    F.Link(TEdit(Self), curr, Format, Alignment)
+  else if Self is TLabel then
+    F.Link(TLabel(Self), curr, Format);
 end;
 
-procedure TOLEditHelper.Link(var s: OLString);
+procedure TOLControlHelper.Link(var s: OLString);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, s);
+  if not Assigned(F) then Exit;
+
+  if Self is TEdit then
+    F.Link(TEdit(Self), s)
+  else if Self is TMemo then
+    F.Link(TMemo(Self), s)
+  else if Self is TLabel then
+    F.Link(TLabel(Self), s);
 end;
 
-{ TOLSpinEditHelper }
-
-procedure TOLSpinEditHelper.Link(var i: OLInteger);
+procedure TOLControlHelper.Link(var d: OLDate);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, i);
+  if not Assigned(F) then Exit;
+
+  if Self is TDateTimePicker then
+    F.Link(TDateTimePicker(Self), d)
+  else if Self is TLabel then
+    F.Link(TLabel(Self), d);
 end;
 
-{ TOLTrackBarHelper }
-
-procedure TOLTrackBarHelper.Link(var i: OLInteger);
+procedure TOLControlHelper.Link(var d: OLDateTime);
 var
   F: TForm;
 begin
   F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, i);
+  if not Assigned(F) then Exit;
+
+  if Self is TDateTimePicker then
+    F.Link(TDateTimePicker(Self), d)
+  else if Self is TLabel then
+    F.Link(TLabel(Self), d);
 end;
 
-{ TOLScrollBarHelper }
-
-procedure TOLScrollBarHelper.Link(var i: OLInteger);
-var
-  F: TForm;
-begin
-  F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, i);
-end;
-
-{ TOLMemoHelper }
-
-procedure TOLMemoHelper.Link(var s: OLString);
-var
-  F: TForm;
-begin
-  F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, s);
-end;
-
-{ TOLDateTimePickerHelper }
-
-procedure TOLDateTimePickerHelper.Link(var d: OLDateTime);
-var
-  F: TForm;
-begin
-  F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, d);
-end;
-
-procedure TOLDateTimePickerHelper.Link(var d: OLDate);
-var
-  F: TForm;
-begin
-  F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, d);
-end;
-
-{ TOLCheckBoxHelper }
-
-procedure TOLCheckBoxHelper.Link(var b: OLBoolean);
-var
-  F: TForm;
-begin
-  F := GetParentForm(Self) as TForm;
-  if Assigned(F) then
-    F.Link(Self, b);
-end;
-
-{ TOLLableHelper }
-
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
+procedure TOLControlHelper.Link(var b: OLBoolean);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, ValueOnErrorInCalculation);
+  if not Assigned(Frm) then Exit;
+
+  if Self is TCheckBox then
+    Frm.Link(TCheckBox(Self), b);
 end;
 
-procedure TOLLableHelper.Link(var d: OLDouble; const Format: string =
-    DOUBLE_FORMAT);
+procedure TOLControlHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  if Assigned(Frm) then
-    Frm.Link(Self, d, Format);
+  if not Assigned(Frm) then Exit;
+
+  if Self is TLabel then
+    Frm.Link(TLabel(Self), f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLDouble; const
-    Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string =
-    ERROR_STRING);
+procedure TOLControlHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, format, ValueOnErrorInCalculation);
+  if not Assigned(Frm) then Exit;
+
+  if Self is TLabel then
+    Frm.Link(TLabel(Self), f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLableHelper.Link(var i: OLInteger);
+procedure TOLControlHelper.Link(const f: TFunctionReturningOLDouble; const Format: string; const ValueOnErrorInCalculation: string);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  if Assigned(Frm) then
-    Frm.Link(Self, i);
+  if not Assigned(Frm) then Exit;
+
+  if Self is TLabel then
+    Frm.Link(TLabel(Self), f, Format, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
+procedure TOLControlHelper.Link(const f: TFunctionReturningOLCurrency; const Format: string; const ValueOnErrorInCalculation: string);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, ValueOnErrorInCalculation);
+  if not Assigned(Frm) then Exit;
+
+  if Self is TLabel then
+    Frm.Link(TLabel(Self), f, Format, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLableHelper.Link(var s: OLString);
+procedure TOLControlHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  if Assigned(Frm) then
-    Frm.Link(Self, s);
+  if not Assigned(Frm) then Exit;
+
+  if Self is TLabel then
+    Frm.Link(TLabel(Self), f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
+procedure TOLControlHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 var
   Frm: TForm;
 begin
   Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, ValueOnErrorInCalculation);
-end;
+  if not Assigned(Frm) then Exit;
 
-procedure TOLLableHelper.Link(var d: OLDateTime);
-var
-  Frm: TForm;
-begin
-  Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, d);
+  if Self is TLabel then
+    Frm.Link(TLabel(Self), f, ValueOnErrorInCalculation);
 end;
-
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
-var
-  Frm: TForm;
-begin
-  Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, ValueOnErrorInCalculation);
-end;
-
-procedure TOLLableHelper.Link(var curr: OLCurrency; const Format: string =
-    CURRENCY_FORMAT);
-var
-  Frm: TForm;
-begin
-  Frm := GetParentForm(Self) as TForm;
-  if Assigned(Frm) then
-    Frm.Link(Self, curr, Format);
-end;
-
-procedure TOLLableHelper.Link(const f: TFunctionReturningOLCurrency; const
-    Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string =
-    ERROR_STRING);
-var
-  Frm: TForm;
-begin
-  Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, f, format, ValueOnErrorInCalculation);
-end;
-
-procedure TOLLableHelper.Link(var d: OLDate);
-var
-  Frm: TForm;
-begin
-  Frm := GetParentForm(Self) as TForm;
-  Frm.Link(Self, d);
-end;
-
-{ TFormsOriginalEvents }
 
 initialization
 
 finalization
-
 
 end.
