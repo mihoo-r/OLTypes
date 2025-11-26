@@ -3,14 +3,15 @@ unit OLBooleanType;
 interface
 
 uses
-  Variants, SysUtils;
+  Variants, SysUtils, System.Classes;
 
 type
   OLBoolean = record
   private
-    Value: Boolean;
+    FValue: Boolean;
     {$IF CompilerVersion >= 34.0}
     FHasValue: Boolean;
+    FOnChange: TNotifyEvent;
     {$ELSE}
     FHasValue: string;
     {$IFEND}
@@ -51,6 +52,8 @@ type
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLBoolean);
+    class operator Assign(var Dest: OLBoolean; const [ref] Src: OLBoolean);
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;
 
@@ -67,12 +70,12 @@ const
 
 class operator OLBoolean.Equal(const a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue = b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 class operator OLBoolean.Equal(const a: OLBoolean; const b: Variant): Boolean;
 begin
-  Result := ((a.Value = b) and (a.ValuePresent and (b <> Null))) or (a.IsNull() and (b = Null));
+  Result := ((a.FValue = b) and (a.ValuePresent and (b <> Null))) or (a.IsNull() and (b = Null));
 end;
 
 function OLBoolean.GetHasValue: Boolean;
@@ -86,12 +89,12 @@ end;
 
 class operator OLBoolean.GreaterThan(const a, b: OLBoolean): Boolean;
 begin
-  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue > b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLBoolean.GreaterThanOrEqual(const a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue >= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLBoolean.HasValue: OLBoolean;
@@ -180,7 +183,7 @@ var
   OutPut: Variant;
 begin
   if a.ValuePresent then
-    OutPut := a.Value
+    OutPut := a.FValue
   else
     OutPut := Null;
 
@@ -198,7 +201,7 @@ begin
   begin
     if TryStrToBool(a, b) then
     begin
-      OutPut.Value := b;
+      OutPut.FValue := b;
       OutPut.ValuePresent := true;
     end
     else
@@ -216,7 +219,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Boolean value.');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -224,7 +227,7 @@ class operator OLBoolean.Implicit(const a: Boolean): OLBoolean;
 var
   OutPut: OLBoolean;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -236,12 +239,12 @@ end;
 
 class operator OLBoolean.LessThan(const a, b: OLBoolean): Boolean;
 begin
-  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue < b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLBoolean.LessThanOrEqual(const a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue <= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 class operator OLBoolean.LogicalAnd(const a: OLBoolean; b: OLBoolean):
@@ -250,7 +253,7 @@ var
   OutPut: OLBoolean;
 begin
   OutPut.ValuePresent := a.ValuePresent and b.ValuePresent;
-  OutPut.Value := a.Value and b.Value;
+  OutPut.FValue := a.FValue and b.FValue;
 
   Result := OutPut;
 end;
@@ -260,7 +263,7 @@ var
   OutPut: OLBoolean;
 begin
   OutPut.ValuePresent := a.ValuePresent;
-  OutPut.Value := not a.Value;
+  OutPut.FValue := not a.FValue;
 
   Result := OutPut;
 end;
@@ -270,7 +273,7 @@ var
   OutPut: OLBoolean;
 begin
   OutPut.ValuePresent := a.ValuePresent and b.ValuePresent;
-  OutPut.Value := a.Value or b.Value;
+  OutPut.FValue := a.FValue or b.FValue;
 
   Result := OutPut;
 end;
@@ -281,7 +284,7 @@ var
   OutPut: OLBoolean;
 begin
   OutPut.ValuePresent := a.ValuePresent and b.ValuePresent;
-  OutPut.Value := a.Value xor b.Value;
+  OutPut.FValue := a.FValue xor b.FValue;
 
   Result := OutPut;
 end;
@@ -290,12 +293,24 @@ end;
 class operator OLBoolean.Initialize(out Dest: OLBoolean);
 begin
   Dest.FHasValue := False;
+  Dest.FOnChange := nil;
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+class operator OLBoolean.Assign(var Dest: OLBoolean; const [ref] Src: OLBoolean);
+begin
+  Dest.FValue := Src.FValue;
+  Dest.FHasValue := Src.FHasValue;
+
+  if Assigned(Dest.FOnChange) then
+    Dest.FOnChange(nil);
 end;
 {$IFEND}
 
 class operator OLBoolean.NotEqual(const a, b: OLBoolean): Boolean;
 begin
-  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
+  Result := ((a.FValue <> b.FValue) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 procedure OLBoolean.SetHasValue(const Value: Boolean);
@@ -324,7 +339,7 @@ var
   Output: string;
 begin
   if ValuePresent then
-    Output := BoolToStr(Value, true)
+    Output := BoolToStr(FValue, true)
   else
     Output := '';
 

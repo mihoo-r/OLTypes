@@ -252,7 +252,9 @@ type
     procedure SetOLPointer(const Value: POLBoolean);
   public
     constructor Create;
+    destructor Destroy; override;
     procedure NewOnClick(Sender: TObject);
+    procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TCheckBox read FEdit write SetEdit;
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
@@ -425,7 +427,6 @@ type
 
 var
   Links: TOLTypesToControlsLinks;
-
 
 implementation
 
@@ -1440,6 +1441,28 @@ begin
   FOLPointer := nil;
 end;
 
+destructor TCheckBoxToOLBoolean.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+
+  if Assigned(FEdit) then
+  begin
+    if Assigned(FEditOnClick) then
+      FEdit.OnClick := FEditOnClick;
+  end;
+  inherited;
+end;
+
+procedure TCheckBoxToOLBoolean.OnOLChange(Sender: TObject);
+begin
+  RefreshControl;
+end;
+
 procedure TCheckBoxToOLBoolean.NewOnClick(Sender: TObject);
 begin
   OLPointer^ := Edit.Checked;
@@ -2306,6 +2329,9 @@ begin
   Link := TCheckBoxToOLBoolean.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @b;
+  {$IF CompilerVersion >= 34.0}
+  b.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
