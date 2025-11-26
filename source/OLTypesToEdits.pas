@@ -806,7 +806,7 @@ var
 begin
   if FUpdatingFromControl then Exit;
 
-  fs := TFormatSettings.Create();
+  fs := FormatSettings;
   s := Edit.Text;
   CleanS := OLType(s).Replaced(fs.ThousandSeparator, '');
 
@@ -877,7 +877,7 @@ begin
 
   if not Edit.Focused() then
   begin
-    fs := TFormatSettings.Create();
+    fs := FormatSettings;
     s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Edit.Text <> s then
     begin
@@ -950,7 +950,7 @@ var
 begin
   if FUpdatingFromControl then Exit;
 
-  fs := TFormatSettings.Create();
+  fs := FormatSettings;
   s := Edit.Text;
   CleanS := s.Replaced(fs.ThousandSeparator, '');
 
@@ -1018,7 +1018,7 @@ begin
 
   if not Edit.Focused() then
   begin
-    fs := TFormatSettings.Create();
+    fs := FormatSettings;
     s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, '###,###,###,##0.00####');
     if Edit.Text <> s then
     begin
