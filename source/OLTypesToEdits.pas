@@ -2111,6 +2111,11 @@ var
   Timer: TTimer;
   Watcher: TOLFormWatcher;
 begin
+  if not Assigned(Control) then
+    raise Exception.Create('Control cannot be nil in AddLink.');
+  if not Assigned(Link) then
+    raise Exception.Create('Link cannot be nil in AddLink.');
+
   TempControl := GetParentForm(Control);
 
   if TempControl is TForm then
