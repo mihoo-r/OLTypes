@@ -50,13 +50,16 @@ type
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
+    FEditOnExit: TNotifyEvent;
     FOLPointer: POLInteger;
+    FUpdatingFromControl: Boolean;
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLInteger);
   public
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure NewOnExit(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
@@ -67,7 +70,10 @@ type
   private
     FEdit: TSpinEdit;
     FEditOnChange: TEditOnChange;
+    FEditOnExit: TNotifyEvent;
     FOLPointer: POLInteger;
+    FUpdatingFromControl: Boolean;
+    procedure NewOnExit(Sender: TObject);
     procedure SetEdit(const Value: TSpinEdit);
     procedure SetOLPointer(const Value: POLInteger);
   public
@@ -118,7 +124,9 @@ type
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
+    FEditOnExit: TNotifyEvent;
     FOLPointer: POLDouble;
+    FUpdatingFromControl: Boolean;
     FFormat: string;
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLDouble);
@@ -126,6 +134,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure NewOnExit(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
@@ -136,7 +145,9 @@ type
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
+    FEditOnExit: TNotifyEvent;
     FOLPointer: POLCurrency;
+    FUpdatingFromControl: Boolean;
     FFormat: string;
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLCurrency);
@@ -144,6 +155,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
+    procedure NewOnExit(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
@@ -521,7 +533,9 @@ begin
   inherited;
   FEdit := nil;
   FEditOnChange := nil;
+  FEditOnExit := nil;
   FOLPointer := nil;
+  FUpdatingFromControl := False;
 end;
 
 destructor TEditToOLInteger.Destroy;
@@ -532,6 +546,14 @@ begin
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+
+  if Assigned(FEdit) then
+  begin
+    if Assigned(FEditOnChange) then
+      FEdit.OnChange := FEditOnChange;
+    if Assigned(FEditOnExit) then
+      FEdit.OnExit := FEditOnExit;
+  end;
   inherited;
 end;
 
@@ -539,22 +561,54 @@ procedure TEditToOLInteger.NewOnChange(Sender: TObject);
 var
   i, j: integer;
 begin
-  if Edit.Text = EmptyStr then
-    OLPointer^ := Null
+  if FUpdatingFromControl then Exit;
+
+  if (Edit.Text = '-') or (Edit.Text = '') then
+  begin
+    if Edit.Text = '' then
+    begin
+      FUpdatingFromControl := True;
+      try
+        OLPointer^ := Null;
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end;
+  end
   else
   begin
     if TryStrToInt(Edit.Text, i) then
-      OLPointer^ := i
+    begin
+      FUpdatingFromControl := True;
+      try
+        OLPointer^ := i;
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end
     else
     begin
-      j := Edit.SelStart;
-      Edit.Text := (OLPointer^).ToString();
-      Edit.SelStart := j - 1;
+      FUpdatingFromControl := True;
+      try
+        j := Edit.SelStart;
+        Edit.Text := (OLPointer^).ToString();
+        if j > 0 then Edit.SelStart := j - 1;
+      finally
+        FUpdatingFromControl := False;
+      end;
     end;
   end;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TEditToOLInteger.NewOnExit(Sender: TObject);
+begin
+  RefreshControl;
+
+  if Assigned(FEditOnExit) then
+    FEditOnExit(Sender);
 end;
 
 procedure TEditToOLInteger.OnOLChange(Sender: TObject);
@@ -564,8 +618,20 @@ end;
 
 procedure TEditToOLInteger.RefreshControl;
 begin
+  if FUpdatingFromControl then Exit;
+
+  // Don't overwrite user input while they're typing
+  if Edit.Focused() then Exit;
+
   if Edit.Text <> (OLPointer^).ToString() then
-    Edit.Text := (OLPointer^).ToString();
+  begin
+    FUpdatingFromControl := True;
+    try
+      Edit.Text := (OLPointer^).ToString();
+    finally
+      FUpdatingFromControl := False;
+    end;
+  end;
 end;
 
 procedure TEditToOLInteger.SetEdit(const Value: TEdit);
@@ -575,11 +641,15 @@ begin
   begin
     FEditOnChange := Value.OnChange;
     Value.OnChange := NewOnChange;
+    FEditOnExit := Value.OnExit;
+    Value.OnExit := NewOnExit;
   end;
 end;
 
 procedure TEditToOLInteger.SetOLPointer(const Value: POLInteger);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -635,6 +705,8 @@ end;
 
 procedure TEditToOLString.SetOLPointer(const Value: POLString);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -655,6 +727,12 @@ begin
     {$IF CompilerVersion >= 34.0}
     FOLPointer^.OnChange := nil;
     {$IFEND}
+  end;
+
+  if Assigned(FEdit) then
+  begin
+    if Assigned(FEditOnChange) then
+      FEdit.OnChange := FEditOnChange;
   end;
   inherited;
 end;
@@ -690,6 +768,8 @@ end;
 
 procedure TMemoToOLString.SetOLPointer(const Value: POLString);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -700,7 +780,9 @@ begin
   inherited;
   FEdit := nil;
   FEditOnChange := nil;
+  FEditOnExit := nil;
   FOLPointer := nil;
+  FUpdatingFromControl := False;
   FFormat := DOUBLE_FORMAT;
 end;
 
@@ -719,47 +801,66 @@ procedure TEditToOLDouble.NewOnChange(Sender: TObject);
 var
   d: Double;
   fs: TFormatSettings;
-  s: string;
-  j,l: Integer;
+  s, CleanS: string;
+  j: Integer;
 begin
+  if FUpdatingFromControl then Exit;
+
   fs := TFormatSettings.Create();
-
   s := Edit.Text;
-  s := OLType(s).Replaced(fs.ThousandSeparator, '');
+  CleanS := OLType(s).Replaced(fs.ThousandSeparator, '');
 
-  j := Edit.SelStart;
-  l := Edit.SelLength;
-
-  if s = '' then
+  if (CleanS = '-') or (CleanS = '') or (CleanS = fs.DecimalSeparator) or (CleanS = '-' + fs.DecimalSeparator) then
   begin
-    OLPointer^ := Null;
-
-    if Edit.Focused() then
-      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, FFormat)
-    else
-      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
-
-    j := j - 1;
+    if CleanS = '' then
+    begin
+      FUpdatingFromControl := True;
+      try
+        OLPointer^ := Null;
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end;
   end
-  else if TryStrToFloat(s, d) then
+  else if TryStrToFloat(CleanS, d) then
   begin
-    OLPointer^ := d;
-    l := 0;
+    FUpdatingFromControl := True;
+    try
+      OLPointer^ := d;
+    finally
+      FUpdatingFromControl := False;
+    end;
   end
   else
   begin
-    if Edit.Focused() then
-      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, FFormat)
-    else
-      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
-
-    j := j - 1;
+    // Invalid input, revert
+    FUpdatingFromControl := True;
+    try
+      j := Edit.SelStart;
+      if Edit.Focused() then
+        Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, FFormat)
+      else
+        Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
+      
+      // Restore cursor logic is complex with formatting changes, but simple revert is safer
+      // Ideally we should try to keep cursor, but if text changed significantly it's hard.
+      // For now, simple revert.
+      if j > 0 then Edit.SelStart := j - 1;
+    finally
+      FUpdatingFromControl := False;
+    end;
   end;
-
-  Edit.SelStart := j;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TEditToOLDouble.NewOnExit(Sender: TObject);
+begin
+  RefreshControl;
+
+  if Assigned(FEditOnExit) then
+    FEditOnExit(Sender);
 end;
 
 procedure TEditToOLDouble.OnOLChange(Sender: TObject);
@@ -772,12 +873,21 @@ var
   fs: TFormatSettings;
   s: string;
 begin
+  if FUpdatingFromControl then Exit;
+
   if not Edit.Focused() then
   begin
     fs := TFormatSettings.Create();
     s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Edit.Text <> s then
-      Edit.Text := s;
+    begin
+      FUpdatingFromControl := True;
+      try
+        Edit.Text := s;
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end;
   end;
 end;
 
@@ -788,11 +898,15 @@ begin
   begin
     FEditOnChange := Value.OnChange;
     Value.OnChange := NewOnChange;
+    FEditOnExit := Value.OnExit;
+    Value.OnExit := NewOnExit;
   end;
 end;
 
 procedure TEditToOLDouble.SetOLPointer(const Value: POLDouble);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -803,7 +917,9 @@ begin
   inherited;
   FEdit := nil;
   FEditOnChange := nil;
+  FEditOnExit := nil;
   FOLPointer := nil;
+  FUpdatingFromControl := False;
   FFormat := CURRENCY_FORMAT;
 end;
 
@@ -827,60 +943,65 @@ end;
 procedure TEditToOLCurrency.NewOnChange(Sender: TObject);
 var
   curr: Currency;
-  s: OLString;
+  s, CleanS: OLString;
   fs: TFormatSettings;
-  j,l: Integer;
+  j: Integer;
   k: OLInteger;
 begin
+  if FUpdatingFromControl then Exit;
+
   fs := TFormatSettings.Create();
-
   s := Edit.Text;
-  s := s.Replaced(fs.ThousandSeparator, '');
+  CleanS := s.Replaced(fs.ThousandSeparator, '');
 
-  j := Edit.SelStart;
-  l := Edit.SelLength;
-
-  if Edit.Focused() then
+  if (CleanS = '-') or (CleanS = '') or (CleanS = fs.DecimalSeparator) or (CleanS = '-' + fs.DecimalSeparator) then
   begin
-    k := s.PosLast(fs.DecimalSeparator);
-
-    if (k.HasValue() = true) and (s.RightStrFrom(k + 1).Length > 4) then
+    if CleanS = '' then
     begin
-      s := s.LeftStr(k + 4);
-      Edit.Text := s;
+      FUpdatingFromControl := True;
+      try
+        OLPointer^ := Null;
+      finally
+        FUpdatingFromControl := False;
+      end;
     end;
-  end;
-
-  if s = '' then
-  begin
-    OLPointer^ := Null;
-
-    if Edit.Focused() then
-      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT)
-    else
-      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, CURRENCY_FORMAT);
-
-    j := j - 1;
   end
-  else if TryStrToCurr(s, curr) then
+  else if TryStrToCurr(CleanS, curr) then
   begin
-    OLPointer^ := curr;
-    l := 0;
+    FUpdatingFromControl := True;
+    try
+      OLPointer^ := curr;
+    finally
+      FUpdatingFromControl := False;
+    end;
   end
   else
   begin
-    if Edit.Focused() then
-      Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT)
-    else
-      Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, CURRENCY_FORMAT);
-
-    j := j - 1;
+    // Invalid input, revert
+    FUpdatingFromControl := True;
+    try
+      j := Edit.SelStart;
+      if Edit.Focused() then
+        Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT)
+      else
+        Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, CURRENCY_FORMAT);
+      
+      if j > 0 then Edit.SelStart := j - 1;
+    finally
+      FUpdatingFromControl := False;
+    end;
   end;
-
-  Edit.SelStart := j;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TEditToOLCurrency.NewOnExit(Sender: TObject);
+begin
+  RefreshControl;
+
+  if Assigned(FEditOnExit) then
+    FEditOnExit(Sender);
 end;
 
 procedure TEditToOLCurrency.OnOLChange(Sender: TObject);
@@ -893,12 +1014,21 @@ var
   fs: TFormatSettings;
   s: string;
 begin
+  if FUpdatingFromControl then Exit;
+
   if not Edit.Focused() then
   begin
     fs := TFormatSettings.Create();
     s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, '###,###,###,##0.00####');
     if Edit.Text <> s then
-      Edit.Text := s;
+    begin
+      FUpdatingFromControl := True;
+      try
+        Edit.Text := s;
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end;
   end;
 end;
 
@@ -909,11 +1039,15 @@ begin
   begin
     FEditOnChange := Value.OnChange;
     Value.OnChange := NewOnChange;
+    FEditOnExit := Value.OnExit;
+    Value.OnExit := NewOnExit;
   end;
 end;
 
 procedure TEditToOLCurrency.SetOLPointer(const Value: POLCurrency);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -924,7 +1058,9 @@ begin
   inherited;
   FEdit := nil;
   FEditOnChange := nil;
+  FEditOnExit := nil;
   FOLPointer := nil;
+  FUpdatingFromControl := False;
 end;
 
 destructor TSpinEditToOLInteger.Destroy;
@@ -935,6 +1071,14 @@ begin
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+
+  if Assigned(FEdit) then
+  begin
+    if Assigned(FEditOnChange) then
+      FEdit.OnChange := FEditOnChange;
+    if Assigned(FEditOnExit) then
+      FEdit.OnExit := FEditOnExit;
+  end;
   inherited;
 end;
 
@@ -942,22 +1086,54 @@ procedure TSpinEditToOLInteger.NewOnChange(Sender: TObject);
 var
   i, j: integer;
 begin
-  if Edit.Text = EmptyStr then
-    OLPointer^ := Null
+  if FUpdatingFromControl then Exit;
+
+  if (Edit.Text = '-') or (Edit.Text = '') then
+  begin
+    if Edit.Text = '' then
+    begin
+      FUpdatingFromControl := True;
+      try
+        OLPointer^ := Null;
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end;
+  end
   else
   begin
     if TryStrToInt(Edit.Text, i) then
-      OLPointer^ := i
+    begin
+      FUpdatingFromControl := True;
+      try
+        OLPointer^ := i;
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end
     else
     begin
-      j := Edit.SelStart;
-      Edit.Text := (OLPointer^).ToString();
-      Edit.SelStart := j - 1;
+      FUpdatingFromControl := True;
+      try
+        j := Edit.SelStart;
+        Edit.Text := (OLPointer^).ToString();
+        if j > 0 then Edit.SelStart := j - 1;
+      finally
+        FUpdatingFromControl := False;
+      end;
     end;
   end;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
+end;
+
+procedure TSpinEditToOLInteger.NewOnExit(Sender: TObject);
+begin
+  RefreshControl;
+
+  if Assigned(FEditOnExit) then
+    FEditOnExit(Sender);
 end;
 
 procedure TSpinEditToOLInteger.OnOLChange(Sender: TObject);
@@ -967,8 +1143,20 @@ end;
 
 procedure TSpinEditToOLInteger.RefreshControl;
 begin
+  if FUpdatingFromControl then Exit;
+
+  // Don't overwrite user input while they're typing
+  if Edit.Focused() then Exit;
+
   if Edit.Text <> (OLPointer^).ToString() then
-    Edit.Text := (OLPointer^).ToString();
+  begin
+    FUpdatingFromControl := True;
+    try
+      Edit.Text := (OLPointer^).ToString();
+    finally
+      FUpdatingFromControl := False;
+    end;
+  end;
 end;
 
 procedure TSpinEditToOLInteger.SetEdit(const Value: TSpinEdit);
@@ -978,11 +1166,15 @@ begin
   begin
     FEditOnChange := Value.OnChange;
     Value.OnChange := NewOnChange;
+    FEditOnExit := Value.OnExit;
+    Value.OnExit := NewOnExit;
   end;
 end;
 
 procedure TSpinEditToOLInteger.SetOLPointer(const Value: POLInteger);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -1219,6 +1411,8 @@ end;
 
 procedure TDateTimePickerToOLDate.SetOLPointer(const Value: POLDate);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -1447,6 +1641,8 @@ end;
 
 procedure TDateTimePickerToOLDateTime.SetOLPointer(const Value: POLDateTime);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -1508,6 +1704,8 @@ end;
 
 procedure TCheckBoxToOLBoolean.SetOLPointer(const Value: POLBoolean);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -1576,8 +1774,10 @@ end;
 
 procedure TOLIntegerToLabel.SetOLPointer(const Value: POLInteger);
 begin
-  if (Value <> nil) and Assigned(Calculation) then
+  if Assigned(Value) and Assigned(Calculation) then
     raise Exception.Create(OLPOINTER_ASSIGN_ERROR);
+  if not Assigned(Value) and not Assigned(Calculation) then
+    raise Exception.Create('OLPointer cannot be nil when Calculation is not set.');
 
   FOLPointer := Value;
 end;
@@ -1636,8 +1836,10 @@ end;
 
 procedure TOLStringToLabel.SetOLPointer(const Value: POLString);
 begin
-  if (Value <> nil) and Assigned(Calculation) then
+  if Assigned(Value) and Assigned(Calculation) then
     raise Exception.Create(OLPOINTER_ASSIGN_ERROR);
+  if not Assigned(Value) and not Assigned(Calculation) then
+    raise Exception.Create('OLPointer cannot be nil when Calculation is not set.');
 
   FOLPointer := Value;
 end;
@@ -1716,8 +1918,10 @@ end;
 
 procedure TOLDoubleToLabel.SetOLPointer(const Value: POLDouble);
 begin
-  if (Value <> nil) and Assigned(Calculation) then
+  if Assigned(Value) and Assigned(Calculation) then
     raise Exception.Create(OLPOINTER_ASSIGN_ERROR);
+  if not Assigned(Value) and not Assigned(Calculation) then
+    raise Exception.Create('OLPointer cannot be nil when Calculation is not set.');
 
   FOLPointer := Value;
 end;
@@ -1796,8 +2000,10 @@ end;
 
 procedure TOLCurrencyToLabel.SetOLPointer(const Value: POLCurrency);
 begin
-  if (Value <> nil) and Assigned(Calculation) then
+  if Assigned(Value) and Assigned(Calculation) then
     raise Exception.Create(OLPOINTER_ASSIGN_ERROR);
+  if not Assigned(Value) and not Assigned(Calculation) then
+    raise Exception.Create('OLPointer cannot be nil when Calculation is not set.');
 
   FOLPointer := Value;
 end;
@@ -1872,8 +2078,10 @@ end;
 
 procedure TOLDateToLabel.SetOLPointer(const Value: POLDate);
 begin
-  if (Value <> nil) and Assigned(Calculation) then
+  if Assigned(Value) and Assigned(Calculation) then
     raise Exception.Create(OLPOINTER_ASSIGN_ERROR);
+  if not Assigned(Value) and not Assigned(Calculation) then
+    raise Exception.Create('OLPointer cannot be nil when Calculation is not set.');
 
   FOLPointer := Value;
 end;
@@ -1948,8 +2156,10 @@ end;
 
 procedure TOLDateTimeToLabel.SetOLPointer(const Value: POLDateTime);
 begin
-  if (Value <> nil) and Assigned(Calculation) then
+  if Assigned(Value) and Assigned(Calculation) then
     raise Exception.Create(OLPOINTER_ASSIGN_ERROR);
+  if not Assigned(Value) and not Assigned(Calculation) then
+    raise Exception.Create('OLPointer cannot be nil when Calculation is not set.');
 
   FOLPointer := Value;
 end;
@@ -2011,6 +2221,8 @@ end;
 
 procedure TScrollBarToOLInteger.SetOLPointer(const Value: POLInteger);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -2066,6 +2278,8 @@ end;
 
 procedure TTrackBarToOLInteger.SetOLPointer(const Value: POLInteger);
 begin
+  if not Assigned(Value) then
+    raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
