@@ -37,7 +37,6 @@ type
 
     procedure RefreshControls();
     procedure RemoveLinks();
-    procedure NewOnPaint(Sender: TObject);
   end;
 
   TOLControlHelper = class helper for TControl
@@ -148,11 +147,6 @@ end;
 procedure TOLFormHelper.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 begin
   Links.Link(Lbl, f, ValueOnErrorInCalculation);
-end;
-
-procedure TOLFormHelper.NewOnPaint(Sender: TObject);
-begin
-  // This method is deprecated and replaced by TimerManager
 end;
 
 procedure TOLFormHelper.Link(const Lbl: TLabel; var curr: OLCurrency; const
