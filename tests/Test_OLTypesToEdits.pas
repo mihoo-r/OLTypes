@@ -140,9 +140,18 @@ type
     FForm: TForm;
     FIntValue: OLInteger;
     FStrValue: OLString;
+    FDblValue: OLDouble;
+    FCurrValue: OLCurrency;
+    FDateValue: OLDate;
+    FDateTimeValue: OLDateTime;
+    FBoolValue: OLBoolean;
     FEdit1: TEdit;
     FEdit2: TEdit;
     FLabel1: TLabel;
+    FPicker1: TDateTimePicker;
+    FPicker2: TDateTimePicker;
+    FCheckBox1: TCheckBox;
+    FCheckBox2: TCheckBox;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -151,7 +160,13 @@ type
     procedure TestLinkEditToString;
     procedure TestLinkLabelToInteger;
     procedure TestLinkLabelWithCalculation;
-    procedure TestMultipleControlsToOneValue;
+    procedure TestMultipleControlsToOneInteger;
+    procedure TestMultipleControlsToOneString;
+    procedure TestMultipleControlsToOneDouble;
+    procedure TestMultipleControlsToOneCurrency;
+    procedure TestMultipleControlsToOneDate;
+    procedure TestMultipleControlsToOneDateTime;
+    procedure TestMultipleControlsToOneBoolean;
     procedure TestRefreshControls;
     procedure TestCalculationError;
   end;
@@ -581,6 +596,14 @@ begin
   FEdit2.Parent := FForm;
   FLabel1 := TLabel.Create(FForm);
   FLabel1.Parent := FForm;
+  FPicker1 := TDateTimePicker.Create(FForm);
+  FPicker1.Parent := FForm;
+  FPicker2 := TDateTimePicker.Create(FForm);
+  FPicker2.Parent := FForm;
+  FCheckBox1 := TCheckBox.Create(FForm);
+  FCheckBox1.Parent := FForm;
+  FCheckBox2 := TCheckBox.Create(FForm);
+  FCheckBox2.Parent := FForm;
   FIntValue := 100;
   FStrValue := 'Test';
 end;
@@ -625,7 +648,7 @@ begin
   CheckEquals('200', FLabel1.Caption, 'Label should display calculated value');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneValue;
+procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneInteger;
 begin
   FEdit1.Link(FIntValue);
   FEdit2.Link(FIntValue);
@@ -636,6 +659,96 @@ begin
   CheckEquals('500', FEdit1.Text, 'Edit1 should be synced');
   CheckEquals('500', FEdit2.Text, 'Edit2 should be synced');
   CheckEquals('500', FLabel1.Caption, 'Label should be synced');
+end;
+
+procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneString;
+begin
+  FEdit1.Link(FStrValue);
+  FEdit2.Link(FStrValue);
+  FLabel1.Link(FStrValue);
+
+  FStrValue := 'Updated';
+
+  CheckEquals('Updated', FEdit1.Text, 'Edit1 should be synced');
+  CheckEquals('Updated', FEdit2.Text, 'Edit2 should be synced');
+  CheckEquals('Updated', FLabel1.Caption, 'Label should be synced');
+end;
+
+procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDouble;
+begin
+  FDblValue := 123.456;
+  FEdit1.Link(FDblValue);
+  FEdit2.Link(FDblValue);
+  FLabel1.Link(FDblValue);
+
+  FDblValue := 789.012;
+
+  CheckTrue(Pos('789', FEdit1.Text) > 0, 'Edit1 should be synced');
+  CheckTrue(Pos('789', FEdit2.Text) > 0, 'Edit2 should be synced');
+  CheckTrue(Pos('789', FLabel1.Caption) > 0, 'Label should be synced');
+end;
+
+procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneCurrency;
+begin
+  FCurrValue := 100.50;
+  FEdit1.Link(FCurrValue);
+  FEdit2.Link(FCurrValue);
+  FLabel1.Link(FCurrValue);
+
+  FCurrValue := 200.75;
+
+  CheckTrue(Pos('200', FEdit1.Text) > 0, 'Edit1 should be synced');
+  CheckTrue(Pos('200', FEdit2.Text) > 0, 'Edit2 should be synced');
+  CheckTrue(Pos('200', FLabel1.Caption) > 0, 'Label should be synced');
+end;
+
+procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDate;
+var
+  TestDate: TDate;
+begin
+  System.Initialize(FDateValue);
+  FDateValue := OLDate.Today;
+  FPicker1.Link(FDateValue);
+  FPicker2.Link(FDateValue);
+  FLabel1.Link(FDateValue);
+
+  TestDate := EncodeDate(2025, 12, 31);
+  FDateValue := TestDate;
+
+  CheckEquals(TestDate, FPicker1.Date, 'Picker1 should be synced');
+  CheckEquals(TestDate, FPicker2.Date, 'Picker2 should be synced');
+  CheckTrue(Pos('2025', FLabel1.Caption) > 0, 'Label should be synced');
+end;
+
+procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDateTime;
+var
+  TestDateTime: TDateTime;
+begin
+  System.Initialize(FDateTimeValue);
+  FDateTimeValue := OLDateTime.Now;
+  FPicker1.Link(FDateTimeValue);
+  FPicker2.Link(FDateTimeValue);
+  FLabel1.Link(FDateTimeValue);
+
+  TestDateTime := EncodeDate(2025, 12, 31) + EncodeTime(23, 59, 59, 0);
+  FDateTimeValue := TestDateTime;
+
+  CheckEquals(TestDateTime, FPicker1.DateTime, 0.001, 'Picker1 should be synced');
+  CheckEquals(TestDateTime, FPicker2.DateTime, 0.001, 'Picker2 should be synced');
+  CheckTrue(Pos('2025', FLabel1.Caption) > 0, 'Label should be synced');
+end;
+
+procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneBoolean;
+begin
+  System.Initialize(FBoolValue);
+  FBoolValue := False;
+  FCheckBox1.Link(FBoolValue);
+  FCheckBox2.Link(FBoolValue);
+
+  FBoolValue := True;
+
+  CheckTrue(FCheckBox1.Checked, 'CheckBox1 should be synced');
+  CheckTrue(FCheckBox2.Checked, 'CheckBox2 should be synced');
 end;
 
 procedure TestOLTypesToControlsLinks.TestRefreshControls;
