@@ -1460,12 +1460,9 @@ end;
 
 destructor TDateTimePickerToOLDateTime.Destroy;
 begin
-  if Assigned(FOLPointer) then
-  begin
-    {$IF CompilerVersion >= 34.0}
-    FOLPointer^.OnChange := nil;
-    {$IFEND}
-  end;
+  // Note: We don't set FOLPointer^.OnChange := nil here because when using
+  // observer pattern (multiple controls to one value), the OnChange points to
+  // the observer, not to this link. The observer handles cleanup via RemoveLink.
 
   if Assigned(FEdit) then
   begin
@@ -2659,6 +2656,8 @@ procedure TOLTypesToControlsLinks.Link(const Edit: TDateTimePicker; var d:
     OLDateTime);
 var
   Link: TDateTimePickerToOLDateTime;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   if Edit.Format  = '' then
   begin
@@ -2672,7 +2671,16 @@ begin
   Link := TDateTimePickerToOLDateTime.Create;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  d.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLDateTime
+  if not FObservers.TryGetValue(@d, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@d, ValueObserver);
+    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDateTime
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   Link.Edit := Edit;
   AddLink(Edit, Link);
@@ -2914,12 +2922,23 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDateTime);
 var
   Link: TOLDateTimeToLabel;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TOLDateTimeToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  d.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLDateTime
+  if not FObservers.TryGetValue(@d, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@d, ValueObserver);
+    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDateTime
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
 
