@@ -832,12 +832,9 @@ end;
 
 destructor TEditToOLDouble.Destroy;
 begin
-  if Assigned(FOLPointer) then
-  begin
-    {$IF CompilerVersion >= 34.0}
-    FOLPointer^.OnChange := nil;
-    {$IFEND}
-  end;
+  // Note: We don't set FOLPointer^.OnChange := nil here because when using
+  // observer pattern (multiple controls to one value), the OnChange points to
+  // the observer, not to this link. The observer handles cleanup via RemoveLink.
   inherited;
 end;
 
@@ -2502,13 +2499,24 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLDouble;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TEditToOLDouble.Create;
   Link.FFormat := Format;
   Link.Edit := Edit;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  d.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLDouble
+  if not FObservers.TryGetValue(@d, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@d, ValueObserver);
+    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDouble
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
 
@@ -2780,13 +2788,24 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT);
 var
   Link: TOLDoubleToLabel;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TOLDoubleToLabel.Create;
   Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  d.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLDouble
+  if not FObservers.TryGetValue(@d, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@d, ValueObserver);
+    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDouble
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
 
