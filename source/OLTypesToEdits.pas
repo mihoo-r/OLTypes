@@ -1680,12 +1680,9 @@ end;
 
 destructor TCheckBoxToOLBoolean.Destroy;
 begin
-  if Assigned(FOLPointer) then
-  begin
-    {$IF CompilerVersion >= 34.0}
-    FOLPointer^.OnChange := nil;
-    {$IFEND}
-  end;
+  // Note: We don't set FOLPointer^.OnChange := nil here because when using
+  // observer pattern (multiple controls to one value), the OnChange points to
+  // the observer, not to this link. The observer handles cleanup via RemoveLink.
 
   if Assigned(FEdit) then
   begin
@@ -2691,12 +2688,23 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Edit: TCheckBox; var b: OLBoolean);
 var
   Link: TCheckBoxToOLBoolean;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TCheckBoxToOLBoolean.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @b;
   {$IF CompilerVersion >= 34.0}
-  b.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLBoolean
+  if not FObservers.TryGetValue(@b, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@b, ValueObserver);
+    b.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLBoolean
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
 
