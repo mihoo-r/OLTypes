@@ -3,9 +3,9 @@ unit OLFormHelper;
 interface
 
 uses
-  Vcl.Forms, Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls,
-  OLTypes, OLTypesToEdits, System.Classes, System.Generics.Collections, Vcl.ExtCtrls,
-  Vcl.Controls;
+   Vcl.Forms, Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls,
+   OLTypes, System.Classes, System.Generics.Collections, Vcl.ExtCtrls,
+   Vcl.Controls;
 
 type
 
@@ -62,6 +62,8 @@ type
   end;
 
 implementation
+
+uses OLTypesToEdits;
 
 { TOLFormHelper }
 
