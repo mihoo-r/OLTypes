@@ -12,7 +12,6 @@ type
   private
     FEdit: TEdit;
     FValue: OLInteger;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -30,7 +29,6 @@ type
   private
     FEdit: TEdit;
     FValue: OLString;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -47,7 +45,6 @@ type
   private
     FEdit: TEdit;
     FValue: OLDouble;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -64,7 +61,6 @@ type
   private
     FEdit: TEdit;
     FValue: OLCurrency;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -81,7 +77,6 @@ type
   private
     FSpinEdit: TSpinEdit;
     FValue: OLInteger;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -97,7 +92,6 @@ type
   private
     FPicker: TDateTimePicker;
     FValue: OLDate;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -114,7 +108,6 @@ type
   private
     FPicker: TDateTimePicker;
     FValue: OLDateTime;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -131,7 +124,6 @@ type
   private
     FCheckBox: TCheckBox;
     FValue: OLBoolean;
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
   protected
     procedure SetUp; override;
@@ -145,7 +137,6 @@ type
   // Test class for TOLTypesToControlsLinks (integration tests)
   TestOLTypesToControlsLinks = class(TTestCase)
   private
-    FLinks: TOLTypesToControlsLinks;
     FForm: TForm;
     FIntValue: OLInteger;
     FStrValue: OLString;
@@ -162,7 +153,6 @@ type
     procedure TestLinkLabelWithCalculation;
     procedure TestMultipleControlsToOneValue;
     procedure TestRefreshControls;
-    procedure TestRemoveLinks;
     procedure TestCalculationError;
   end;
 
@@ -182,7 +172,7 @@ type
 implementation
 
 uses
-  DateUtils;
+  DateUtils, OLFormHelper;
 
 { TestEditToOLInteger }
 
@@ -192,12 +182,11 @@ begin
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
   FValue := 100;
-  FLinks.Link(FEdit, FValue);
+  FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLInteger.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -211,8 +200,7 @@ end;
 procedure TestEditToOLInteger.TestValueToEditSync;
 begin
   FValue := 500;
-  FLinks.RefreshControls(FForm);
-  
+
   CheckEquals('500', FEdit.Text, 'Edit should display new value');
 end;
 
@@ -244,7 +232,6 @@ begin
   
   CheckTrue(FValue.IsNull, 'Empty string should result in NULL');
   
-  FLinks.RefreshControls(FForm);
   CheckEquals('', FEdit.Text, 'NULL should display as empty string');
 end;
 
@@ -256,12 +243,11 @@ begin
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
   FValue := 'Initial Value';
-  FLinks.Link(FEdit, FValue);
+  FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLString.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -275,7 +261,6 @@ end;
 procedure TestEditToOLString.TestValueToEditSync;
 begin
   FValue := 'Updated Value';
-  FLinks.RefreshControls(FForm);
   
   CheckEquals('Updated Value', FEdit.Text, 'Edit should display new value');
 end;
@@ -304,12 +289,11 @@ begin
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
   FValue := 123.456;
-  FLinks.Link(FEdit, FValue);
+  FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLDouble.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -323,7 +307,6 @@ end;
 procedure TestEditToOLDouble.TestValueToEditSync;
 begin
   FValue := 456.789;
-  FLinks.RefreshControls(FForm);
   
   // Check that value is displayed (format may vary)
   CheckTrue(Pos('456', FEdit.Text) > 0, 'Edit should contain the value');
@@ -340,7 +323,6 @@ end;
 procedure TestEditToOLDouble.TestFormatting;
 begin
   FValue := 1234.5678;
-  FLinks.RefreshControls(FForm);
   
   // When not focused, should have thousand separator
   // This is a basic check - actual formatting depends on locale
@@ -355,12 +337,11 @@ begin
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
   FValue := 1000.50;
-  FLinks.Link(FEdit, FValue);
+  FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLCurrency.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -374,7 +355,6 @@ end;
 procedure TestEditToOLCurrency.TestValueToEditSync;
 begin
   FValue := 999.99;
-  FLinks.RefreshControls(FForm);
   
   CheckTrue(Pos('999', FEdit.Text) > 0, 'Edit should contain the value');
 end;
@@ -404,12 +384,11 @@ begin
   FSpinEdit := TSpinEdit.Create(FForm);
   FSpinEdit.Parent := FForm;
   FValue := 50;
-  FLinks.Link(FSpinEdit, FValue);
+  FSpinEdit.Link(FValue);
 end;
 
 procedure TestSpinEditToOLInteger.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -424,7 +403,6 @@ end;
 procedure TestSpinEditToOLInteger.TestValueToSpinSync;
 begin
   FValue := 100;
-  FLinks.RefreshControls(FForm);
   
   CheckEquals('100', FSpinEdit.Text, 'SpinEdit should display new value');
 end;
@@ -444,13 +422,13 @@ begin
   FPicker := TDateTimePicker.Create(FForm);
   FPicker.Parent := FForm;
   FPicker.Format := 'dd/MM/yyyy';
+  System.Initialize(FValue);
   FValue := OLDate.Today;
-  FLinks.Link(FPicker, FValue);
+  FPicker.Link(FValue);
 end;
 
 procedure TestDateTimePickerToOLDate.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -470,7 +448,6 @@ var
 begin
   TestDate := EncodeDate(2024, 1, 1);
   FValue := TestDate;
-  FLinks.RefreshControls(FForm);
   
   CheckEquals(TestDate, FPicker.Date, 'DateTimePicker should display new value');
 end;
@@ -478,7 +455,6 @@ end;
 procedure TestDateTimePickerToOLDate.TestNullHandling;
 begin
   FValue := Null;
-  FLinks.RefreshControls(FForm);
   
   // When NULL, format should change to NULL_FORMAT
   CheckTrue(FValue.IsNull, 'Value should be NULL');
@@ -487,7 +463,6 @@ end;
 procedure TestDateTimePickerToOLDate.TestNullFormatDisplay;
 begin
   FValue := Null;
-  FLinks.RefreshControls(FForm);
   
   // Check that format changed to "- - -"
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
@@ -502,13 +477,13 @@ begin
   FPicker.Parent := FForm;
   FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
   FPicker.Kind := dtkDateTime;
+  System.Initialize(FValue);
   FValue := OLDateTime.Now;
-  FLinks.Link(FPicker, FValue);
+  FPicker.Link(FValue);
 end;
 
 procedure TestDateTimePickerToOLDateTime.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -528,7 +503,6 @@ var
 begin
   TestDateTime := EncodeDate(2024, 1, 1) + EncodeTime(10, 15, 30, 0);
   FValue := TestDateTime;
-  FLinks.RefreshControls(FForm);
   
   CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'DateTimePicker should display new value');
 end;
@@ -536,7 +510,6 @@ end;
 procedure TestDateTimePickerToOLDateTime.TestNullHandling;
 begin
   FValue := Null;
-  FLinks.RefreshControls(FForm);
   
   // When NULL, format should change to NULL_FORMAT
   CheckTrue(FValue.IsNull, 'Value should be NULL');
@@ -545,7 +518,6 @@ end;
 procedure TestDateTimePickerToOLDateTime.TestNullFormatDisplay;
 begin
   FValue := Null;
-  FLinks.RefreshControls(FForm);
   
   // Check that format changed to "- - -"
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
@@ -558,13 +530,13 @@ begin
   FForm := TForm.Create(nil);
   FCheckBox := TCheckBox.Create(FForm);
   FCheckBox.Parent := FForm;
+  System.Initialize(FValue);
   FValue := True;
-  FLinks.Link(FCheckBox, FValue);
+  FCheckBox.Link(FValue);
 end;
 
 procedure TestCheckBoxToOLBoolean.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -582,12 +554,10 @@ end;
 procedure TestCheckBoxToOLBoolean.TestValueToCheckBoxSync;
 begin
   FValue := True;
-  FLinks.RefreshControls(FForm);
   
   CheckTrue(FCheckBox.Checked, 'CheckBox should be checked when value is TRUE');
   
   FValue := False;
-  FLinks.RefreshControls(FForm);
   
   CheckFalse(FCheckBox.Checked, 'CheckBox should be unchecked when value is FALSE');
 end;
@@ -595,7 +565,6 @@ end;
 procedure TestCheckBoxToOLBoolean.TestNullHandling;
 begin
   FValue := Null;
-  FLinks.RefreshControls(FForm);
   
   // NULL Boolean should display as unchecked (IfNull(False))
   CheckFalse(FCheckBox.Checked, 'NULL should display as unchecked');
@@ -618,30 +587,26 @@ end;
 
 procedure TestOLTypesToControlsLinks.TearDown;
 begin
-  FLinks.RemoveLinks(FForm);
   FForm.Free;
 end;
 
 procedure TestOLTypesToControlsLinks.TestLinkEditToInteger;
 begin
-  FLinks.Link(FEdit1, FIntValue);
-  FLinks.RefreshControls(FForm);
+  FEdit1.Link(FIntValue);
   
   CheckEquals('100', FEdit1.Text, 'Edit should display linked value');
 end;
 
 procedure TestOLTypesToControlsLinks.TestLinkEditToString;
 begin
-  FLinks.Link(FEdit1, FStrValue);
-  FLinks.RefreshControls(FForm);
+  FEdit1.Link(FStrValue);
   
   CheckEquals('Test', FEdit1.Text, 'Edit should display linked string');
 end;
 
 procedure TestOLTypesToControlsLinks.TestLinkLabelToInteger;
 begin
-  FLinks.Link(FLabel1, FIntValue);
-  FLinks.RefreshControls(FForm);
+  FLabel1.Link(FIntValue);
   
   CheckEquals('100', FLabel1.Caption, 'Label should display linked value');
 end;
@@ -655,20 +620,18 @@ begin
       Result := FIntValue * 2;
     end;
   
-  FLinks.Link(FLabel1, Calc);
-  FLinks.RefreshControls(FForm);
+  FLabel1.Link(Calc);
   
   CheckEquals('200', FLabel1.Caption, 'Label should display calculated value');
 end;
 
 procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneValue;
 begin
-  FLinks.Link(FEdit1, FIntValue);
-  FLinks.Link(FEdit2, FIntValue);
-  FLinks.Link(FLabel1, FIntValue);
+  FEdit1.Link(FIntValue);
+  FEdit2.Link(FIntValue);
+  FLabel1.Link(FIntValue);
   
   FIntValue := 500;
-  FLinks.RefreshControls(FForm);
   
   CheckEquals('500', FEdit1.Text, 'Edit1 should be synced');
   CheckEquals('500', FEdit2.Text, 'Edit2 should be synced');
@@ -677,24 +640,11 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestRefreshControls;
 begin
-  FLinks.Link(FEdit1, FIntValue);
+  FEdit1.Link(FIntValue);
   
   FIntValue := 777;
-  FLinks.RefreshControls(FForm);
-  
-  CheckEquals('777', FEdit1.Text, 'RefreshControls should update display');
-end;
 
-procedure TestOLTypesToControlsLinks.TestRemoveLinks;
-begin
-  FLinks.Link(FEdit1, FIntValue);
-  FLinks.RemoveLinks(FForm);
-  
-  // After removing, changes should not propagate
-  FIntValue := 999;
-  // Note: Can't easily test this without triggering refresh
-  // This is more of an integration test
-  CheckTrue(True, 'RemoveLinks executed without error');
+  CheckEquals('777', FEdit1.Text, 'RefreshControls should update display');
 end;
 
 procedure TestOLTypesToControlsLinks.TestCalculationError;
@@ -706,8 +656,7 @@ begin
       raise Exception.Create('Test error');
     end;
   
-  FLinks.Link(FLabel1, Calc, 'CUSTOM_ERROR');
-  FLinks.RefreshControls(FForm);
+  FLabel1.Link(Calc, 'CUSTOM_ERROR');
   
   CheckEquals('CUSTOM_ERROR', FLabel1.Caption, 'Error in calculation should display custom error message');
 end;
@@ -726,7 +675,6 @@ end;
 
 procedure TestMemorySafety.TestMultipleLinkRemoval;
 var
-  Links: TOLTypesToControlsLinks;
   Edit1, Edit2, Edit3: TEdit;
   Value: OLInteger;
 begin
@@ -751,7 +699,6 @@ end;
 
 procedure TestMemorySafety.TestRefreshAfterRemoval;
 var
-  Links: TOLTypesToControlsLinks;
   Edit: TEdit;
   Value: OLInteger;
 begin
@@ -770,7 +717,6 @@ end;
 
 procedure TestMemorySafety.TestFormDestruction;
 var
-  Links: TOLTypesToControlsLinks;
   TestForm: TForm;
   Edit: TEdit;
   Value: OLInteger;
