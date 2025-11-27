@@ -79,6 +79,8 @@ end;
 
 procedure TOLEditHelper.Link(var i: OLInteger; const Alignment: TAlignment);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, i, Alignment);
   except
@@ -89,6 +91,8 @@ end;
 
 procedure TOLEditHelper.Link(var d: OLDouble; const Format: string; const Alignment: TAlignment);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, d, Format, Alignment);
   except
@@ -99,6 +103,8 @@ end;
 
 procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string; const Alignment: TAlignment);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, curr, Format, Alignment);
   except
@@ -109,6 +115,8 @@ end;
 
 procedure TOLEditHelper.Link(var s: OLString);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, s);
   except
@@ -121,6 +129,8 @@ end;
 
 procedure TOLSpinEditHelper.Link(var i: OLInteger);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, i);
   except
@@ -133,6 +143,8 @@ end;
 
 procedure TOLTrackBarHelper.Link(var i: OLInteger);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, i);
   except
@@ -145,6 +157,8 @@ end;
 
 procedure TOLScrollBarHelper.Link(var i: OLInteger);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, i);
   except
@@ -157,6 +171,8 @@ end;
 
 procedure TOLMemoHelper.Link(var s: OLString);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, s);
   except
@@ -169,6 +185,8 @@ end;
 
 procedure TOLDateTimePickerHelper.Link(var d: OLDate);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, d);
   except
@@ -179,6 +197,8 @@ end;
 
 procedure TOLDateTimePickerHelper.Link(var d: OLDateTime);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, d);
   except
@@ -191,6 +211,8 @@ end;
 
 procedure TOLCheckBoxHelper.Link(var b: OLBoolean);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, b);
   except
@@ -203,6 +225,8 @@ end;
 
 procedure TOLLabelHelper.Link(var i: OLInteger);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, i);
   except
@@ -213,6 +237,10 @@ end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
+  if not Assigned(f) then
+    raise Exception.Create('Function is nil.');
   try
     Links.Link(Self, f, ValueOnErrorInCalculation);
   except
@@ -223,6 +251,8 @@ end;
 
 procedure TOLLabelHelper.Link(var s: OLString);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, s);
   except
@@ -233,6 +263,10 @@ end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
+  if not Assigned(f) then
+    raise Exception.Create('Function is nil.');
   try
     Links.Link(Self, f, ValueOnErrorInCalculation);
   except
@@ -243,6 +277,8 @@ end;
 
 procedure TOLLabelHelper.Link(var d: OLDouble; const Format: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, d, Format);
   except
@@ -253,6 +289,10 @@ end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDouble; const Format: string; const ValueOnErrorInCalculation: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
+  if not Assigned(f) then
+    raise Exception.Create('Function is nil.');
   try
     Links.Link(Self, f, Format, ValueOnErrorInCalculation);
   except
@@ -263,6 +303,8 @@ end;
 
 procedure TOLLabelHelper.Link(var curr: OLCurrency; const Format: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, curr, Format);
   except
@@ -273,6 +315,10 @@ end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLCurrency; const Format: string; const ValueOnErrorInCalculation: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
+  if not Assigned(f) then
+    raise Exception.Create('Function is nil.');
   try
     Links.Link(Self, f, Format, ValueOnErrorInCalculation);
   except
@@ -283,6 +329,8 @@ end;
 
 procedure TOLLabelHelper.Link(var d: OLDate);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, d);
   except
@@ -293,6 +341,10 @@ end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
+  if not Assigned(f) then
+    raise Exception.Create('Function is nil.');
   try
     Links.Link(Self, f, ValueOnErrorInCalculation);
   except
@@ -303,6 +355,8 @@ end;
 
 procedure TOLLabelHelper.Link(var d: OLDateTime);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
   try
     Links.Link(Self, d);
   except
@@ -313,6 +367,10 @@ end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 begin
+  if not Assigned(Self) then
+    raise Exception.Create('Control is nil.');
+  if not Assigned(f) then
+    raise Exception.Create('Function is nil.');
   try
     Links.Link(Self, f, ValueOnErrorInCalculation);
   except
