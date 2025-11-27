@@ -410,6 +410,7 @@ type
     FLinks: TDictionary<TForm, TObjectList<TOLLinkBase>>;
     FTimers: TDictionary<TForm, TTimer>;
     FWatchers: TDictionary<TForm, TComponent>;
+    FObservers: TDictionary<Pointer, TObject>;  // Maps OLType pointer -> TOLValueObserver
     procedure AddLink(Control: TControl; Link: TOLLinkBase);
     function DelphiDateTimeFormatToWindowsFormat(const DelphiFormat: OLString): OLString;
   public
@@ -478,6 +479,19 @@ type
     destructor Destroy; override;
   end;
 
+  { Observer class to multicast OnChange events to multiple links }
+  TOLValueObserver = class
+  private
+    FLinks: TList<TOLLinkBase>;
+    procedure OnOLChange(Sender: TObject);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure AddLink(Link: TOLLinkBase);
+    procedure RemoveLink(Link: TOLLinkBase);
+    function IsEmpty: Boolean;
+  end;
+
 function Links(): TOLTypesToControlsLinks;
 begin
   Result := OLLinks;
@@ -528,6 +542,45 @@ begin
   inherited;
 end;
 
+{ TOLValueObserver }
+
+constructor TOLValueObserver.Create;
+begin
+  inherited Create;
+  FLinks := TList<TOLLinkBase>.Create;
+end;
+
+destructor TOLValueObserver.Destroy;
+begin
+  FLinks.Free;
+  inherited;
+end;
+
+procedure TOLValueObserver.AddLink(Link: TOLLinkBase);
+begin
+  if not FLinks.Contains(Link) then
+    FLinks.Add(Link);
+end;
+
+procedure TOLValueObserver.RemoveLink(Link: TOLLinkBase);
+begin
+  FLinks.Remove(Link);
+end;
+
+function TOLValueObserver.IsEmpty: Boolean;
+begin
+  Result := FLinks.Count = 0;
+end;
+
+procedure TOLValueObserver.OnOLChange(Sender: TObject);
+var
+  Link: TOLLinkBase;
+begin
+  // Multicast: call RefreshControl on all registered links
+  for Link in FLinks do
+    Link.RefreshControl;
+end;
+
 constructor TEditToOLInteger.Create;
 begin
   inherited;
@@ -540,12 +593,9 @@ end;
 
 destructor TEditToOLInteger.Destroy;
 begin
-  if Assigned(FOLPointer) then
-  begin
-    {$IF CompilerVersion >= 34.0}
-    FOLPointer^.OnChange := nil;
-    {$IFEND}
-  end;
+  // Note: We don't set FOLPointer^.OnChange := nil here because when using
+  // observer pattern (multiple controls to one value), the OnChange points to
+  // the observer, not to this link. The observer handles cleanup via RemoveLink.
 
   if Assigned(FEdit) then
   begin
@@ -2290,6 +2340,7 @@ begin
   FLinks := TDictionary<TForm, TObjectList<TOLLinkBase>>.Create;
   FTimers := TDictionary<TForm, TTimer>.Create;
   FWatchers := TDictionary<TForm, TComponent>.Create;
+  FObservers := TDictionary<Pointer, TObject>.Create;
 end;
 
 destructor TOLTypesToControlsLinks.Destroy;
@@ -2314,6 +2365,12 @@ begin
   end;
   if Assigned(FWatchers) then
     FWatchers.Free;
+  if Assigned(FObservers) then
+  begin
+    for var Obj in FObservers.Values do
+      Obj.Free;
+    FObservers.Free;
+  end;
   inherited;
 end;
 
@@ -2393,12 +2450,23 @@ procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var i: OLInteger;
     const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLInteger;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TEditToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  i.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLInteger
+  if not FObservers.TryGetValue(@i, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@i, ValueObserver);
+    i.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLInteger
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
   
@@ -2480,6 +2548,9 @@ begin
   Link := TEditToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
+  {$IF CompilerVersion >= 34.0}
+  s.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
@@ -2492,6 +2563,9 @@ begin
   Link := TMemoToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
+  {$IF CompilerVersion >= 34.0}
+  s.OnChange := Link.OnOLChange;
+  {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
@@ -2594,12 +2668,23 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var i: OLInteger);
 var
   Link: TOLIntegerToLabel;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TOLIntegerToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  i.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLInteger
+  if not FObservers.TryGetValue(@i, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@i, ValueObserver);
+    i.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLInteger
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
 
@@ -2794,9 +2879,9 @@ begin
     if FWatchers.TryGetValue(DestroyedForm, Watcher) then
     begin
       FWatchers.Remove(DestroyedForm);
-      // Only free if it's not being destroyed already (e.g. Form destruction)
-      if not (csDestroying in Watcher.ComponentState) then
-        Watcher.Free;
+      // Watcher is owned by Form, so Form will free it automatically.
+      // We just remove it from our dictionary to avoid double-cleanup.
+      // If the Form is being destroyed, Watcher.Destroy will call RemoveLinks anyway.
     end;
 
     // Remove Timer
@@ -2809,6 +2894,50 @@ begin
 
     if FLinks.TryGetValue(DestroyedForm, List) then
     begin
+      // Remove links from observers before freeing
+      {$IF CompilerVersion >= 34.0}
+      if Assigned(FObservers) then
+      begin
+        for var Link in List do
+        begin
+          // Find and remove this link from any observer
+          for var ObserverPair in FObservers do
+          begin
+            var Observer := ObserverPair.Value as TOLValueObserver;
+            Observer.RemoveLink(Link);  // Safe to call even if link not in observer
+          end;
+        end;
+
+        // Clean up empty observers
+        var ObserversToRemove := TList<Pointer>.Create;
+        try
+          for var ObserverPair in FObservers do
+          begin
+            var Observer := ObserverPair.Value as TOLValueObserver;
+            if Observer.IsEmpty then
+              ObserversToRemove.Add(ObserverPair.Key);
+          end;
+
+          for var OLPointer in ObserversToRemove do
+          begin
+            var Observer := FObservers[OLPointer];
+            FObservers.Remove(OLPointer);
+            
+            // Set OnChange := nil on the OLInteger variable before freeing observer
+            // This prevents Access Violations when the variable is reused later
+            // All OL types have OnChange at the same offset, so we can use POLInteger
+            var OLIntPtr := POLInteger(OLPointer);
+            if Assigned(OLIntPtr) then
+              OLIntPtr^.OnChange := nil;
+            
+            Observer.Free;
+          end;
+        finally
+          ObserversToRemove.Free;
+        end;
+      end;
+      {$IFEND}
+
       List.Free;  // Free the list and all its link objects
       FLinks.Remove(DestroyedForm);
     end;
