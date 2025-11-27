@@ -79,131 +79,246 @@ end;
 
 procedure TOLEditHelper.Link(var i: OLInteger; const Alignment: TAlignment);
 begin
-  Links.Link(Self, i, Alignment);
+  try
+    Links.Link(Self, i, Alignment);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TEdit: ' + E.Message);
+  end;
 end;
 
 procedure TOLEditHelper.Link(var d: OLDouble; const Format: string; const Alignment: TAlignment);
 begin
-  Links.Link(Self, d, Format, Alignment);
+  try
+    Links.Link(Self, d, Format, Alignment);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TEdit: ' + E.Message);
+  end;
 end;
 
 procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string; const Alignment: TAlignment);
 begin
-  Links.Link(Self, curr, Format, Alignment);
+  try
+    Links.Link(Self, curr, Format, Alignment);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TEdit: ' + E.Message);
+  end;
 end;
 
 procedure TOLEditHelper.Link(var s: OLString);
 begin
-  Links.Link(Self, s);
+  try
+    Links.Link(Self, s);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TEdit: ' + E.Message);
+  end;
 end;
 
 { TOLSpinEditHelper }
 
 procedure TOLSpinEditHelper.Link(var i: OLInteger);
 begin
-  Links.Link(Self, i);
+  try
+    Links.Link(Self, i);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TSpinEdit: ' + E.Message);
+  end;
 end;
 
 { TOLTrackBarHelper }
 
 procedure TOLTrackBarHelper.Link(var i: OLInteger);
 begin
-  Links.Link(Self, i);
+  try
+    Links.Link(Self, i);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TTrackBar: ' + E.Message);
+  end;
 end;
 
 { TOLScrollBarHelper }
 
 procedure TOLScrollBarHelper.Link(var i: OLInteger);
 begin
-  Links.Link(Self, i);
+  try
+    Links.Link(Self, i);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TScrollBar: ' + E.Message);
+  end;
 end;
 
 { TOLMemoHelper }
 
 procedure TOLMemoHelper.Link(var s: OLString);
 begin
-  Links.Link(Self, s);
+  try
+    Links.Link(Self, s);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TMemo: ' + E.Message);
+  end;
 end;
 
 { TOLDateTimePickerHelper }
 
 procedure TOLDateTimePickerHelper.Link(var d: OLDate);
 begin
-  Links.Link(Self, d);
+  try
+    Links.Link(Self, d);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
+  end;
 end;
 
 procedure TOLDateTimePickerHelper.Link(var d: OLDateTime);
 begin
-  Links.Link(Self, d);
+  try
+    Links.Link(Self, d);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
+  end;
 end;
 
 { TOLCheckBoxHelper }
 
 procedure TOLCheckBoxHelper.Link(var b: OLBoolean);
 begin
-  Links.Link(Self, b);
+  try
+    Links.Link(Self, b);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TCheckBox: ' + E.Message);
+  end;
 end;
 
 { TOLLabelHelper }
 
 procedure TOLLabelHelper.Link(var i: OLInteger);
 begin
-  Links.Link(Self, i);
+  try
+    Links.Link(Self, i);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
 begin
-  Links.Link(Self, f, ValueOnErrorInCalculation);
+  try
+    Links.Link(Self, f, ValueOnErrorInCalculation);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(var s: OLString);
 begin
-  Links.Link(Self, s);
+  try
+    Links.Link(Self, s);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
 begin
-  Links.Link(Self, f, ValueOnErrorInCalculation);
+  try
+    Links.Link(Self, f, ValueOnErrorInCalculation);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(var d: OLDouble; const Format: string);
 begin
-  Links.Link(Self, d, Format);
+  try
+    Links.Link(Self, d, Format);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDouble; const Format: string; const ValueOnErrorInCalculation: string);
 begin
-  Links.Link(Self, f, Format, ValueOnErrorInCalculation);
+  try
+    Links.Link(Self, f, Format, ValueOnErrorInCalculation);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(var curr: OLCurrency; const Format: string);
 begin
-  Links.Link(Self, curr, Format);
+  try
+    Links.Link(Self, curr, Format);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLCurrency; const Format: string; const ValueOnErrorInCalculation: string);
 begin
-  Links.Link(Self, f, Format, ValueOnErrorInCalculation);
+  try
+    Links.Link(Self, f, Format, ValueOnErrorInCalculation);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(var d: OLDate);
 begin
-  Links.Link(Self, d);
+  try
+    Links.Link(Self, d);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
 begin
-  Links.Link(Self, f, ValueOnErrorInCalculation);
+  try
+    Links.Link(Self, f, ValueOnErrorInCalculation);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(var d: OLDateTime);
 begin
-  Links.Link(Self, d);
+  try
+    Links.Link(Self, d);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 begin
-  Links.Link(Self, f, ValueOnErrorInCalculation);
+  try
+    Links.Link(Self, f, ValueOnErrorInCalculation);
+  except
+    on E: Exception do
+      raise Exception.Create('Link failed for TLabel: ' + E.Message);
+  end;
 end;
 
 end.
