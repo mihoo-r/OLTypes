@@ -715,12 +715,9 @@ end;
 
 destructor TEditToOLString.Destroy;
 begin
-  if Assigned(FOLPointer) then
-  begin
-    {$IF CompilerVersion >= 34.0}
-    FOLPointer^.OnChange := nil;
-    {$IFEND}
-  end;
+  // Note: We don't set FOLPointer^.OnChange := nil here because when using
+  // observer pattern (multiple controls to one value), the OnChange points to
+  // the observer, not to this link. The observer handles cleanup via RemoveLink.
   inherited;
 end;
 
@@ -772,12 +769,9 @@ end;
 
 destructor TMemoToOLString.Destroy;
 begin
-  if Assigned(FOLPointer) then
-  begin
-    {$IF CompilerVersion >= 34.0}
-    FOLPointer^.OnChange := nil;
-    {$IFEND}
-  end;
+  // Note: We don't set FOLPointer^.OnChange := nil here because when using
+  // observer pattern (multiple controls to one value), the OnChange points to
+  // the observer, not to this link. The observer handles cleanup via RemoveLink.
 
   if Assigned(FEdit) then
   begin
@@ -2544,12 +2538,23 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var s: OLString);
 var
   Link: TEditToOLString;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TEditToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  s.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLString
+  if not FObservers.TryGetValue(@s, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@s, ValueObserver);
+    s.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLString
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
 
@@ -2559,12 +2564,23 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Edit: TMemo; var s: OLString);
 var
   Link: TMemoToOLString;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TMemoToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  s.OnChange := Link.OnOLChange;
+  // Get or create observer for this OLString
+  if not FObservers.TryGetValue(@s, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@s, ValueObserver);
+    s.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLString
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
 
@@ -2724,10 +2740,24 @@ end;
 procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var s: OLString);
 var
   Link: TOLStringToLabel;
+  Observer: TObject;
+  ValueObserver: TOLValueObserver;
 begin
   Link := TOLStringToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @s;
+  {$IF CompilerVersion >= 34.0}
+  // Get or create observer for this OLString
+  if not FObservers.TryGetValue(@s, Observer) then
+  begin
+    ValueObserver := TOLValueObserver.Create;
+    FObservers.Add(@s, ValueObserver);
+    s.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLString
+  end
+  else
+    ValueObserver := Observer as TOLValueObserver;
+  ValueObserver.AddLink(Link);  // Register this link with the observer
+  {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
