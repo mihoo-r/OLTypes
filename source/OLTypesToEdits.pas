@@ -13,11 +13,6 @@ uses OLTypes, System.Generics.Collections,
   StdCtrls, SysUtils, Spin, ComCtrls, Forms, Classes, Controls, Messages, Windows, ExtCtrls;
   {$IFEND}
 
-const
-  ERROR_STRING = '#ERROR';
-  DOUBLE_FORMAT = '###,###,###,##0.0####';
-  CURRENCY_FORMAT = '###,###,###,##0.00##';
-
 type
   POLInteger = ^OLInteger;
   POLString = ^OLString;
@@ -32,12 +27,6 @@ type
   TEditOnEnter = procedure (Sender: TObject) of object;
   TEditOnKeyPress = procedure (Sender: TObject; var Key: Char) of object;
 
-  TFunctionReturningOLInteger = reference to function(): OLInteger;
-  TFunctionReturningOLString = reference to function(): OLString;
-  TFunctionReturningOLDouble = reference to function(): OLDouble;
-  TFunctionReturningOLCurrency = reference to function(): OLCurrency;
-  TFunctionReturningOLDate = reference to function(): OLDate;
-  TFunctionReturningOLDateTime= reference to function(): OLDateTime;
 
   TOLLinkBase = class(TComponent)
   public
