@@ -2431,10 +2431,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@i, ValueObserver);
-    i.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLInteger
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  i.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLInteger
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
@@ -2490,10 +2490,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@d, ValueObserver);
-    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDouble
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDouble
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
@@ -2519,10 +2519,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@curr, ValueObserver);
-    curr.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLCurrency
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  curr.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLCurrency
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
@@ -2547,10 +2547,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@s, ValueObserver);
-    s.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLString
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  s.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLString
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
@@ -2603,10 +2603,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@d, ValueObserver);
-    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDate
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDate
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   Link.Edit := Edit;
@@ -2673,10 +2673,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@d, ValueObserver);
-    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDateTime
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDateTime
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   Link.Edit := Edit;
@@ -2700,10 +2700,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@b, ValueObserver);
-    b.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLBoolean
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  b.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLBoolean
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Edit, Link);
@@ -2726,10 +2726,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@i, ValueObserver);
-    i.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLInteger
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  i.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLInteger
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
@@ -2782,10 +2782,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@s, ValueObserver);
-    s.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLString
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  s.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLString
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
@@ -2823,10 +2823,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@d, ValueObserver);
-    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDouble
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDouble
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
@@ -2864,10 +2864,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@curr, ValueObserver);
-    curr.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLCurrency
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  curr.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLCurrency
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
@@ -2903,10 +2903,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@d, ValueObserver);
-    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDate
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDate
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
@@ -2942,10 +2942,10 @@ begin
   begin
     ValueObserver := TOLValueObserver.Create;
     FObservers.Add(@d, ValueObserver);
-    d.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLDateTime
   end
   else
     ValueObserver := Observer as TOLValueObserver;
+  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDateTime
   ValueObserver.AddLink(Link);  // Register this link with the observer
   {$IFEND}
   AddLink(Lbl, Link);
