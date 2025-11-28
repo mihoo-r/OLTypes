@@ -101,6 +101,9 @@ type
     procedure TestValueToPickerSync;
     procedure TestNullHandling;
     procedure TestNullFormatDisplay;
+    procedure TestOnChangeIsSetAfterLink;
+    procedure TestMultipleLinkCycles;
+    procedure TestValueChangeTriggersPickerUpdate;
   end;
 
   // Test class for TDateTimePickerToOLDateTime binding
@@ -117,6 +120,9 @@ type
     procedure TestValueToPickerSync;
     procedure TestNullHandling;
     procedure TestNullFormatDisplay;
+    procedure TestOnChangeIsSetAfterLink;
+    procedure TestMultipleLinkCycles;
+    procedure TestValueChangeTriggersPickerUpdate;
   end;
 
   // Test class for TCheckBoxToOLBoolean binding
@@ -187,7 +193,7 @@ type
 implementation
 
 uses
-  DateUtils, OLFormHelper;
+  DateUtils;
 
 { TestEditToOLInteger }
 
@@ -196,12 +202,15 @@ begin
   FForm := TForm.Create(nil);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
+  System.Finalize(FValue);
+  System.Initialize(FValue);  // Clear OnChange from previous test run
   FValue := 100;
   FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLInteger.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -257,12 +266,15 @@ begin
   FForm := TForm.Create(nil);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
+  System.Finalize(FValue);
+  System.Initialize(FValue);  // Clear OnChange from previous test run
   FValue := 'Initial Value';
   FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLString.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -303,12 +315,15 @@ begin
   FForm := TForm.Create(nil);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
+  System.Finalize(FValue);
+  System.Initialize(FValue);  // Clear OnChange from previous test run
   FValue := 123.456;
   FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLDouble.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -351,12 +366,15 @@ begin
   FForm := TForm.Create(nil);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
+  System.Finalize(FValue);
+  System.Initialize(FValue);  // Clear OnChange from previous test run
   FValue := 1000.50;
   FEdit.Link(FValue);
 end;
 
 procedure TestEditToOLCurrency.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -398,12 +416,15 @@ begin
   FForm := TForm.Create(nil);
   FSpinEdit := TSpinEdit.Create(FForm);
   FSpinEdit.Parent := FForm;
+  System.Finalize(FValue);
+  System.Initialize(FValue);  // Clear OnChange from previous test run
   FValue := 50;
   FSpinEdit.Link(FValue);
 end;
 
 procedure TestSpinEditToOLInteger.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -437,6 +458,7 @@ begin
   FPicker := TDateTimePicker.Create(FForm);
   FPicker.Parent := FForm;
   FPicker.Format := 'dd/MM/yyyy';
+  System.Finalize(FValue);
   System.Initialize(FValue);
   FValue := OLDate.Today;
   FPicker.Link(FValue);
@@ -444,6 +466,7 @@ end;
 
 procedure TestDateTimePickerToOLDate.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -483,6 +506,62 @@ begin
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
 end;
 
+procedure TestDateTimePickerToOLDate.TestOnChangeIsSetAfterLink;
+begin
+  {$IF CompilerVersion >= 34.0}
+  CheckTrue(Assigned(FValue.OnChange), 
+    'OnChange should be assigned after linking in SetUp');
+  {$ELSE}
+  Check(True, 'OnChange not available in this Delphi version');
+  {$IFEND}
+end;
+
+procedure TestDateTimePickerToOLDate.TestMultipleLinkCycles;
+var
+  TestDate: TDate;
+  Picker2: TDateTimePicker;
+  Value2: OLDate;
+begin
+  // First cycle already done in SetUp
+  TestDate := EncodeDate(2025, 12, 25);
+  FValue := TestDate;
+  CheckEquals(TestDate, FPicker.Date, 'First cycle should work');
+  
+  // Second cycle - simulate reopening form
+  Picker2 := TDateTimePicker.Create(FForm);
+  Picker2.Parent := FForm;
+  Picker2.Format := 'dd/MM/yyyy';
+  System.Initialize(Value2);
+  Value2 := OLDate.Today;
+  Picker2.Link(Value2);
+  
+  {$IF CompilerVersion >= 34.0}
+  CheckTrue(Assigned(Value2.OnChange), 'OnChange should be set on second link');
+  {$IFEND}
+  
+  TestDate := EncodeDate(2024, 6, 15);
+  Value2 := TestDate;
+  CheckEquals(TestDate, Picker2.Date, 
+    'Second cycle: value change should update picker');
+  
+  Picker2.Free;
+end;
+
+procedure TestDateTimePickerToOLDate.TestValueChangeTriggersPickerUpdate;
+var
+  TestDate1, TestDate2: TDate;
+begin
+  TestDate1 := EncodeDate(2025, 1, 1);
+  TestDate2 := EncodeDate(2025, 6, 15);
+  
+  FValue := TestDate1;
+  CheckEquals(TestDate1, FPicker.Date, 'First update should work');
+  
+  FValue := TestDate2;
+  CheckEquals(TestDate2, FPicker.Date, 
+    'Second update should work - this was failing when OnChange was not set');
+end;
+
 { TestDateTimePickerToOLDateTime }
 
 procedure TestDateTimePickerToOLDateTime.SetUp;
@@ -492,6 +571,7 @@ begin
   FPicker.Parent := FForm;
   FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
   FPicker.Kind := dtkDateTime;
+  System.Finalize(FValue);
   System.Initialize(FValue);
   FValue := OLDateTime.Now;
   FPicker.Link(FValue);
@@ -499,6 +579,7 @@ end;
 
 procedure TestDateTimePickerToOLDateTime.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -538,6 +619,63 @@ begin
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
 end;
 
+procedure TestDateTimePickerToOLDateTime.TestOnChangeIsSetAfterLink;
+begin
+  {$IF CompilerVersion >= 34.0}
+  CheckTrue(Assigned(FValue.OnChange), 
+    'OnChange should be assigned after linking in SetUp');
+  {$ELSE}
+  Check(True, 'OnChange not available in this Delphi version');
+  {$IFEND}
+end;
+
+procedure TestDateTimePickerToOLDateTime.TestMultipleLinkCycles;
+var
+  TestDateTime: TDateTime;
+  Picker2: TDateTimePicker;
+  Value2: OLDateTime;
+begin
+  // First cycle already done in SetUp
+  TestDateTime := EncodeDate(2025, 12, 25) + EncodeTime(10, 30, 0, 0);
+  FValue := TestDateTime;
+  CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'First cycle should work');
+  
+  // Second cycle - simulate reopening form
+  Picker2 := TDateTimePicker.Create(FForm);
+  Picker2.Parent := FForm;
+  Picker2.Format := 'dd/MM/yyyy HH:mm:ss';
+  Picker2.Kind := dtkDateTime;
+  System.Initialize(Value2);
+  Value2 := OLDateTime.Now;
+  Picker2.Link(Value2);
+  
+  {$IF CompilerVersion >= 34.0}
+  CheckTrue(Assigned(Value2.OnChange), 'OnChange should be set on second link');
+  {$IFEND}
+  
+  TestDateTime := EncodeDate(2024, 6, 15) + EncodeTime(14, 45, 30, 0);
+  Value2 := TestDateTime;
+  CheckEquals(TestDateTime, Picker2.DateTime, 0.001, 
+    'Second cycle: value change should update picker');
+  
+  Picker2.Free;
+end;
+
+procedure TestDateTimePickerToOLDateTime.TestValueChangeTriggersPickerUpdate;
+var
+  TestDateTime1, TestDateTime2: TDateTime;
+begin
+  TestDateTime1 := EncodeDate(2025, 1, 1) + EncodeTime(12, 0, 0, 0);
+  TestDateTime2 := EncodeDate(2025, 6, 15) + EncodeTime(15, 30, 0, 0);
+  
+  FValue := TestDateTime1;
+  CheckEquals(TestDateTime1, FPicker.DateTime, 0.001, 'First update should work');
+  
+  FValue := TestDateTime2;
+  CheckEquals(TestDateTime2, FPicker.DateTime, 0.001, 
+    'Second update should work - this was failing when OnChange was not set');
+end;
+
 { TestCheckBoxToOLBoolean }
 
 procedure TestCheckBoxToOLBoolean.SetUp;
@@ -545,6 +683,7 @@ begin
   FForm := TForm.Create(nil);
   FCheckBox := TCheckBox.Create(FForm);
   FCheckBox.Parent := FForm;
+  System.Finalize(FValue);
   System.Initialize(FValue);
   FValue := True;
   FCheckBox.Link(FValue);
@@ -552,6 +691,7 @@ end;
 
 procedure TestCheckBoxToOLBoolean.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -610,6 +750,7 @@ end;
 
 procedure TestOLTypesToControlsLinks.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
@@ -760,6 +901,8 @@ begin
   CheckEquals('777', FEdit1.Text, 'RefreshControls should update display');
 end;
 
+
+
 procedure TestOLTypesToControlsLinks.TestCalculationError;
 var
   Calc: TFunctionReturningOLInteger;
@@ -783,6 +926,7 @@ end;
 
 procedure TestMemorySafety.TearDown;
 begin
+  Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
