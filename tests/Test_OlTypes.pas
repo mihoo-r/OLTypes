@@ -467,8 +467,8 @@ begin
   Check(d.RecodedYear(2000) = d2);
 
   d2.SetToday;
-  d2.Month := 2 ;
-  Check(d.RecodedMonth(2) = d2);
+  d2.Month := 12 ;
+  Check(d.RecodedMonth(12) = d2);
 
   d2.SetToday;
   d2.Day := 6 ;
@@ -486,8 +486,8 @@ begin
   Check(dt.RecodedYear(2000) = dt2);
 
   dt2.SetToday;
-  dt2.Month := 2 ;
-  Check(dt.RecodedMonth(2) = dt2);
+  dt2.Month := 12 ;
+  Check(dt.RecodedMonth(12) = dt2);
 
   dt2.SetToday;
   dt2.Day := 6 ;

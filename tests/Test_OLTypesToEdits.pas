@@ -7,12 +7,24 @@ uses
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, OLTypes, OLTypesToEdits;
 
 type
+  TestForm = class(TForm)
+  public
+    FInt: OLInteger;
+    FDouble: OLDouble;
+    FCurrency: OLCurrency;
+    FString: OLString;
+    FDate: OLDate;
+    FDateTime: OLDateTime;
+    FBoolean: OLBoolean;
+    constructor CreateNew(AOwner: TComponent; Dummy: Integer); override;
+  end;
+
+type
   // Test class for TEditToOLInteger binding
   TestEditToOLInteger = class(TTestCase)
   private
     FEdit: TEdit;
-    FValue: OLInteger;
-    FForm: TForm;
+    FForm: TestForm;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -28,24 +40,24 @@ type
   TestEditToOLString = class(TTestCase)
   private
     FEdit: TEdit;
-    FValue: OLString;
-    FForm: TForm;
+    FForm: TestForm;
+    procedure TestEmptyString;
+    procedure TestSpecialCharacters;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
   published
     procedure TestEditToValueSync;
     procedure TestValueToEditSync;
-    procedure TestEmptyString;
-    procedure TestSpecialCharacters;
+    procedure TestNullHandling;
+    procedure TestEmptyStringToNull;
   end;
 
   // Test class for TEditToOLDouble binding
   TestEditToOLDouble = class(TTestCase)
   private
     FEdit: TEdit;
-    FValue: OLDouble;
-    FForm: TForm;
+    FForm: TestForm;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -60,8 +72,7 @@ type
   TestEditToOLCurrency = class(TTestCase)
   private
     FEdit: TEdit;
-    FValue: OLCurrency;
-    FForm: TForm;
+    FForm: TestForm;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -76,8 +87,7 @@ type
   TestSpinEditToOLInteger = class(TTestCase)
   private
     FSpinEdit: TSpinEdit;
-    FValue: OLInteger;
-    FForm: TForm;
+    FForm: TestForm;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -91,8 +101,7 @@ type
   TestDateTimePickerToOLDate = class(TTestCase)
   private
     FPicker: TDateTimePicker;
-    FValue: OLDate;
-    FForm: TForm;
+    FForm: TestForm;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -110,8 +119,7 @@ type
   TestDateTimePickerToOLDateTime = class(TTestCase)
   private
     FPicker: TDateTimePicker;
-    FValue: OLDateTime;
-    FForm: TForm;
+    FForm: TestForm;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -129,8 +137,7 @@ type
   TestCheckBoxToOLBoolean = class(TTestCase)
   private
     FCheckBox: TCheckBox;
-    FValue: OLBoolean;
-    FForm: TForm;
+    FForm: TestForm;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -143,14 +150,7 @@ type
   // Test class for TOLTypesToControlsLinks (integration tests)
   TestOLTypesToControlsLinks = class(TTestCase)
   private
-    FForm: TForm;
-    FIntValue: OLInteger;
-    FStrValue: OLString;
-    FDblValue: OLDouble;
-    FCurrValue: OLCurrency;
-    FDateValue: OLDate;
-    FDateTimeValue: OLDateTime;
-    FBoolValue: OLBoolean;
+    FForm: TestForm;
     FEdit1: TEdit;
     FEdit2: TEdit;
     FLabel1: TLabel;
@@ -199,13 +199,13 @@ uses
 
 procedure TestEditToOLInteger.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
-  System.Finalize(FValue);
-  System.Initialize(FValue);  // Clear OnChange from previous test run
-  FValue := 100;
-  FEdit.Link(FValue);
+  System.Finalize(FForm.FInt);
+  System.Initialize(FForm.FInt);  // Clear OnChange from previous test run
+  FForm.FInt := 100;
+  FEdit.Link(FForm.FInt);
 end;
 
 procedure TestEditToOLInteger.TearDown;
@@ -217,13 +217,13 @@ end;
 procedure TestEditToOLInteger.TestEditToValueSync;
 begin
   FEdit.Text := '250';
-  
-  CheckEquals(250, Integer(FValue), 'Value should be synced from Edit');
+
+  CheckEquals(250, Integer(FForm.FInt), 'Value should be synced from Edit');
 end;
 
 procedure TestEditToOLInteger.TestValueToEditSync;
 begin
-  FValue := 500;
+  FForm.FInt := 500;
 
   CheckEquals('500', FEdit.Text, 'Edit should display new value');
 end;
@@ -232,30 +232,30 @@ procedure TestEditToOLInteger.TestNullHandling;
 begin
   FEdit.Text := '1';
   FEdit.Text := '';
-  
-  CheckTrue(FValue.IsNull, 'Empty string should set value to NULL');
+
+  CheckTrue(FForm.FInt.IsNull, 'Empty string should set value to NULL');
 end;
 
 procedure TestEditToOLInteger.TestInvalidInput;
 var
   OldValue: OLInteger;
 begin
-  FValue := 100;
-  OldValue := FValue;
-  
+  FForm.FInt := 100;
+  OldValue := FForm.FInt;
+
   FEdit.Text := 'invalid';
-  
-  CheckEquals(Integer(OldValue), Integer(FValue), 'Invalid input should not change value');
+
+  CheckEquals(Integer(OldValue), Integer(FForm.FInt), 'Invalid input should not change value');
 end;
 
 procedure TestEditToOLInteger.TestEmptyStringToNull;
 begin
   FEdit.Text := '41';//To force OnChange when set to ''
-  FValue := 42;
+  FForm.FInt := 42;
   FEdit.Text := '';
-  
-  CheckTrue(FValue.IsNull, 'Empty string should result in NULL');
-  
+
+  CheckTrue(FForm.FInt.IsNull, 'Empty string should result in NULL');
+
   CheckEquals('', FEdit.Text, 'NULL should display as empty string');
 end;
 
@@ -263,13 +263,13 @@ end;
 
 procedure TestEditToOLString.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
-  System.Finalize(FValue);
-  System.Initialize(FValue);  // Clear OnChange from previous test run
-  FValue := 'Initial Value';
-  FEdit.Link(FValue);
+  System.Finalize(FForm.FString);
+  System.Initialize(FForm.FString);  // Clear OnChange from previous test run
+  FForm.FString := 'Initial Value';
+  FEdit.Link(FForm.FString);
 end;
 
 procedure TestEditToOLString.TearDown;
@@ -281,14 +281,14 @@ end;
 procedure TestEditToOLString.TestEditToValueSync;
 begin
   FEdit.Text := 'New Text';
-  
-  CheckEquals('New Text', string(FValue), 'Value should be synced from Edit');
+
+  CheckEquals('New Text', string(FForm.FString), 'Value should be synced from Edit');
 end;
 
 procedure TestEditToOLString.TestValueToEditSync;
 begin
-  FValue := 'Updated Value';
-  
+  FForm.FString := 'Updated Value';
+
   CheckEquals('Updated Value', FEdit.Text, 'Edit should display new value');
 end;
 
@@ -296,29 +296,47 @@ procedure TestEditToOLString.TestEmptyString;
 begin
   FEdit.Text := 'not null';
   FEdit.Text := '';
-  
+
   // OLString uses empty string, not NULL for empty
-  CheckEquals('', string(FValue), 'Empty string should be preserved');
+  CheckEquals('', string(FForm.FString), 'Empty string should be preserved');
+end;
+
+procedure TestEditToOLString.TestEmptyStringToNull;
+begin
+  FEdit.Text := '';
+
+  CheckEquals('', string(FForm.FString), 'Empty string should be preserved');
+  CheckFalse(FForm.FString.IsNull, 'Empty string should not be NULL');
+end;
+
+procedure TestEditToOLString.TestNullHandling;
+begin
+  FForm.FString := Null;
+
+  CheckEquals('', FEdit.Text, 'NULL should display as empty string');
+
+  //When you see it in an Edit, that it is an empty string it is no longer unknown, Null.
+  CheckTrue(FForm.FString.IsEmptyStr, 'Value should be an empty string');
 end;
 
 procedure TestEditToOLString.TestSpecialCharacters;
 begin
   FEdit.Text := 'Line1'#13#10'Line2';
-  
-  CheckEquals('Line1'#13#10'Line2', string(FValue), 'Special characters should be preserved');
+
+  CheckEquals('Line1'#13#10'Line2', string(FForm.FString), 'Special characters should be preserved');
 end;
 
 { TestEditToOLDouble }
 
 procedure TestEditToOLDouble.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
-  System.Finalize(FValue);
-  System.Initialize(FValue);  // Clear OnChange from previous test run
-  FValue := 123.456;
-  FEdit.Link(FValue);
+  System.Finalize(FForm.FDouble);
+  System.Initialize(FForm.FDouble);  // Clear OnChange from previous test run
+  FForm.FDouble := 123.456;
+  FEdit.Link(FForm.FDouble);
 end;
 
 procedure TestEditToOLDouble.TearDown;
@@ -330,14 +348,14 @@ end;
 procedure TestEditToOLDouble.TestEditToValueSync;
 begin
   FEdit.Text := FloatToStr(999.99);
-  
-  CheckEquals(999.99, Double(FValue), 0.001, 'Value should be synced from Edit');
+
+  CheckEquals(999.99, Double(FForm.FDouble), 0.001, 'Value should be synced from Edit');
 end;
 
 procedure TestEditToOLDouble.TestValueToEditSync;
 begin
-  FValue := 456.789;
-  
+  FForm.FDouble := 456.789;
+
   // Check that value is displayed (format may vary)
   CheckTrue(Pos('456', FEdit.Text) > 0, 'Edit should contain the value');
 end;
@@ -347,13 +365,13 @@ begin
   FEdit.Text := '1';
   FEdit.Text := '';//force OnChange
 
-  CheckTrue(FValue.IsNull, 'Empty string should set value to NULL');
+  CheckTrue(FForm.FDouble.IsNull, 'Empty string should set value to NULL');
 end;
 
 procedure TestEditToOLDouble.TestFormatting;
 begin
-  FValue := 1234.5678;
-  
+  FForm.FDouble := 1234.5678;
+
   // When not focused, should have thousand separator
   // This is a basic check - actual formatting depends on locale
   CheckTrue(FEdit.Text <> '', 'Value should be formatted and displayed');
@@ -363,13 +381,13 @@ end;
 
 procedure TestEditToOLCurrency.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FEdit := TEdit.Create(FForm);
   FEdit.Parent := FForm;
-  System.Finalize(FValue);
-  System.Initialize(FValue);  // Clear OnChange from previous test run
-  FValue := 1000.50;
-  FEdit.Link(FValue);
+  System.Finalize(FForm.FCurrency);
+  System.Initialize(FForm.FCurrency);  // Clear OnChange from previous test run
+  FForm.FCurrency := 1000.50;
+  FEdit.Link(FForm.FCurrency);
 end;
 
 procedure TestEditToOLCurrency.TearDown;
@@ -381,14 +399,14 @@ end;
 procedure TestEditToOLCurrency.TestEditToValueSync;
 begin
   FEdit.Text := CurrToStr(500.25);
-  
-  CheckEquals(500.25, Double(FValue), 0.001, 'Value should be synced from Edit');
+
+  CheckEquals(500.25, Double(FForm.FCurrency), 0.001, 'Value should be synced from Edit');
 end;
 
 procedure TestEditToOLCurrency.TestValueToEditSync;
 begin
-  FValue := 999.99;
-  
+  FForm.FCurrency := 999.99;
+
   CheckTrue(Pos('999', FEdit.Text) > 0, 'Edit should contain the value');
 end;
 
@@ -405,21 +423,21 @@ procedure TestEditToOLCurrency.TestNullHandling;
 begin
   FEdit.Text := '1';
   FEdit.Text := '';//force OnChange
-  
-  CheckTrue(FValue.IsNull, 'Empty string should set value to NULL');
+
+  CheckTrue(FForm.FCurrency.IsNull, 'Empty string should set value to NULL');
 end;
 
 { TestSpinEditToOLInteger }
 
 procedure TestSpinEditToOLInteger.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FSpinEdit := TSpinEdit.Create(FForm);
   FSpinEdit.Parent := FForm;
-  System.Finalize(FValue);
-  System.Initialize(FValue);  // Clear OnChange from previous test run
-  FValue := 50;
-  FSpinEdit.Link(FValue);
+  System.Finalize(FForm.FInt);
+  System.Initialize(FForm.FInt);  // Clear OnChange from previous test run
+  FForm.FInt := 50;
+  FSpinEdit.Link(FForm.FInt);
 end;
 
 procedure TestSpinEditToOLInteger.TearDown;
@@ -432,36 +450,36 @@ procedure TestSpinEditToOLInteger.TestSpinToValueSync;
 begin
   FSpinEdit.Value := 75;
   FSpinEdit.Text := '75';
-  
-  CheckEquals(75, Integer(FValue), 'Value should be synced from SpinEdit');
+
+  CheckEquals(75, Integer(FForm.FInt), 'Value should be synced from SpinEdit');
 end;
 
 procedure TestSpinEditToOLInteger.TestValueToSpinSync;
 begin
-  FValue := 100;
-  
+  FForm.FInt := 100;
+
   CheckEquals('100', FSpinEdit.Text, 'SpinEdit should display new value');
 end;
 
 procedure TestSpinEditToOLInteger.TestNullHandling;
 begin
   FSpinEdit.Text := '';
-  
-  CheckTrue(FValue.IsNull, 'Empty string should set value to NULL');
+
+  CheckTrue(FForm.FInt.IsNull, 'Empty string should set value to NULL');
 end;
 
 { TestDateTimePickerToOLDate }
 
 procedure TestDateTimePickerToOLDate.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FPicker := TDateTimePicker.Create(FForm);
   FPicker.Parent := FForm;
   FPicker.Format := 'dd/MM/yyyy';
-  System.Finalize(FValue);
-  System.Initialize(FValue);
-  FValue := OLDate.Today;
-  FPicker.Link(FValue);
+  System.Finalize(FForm.FDate);
+  System.Initialize(FForm.FDate);
+  FForm.FDate := OLDate.Today;
+  FPicker.Link(FForm.FDate);
 end;
 
 procedure TestDateTimePickerToOLDate.TearDown;
@@ -476,8 +494,8 @@ var
 begin
   TestDate := EncodeDate(2025, 11, 22);
   FPicker.Date := TestDate;
-  
-  CheckEquals(TestDate, TDate(FValue), 'Value should be synced from DateTimePicker');
+
+  CheckEquals(TestDate, TDate(FForm.FDate), 'Value should be synced from DateTimePicker');
 end;
 
 procedure TestDateTimePickerToOLDate.TestValueToPickerSync;
@@ -485,23 +503,23 @@ var
   TestDate: TDate;
 begin
   TestDate := EncodeDate(2024, 1, 1);
-  FValue := TestDate;
-  
+  FForm.FDate := TestDate;
+
   CheckEquals(TestDate, FPicker.Date, 'DateTimePicker should display new value');
 end;
 
 procedure TestDateTimePickerToOLDate.TestNullHandling;
 begin
-  FValue := Null;
-  
+  FForm.FDate := Null;
+
   // When NULL, format should change to NULL_FORMAT
-  CheckTrue(FValue.IsNull, 'Value should be NULL');
+  CheckTrue(FForm.FDate.IsNull, 'Value should be NULL');
 end;
 
 procedure TestDateTimePickerToOLDate.TestNullFormatDisplay;
 begin
-  FValue := Null;
-  
+  FForm.FDate := Null;
+
   // Check that format changed to "- - -"
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
 end;
@@ -509,7 +527,7 @@ end;
 procedure TestDateTimePickerToOLDate.TestOnChangeIsSetAfterLink;
 begin
   {$IF CompilerVersion >= 34.0}
-  CheckTrue(Assigned(FValue.OnChange), 
+  CheckTrue(Assigned(FForm.FDate.OnChange),
     'OnChange should be assigned after linking in SetUp');
   {$ELSE}
   Check(True, 'OnChange not available in this Delphi version');
@@ -524,24 +542,24 @@ var
 begin
   // First cycle already done in SetUp
   TestDate := EncodeDate(2025, 12, 25);
-  FValue := TestDate;
+  FForm.FDate := TestDate;
   CheckEquals(TestDate, FPicker.Date, 'First cycle should work');
   
   // Second cycle - simulate reopening form
   Picker2 := TDateTimePicker.Create(FForm);
   Picker2.Parent := FForm;
   Picker2.Format := 'dd/MM/yyyy';
-  System.Initialize(Value2);
-  Value2 := OLDate.Today;
-  Picker2.Link(Value2);
-  
+  System.Initialize(FForm.FDate);
+  FForm.FDate := OLDate.Today;
+  Picker2.Link(FForm.FDate);
+
   {$IF CompilerVersion >= 34.0}
-  CheckTrue(Assigned(Value2.OnChange), 'OnChange should be set on second link');
+  CheckTrue(Assigned(FForm.FDate.OnChange), 'OnChange should be set on second link');
   {$IFEND}
-  
+
   TestDate := EncodeDate(2024, 6, 15);
-  Value2 := TestDate;
-  CheckEquals(TestDate, Picker2.Date, 
+  FForm.FDate := TestDate;
+  CheckEquals(TestDate, Picker2.Date,
     'Second cycle: value change should update picker');
   
   Picker2.Free;
@@ -553,12 +571,12 @@ var
 begin
   TestDate1 := EncodeDate(2025, 1, 1);
   TestDate2 := EncodeDate(2025, 6, 15);
-  
-  FValue := TestDate1;
+
+  FForm.FDate := TestDate1;
   CheckEquals(TestDate1, FPicker.Date, 'First update should work');
-  
-  FValue := TestDate2;
-  CheckEquals(TestDate2, FPicker.Date, 
+
+  FForm.FDate := TestDate2;
+  CheckEquals(TestDate2, FPicker.Date,
     'Second update should work - this was failing when OnChange was not set');
 end;
 
@@ -566,15 +584,15 @@ end;
 
 procedure TestDateTimePickerToOLDateTime.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FPicker := TDateTimePicker.Create(FForm);
   FPicker.Parent := FForm;
   FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
   FPicker.Kind := dtkDateTime;
-  System.Finalize(FValue);
-  System.Initialize(FValue);
-  FValue := OLDateTime.Now;
-  FPicker.Link(FValue);
+  System.Finalize(FForm.FDateTime);
+  System.Initialize(FForm.FDateTime);
+  FForm.FDateTime := OLDateTime.Now;
+  FPicker.Link(FForm.FDateTime);
 end;
 
 procedure TestDateTimePickerToOLDateTime.TearDown;
@@ -589,8 +607,8 @@ var
 begin
   TestDateTime := EncodeDate(2025, 11, 22) + EncodeTime(14, 30, 45, 0);
   FPicker.DateTime := TestDateTime;
-  
-  CheckEquals(TestDateTime, TDateTime(FValue), 0.001, 'Value should be synced from DateTimePicker');
+
+  CheckEquals(TestDateTime, TDateTime(FForm.FDateTime), 0.001, 'Value should be synced from DateTimePicker');
 end;
 
 procedure TestDateTimePickerToOLDateTime.TestValueToPickerSync;
@@ -598,23 +616,23 @@ var
   TestDateTime: TDateTime;
 begin
   TestDateTime := EncodeDate(2024, 1, 1) + EncodeTime(10, 15, 30, 0);
-  FValue := TestDateTime;
-  
+  FForm.FDateTime := TestDateTime;
+
   CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'DateTimePicker should display new value');
 end;
 
 procedure TestDateTimePickerToOLDateTime.TestNullHandling;
 begin
-  FValue := Null;
-  
+  FForm.FDateTime := Null;
+
   // When NULL, format should change to NULL_FORMAT
-  CheckTrue(FValue.IsNull, 'Value should be NULL');
+  CheckTrue(FForm.FDateTime.IsNull, 'Value should be NULL');
 end;
 
 procedure TestDateTimePickerToOLDateTime.TestNullFormatDisplay;
 begin
-  FValue := Null;
-  
+  FForm.FDateTime := Null;
+
   // Check that format changed to "- - -"
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
 end;
@@ -622,7 +640,7 @@ end;
 procedure TestDateTimePickerToOLDateTime.TestOnChangeIsSetAfterLink;
 begin
   {$IF CompilerVersion >= 34.0}
-  CheckTrue(Assigned(FValue.OnChange), 
+  CheckTrue(Assigned(FForm.FDateTime.OnChange),
     'OnChange should be assigned after linking in SetUp');
   {$ELSE}
   Check(True, 'OnChange not available in this Delphi version');
@@ -633,11 +651,10 @@ procedure TestDateTimePickerToOLDateTime.TestMultipleLinkCycles;
 var
   TestDateTime: TDateTime;
   Picker2: TDateTimePicker;
-  Value2: OLDateTime;
 begin
   // First cycle already done in SetUp
   TestDateTime := EncodeDate(2025, 12, 25) + EncodeTime(10, 30, 0, 0);
-  FValue := TestDateTime;
+  FForm.FDateTime := TestDateTime;
   CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'First cycle should work');
   
   // Second cycle - simulate reopening form
@@ -645,16 +662,16 @@ begin
   Picker2.Parent := FForm;
   Picker2.Format := 'dd/MM/yyyy HH:mm:ss';
   Picker2.Kind := dtkDateTime;
-  System.Initialize(Value2);
-  Value2 := OLDateTime.Now;
-  Picker2.Link(Value2);
-  
+  System.Initialize(FForm.FDateTime);
+  FForm.FDateTime := OLDateTime.Now;
+  Picker2.Link(FForm.FDateTime);
+
   {$IF CompilerVersion >= 34.0}
-  CheckTrue(Assigned(Value2.OnChange), 'OnChange should be set on second link');
+  CheckTrue(Assigned(FForm.FDateTime.OnChange), 'OnChange should be set on second link');
   {$IFEND}
-  
+
   TestDateTime := EncodeDate(2024, 6, 15) + EncodeTime(14, 45, 30, 0);
-  Value2 := TestDateTime;
+  FForm.FDateTime := TestDateTime;
   CheckEquals(TestDateTime, Picker2.DateTime, 0.001, 
     'Second cycle: value change should update picker');
   
@@ -667,12 +684,12 @@ var
 begin
   TestDateTime1 := EncodeDate(2025, 1, 1) + EncodeTime(12, 0, 0, 0);
   TestDateTime2 := EncodeDate(2025, 6, 15) + EncodeTime(15, 30, 0, 0);
-  
-  FValue := TestDateTime1;
+
+  FForm.FDateTime := TestDateTime1;
   CheckEquals(TestDateTime1, FPicker.DateTime, 0.001, 'First update should work');
-  
-  FValue := TestDateTime2;
-  CheckEquals(TestDateTime2, FPicker.DateTime, 0.001, 
+
+  FForm.FDateTime := TestDateTime2;
+  CheckEquals(TestDateTime2, FPicker.DateTime, 0.001,
     'Second update should work - this was failing when OnChange was not set');
 end;
 
@@ -680,13 +697,13 @@ end;
 
 procedure TestCheckBoxToOLBoolean.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FCheckBox := TCheckBox.Create(FForm);
   FCheckBox.Parent := FForm;
-  System.Finalize(FValue);
-  System.Initialize(FValue);
-  FValue := True;
-  FCheckBox.Link(FValue);
+  System.Finalize(FForm.FBoolean);
+  System.Initialize(FForm.FBoolean);
+  FForm.FBoolean := True;
+  FCheckBox.Link(FForm.FBoolean);
 end;
 
 procedure TestCheckBoxToOLBoolean.TearDown;
@@ -698,29 +715,29 @@ end;
 procedure TestCheckBoxToOLBoolean.TestCheckBoxToValueSync;
 begin
   FCheckBox.Checked := True;
-  
-  CheckTrue(FValue = True, 'Value should be TRUE when checked');
-  
+
+  CheckTrue(FForm.FBoolean = True, 'Value should be TRUE when checked');
+
   FCheckBox.Checked := False;
-  
-  CheckTrue(FValue = False, 'Value should be FALSE when unchecked');
+
+  CheckTrue(FForm.FBoolean = False, 'Value should be FALSE when unchecked');
 end;
 
 procedure TestCheckBoxToOLBoolean.TestValueToCheckBoxSync;
 begin
-  FValue := True;
-  
+  FForm.FBoolean := True;
+
   CheckTrue(FCheckBox.Checked, 'CheckBox should be checked when value is TRUE');
-  
-  FValue := False;
-  
+
+  FForm.FBoolean := False;
+
   CheckFalse(FCheckBox.Checked, 'CheckBox should be unchecked when value is FALSE');
 end;
 
 procedure TestCheckBoxToOLBoolean.TestNullHandling;
 begin
-  FValue := Null;
-  
+  FForm.FBoolean := Null;
+
   // NULL Boolean should display as unchecked (IfNull(False))
   CheckFalse(FCheckBox.Checked, 'NULL should display as unchecked');
 end;
@@ -729,7 +746,7 @@ end;
 
 procedure TestOLTypesToControlsLinks.SetUp;
 begin
-  FForm := TForm.Create(nil);
+  FForm := TestForm.CreateNew(nil, 0);
   FEdit1 := TEdit.Create(FForm);
   FEdit1.Parent := FForm;
   FEdit2 := TEdit.Create(FForm);
@@ -744,8 +761,27 @@ begin
   FCheckBox1.Parent := FForm;
   FCheckBox2 := TCheckBox.Create(FForm);
   FCheckBox2.Parent := FForm;
-  FIntValue := 100;
-  FStrValue := 'Test';
+  System.Finalize(FForm.FInt);
+  System.Initialize(FForm.FInt);
+  FForm.FInt := 100;
+  System.Finalize(FForm.FString);
+  System.Initialize(FForm.FString);
+  FForm.FString := 'Test';
+  System.Finalize(FForm.FDouble);
+  System.Initialize(FForm.FDouble);
+  FForm.FDouble := 123.456;
+  System.Finalize(FForm.FCurrency);
+  System.Initialize(FForm.FCurrency);
+  FForm.FCurrency := 100.50;
+  System.Finalize(FForm.FDate);
+  System.Initialize(FForm.FDate);
+  FForm.FDate := OLDate.Today;
+  System.Finalize(FForm.FDateTime);
+  System.Initialize(FForm.FDateTime);
+  FForm.FDateTime := OLDateTime.Now;
+  System.Finalize(FForm.FBoolean);
+  System.Initialize(FForm.FBoolean);
+  FForm.FBoolean := False;
 end;
 
 procedure TestOLTypesToControlsLinks.TearDown;
@@ -756,22 +792,22 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestLinkEditToInteger;
 begin
-  FEdit1.Link(FIntValue);
-  
+  FEdit1.Link(FForm.FInt);
+
   CheckEquals('100', FEdit1.Text, 'Edit should display linked value');
 end;
 
 procedure TestOLTypesToControlsLinks.TestLinkEditToString;
 begin
-  FEdit1.Link(FStrValue);
-  
+  FEdit1.Link(FForm.FString);
+
   CheckEquals('Test', FEdit1.Text, 'Edit should display linked string');
 end;
 
 procedure TestOLTypesToControlsLinks.TestLinkLabelToInteger;
 begin
-  FLabel1.Link(FIntValue);
-  
+  FLabel1.Link(FForm.FInt);
+
   CheckEquals('100', FLabel1.Caption, 'Label should display linked value');
 end;
 
@@ -781,7 +817,7 @@ var
 begin
   Calc := function: OLInteger
     begin
-      Result := FIntValue * 2;
+      Result := FForm.FInt * 2;
     end;
   
   FLabel1.Link(Calc);
@@ -791,12 +827,12 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneInteger;
 begin
-  FEdit1.Link(FIntValue);
-  FEdit2.Link(FIntValue);
-  FLabel1.Link(FIntValue);
-  
-  FIntValue := 500;
-  
+  FEdit1.Link(FForm.FInt);
+  FEdit2.Link(FForm.FInt);
+  FLabel1.Link(FForm.FInt);
+
+  FForm.FInt := 500;
+
   CheckEquals('500', FEdit1.Text, 'Edit1 should be synced');
   CheckEquals('500', FEdit2.Text, 'Edit2 should be synced');
   CheckEquals('500', FLabel1.Caption, 'Label should be synced');
@@ -804,11 +840,11 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneString;
 begin
-  FEdit1.Link(FStrValue);
-  FEdit2.Link(FStrValue);
-  FLabel1.Link(FStrValue);
+  FEdit1.Link(FForm.FString);
+  FEdit2.Link(FForm.FString);
+  FLabel1.Link(FForm.FString);
 
-  FStrValue := 'Updated';
+  FForm.FString := 'Updated';
 
   CheckEquals('Updated', FEdit1.Text, 'Edit1 should be synced');
   CheckEquals('Updated', FEdit2.Text, 'Edit2 should be synced');
@@ -817,12 +853,11 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDouble;
 begin
-  FDblValue := 123.456;
-  FEdit1.Link(FDblValue);
-  FEdit2.Link(FDblValue);
-  FLabel1.Link(FDblValue);
+  FEdit1.Link(FForm.FDouble);
+  FEdit2.Link(FForm.FDouble);
+  FLabel1.Link(FForm.FDouble);
 
-  FDblValue := 789.012;
+  FForm.FDouble := 789.012;
 
   CheckTrue(Pos('789', FEdit1.Text) > 0, 'Edit1 should be synced');
   CheckTrue(Pos('789', FEdit2.Text) > 0, 'Edit2 should be synced');
@@ -831,12 +866,11 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneCurrency;
 begin
-  FCurrValue := 100.50;
-  FEdit1.Link(FCurrValue);
-  FEdit2.Link(FCurrValue);
-  FLabel1.Link(FCurrValue);
+  FEdit1.Link(FForm.FCurrency);
+  FEdit2.Link(FForm.FCurrency);
+  FLabel1.Link(FForm.FCurrency);
 
-  FCurrValue := 200.75;
+  FForm.FCurrency := 200.75;
 
   CheckTrue(Pos('200', FEdit1.Text) > 0, 'Edit1 should be synced');
   CheckTrue(Pos('200', FEdit2.Text) > 0, 'Edit2 should be synced');
@@ -847,14 +881,12 @@ procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDate;
 var
   TestDate: TDate;
 begin
-  System.Initialize(FDateValue);
-  FDateValue := OLDate.Today;
-  FPicker1.Link(FDateValue);
-  FPicker2.Link(FDateValue);
-  FLabel1.Link(FDateValue);
+  FPicker1.Link(FForm.FDate);
+  FPicker2.Link(FForm.FDate);
+  FLabel1.Link(FForm.FDate);
 
   TestDate := EncodeDate(2025, 12, 31);
-  FDateValue := TestDate;
+  FForm.FDate := TestDate;
 
   CheckEquals(TestDate, FPicker1.Date, 'Picker1 should be synced');
   CheckEquals(TestDate, FPicker2.Date, 'Picker2 should be synced');
@@ -865,14 +897,12 @@ procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDateTime;
 var
   TestDateTime: TDateTime;
 begin
-  System.Initialize(FDateTimeValue);
-  FDateTimeValue := OLDateTime.Now;
-  FPicker1.Link(FDateTimeValue);
-  FPicker2.Link(FDateTimeValue);
-  FLabel1.Link(FDateTimeValue);
+  FPicker1.Link(FForm.FDateTime);
+  FPicker2.Link(FForm.FDateTime);
+  FLabel1.Link(FForm.FDateTime);
 
   TestDateTime := EncodeDate(2025, 12, 31) + EncodeTime(23, 59, 59, 0);
-  FDateTimeValue := TestDateTime;
+  FForm.FDateTime := TestDateTime;
 
   CheckEquals(TestDateTime, FPicker1.DateTime, 0.001, 'Picker1 should be synced');
   CheckEquals(TestDateTime, FPicker2.DateTime, 0.001, 'Picker2 should be synced');
@@ -881,12 +911,10 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneBoolean;
 begin
-  System.Initialize(FBoolValue);
-  FBoolValue := False;
-  FCheckBox1.Link(FBoolValue);
-  FCheckBox2.Link(FBoolValue);
+  FCheckBox1.Link(FForm.FBoolean);
+  FCheckBox2.Link(FForm.FBoolean);
 
-  FBoolValue := True;
+  FForm.FBoolean := True;
 
   CheckTrue(FCheckBox1.Checked, 'CheckBox1 should be synced');
   CheckTrue(FCheckBox2.Checked, 'CheckBox2 should be synced');
@@ -894,9 +922,9 @@ end;
 
 procedure TestOLTypesToControlsLinks.TestRefreshControls;
 begin
-  FEdit1.Link(FIntValue);
-  
-  FIntValue := 777;
+  FEdit1.Link(FForm.FInt);
+
+  FForm.FInt := 777;
 
   CheckEquals('777', FEdit1.Text, 'RefreshControls should update display');
 end;
@@ -991,6 +1019,11 @@ begin
   end;
   
   CheckTrue(True, 'Form destruction with proper cleanup successful');
+end;
+
+constructor TestForm.CreateNew(AOwner: TComponent; Dummy: Integer);
+begin
+  inherited CreateNew(AOwner, Dummy);
 end;
 
 initialization
