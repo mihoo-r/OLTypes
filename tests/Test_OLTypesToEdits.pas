@@ -215,12 +215,10 @@ end;
 
 procedure TestEditToOLInteger.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FEdit := TEdit.Create(FForm);
-  FEdit.Parent := FForm;
-  System.Finalize(FForm.FInt);
-  System.Initialize(FForm.FInt);  // Clear OnChange from previous test run
-  FForm.FInt := 100;
+   FForm := TestForm.CreateNew(nil, 0);
+   FEdit := TEdit.Create(FForm);
+   FEdit.Parent := FForm;
+   FForm.FInt := 100;
   FEdit.Link(FForm.FInt);
 end;
 
@@ -281,12 +279,10 @@ end;
 
 procedure TestEditToOLString.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FEdit := TEdit.Create(FForm);
-  FEdit.Parent := FForm;
-  System.Finalize(FForm.FString);
-  System.Initialize(FForm.FString);  // Clear OnChange from previous test run
-  FForm.FString := 'Initial Value';
+   FForm := TestForm.CreateNew(nil, 0);
+   FEdit := TEdit.Create(FForm);
+   FEdit.Parent := FForm;
+   FForm.FString := 'Initial Value';
   FEdit.Link(FForm.FString);
 end;
 
@@ -350,12 +346,10 @@ end;
 
 procedure TestEditToOLDouble.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FEdit := TEdit.Create(FForm);
-  FEdit.Parent := FForm;
-  System.Finalize(FForm.FDouble);
-  System.Initialize(FForm.FDouble);  // Clear OnChange from previous test run
-  FForm.FDouble := 123.456;
+   FForm := TestForm.CreateNew(nil, 0);
+   FEdit := TEdit.Create(FForm);
+   FEdit.Parent := FForm;
+   FForm.FDouble := 123.456;
   FEdit.Link(FForm.FDouble);
 end;
 
@@ -403,12 +397,10 @@ end;
 
 procedure TestEditToOLCurrency.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FEdit := TEdit.Create(FForm);
-  FEdit.Parent := FForm;
-  System.Finalize(FForm.FCurrency);
-  System.Initialize(FForm.FCurrency);  // Clear OnChange from previous test run
-  FForm.FCurrency := 1000.50;
+   FForm := TestForm.CreateNew(nil, 0);
+   FEdit := TEdit.Create(FForm);
+   FEdit.Parent := FForm;
+   FForm.FCurrency := 1000.50;
   FEdit.Link(FForm.FCurrency);
 end;
 
@@ -455,12 +447,10 @@ end;
 
 procedure TestSpinEditToOLInteger.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FSpinEdit := TSpinEdit.Create(FForm);
-  FSpinEdit.Parent := FForm;
-  System.Finalize(FForm.FInt);
-  System.Initialize(FForm.FInt);  // Clear OnChange from previous test run
-  FForm.FInt := 50;
+   FForm := TestForm.CreateNew(nil, 0);
+   FSpinEdit := TSpinEdit.Create(FForm);
+   FSpinEdit.Parent := FForm;
+   FForm.FInt := 50;
   FSpinEdit.Link(FForm.FInt);
 end;
 
@@ -498,13 +488,11 @@ end;
 
 procedure TestDateTimePickerToOLDate.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FPicker := TDateTimePicker.Create(FForm);
-  FPicker.Parent := FForm;
-  FPicker.Format := 'dd/MM/yyyy';
-  System.Finalize(FForm.FDate);
-  System.Initialize(FForm.FDate);
-  FForm.FDate := OLDate.Today;
+   FForm := TestForm.CreateNew(nil, 0);
+   FPicker := TDateTimePicker.Create(FForm);
+   FPicker.Parent := FForm;
+   FPicker.Format := 'dd/MM/yyyy';
+   FForm.FDate := OLDate.Today;
   FPicker.Link(FForm.FDate);
 end;
 
@@ -621,13 +609,11 @@ end;
 
 procedure TestDateTimePickerToOLDateTime.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FPicker := TDateTimePicker.Create(FForm);
-  FPicker.Parent := FForm;
-  FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
-  System.Finalize(FForm.FDateTime);
-  System.Initialize(FForm.FDateTime);
-  FForm.FDateTime := OLDateTime.Now;
+   FForm := TestForm.CreateNew(nil, 0);
+   FPicker := TDateTimePicker.Create(FForm);
+   FPicker.Parent := FForm;
+   FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
+   FForm.FDateTime := OLDateTime.Now;
   FPicker.Link(FForm.FDateTime);
 end;
 
@@ -749,12 +735,10 @@ end;
 
 procedure TestCheckBoxToOLBoolean.SetUp;
 begin
-  FForm := TestForm.CreateNew(nil, 0);
-  FCheckBox := TCheckBox.Create(FForm);
-  FCheckBox.Parent := FForm;
-  System.Finalize(FForm.FBoolean);
-  System.Initialize(FForm.FBoolean);
-  FForm.FBoolean := True;
+   FForm := TestForm.CreateNew(nil, 0);
+   FCheckBox := TCheckBox.Create(FForm);
+   FCheckBox.Parent := FForm;
+   FForm.FBoolean := True;
   FCheckBox.Link(FForm.FBoolean);
 end;
 
@@ -814,29 +798,15 @@ begin
   FPicker2.Parent := FForm;
   FCheckBox1 := TCheckBox.Create(FForm);
   FCheckBox1.Parent := FForm;
-  FCheckBox2 := TCheckBox.Create(FForm);
-  FCheckBox2.Parent := FForm;
-  System.Finalize(FForm.FInt);
-  System.Initialize(FForm.FInt);
-  FForm.FInt := 100;
-  System.Finalize(FForm.FString);
-  System.Initialize(FForm.FString);
-  FForm.FString := 'Test';
-  System.Finalize(FForm.FDouble);
-  System.Initialize(FForm.FDouble);
-  FForm.FDouble := 123.456;
-  System.Finalize(FForm.FCurrency);
-  System.Initialize(FForm.FCurrency);
-  FForm.FCurrency := 100.50;
-  System.Finalize(FForm.FDate);
-  System.Initialize(FForm.FDate);
-  FForm.FDate := OLDate.Today;
-  System.Finalize(FForm.FDateTime);
-  System.Initialize(FForm.FDateTime);
-  FForm.FDateTime := OLDateTime.Now;
-  System.Finalize(FForm.FBoolean);
-  System.Initialize(FForm.FBoolean);
-  FForm.FBoolean := False;
+   FCheckBox2 := TCheckBox.Create(FForm);
+   FCheckBox2.Parent := FForm;
+   FForm.FInt := 100;
+   FForm.FString := 'Test';
+   FForm.FDouble := 123.456;
+   FForm.FCurrency := 100.50;
+   FForm.FDate := OLDate.Today;
+   FForm.FDateTime := OLDateTime.Now;
+   FForm.FBoolean := False;
 end;
 
 procedure TestOLTypesToControlsLinks.TearDown;
