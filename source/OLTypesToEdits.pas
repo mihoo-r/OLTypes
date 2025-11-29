@@ -1,10 +1,10 @@
 unit OLTypesToEdits;
 
-{$IF CompilerVersion >= 34.0}
+
 
 interface
 
-uses OLTypes, System.Generics.Collections,
+uses OLTypes, {$IF CompilerVersion >= 23.0} System.Generics.Collections, {$ELSE} Generics.Collections, {$IFEND}
   {$IF CompilerVersion >= 23.0}
   Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms,
   System.Classes, Vcl.Controls, Messages, Winapi.Windows, Vcl.ExtCtrls,
@@ -439,7 +439,12 @@ type
 implementation
 
 uses
-  System.Variants, SmartToDate;
+  {$IF CompilerVersion >= 23.0}
+  System.Variants,
+  {$ELSE}
+  Variants,
+  {$IFEND}
+  SmartToDate;
 
 const
   NULL_FORMAT = '- - -';
@@ -1901,7 +1906,11 @@ var
   fs: TFormatSettings;
   s: string;
 begin
+  {$IF CompilerVersion >= 22.0}
   fs := TFormatSettings.Create();
+  {$ELSE}
+  GetLocaleFormatSettings(LOCALE_USER_DEFAULT, fs);
+  {$IFEND}
 
   if OLPointer <> nil then
   begin
@@ -1983,7 +1992,11 @@ var
   fs: TFormatSettings;
   s: string;
 begin
+  {$IF CompilerVersion >= 22.0}
   fs := TFormatSettings.Create();
+  {$ELSE}
+  GetLocaleFormatSettings(LOCALE_USER_DEFAULT, fs);
+  {$IFEND}
 
   if OLPointer <> nil then
   begin
@@ -2315,6 +2328,8 @@ end;
 destructor TOLTypesToControlsLinks.Destroy;
 var
   List: TObjectList<TOLLinkBase>;
+  Timer: TTimer;
+  Obj: TObject;
 begin
   if Assigned(FLinks) then
   begin
@@ -2325,7 +2340,7 @@ begin
   if Assigned(FTimers) then
   begin
     // Free all timers to avoid leaks and AVs
-    for var Timer in FTimers.Values do
+    for Timer in FTimers.Values do
     begin
       Timer.Enabled := False;
       Timer.Free;
@@ -2336,7 +2351,7 @@ begin
     FWatchers.Free;
   if Assigned(FObservers) then
   begin
-    for var Obj in FObservers.Values do
+    for Obj in FObservers.Values do
       Obj.Free;
     FObservers.Free;
   end;
@@ -2350,6 +2365,7 @@ var
   List: TObjectList<TOLLinkBase>;
   Timer: TTimer;
   Watcher: TOLFormWatcher;
+  NeedTimer: Boolean;
 begin
   if not Assigned(Control) then
     raise Exception.Create('Control cannot be nil in AddLink.');
@@ -2376,7 +2392,6 @@ begin
   List.Add(Link);
 
   // Ensure Timer
-  var NeedTimer: Boolean;
   NeedTimer := False;
   {$IF CompilerVersion < 34.0}
   NeedTimer := True;
@@ -3084,6 +3099,6 @@ initialization
 finalization
   OLLinks.Free;
 
-{$IFEND}
+
 
 end.

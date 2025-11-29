@@ -3,7 +3,16 @@ unit OLFormHelper;
 interface
 
 uses
-   Vcl.Forms, OLTypes, System.Classes, System.Generics.Collections;
+   {$IF CompilerVersion >= 23.0}
+   Vcl.Forms,
+   System.Classes,
+   System.Generics.Collections,
+   {$ELSE}
+   Forms,
+   Classes,
+   Generics.Collections,
+   {$IFEND}
+   OLTypes;
 
 type
 

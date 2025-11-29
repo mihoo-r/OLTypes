@@ -4,7 +4,7 @@ interface
 
 uses
   Variants, SysUtils, DateUtils, OlBooleanType, OLIntegerType, OLDoubleType,
-  System.Classes;
+  {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
   OLDateTime = record
@@ -578,7 +578,7 @@ begin
   {$if CompilerVersion > 22} // Delphi XE or later
      Result := SysUtils.FormatSettings.LongMonthNames[Self.Month.AsInteger()];
   {$else}
-    Result := LongMonthNames[Self.Month];
+    Result := LongMonthNames[Self.Month.AsInteger()];
   {$ifend}
 end;
 
@@ -587,7 +587,7 @@ begin
   {$if CompilerVersion > 22} // Delphi XE or later
      Result := SysUtils.FormatSettings.ShortMonthNames[Self.Month.AsInteger()];
   {$else}
-    Result := ShortMonthNames[Self.Month];
+    Result := ShortMonthNames[Self.Month.AsInteger()];
   {$ifend}
 end;
 
@@ -999,7 +999,7 @@ begin
   {$if CompilerVersion > 22} // Delphi XE or later
      Result := SysUtils.FormatSettings.ShortDayNames[DayOfWeek(Self.FValue)];
   {$else}
-    Result := ShortDayNames[DayOfWeek(Self.Value)];
+    Result := ShortDayNames[DayOfWeek(Self.FValue)];
   {$ifend}
 
 end;

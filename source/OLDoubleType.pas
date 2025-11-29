@@ -3,7 +3,7 @@ unit OLDoubleType;
 interface
 
 uses
-  variants, SysUtils, Math, Types, OLBooleanType, System.Classes;
+  variants, SysUtils, Math, Types, OLBooleanType, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
   OLDouble = record

@@ -4,7 +4,7 @@ interface
 
 uses
   Variants, SysUtils, DateUtils, OlBooleanType, OLIntegerType, OLDoubleType, OLDateTimeType,
-  SmartToDate, System.Classes;
+  SmartToDate, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
   OLDate = record

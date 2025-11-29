@@ -3,7 +3,7 @@ unit OLBooleanType;
 interface
 
 uses
-  Variants, SysUtils, System.Classes;
+  Variants, SysUtils, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
   OLBoolean = record
@@ -318,7 +318,10 @@ begin
   {$IF CompilerVersion >= 34.0}
   FHasValue := Value;
   {$ELSE}
-  FHasValue := OLBoolValue.IfThen(' ', '');
+  if Value then
+    FHasValue := ' '
+  else
+    FHasValue := '';
   {$IFEND}
 end;
 

@@ -3,9 +3,15 @@
 interface
 
 uses
+  {$IF CompilerVersion >= 23.0}
   System.Generics.Collections,
   System.Generics.Defaults,
   System.SysUtils,
+  {$ELSE}
+  Generics.Collections,
+  Generics.Defaults,
+  SysUtils,
+  {$IFEND}
   // Your original type modules
   OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
   OLIntegerType, OLInt64Type, OLStringType;
@@ -53,7 +59,11 @@ type
 
     function LastItemIndex: Integer;
     function ContainsValue(const v: T): Boolean;
+    {$IF CompilerVersion >= 23.0} // XE2+
     function Distinct(const Comparer: IEqualityComparer<T> = nil): OLArray<T>;
+    {$ELSE}
+    function Distinct(const Comparer: IEqualityComparer<T>): OLArray<T>;
+    {$IFEND}
     function Reversed: OLArray<T>;
     function GetEnumerator: TEnumerator<T>;
 
@@ -362,7 +372,20 @@ end;
 
 function OLArray<T>.Sorted: OLArray<T>;
 begin
-  Result.arr := System.Copy(self.arr);
+  {$IF CompilerVersion >= 24.0}
+    // XE3+ → Copy works correctly for generic dynamic arrays
+    Result.arr := System.Copy(Self.arr);
+  {$ELSE}
+    // Older Delphi versions: manual array copy required
+    if System.Length(Self.arr) > 0 then
+    begin
+      System.SetLength(Result.arr, System.Length(Self.arr));
+      System.Move(Self.arr[0], Result.arr[0], System.Length(Self.arr));
+    end
+    else
+      System.SetLength(Result.arr, 0);
+  {$IFEND}
+
   TArray.Sort<T>(Result.arr);
   Result.FSorted := True;
 end;
@@ -691,6 +714,7 @@ begin
   end;
   FEngine.FSorted := True;
 end;
+
 function OLStringArray.Sorted: OLStringArray;
 begin
   Result.FEngine := FEngine;

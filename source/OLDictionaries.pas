@@ -5,9 +5,15 @@ interface
 {$IF CompilerVersion >= 34.0}
 
 uses
+  {$IF CompilerVersion >= 23.0}
   System.SysUtils,
   System.Generics.Collections,
   System.Generics.Defaults,
+  {$ELSE}
+  SysUtils,
+  Generics.Collections,
+  Generics.Defaults,
+  {$IFEND}
   // Twoje typy
   OLBooleanType,
   OLCurrencyType,
@@ -32,7 +38,11 @@ type
   public
     class operator Initialize(out Dest: OLGenericDictionary<K, V>);
     class operator Finalize(var Dest: OLGenericDictionary<K, V>);
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLGenericDictionary<K, V>; const [ref] Src: OLGenericDictionary<K, V>);
+    {$ELSE}
+    class operator Assign(var Dest: OLGenericDictionary<K, V>; const Src: OLGenericDictionary<K, V>);
+    {$IFEND}
 
     procedure Clear;
     procedure Add(const Key: K; const Value: V);
@@ -57,7 +67,11 @@ type
     procedure SetValue(const Key: Integer; const Value: OLInteger);
     function GetKeys: TArray<Integer>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntIntDictionary; const [ref] Src: OLIntIntDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLIntIntDictionary; const Src: OLIntIntDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -80,7 +94,11 @@ type
     procedure SetValue(const Key: Integer; const Value: OLString);
     function GetKeys: TArray<Integer>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntStrDictionary; const [ref] Src: OLIntStrDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLIntStrDictionary; const Src: OLIntStrDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -103,7 +121,11 @@ type
     procedure SetValue(const Key: Integer; const Value: OLDouble);
     function GetKeys: TArray<Integer>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntDblDictionary; const [ref] Src: OLIntDblDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLIntDblDictionary; const Src: OLIntDblDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -126,7 +148,11 @@ type
     procedure SetValue(const Key: Integer; const Value: OLCurrency);
     function GetKeys: TArray<Integer>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntCurrDictionary; const [ref] Src: OLIntCurrDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLIntCurrDictionary; const Src: OLIntCurrDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -149,7 +175,11 @@ type
     procedure SetValue(const Key: Integer; const Value: OLBoolean);
     function GetKeys: TArray<Integer>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntBooleanDictionary; const [ref] Src: OLIntBooleanDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLIntBooleanDictionary; const Src: OLIntBooleanDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -172,7 +202,11 @@ type
     procedure SetValue(const Key: Integer; const Value: OLDate);
     function GetKeys: TArray<Integer>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntDateDictionary; const [ref] Src: OLIntDateDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLIntDateDictionary; const Src: OLIntDateDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -195,7 +229,11 @@ type
     procedure SetValue(const Key: string; const Value: OLString);
     function GetKeys: TArray<string>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrStrDictionary; const [ref] Src: OLStrStrDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLStrStrDictionary; const Src: OLStrStrDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -218,7 +256,11 @@ type
     procedure SetValue(const Key: string; const Value: OLInteger);
     function GetKeys: TArray<string>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrIntDictionary; const [ref] Src: OLStrIntDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLStrIntDictionary; const Src: OLStrIntDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -241,7 +283,11 @@ type
     procedure SetValue(const Key: string; const Value: OLCurrency);
     function GetKeys: TArray<string>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrCurrDictionary; const [ref] Src: OLStrCurrDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLStrCurrDictionary; const Src: OLStrCurrDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -264,7 +310,11 @@ type
     procedure SetValue(const Key: string; const Value: OLDouble);
     function GetKeys: TArray<string>;
   public
+    {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrDblDictionary; const [ref] Src: OLStrDblDictionary);
+    {$ELSE}
+    class operator Assign(var Dest: OLStrDblDictionary; const Src: OLStrDblDictionary);
+    {$IFEND}
 
 
     procedure Clear;
@@ -299,7 +349,11 @@ begin
     Dest.FDict.Free;
 end;
 
+{$IF CompilerVersion >= 31.0}
 class operator OLGenericDictionary<K, V>.Assign(var Dest: OLGenericDictionary<K, V>; const [ref] Src: OLGenericDictionary<K, V>);
+{$ELSE}
+class operator OLGenericDictionary<K, V>.Assign(var Dest: OLGenericDictionary<K, V>; const Src: OLGenericDictionary<K, V>);
+{$IFEND}
 var
   Pair: TPair<K, V>;
 begin
@@ -414,7 +468,11 @@ end;
 
 { OLIntIntDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLIntIntDictionary.Assign(var Dest: OLIntIntDictionary; const [ref] Src: OLIntIntDictionary);
+{$ELSE}
+class operator OLIntIntDictionary.Assign(var Dest: OLIntIntDictionary; const Src: OLIntIntDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -489,7 +547,11 @@ begin
 end;
 { OLIntStrDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLIntStrDictionary.Assign(var Dest: OLIntStrDictionary; const [ref] Src: OLIntStrDictionary);
+{$ELSE}
+class operator OLIntStrDictionary.Assign(var Dest: OLIntStrDictionary; const Src: OLIntStrDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -564,7 +626,11 @@ begin
 end;
 { OLIntDblDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLIntDblDictionary.Assign(var Dest: OLIntDblDictionary; const [ref] Src: OLIntDblDictionary);
+{$ELSE}
+class operator OLIntDblDictionary.Assign(var Dest: OLIntDblDictionary; const Src: OLIntDblDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -639,7 +705,11 @@ begin
 end;
 { OLIntCurrDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLIntCurrDictionary.Assign(var Dest: OLIntCurrDictionary; const [ref] Src: OLIntCurrDictionary);
+{$ELSE}
+class operator OLIntCurrDictionary.Assign(var Dest: OLIntCurrDictionary; const Src: OLIntCurrDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -714,7 +784,11 @@ begin
 end;
 { OLIntBooleanDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLIntBooleanDictionary.Assign(var Dest: OLIntBooleanDictionary; const [ref] Src: OLIntBooleanDictionary);
+{$ELSE}
+class operator OLIntBooleanDictionary.Assign(var Dest: OLIntBooleanDictionary; const Src: OLIntBooleanDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -789,7 +863,11 @@ begin
 end;
 { OLIntDateDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLIntDateDictionary.Assign(var Dest: OLIntDateDictionary; const [ref] Src: OLIntDateDictionary);
+{$ELSE}
+class operator OLIntDateDictionary.Assign(var Dest: OLIntDateDictionary; const Src: OLIntDateDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -864,7 +942,11 @@ begin
 end;
 { OLStrStrDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLStrStrDictionary.Assign(var Dest: OLStrStrDictionary; const [ref] Src: OLStrStrDictionary);
+{$ELSE}
+class operator OLStrStrDictionary.Assign(var Dest: OLStrStrDictionary; const Src: OLStrStrDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -939,7 +1021,11 @@ begin
 end;
 { OLStrIntDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLStrIntDictionary.Assign(var Dest: OLStrIntDictionary; const [ref] Src: OLStrIntDictionary);
+{$ELSE}
+class operator OLStrIntDictionary.Assign(var Dest: OLStrIntDictionary; const Src: OLStrIntDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -1014,7 +1100,11 @@ begin
 end;
 { OLStrCurrDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLStrCurrDictionary.Assign(var Dest: OLStrCurrDictionary; const [ref] Src: OLStrCurrDictionary);
+{$ELSE}
+class operator OLStrCurrDictionary.Assign(var Dest: OLStrCurrDictionary; const Src: OLStrCurrDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;
@@ -1089,7 +1179,11 @@ begin
 end;
 { OLStrDblDictionary }
 
+{$IF CompilerVersion >= 31.0}
 class operator OLStrDblDictionary.Assign(var Dest: OLStrDblDictionary; const [ref] Src: OLStrDblDictionary);
+{$ELSE}
+class operator OLStrDblDictionary.Assign(var Dest: OLStrDblDictionary; const Src: OLStrDblDictionary);
+{$IFEND}
 begin
   Dest.FEngine := Src.FEngine;
 end;

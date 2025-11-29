@@ -12,7 +12,7 @@ uses
   {$ENDIF}
   OLBooleanType, OLCurrencyType,
   OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType, OLInt64Type,
-  SmartToDate, System.Classes;
+  SmartToDate, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
   TCaseSensitivity = (csCaseSensitive, csCaseInsensitive);
@@ -57,7 +57,7 @@ type
     procedure ApplyParams;
     function GetParam(const ParamName: string): OLString;
     procedure SetParam(const ParamName: string; const Value: OLString);
-    {$IF CompilerVersion >= 26.0}
+    {$IF CompilerVersion >= 27.0}
     function GetJSON(const JsonFieldName: string): OLString;
     procedure SetJSON(const JsonFieldName: string; const Value: OLString);
     {$IFEND}
@@ -235,7 +235,7 @@ type
 
     {$IF DEFINED(VCL) OR DEFINED(FMX)}
     function PixelWidth(const F: TFont): OLInteger;
-    {$ENDIF}
+    {$IFEND}
 
     function OccurrencesCount(const SubString: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
     function OccurrencesPosition(const SubString: string; const Index: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
@@ -295,7 +295,7 @@ type
     property Lines[const Index: integer]: OLString read GetLine write SetLine;
     property CSV[const Index: integer]: OLString read GetCSV write SetCSV;
     property Params[const ParamName: string]: OLString read GetParam write SetParam;
-    {$IF CompilerVersion >= 26.0}
+    {$IF CompilerVersion >= 27.0}
     property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
     {$IFEND}
 
@@ -304,8 +304,8 @@ type
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLString);
-    class operator Assign(var Dest: OLString; const [ref] Src: OLString);
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    class operator Assign(var Dest: OLString; const [ref] Src: OLString);
     {$IFEND}
   end;
 
@@ -318,11 +318,11 @@ implementation
 
 uses
   Clipbrd, WinInet, DateUtils, Math, EncdDecd,IdSSLOpenSSL,
-  {$if CompilerVersion > 22.0 }
-  System.ZLib, IdHTTP, System.JSON, System.RegularExpressions;
-  {$ELSE}
-  Zlib;
-  {$IFEND}
+  {$IF CompilerVersion >= 23.0} System.ZLib, {$ELSE} ZLib, {$IFEND}
+  IdHTTP,
+  {$IF CompilerVersion >= 27.0} System.JSON, {$IFEND}
+  {$IF CompilerVersion = 22.0} RegularExpressions; {$IFEND} //XE
+  {$IF CompilerVersion >= 23.0} System.RegularExpressions; {$IFEND} //XE2 +
 
 
 { OLString }
@@ -632,6 +632,7 @@ var
   Buffer: array[0..1024] of AnsiChar;
   BytesRead: dWord;
   TextFromUrl: string;
+  dwTimeOut: DWORD;
 begin
   TextFromUrl := '';
 
@@ -639,7 +640,7 @@ begin
 
   if Timeout > 0 then
   begin
-    var dwTimeOut: DWORD := Timeout; // Timeout in milliseconds
+    dwTimeOut := Timeout; // Timeout in milliseconds
     InternetSetOption(NetHandle, INTERNET_OPTION_CONNECT_TIMEOUT,
                       @dwTimeOut, SizeOf(dwTimeOut));
   end;
@@ -817,7 +818,7 @@ begin
   Result := OutPut;
 end;
 
-{$IF CompilerVersion >= 26.0}
+{$IF CompilerVersion >= 27.0}
 function OLString.GetJSON(const JsonFieldName: string): OLString;
 var
   JSONValue: TJSONValue;
@@ -2049,7 +2050,11 @@ begin
   Dest.FOnChange := nil;
 end;
 
+{$IF CompilerVersion >= 31.0}
 class operator OLString.Assign(var Dest: OLString; const [ref] Src: OLString);
+{$ELSE}
+class operator OLString.Assign(var Dest: OLString; const Src: OLString);
+{$IFEND}
 begin
   Dest.FValue := Src.FValue;
   Dest.FHasValue := Src.FHasValue;
@@ -2057,8 +2062,10 @@ begin
   Dest.ValBeforeParams := Src.ValBeforeParams;
   Dest.Parameters := Src.Parameters;
 
+  {$IF CompilerVersion >= 34.0}
   if Assigned(Dest.FOnChange) then
     Dest.FOnChange(nil);
+  {$IFEND}
 end;
 {$IFEND}
 
@@ -2163,6 +2170,7 @@ begin
   ApplyParams();
 end;
 
+{$IF CompilerVersion >= 27.0}
 procedure ReplaceJSONArrayElement(JSONArray: TJSONArray; Index: Integer; NewValue: TJSONValue);
 var
   TempArray: TJSONArray;
@@ -2189,8 +2197,9 @@ begin
     TempArray.Free;
   end;
 end;
+{$IFEND}
 
-{$IF CompilerVersion >= 26.0}
+{$IF CompilerVersion >= 27.0}
 procedure OLString.SetJSON(const JsonFieldName: string; const Value: OLString);
 var
   JSONValue: TJSONValue;

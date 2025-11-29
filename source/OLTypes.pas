@@ -2,11 +2,14 @@ unit OLTypes;
 
 interface
 
-uses OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-    OLIntegerType, OLInt64Type, OLStringType, SmartToDate, System.Threading,
-    System.SysUtils, OLArrays, OLDictionaries, Vcl.Forms, Vcl.StdCtrls,
-    Vcl.Samples.Spin, Vcl.ComCtrls, System.Classes,
-    System.Generics.Collections, Vcl.ExtCtrls, Vcl.Controls, System.Rtti;
+uses
+  OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
+  OLIntegerType, OLInt64Type, OLStringType, SmartToDate, OLArrays, OLDictionaries,
+  {$IF CompilerVersion >= 23.0} System.SysUtils, System.Classes, System.Generics.Collections, System.Rtti,
+    Vcl.Forms, Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Controls
+  {$ELSE} SysUtils, Classes, Generics.Collections, Rtti,
+    Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls
+  {$IFEND};
 
 type
   TRttiFieldHack = class(TRttiField);
@@ -93,8 +96,7 @@ function OLType(i: System.Integer): OLInteger; overload;
 function OLType(i: System.Int64): OLInt64; overload;
 function OLType(s: System.string): OLString; overload;
 
-function OLFuture(f: TFunc<OLInteger>): IFuture<OLInteger>; overload;
-function OLFuture(f: TFunc<integer>): IFuture<OLInteger>; overload;
+
 
 const
   // today, yesterday, tomorow
@@ -183,7 +185,7 @@ const
 
 implementation
 
-uses OLTypesToEdits;
+uses OLTypesToEdits, TypInfo;
 
 function GetFieldAddressHack(f: TRttiField; Instance: Pointer): Pointer;
 begin
@@ -235,52 +237,54 @@ begin
   Result := s;
 end;
 
-function OLFuture(f: TFunc<OLInteger>): IFuture<OLInteger>;
-begin
-  Result := TTask.Future<OLInteger>(f);
-end;
 
-function OLFuture(f: TFunc<integer>): IFuture<OLInteger>;
-begin
-   Result := TTask.Future<OLInteger>(
-     function: OLInteger
-     begin
-       Result := f();
-     end);
-end;
 
 { TFormFieldsHelper }
 
-function TFormFieldsHelper.IsFieldOfRecord(const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
+function TFormFieldsHelper.IsFieldOfRecord(
+  const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
 var
   RecType: TRttiStructuredType;
   f: TRttiField;
   FieldValue: TValue;
   RType: TRttiType;
+  TK: TTypeKind;
 begin
   Result := False;
 
-  if (RecValue.Kind <> tkRecord) and (RecValue.Kind <> tkMRecord) then
+  // Get RTTI type of the record
+  RType := ctx.GetType(RecValue.TypeInfo);
+  if not (RType is TRttiStructuredType) then
     Exit;
 
-  RType := ctx.GetType(RecValue.TypeInfo);
-  if not (RType is TRttiStructuredType) then Exit;
   RecType := TRttiStructuredType(RType);
 
   for f in RecType.GetFields do
   begin
-    // 1. Direct address match -> this is the field
+    // 1. Compare direct field address
     if GetFieldAddressHack(f, RecValue.GetReferenceToRawData) = ParamPtr then
       Exit(True);
 
     FieldValue := f.GetValue(RecValue.GetReferenceToRawData);
 
-    // 2. If the field is a record -> recurse into it
-    if (FieldValue.Kind = tkRecord) or (FieldValue.Kind = tkMRecord) then
+    // 2. Check field type (RTTI)
+    TK := f.FieldType.TypeKind;
+
+    {$IF CompilerVersion >= 34.0}
+    // Delphi 10.4+ — handle Managed Records
+    if (TK = tkRecord) or (TK = tkMRecord) then
+    {$ELSE}
+    // Delphi XE..10.3 — only standard records
+    if TK = tkRecord then
+    {$IFEND}
+    begin
+      // Recurse into nested record fields
       if IsFieldOfRecord(ctx, FieldValue, ParamPtr) then
         Exit(True);
+    end;
   end;
 end;
+
 
 function TFormFieldsHelper.IsMyField(var X): Boolean;
 var
@@ -289,26 +293,35 @@ var
   f: TRttiField;
   FieldValue: TValue;
   ParamPtr: Pointer;
+  TK: TTypeKind;
 begin
   Result := False;
   ParamPtr := @X;
 
   t := ctx.GetType(Self.ClassType);
-
-  if t = nil then Exit(False);
+  if t = nil then
+    Exit(False);
 
   for f in t.GetFields do
   begin
-    // 1. Direct field address comparison
+    // 1. Compare direct field address
     if GetFieldAddressHack(f, Self) = ParamPtr then
       Exit(True);
 
     FieldValue := f.GetValue(Self);
 
     // 2. Recurse into record fields
-    if (FieldValue.Kind = tkRecord) or (FieldValue.Kind = tkMRecord) then
+    TK := f.FieldType.TypeKind;
+
+    {$IF CompilerVersion >= 34.0}
+    if (TK = tkRecord) or (TK = tkMRecord) then
+    {$ELSE}
+    if TK = tkRecord then
+    {$IFEND}
+    begin
       if IsFieldOfRecord(ctx, FieldValue, ParamPtr) then
         Exit(True);
+    end;
   end;
 end;
 

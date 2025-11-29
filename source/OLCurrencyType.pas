@@ -3,7 +3,7 @@ unit OLCurrencyType;
 interface
 
 uses
-  variants, SysUtils, OLIntegerType, OlBooleanType, OLDoubleType, System.Classes;
+  variants, SysUtils, OLIntegerType, OlBooleanType, OLDoubleType, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
   OLCurrency = record
