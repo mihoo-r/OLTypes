@@ -293,7 +293,9 @@ type
 
     // Parameter & JSON Operations
     procedure ParamsString;
+    {$IF CompilerVersion >= 27.0}
     procedure JSONString;
+    {$IFEND}
 
     // Static Methods
     procedure RandomFromString;
@@ -3876,6 +3878,7 @@ begin
   Check(s = 'Hello John, you are 30 years old');
 end;
 
+{$IF CompilerVersion >= 27.0}
 procedure OLStringTest.JSONString;
 var
   s: OLString;
@@ -3911,6 +3914,7 @@ begin
 
   Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"},{"name":"Kate","age":15}]}');
 end;
+{$IFEND}
 
 // Static Methods
 procedure OLStringTest.RandomFromString;

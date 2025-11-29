@@ -4,7 +4,12 @@ interface
 
 uses
   TestFramework, Windows, Forms, Dialogs, Controls, Classes, SysUtils, Variants,
-  Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, OLTypes, OLTypesToEdits;
+  {$IF CompilerVersion >= 23.0}
+    Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
+  {$ELSE}
+    StdCtrls, Spin, ComCtrls,
+  {$IFEND}
+  OLTypes, OLTypesToEdits;
 
 type
   TestForm = class(TForm)
@@ -195,6 +200,17 @@ implementation
 uses
   DateUtils;
 
+procedure WaitForTimers();
+begin
+  //For versions older than Delphi 10.4 wait for the timer to synchronize the control
+  {$IF CompilerVersion < 34.0}
+    sleep(100);
+    Application.ProcessMessages();
+    sleep(20);
+    Application.ProcessMessages();
+  {$IFEND}
+end;
+
 { TestEditToOLInteger }
 
 procedure TestEditToOLInteger.SetUp;
@@ -224,6 +240,7 @@ end;
 procedure TestEditToOLInteger.TestValueToEditSync;
 begin
   FForm.FInt := 500;
+  WaitForTimers();
 
   CheckEquals('500', FEdit.Text, 'Edit should display new value');
 end;
@@ -232,6 +249,7 @@ procedure TestEditToOLInteger.TestNullHandling;
 begin
   FEdit.Text := '1';
   FEdit.Text := '';
+  WaitForTimers();
 
   CheckTrue(FForm.FInt.IsNull, 'Empty string should set value to NULL');
 end;
@@ -288,6 +306,7 @@ end;
 procedure TestEditToOLString.TestValueToEditSync;
 begin
   FForm.FString := 'Updated Value';
+  WaitForTimers();
 
   CheckEquals('Updated Value', FEdit.Text, 'Edit should display new value');
 end;
@@ -312,6 +331,7 @@ end;
 procedure TestEditToOLString.TestNullHandling;
 begin
   FForm.FString := Null;
+  WaitForTimers();
 
   CheckEquals('', FEdit.Text, 'NULL should display as empty string');
 
@@ -355,6 +375,7 @@ end;
 procedure TestEditToOLDouble.TestValueToEditSync;
 begin
   FForm.FDouble := 456.789;
+  WaitForTimers();
 
   // Check that value is displayed (format may vary)
   CheckTrue(Pos('456', FEdit.Text) > 0, 'Edit should contain the value');
@@ -364,6 +385,7 @@ procedure TestEditToOLDouble.TestNullHandling;
 begin
   FEdit.Text := '1';
   FEdit.Text := '';//force OnChange
+  WaitForTimers();
 
   CheckTrue(FForm.FDouble.IsNull, 'Empty string should set value to NULL');
 end;
@@ -406,6 +428,7 @@ end;
 procedure TestEditToOLCurrency.TestValueToEditSync;
 begin
   FForm.FCurrency := 999.99;
+  WaitForTimers();
 
   CheckTrue(Pos('999', FEdit.Text) > 0, 'Edit should contain the value');
 end;
@@ -423,6 +446,7 @@ procedure TestEditToOLCurrency.TestNullHandling;
 begin
   FEdit.Text := '1';
   FEdit.Text := '';//force OnChange
+  WaitForTimers();
 
   CheckTrue(FForm.FCurrency.IsNull, 'Empty string should set value to NULL');
 end;
@@ -457,6 +481,7 @@ end;
 procedure TestSpinEditToOLInteger.TestValueToSpinSync;
 begin
   FForm.FInt := 100;
+  WaitForTimers();
 
   CheckEquals('100', FSpinEdit.Text, 'SpinEdit should display new value');
 end;
@@ -464,6 +489,7 @@ end;
 procedure TestSpinEditToOLInteger.TestNullHandling;
 begin
   FSpinEdit.Text := '';
+  WaitForTimers();
 
   CheckTrue(FForm.FInt.IsNull, 'Empty string should set value to NULL');
 end;
@@ -504,6 +530,7 @@ var
 begin
   TestDate := EncodeDate(2024, 1, 1);
   FForm.FDate := TestDate;
+  WaitForTimers();
 
   CheckEquals(TestDate, FPicker.Date, 'DateTimePicker should display new value');
 end;
@@ -511,6 +538,7 @@ end;
 procedure TestDateTimePickerToOLDate.TestNullHandling;
 begin
   FForm.FDate := Null;
+  WaitForTimers();
 
   // When NULL, format should change to NULL_FORMAT
   CheckTrue(FForm.FDate.IsNull, 'Value should be NULL');
@@ -519,6 +547,7 @@ end;
 procedure TestDateTimePickerToOLDate.TestNullFormatDisplay;
 begin
   FForm.FDate := Null;
+  WaitForTimers();
 
   // Check that format changed to "- - -"
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
@@ -543,15 +572,17 @@ begin
   // First cycle already done in SetUp
   TestDate := EncodeDate(2025, 12, 25);
   FForm.FDate := TestDate;
+  WaitForTimers();
+
   CheckEquals(TestDate, FPicker.Date, 'First cycle should work');
   
   // Second cycle - simulate reopening form
   Picker2 := TDateTimePicker.Create(FForm);
   Picker2.Parent := FForm;
   Picker2.Format := 'dd/MM/yyyy';
-  System.Initialize(FForm.FDate);
   FForm.FDate := OLDate.Today;
   Picker2.Link(FForm.FDate);
+  WaitForTimers();
 
   {$IF CompilerVersion >= 34.0}
   CheckTrue(Assigned(FForm.FDate.OnChange), 'OnChange should be set on second link');
@@ -559,6 +590,8 @@ begin
 
   TestDate := EncodeDate(2024, 6, 15);
   FForm.FDate := TestDate;
+  WaitForTimers();
+
   CheckEquals(TestDate, Picker2.Date,
     'Second cycle: value change should update picker');
   
@@ -573,9 +606,13 @@ begin
   TestDate2 := EncodeDate(2025, 6, 15);
 
   FForm.FDate := TestDate1;
+  WaitForTimers();
+
   CheckEquals(TestDate1, FPicker.Date, 'First update should work');
 
   FForm.FDate := TestDate2;
+  WaitForTimers();
+
   CheckEquals(TestDate2, FPicker.Date,
     'Second update should work - this was failing when OnChange was not set');
 end;
@@ -588,7 +625,6 @@ begin
   FPicker := TDateTimePicker.Create(FForm);
   FPicker.Parent := FForm;
   FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
-  FPicker.Kind := dtkDateTime;
   System.Finalize(FForm.FDateTime);
   System.Initialize(FForm.FDateTime);
   FForm.FDateTime := OLDateTime.Now;
@@ -617,6 +653,7 @@ var
 begin
   TestDateTime := EncodeDate(2024, 1, 1) + EncodeTime(10, 15, 30, 0);
   FForm.FDateTime := TestDateTime;
+  WaitForTimers();
 
   CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'DateTimePicker should display new value');
 end;
@@ -624,6 +661,7 @@ end;
 procedure TestDateTimePickerToOLDateTime.TestNullHandling;
 begin
   FForm.FDateTime := Null;
+  WaitForTimers();
 
   // When NULL, format should change to NULL_FORMAT
   CheckTrue(FForm.FDateTime.IsNull, 'Value should be NULL');
@@ -632,6 +670,7 @@ end;
 procedure TestDateTimePickerToOLDateTime.TestNullFormatDisplay;
 begin
   FForm.FDateTime := Null;
+  WaitForTimers();
 
   // Check that format changed to "- - -"
   CheckEquals('- - -', FPicker.Format, 'NULL should display as "- - -"');
@@ -655,16 +694,23 @@ begin
   // First cycle already done in SetUp
   TestDateTime := EncodeDate(2025, 12, 25) + EncodeTime(10, 30, 0, 0);
   FForm.FDateTime := TestDateTime;
+  WaitForTimers();
+
   CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'First cycle should work');
   
   // Second cycle - simulate reopening form
   Picker2 := TDateTimePicker.Create(FForm);
   Picker2.Parent := FForm;
   Picker2.Format := 'dd/MM/yyyy HH:mm:ss';
-  Picker2.Kind := dtkDateTime;
-  System.Initialize(FForm.FDateTime);
+  {$IF CompilerVersion >= 23.0} // XE2+
+    Picker2.Kind := dtkDateTime;
+  {$ELSE}
+    // Delphi 2010: there is no dtkDateTime
+    Picker2.Kind := dtkTime;
+  {$IFEND}
   FForm.FDateTime := OLDateTime.Now;
   Picker2.Link(FForm.FDateTime);
+  WaitForTimers();
 
   {$IF CompilerVersion >= 34.0}
   CheckTrue(Assigned(FForm.FDateTime.OnChange), 'OnChange should be set on second link');
@@ -672,6 +718,8 @@ begin
 
   TestDateTime := EncodeDate(2024, 6, 15) + EncodeTime(14, 45, 30, 0);
   FForm.FDateTime := TestDateTime;
+  WaitForTimers();
+
   CheckEquals(TestDateTime, Picker2.DateTime, 0.001, 
     'Second cycle: value change should update picker');
   
@@ -686,9 +734,13 @@ begin
   TestDateTime2 := EncodeDate(2025, 6, 15) + EncodeTime(15, 30, 0, 0);
 
   FForm.FDateTime := TestDateTime1;
+  WaitForTimers();
+
   CheckEquals(TestDateTime1, FPicker.DateTime, 0.001, 'First update should work');
 
   FForm.FDateTime := TestDateTime2;
+  WaitForTimers();
+
   CheckEquals(TestDateTime2, FPicker.DateTime, 0.001,
     'Second update should work - this was failing when OnChange was not set');
 end;
@@ -726,10 +778,12 @@ end;
 procedure TestCheckBoxToOLBoolean.TestValueToCheckBoxSync;
 begin
   FForm.FBoolean := True;
+  WaitForTimers();
 
   CheckTrue(FCheckBox.Checked, 'CheckBox should be checked when value is TRUE');
 
   FForm.FBoolean := False;
+  WaitForTimers();
 
   CheckFalse(FCheckBox.Checked, 'CheckBox should be unchecked when value is FALSE');
 end;
@@ -737,6 +791,7 @@ end;
 procedure TestCheckBoxToOLBoolean.TestNullHandling;
 begin
   FForm.FBoolean := Null;
+  WaitForTimers();
 
   // NULL Boolean should display as unchecked (IfNull(False))
   CheckFalse(FCheckBox.Checked, 'NULL should display as unchecked');
@@ -832,6 +887,7 @@ begin
   FLabel1.Link(FForm.FInt);
 
   FForm.FInt := 500;
+  WaitForTimers();
 
   CheckEquals('500', FEdit1.Text, 'Edit1 should be synced');
   CheckEquals('500', FEdit2.Text, 'Edit2 should be synced');
@@ -845,6 +901,7 @@ begin
   FLabel1.Link(FForm.FString);
 
   FForm.FString := 'Updated';
+  WaitForTimers();
 
   CheckEquals('Updated', FEdit1.Text, 'Edit1 should be synced');
   CheckEquals('Updated', FEdit2.Text, 'Edit2 should be synced');
@@ -858,6 +915,7 @@ begin
   FLabel1.Link(FForm.FDouble);
 
   FForm.FDouble := 789.012;
+  WaitForTimers();
 
   CheckTrue(Pos('789', FEdit1.Text) > 0, 'Edit1 should be synced');
   CheckTrue(Pos('789', FEdit2.Text) > 0, 'Edit2 should be synced');
@@ -871,6 +929,7 @@ begin
   FLabel1.Link(FForm.FCurrency);
 
   FForm.FCurrency := 200.75;
+  WaitForTimers();
 
   CheckTrue(Pos('200', FEdit1.Text) > 0, 'Edit1 should be synced');
   CheckTrue(Pos('200', FEdit2.Text) > 0, 'Edit2 should be synced');
@@ -887,6 +946,7 @@ begin
 
   TestDate := EncodeDate(2025, 12, 31);
   FForm.FDate := TestDate;
+  WaitForTimers();
 
   CheckEquals(TestDate, FPicker1.Date, 'Picker1 should be synced');
   CheckEquals(TestDate, FPicker2.Date, 'Picker2 should be synced');
@@ -903,6 +963,7 @@ begin
 
   TestDateTime := EncodeDate(2025, 12, 31) + EncodeTime(23, 59, 59, 0);
   FForm.FDateTime := TestDateTime;
+  WaitForTimers();
 
   CheckEquals(TestDateTime, FPicker1.DateTime, 0.001, 'Picker1 should be synced');
   CheckEquals(TestDateTime, FPicker2.DateTime, 0.001, 'Picker2 should be synced');
@@ -915,6 +976,7 @@ begin
   FCheckBox2.Link(FForm.FBoolean);
 
   FForm.FBoolean := True;
+  WaitForTimers();
 
   CheckTrue(FCheckBox1.Checked, 'CheckBox1 should be synced');
   CheckTrue(FCheckBox2.Checked, 'CheckBox2 should be synced');
@@ -925,6 +987,7 @@ begin
   FEdit1.Link(FForm.FInt);
 
   FForm.FInt := 777;
+  WaitForTimers();
 
   CheckEquals('777', FEdit1.Text, 'RefreshControls should update display');
 end;

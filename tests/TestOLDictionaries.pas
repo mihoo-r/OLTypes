@@ -2,6 +2,8 @@ unit TestOLDictionaries;
 
 interface
 
+{$IF CompilerVersion >= 34.0}
+
 uses
   TestFramework,
   System.SysUtils,
@@ -177,7 +179,11 @@ type
 
   end;
 
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion >= 34.0}
 
 { TTestOLIntIntDictionary }
 
@@ -1377,5 +1383,7 @@ initialization
   RegisterTest(TTestOLStrIntDictionary.Suite);
   RegisterTest(TTestOLStrCurrDictionary.Suite);
   RegisterTest(TTestOLStrDblDictionary.Suite);
+
+{$IFEND}
 
 end.

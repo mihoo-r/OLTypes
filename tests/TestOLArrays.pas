@@ -1,10 +1,10 @@
-unit TestOLArrays;
+﻿unit TestOLArrays;
 
 interface
 
 uses
   TestFramework,
-  System.SysUtils,
+  {$IF CompilerVersion >= 23.0} System.SysUtils,{$ELSE} SysUtils,{$IFEND}
   OLArrays,
   OLIntegerType,
   OLStringType,
@@ -308,7 +308,13 @@ var
   DynArr: TIntegerDynArray;
 begin
   // Array of Integer -> OLIntegerArray
-  Arr := [10, 20, 30];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [10, 20, 30];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := 10;
+    Arr[1] := 20;
+    Arr[2] := 30;
+  {$IFEND}
   CheckEquals(3, Arr.Length);
   CheckTrue(Arr[0] = 10);
 
@@ -468,7 +474,13 @@ var
   Arr: OLStringArray;
   DynArr: TStringDynArray;
 begin
-  Arr := ['A', 'B', 'C'];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := ['A', 'B', 'C'];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := 'A';
+    Arr[1] := 'B';
+    Arr[2] := 'C';
+  {$IFEND}
   CheckEquals(3, Arr.Length);
   CheckTrue(Arr[0] = 'A');
 
@@ -619,7 +631,13 @@ var
   Arr: OLBooleanArray;
   DynArr: TBooleanDynArray;
 begin
-  Arr := [True, False];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [True, False];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := True;
+    Arr[1] := False;
+  {$IFEND}
+
   CheckEquals(2, Arr.Length);
   CheckTrue(Arr[0] = True);
 
@@ -778,7 +796,13 @@ var
   Arr: OLCurrencyArray;
   DynArr: TCurrencyDynArray;
 begin
-  Arr := [10.5, 20.5, 30.5];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [10.5, 20.5, 30.5];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := 10.5;
+    Arr[1] := 20.5;
+    Arr[2] := 30.5;
+  {$IFEND}
   CheckEquals(3, Arr.Length);
   CheckTrue(Arr[0] = 10.5);
 
@@ -972,7 +996,12 @@ begin
   D1 := EncodeDate(2023, 1, 1);
   D2 := EncodeDate(2023, 2, 1);
 
-  Arr := [D1, D2];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [D1, D2];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := D1;
+    Arr[1] := D2;
+  {$IFEND}
   CheckEquals(2, Arr.Length);
   CheckTrue(Arr[0] = D1);
 
@@ -1166,7 +1195,12 @@ begin
   D1 := EncodeDate(2023, 1, 1);
   D2 := EncodeDate(2023, 2, 1);
 
-  Arr := [D1, D2];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [D1, D2];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := D1;
+    Arr[1] := D2;
+  {$IFEND}
   CheckEquals(2, Arr.Length);
   CheckTrue(Arr[0] = D1);
 
@@ -1325,7 +1359,13 @@ var
   Arr: OLDoubleArray;
   DynArr: TDoubleDynArray;
 begin
-  Arr := [1.1, 2.2, 3.3];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [1.1, 2.2, 3.3];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := 1.1;
+    Arr[1] := 2.2;
+    Arr[2] := 3.3;
+  {$IFEND}
   CheckEquals(3, Arr.Length);
   CheckTrue(Arr[0] = 1.1);
 
@@ -1484,7 +1524,13 @@ var
   Arr: OLInt64Array;
   DynArr: TInt64DynArray;
 begin
-  Arr := [10, 20, 30];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [10, 20, 30];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := 10;
+    Arr[1] := 20;
+    Arr[2] := 30;
+  {$IFEND}
   CheckEquals(3, Arr.Length);
   CheckTrue(Arr[0] = 10);
 
@@ -1615,7 +1661,7 @@ begin
   Arr.Add(10);
   Arr.Add(20);
   Arr.Add(10);
-  Dist := Arr.Distinct;
+  Dist := Arr.Distinct(nil);
   
   CheckEquals(2, Dist.Length);
   CheckTrue(Dist.ContainsValue(10));
@@ -1642,12 +1688,34 @@ procedure TTestOLByteArray.TestImplicit;
 var
   Arr: OLByteArray;
   DynArr: TArray<Byte>;
+  i: integer;
 begin
-  Arr := [10, 20, 30];
+  {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
+    Arr := [10, 20, 30];
+  {$ELSE} // Older Delphi versions: manual SetLength and assignments
+    Arr[0] := 10;
+    Arr[1] := 20;
+    Arr[2] := 30;
+  {$IFEND}
   CheckEquals(3, Arr.Length);
   CheckTrue(Arr[0] = 10);
 
-  DynArr := Arr;
+  {$IF CompilerVersion >= 24.0}
+    // XE3+ → Copy works correctly for generic dynamic arrays
+    DynArr := Arr;
+  {$ELSE}
+    // Older Delphi versions: manual array copy required
+    if Arr.Length > 0 then
+    begin
+      System.SetLength(DynArr, Arr.Length);
+
+      for i := 0 to Arr.Length - 1 do
+        DynArr[i] := Arr[i];
+    end
+    else
+      System.SetLength(DynArr, 0);
+  {$IFEND}
+
   CheckEquals(3, Length(DynArr));
   CheckTrue(DynArr[0] = 10);
 end;
