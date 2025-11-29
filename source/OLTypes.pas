@@ -3,10 +3,15 @@ unit OLTypes;
 interface
 
 uses OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-   OLIntegerType, OLInt64Type, OLStringType, SmartToDate, System.Threading,
-   System.SysUtils, OLArrays, OLDictionaries, Vcl.Forms, Vcl.StdCtrls,
-   Vcl.Samples.Spin, Vcl.ComCtrls, System.Classes,
-   System.Generics.Collections, Vcl.ExtCtrls, Vcl.Controls;
+    OLIntegerType, OLInt64Type, OLStringType, SmartToDate, System.Threading,
+    System.SysUtils, OLArrays, OLDictionaries, Vcl.Forms, Vcl.StdCtrls,
+    Vcl.Samples.Spin, Vcl.ComCtrls, System.Classes,
+    System.Generics.Collections, Vcl.ExtCtrls, Vcl.Controls, System.Rtti;
+
+type
+  TRttiFieldHack = class(TRttiField);
+
+
 
 const
   ERROR_STRING = '#ERROR';
@@ -169,9 +174,21 @@ const
      procedure Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
    end;
 
+   TFormFieldsHelper = class helper for TForm
+   private
+     function IsFieldOfRecord(const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
+   public
+     function IsMyField(var X): Boolean;
+   end;
+
 implementation
 
 uses OLTypesToEdits;
+
+function GetFieldAddressHack(f: TRttiField; Instance: Pointer): Pointer;
+begin
+  Result := PByte(Instance) + TRttiFieldHack(f).Offset;
+end;
 
 function OLType(b: System.Boolean): OLBoolean;
 begin
@@ -232,10 +249,84 @@ begin
      end);
 end;
 
+{ TFormFieldsHelper }
+
+function TFormFieldsHelper.IsFieldOfRecord(const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
+var
+  RecType: TRttiStructuredType;
+  f: TRttiField;
+  FieldValue: TValue;
+  RType: TRttiType;
+begin
+  Result := False;
+
+  if (RecValue.Kind <> tkRecord) and (RecValue.Kind <> tkMRecord) then
+    Exit;
+
+  RType := ctx.GetType(RecValue.TypeInfo);
+  if not (RType is TRttiStructuredType) then Exit;
+  RecType := TRttiStructuredType(RType);
+
+  for f in RecType.GetFields do
+  begin
+    // 1. Direct address match -> this is the field
+    if GetFieldAddressHack(f, RecValue.GetReferenceToRawData) = ParamPtr then
+      Exit(True);
+
+    FieldValue := f.GetValue(RecValue.GetReferenceToRawData);
+
+    // 2. If the field is a record -> recurse into it
+    if (FieldValue.Kind = tkRecord) or (FieldValue.Kind = tkMRecord) then
+      if IsFieldOfRecord(ctx, FieldValue, ParamPtr) then
+        Exit(True);
+  end;
+end;
+
+function TFormFieldsHelper.IsMyField(var X): Boolean;
+var
+  ctx: TRttiContext;
+  t: TRttiType;
+  f: TRttiField;
+  FieldValue: TValue;
+  ParamPtr: Pointer;
+begin
+  Result := False;
+  ParamPtr := @X;
+
+  t := ctx.GetType(Self.ClassType);
+
+  if t = nil then Exit(False);
+
+  for f in t.GetFields do
+  begin
+    // 1. Direct field address comparison
+    if GetFieldAddressHack(f, Self) = ParamPtr then
+      Exit(True);
+
+    FieldValue := f.GetValue(Self);
+
+    // 2. Recurse into record fields
+    if (FieldValue.Kind = tkRecord) or (FieldValue.Kind = tkMRecord) then
+      if IsFieldOfRecord(ctx, FieldValue, ParamPtr) then
+        Exit(True);
+  end;
+end;
+
 { TOLEditHelper }
 
 procedure TOLEditHelper.Link(var i: OLInteger; const Alignment: TAlignment);
+var
+  Form: TForm;
 begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(i) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
    try
      Links.Link(Self, i, Alignment);
    except
@@ -246,7 +337,18 @@ end;
 
 
 procedure TOLEditHelper.Link(var d: OLDouble; const Format: string; const Alignment: TAlignment);
+var
+  Form: TForm;
 begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
    try
      Links.Link(Self, d, Format, Alignment);
    except
@@ -257,7 +359,18 @@ end;
 
 
 procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string; const Alignment: TAlignment);
+var
+  Form: TForm;
 begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(curr) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
    try
      Links.Link(Self, curr, Format, Alignment);
    except
@@ -267,7 +380,18 @@ begin
 end;
 
 procedure TOLEditHelper.Link(var s: OLString);
+var
+  Form: TForm;
 begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(s) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
    try
      Links.Link(Self, s);
    except
@@ -279,7 +403,18 @@ end;
 { TOLSpinEditHelper }
 
 procedure TOLSpinEditHelper.Link(var i: OLInteger);
+var
+  Form: TForm;
 begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(i) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
    try
      Links.Link(Self, i);
    except
@@ -291,48 +426,160 @@ end;
 { TOLTrackBarHelper }
 
 procedure TOLTrackBarHelper.Link(var i: OLInteger);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, i);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(i) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, i);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TTrackBar: ' + E.Message);
+   end;
 end;
 
 { TOLScrollBarHelper }
 
 procedure TOLScrollBarHelper.Link(var i: OLInteger);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, i);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(i) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, i);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TScrollBar: ' + E.Message);
+   end;
 end;
 
 { TOLMemoHelper }
 
 procedure TOLMemoHelper.Link(var s: OLString);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, s);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(s) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, s);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TMemo: ' + E.Message);
+   end;
 end;
 
 { TOLDateTimePickerHelper }
 
 procedure TOLDateTimePickerHelper.Link(var d: OLDate);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, d);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, d);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
+   end;
 end;
 
 procedure TOLDateTimePickerHelper.Link(var d: OLDateTime);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, d);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, d);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
+   end;
 end;
 
 { TOLCheckBoxHelper }
 
 procedure TOLCheckBoxHelper.Link(var b: OLBoolean);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, b);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(b) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, b);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TCheckBox: ' + E.Message);
+   end;
 end;
 
 { TOLLabelHelper }
 
 procedure TOLLabelHelper.Link(var i: OLInteger);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, i);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(i) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, i);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string);
@@ -341,8 +588,24 @@ begin
 end;
 
 procedure TOLLabelHelper.Link(var s: OLString);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, s);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(s) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, s);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
@@ -351,8 +614,24 @@ begin
 end;
 
 procedure TOLLabelHelper.Link(var d: OLDouble; const Format: string);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, d, Format);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, d, Format);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDouble; const Format: string; const ValueOnErrorInCalculation: string);
@@ -361,8 +640,24 @@ begin
 end;
 
 procedure TOLLabelHelper.Link(var curr: OLCurrency; const Format: string);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, curr, Format);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(curr) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, curr, Format);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLCurrency; const Format: string; const ValueOnErrorInCalculation: string);
@@ -371,8 +666,24 @@ begin
 end;
 
 procedure TOLLabelHelper.Link(var d: OLDate);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, d);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, d);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
@@ -381,8 +692,24 @@ begin
 end;
 
 procedure TOLLabelHelper.Link(var d: OLDateTime);
+var
+  Form: TForm;
 begin
-   Links.Link(Self, d);
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+   
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, d);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
 end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
