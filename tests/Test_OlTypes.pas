@@ -4215,8 +4215,322 @@ begin
     // Should be reached
   end;
   
-  CheckTrue(WasCalled, 'Short-circuiting failed: SideEffect was NOT called when first operand was True');
+   CheckTrue(WasCalled, 'Short-circuiting failed: SideEffect was NOT called when first operand was True');
 end;
+
+{$IF CompilerVersion >= 24.0}
+type
+  TestIntegerHelper = class(TTestCase)
+  published
+    procedure TestIsDividableBy;
+    procedure TestIsOdd;
+    procedure TestIsEven;
+    procedure TestIsPositive;
+    procedure TestIsNegative;
+    procedure TestIsNonNegative;
+    procedure TestIsPrime;
+    procedure TestSqr;
+    procedure TestPower;
+    procedure TestAbs;
+    procedure TestMax;
+    procedure TestMin;
+    procedure TestRound;
+    procedure TestBetween;
+    procedure TestIncreased;
+    procedure TestDecreased;
+    procedure TestReplaced;
+    procedure TestToString;
+    procedure TestToSQLString;
+    procedure TestToNumeralSystem;
+    procedure TestBinary;
+    procedure TestOctal;
+    procedure TestHexidecimal;
+    procedure TestNumeralSystem32;
+    procedure TestNumeralSystem64;
+    procedure TestForLoop;
+    procedure TestRandom;
+    procedure TestRandomPrime;
+    procedure TestSetRandom;
+    procedure TestSetRandomPrime;
+  end;
+
+procedure TestIntegerHelper.TestIsDividableBy;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckTrue(i.IsDividableBy(2));
+  CheckFalse(i.IsDividableBy(3));
+end;
+
+procedure TestIntegerHelper.TestIsOdd;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckTrue(i.IsOdd());
+  i := 4;
+  CheckFalse(i.IsOdd());
+end;
+
+procedure TestIntegerHelper.TestIsEven;
+var
+  i: Integer;
+begin
+  i := 4;
+  CheckTrue(i.IsEven());
+  i := 5;
+  CheckFalse(i.IsEven());
+end;
+
+procedure TestIntegerHelper.TestIsPositive;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckTrue(i.IsPositive());
+  i := -5;
+  CheckFalse(i.IsPositive());
+end;
+
+procedure TestIntegerHelper.TestIsNegative;
+var
+  i: Integer;
+begin
+  i := -5;
+  CheckTrue(i.IsNegative());
+  i := 5;
+  CheckFalse(i.IsNegative());
+end;
+
+procedure TestIntegerHelper.TestIsNonNegative;
+var
+  i: Integer;
+begin
+  i := 0;
+  CheckTrue(i.IsNonNegative());
+  i := 5;
+  CheckTrue(i.IsNonNegative());
+  i := -5;
+  CheckFalse(i.IsNonNegative());
+end;
+
+procedure TestIntegerHelper.TestIsPrime;
+var
+  i: Integer;
+begin
+  i := 7;
+  CheckTrue(i.IsPrime());
+  i := 4;
+  CheckFalse(i.IsPrime());
+end;
+
+procedure TestIntegerHelper.TestSqr;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(25, i.Sqr());
+end;
+
+procedure TestIntegerHelper.TestPower;
+var
+  i: Integer;
+begin
+  i := 2;
+  CheckEquals(8, i.Power(3));
+  i := 3;
+  CheckEquals(9.0, i.Power(2), 0.001);
+end;
+
+procedure TestIntegerHelper.TestAbs;
+var
+  i: Integer;
+begin
+  i := -5;
+  CheckEquals(5, i.Abs());
+  i := 5;
+  CheckEquals(5, i.Abs());
+end;
+
+procedure TestIntegerHelper.TestMax;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(10, i.Max(10));
+  i := 10;
+  CheckEquals(10, i.Max(5));
+end;
+
+procedure TestIntegerHelper.TestMin;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(5, i.Min(10));
+  i := 10;
+  CheckEquals(5, i.Min(5));
+end;
+
+procedure TestIntegerHelper.TestRound;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals(10, i.Round(1));
+end;
+
+procedure TestIntegerHelper.TestBetween;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckTrue(i.Between(1, 10));
+  i := 15;
+  CheckFalse(i.Between(1, 10));
+end;
+
+procedure TestIntegerHelper.TestIncreased;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(6, i.Increased());
+  CheckEquals(7, i.Increased(2));
+end;
+
+procedure TestIntegerHelper.TestDecreased;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(4, i.Decreased());
+  CheckEquals(3, i.Decreased(2));
+end;
+
+procedure TestIntegerHelper.TestReplaced;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(20, i.Replaced(5, 20));
+end;
+
+procedure TestIntegerHelper.TestToString;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals('10', i.ToString());
+end;
+
+procedure TestIntegerHelper.TestToSQLString;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals('10', i.ToSQLString());
+end;
+
+procedure TestIntegerHelper.TestToNumeralSystem;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals('1010', i.ToNumeralSystem(2));
+end;
+
+procedure TestIntegerHelper.TestBinary;
+var
+  i: Integer;
+begin
+  i := 10;
+  i.Binary := '1010';
+  CheckEquals(10, i);
+end;
+
+procedure TestIntegerHelper.TestOctal;
+var
+  i: Integer;
+begin
+  i := 8;
+  i.Octal := '10';
+  CheckEquals(8, i);
+end;
+
+procedure TestIntegerHelper.TestHexidecimal;
+var
+  i: Integer;
+begin
+  i := 16;
+  i.Hexidecimal := '10';
+  CheckEquals(16, i);
+end;
+
+procedure TestIntegerHelper.TestNumeralSystem32;
+var
+  i: Integer;
+begin
+  i := 32;
+  i.NumeralSystem32 := '10';
+  CheckEquals(32, i);
+end;
+
+procedure TestIntegerHelper.TestNumeralSystem64;
+var
+  i: Integer;
+begin
+  i := 64;
+  i.NumeralSystem64 := '10';
+  CheckEquals(64, i);
+end;
+
+procedure TestIntegerHelper.TestForLoop;
+var
+  Sum, i: Integer;
+begin
+  Sum := 0;
+  i := 5;
+  i.ForLoop(1, 3, procedure begin Inc(Sum); end);
+  CheckEquals(3, Sum);
+end;
+
+procedure TestIntegerHelper.TestRandom;
+var
+  RandVal: Integer;
+begin
+  RandVal := Integer.Random(1, 10);
+  CheckTrue(RandVal >= 1);
+  CheckTrue(RandVal <= 10);
+end;
+
+procedure TestIntegerHelper.TestRandomPrime;
+var
+  RandPrime: Integer;
+begin
+  RandPrime := Integer.RandomPrime(2, 10);
+  CheckTrue(RandPrime.IsPrime());
+end;
+
+procedure TestIntegerHelper.TestSetRandom;
+var
+  i: Integer;
+begin
+  i := 0;
+  i.SetRandom(1, 10);
+  CheckTrue((i >= 1) and (i <= 10));
+end;
+
+procedure TestIntegerHelper.TestSetRandomPrime;
+var
+  i: Integer;
+begin
+  i := 0;
+  i.SetRandomPrime(2, 10);
+  CheckTrue(i.IsPrime());
+end;
+{$IFEND}
 
 initialization
   // Register any test cases with the test runner
@@ -4227,6 +4541,9 @@ initialization
   RegisterTest(OLDateTimeTest.Suite);
   RegisterTest(OLDateTest.Suite);
   RegisterTest(OLStringTest.Suite);
+  {$IF CompilerVersion >= 24.0}
+  RegisterTest(TestIntegerHelper.Suite);
+  {$IFEND}
 
 end.
 
