@@ -28,14 +28,14 @@ type
   TEditOnKeyPress = procedure (Sender: TObject; var Key: Char) of object;
 
 
-  TOLLinkBase = class(TComponent)
+  TOLControlLink = class(TComponent)
   public
     constructor Create; reintroduce;
     procedure RefreshControl; virtual; abstract;
     function NeedsTimer: Boolean; virtual;
   end;
 
-  TEditToOLInteger = class(TOLLinkBase)
+  TEditToOLInteger = class(TOLControlLink)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -55,7 +55,7 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TSpinEditToOLInteger = class(TOLLinkBase)
+  TSpinEditToOLInteger = class(TOLControlLink)
   private
     FEdit: TSpinEdit;
     FEditOnChange: TEditOnChange;
@@ -75,7 +75,7 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TScrollBarToOLInteger = class(TOLLinkBase)
+  TScrollBarToOLInteger = class(TOLControlLink)
   private
     FEdit: TScrollBar;
     FEditOnChange: TEditOnChange;
@@ -92,7 +92,7 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TTrackBarToOLInteger = class(TOLLinkBase)
+  TTrackBarToOLInteger = class(TOLControlLink)
   private
     FEdit: TTrackBar;
     FEditOnChange: TEditOnChange;
@@ -109,7 +109,7 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
   end;
 
-  TEditToOLDouble = class(TOLLinkBase)
+  TEditToOLDouble = class(TOLControlLink)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -130,7 +130,7 @@ type
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
   end;
 
-  TEditToOLCurrency = class(TOLLinkBase)
+  TEditToOLCurrency = class(TOLControlLink)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -151,7 +151,7 @@ type
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
   end;
 
-  TEditToOLString = class(TOLLinkBase)
+  TEditToOLString = class(TOLControlLink)
   private
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
@@ -168,7 +168,7 @@ type
     property OLPointer: POLString read FOLPointer write SetOLPointer;
   end;
 
-  TMemoToOLString = class(TOLLinkBase)
+  TMemoToOLString = class(TOLControlLink)
   private
     FEdit: TMemo;
     FEditOnChange: TEditOnChange;
@@ -185,7 +185,7 @@ type
     property OLPointer: POLString read FOLPointer write SetOLPointer;
   end;
 
-  TDateTimePickerToOLDate = class(TOLLinkBase)
+  TDateTimePickerToOLDate = class(TOLControlLink)
   private
     FEdit: TDateTimePicker;
     FEditOnChange: TEditOnChange;
@@ -215,7 +215,7 @@ type
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
   end;
 
-  TDateTimePickerToOLDateTime = class(TOLLinkBase)
+  TDateTimePickerToOLDateTime = class(TOLControlLink)
   private
     FEdit: TDateTimePicker;
     FEditOnChange: TEditOnChange;
@@ -245,7 +245,7 @@ type
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
   end;
 
-  TCheckBoxToOLBoolean = class(TOLLinkBase)
+  TCheckBoxToOLBoolean = class(TOLControlLink)
   private
     FEdit: TCheckBox;
     FEditOnClick: TEditOnClick;
@@ -262,7 +262,7 @@ type
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
   end;
 
-  TOLIntegerToLabel = class(TOLLinkBase)
+  TOLIntegerToLabel = class(TOLControlLink)
   private
     FLabel: TLabel;
     FOLPointer: POLInteger;
@@ -284,7 +284,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLStringToLabel = class(TOLLinkBase)
+  TOLStringToLabel = class(TOLControlLink)
   private
     FLabel: TLabel;
     FOLPointer: POLString;
@@ -304,7 +304,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLDoubleToLabel = class(TOLLinkBase)
+  TOLDoubleToLabel = class(TOLControlLink)
   private
     FLabel: TLabel;
     FOLPointer: POLDouble;
@@ -327,7 +327,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLCurrencyToLabel = class(TOLLinkBase)
+  TOLCurrencyToLabel = class(TOLControlLink)
   private
     FLabel: TLabel;
     FOLPointer: POLCurrency;
@@ -350,7 +350,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLDateToLabel = class(TOLLinkBase)
+  TOLDateToLabel = class(TOLControlLink)
   private
     FLabel: TLabel;
     FOLPointer: POLDate;
@@ -372,7 +372,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLDateTimeToLabel = class(TOLLinkBase)
+  TOLDateTimeToLabel = class(TOLControlLink)
   private
     FLabel: TLabel;
     FOLPointer: POLDateTime;
@@ -394,13 +394,13 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
 
-  TOLTypesToControlsLinks = class
+  TOLLinkManager = class
   private
-    FLinks: TDictionary<TForm, TObjectList<TOLLinkBase>>;
-    FTimers: TDictionary<TForm, TTimer>;
-    FWatchers: TDictionary<TForm, TComponent>;
-    FObservers: TDictionary<Pointer, TObject>;  // Maps OLType pointer -> TOLValueObserver
-    procedure AddLink(Control: TControl; Link: TOLLinkBase);
+    FControlLinks: TDictionary<TForm, TObjectList<TOLControlLink>>;
+    FRefreshTimers: TDictionary<TForm, TTimer>;
+    FFormCleanupHooks: TDictionary<TForm, TComponent>;
+    FValueMulticasters: TDictionary<Pointer, TObject>;  // Maps OLType pointer -> TOLValueMulticaster
+    procedure AddLink(Control: TControl; Link: TOLControlLink);
     function DelphiDateTimeFormatToWindowsFormat(const DelphiFormat: OLString): OLString;
   public
     constructor Create;
@@ -434,7 +434,7 @@ type
     procedure RemoveLinks(DestroyedForm: TForm = nil);
   end;
 
-   function Links(): TOLTypesToControlsLinks;
+   function Links(): TOLLinkManager;
 
 implementation
 
@@ -452,12 +452,12 @@ const
   OLPOINTER_ASSIGN_ERROR = 'OLPointer cannot be set when Calculation property is other then nil.';
 
 var
-  OLLinks: TOLTypesToControlsLinks;
+  OLLinkManager: TOLLinkManager;
 
 type
   THackDateTimePicker = class(TDateTimePicker);
 
-  TRefreshTimer = class(TTimer)
+  TOLRefreshTimer = class(TTimer)
   private
     FForm: TForm;
     procedure TimerEvent(Sender: TObject);
@@ -468,30 +468,30 @@ type
     destructor Destroy; override;
   end;
 
-  TOLFormWatcher = class(TComponent)
+  TOLFormCleanupHook = class(TComponent)
   public
     destructor Destroy; override;
   end;
 
-  { Observer class to multicast OnChange events to multiple links }
-  TOLValueObserver = class
+  { Multicaster class to multicast OnChange events to multiple links }
+  TOLValueMulticaster = class
   private
-    FLinks: TList<TOLLinkBase>;
+    FControlLinks: TList<TOLControlLink>;
     procedure OnOLChange(Sender: TObject);
   public
     constructor Create;
     destructor Destroy; override;
-    procedure AddLink(Link: TOLLinkBase);
-    procedure RemoveLink(Link: TOLLinkBase);
+    procedure AddLink(Link: TOLControlLink);
+    procedure RemoveLink(Link: TOLControlLink);
     function IsEmpty: Boolean;
   end;
 
-function Links(): TOLTypesToControlsLinks;
+function Links(): TOLLinkManager;
 begin
-  Result := OLLinks;
+  Result := OLLinkManager;
 end;
 
-constructor TRefreshTimer.Create(AOwner: TComponent; AForm: TForm);
+constructor TOLRefreshTimer.Create(AOwner: TComponent; AForm: TForm);
 begin
   inherited Create(AOwner);
   FForm := AForm;
@@ -501,77 +501,77 @@ begin
   OnTimer := TimerEvent;
 end;
 
-destructor TRefreshTimer.Destroy;
+destructor TOLRefreshTimer.Destroy;
 begin
   if Assigned(FForm) then
     FForm.RemoveFreeNotification(Self);
   inherited;
 end;
 
-procedure TRefreshTimer.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TOLRefreshTimer.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FForm) then
   begin
     FForm := nil;
     Enabled := False;
-    if Assigned(Links.FTimers) then
-       Links.FTimers.Remove(AComponent as TForm);
+    if Assigned(Links.FRefreshTimers) then
+       Links.FRefreshTimers.Remove(AComponent as TForm);
     
     // Ensure we free ourselves since we are owned by nil
     Self.Free;
   end;
 end;
 
-procedure TRefreshTimer.TimerEvent(Sender: TObject);
+procedure TOLRefreshTimer.TimerEvent(Sender: TObject);
 begin
   if Assigned(FForm) then
     Links.RefreshControls(FForm);
 end;
 
-destructor TOLFormWatcher.Destroy;
+destructor TOLFormCleanupHook.Destroy;
 begin
   if Owner is TForm then
     Links.RemoveLinks(Owner as TForm);
   inherited;
 end;
 
-{ TOLValueObserver }
+{ TOLValueMulticaster }
 
-constructor TOLValueObserver.Create;
+constructor TOLValueMulticaster.Create;
 begin
   inherited Create;
-  FLinks := TList<TOLLinkBase>.Create;
+  FControlLinks := TList<TOLControlLink>.Create;
 end;
 
-destructor TOLValueObserver.Destroy;
+destructor TOLValueMulticaster.Destroy;
 begin
-  FLinks.Free;
+  FControlLinks.Free;
   inherited;
 end;
 
-procedure TOLValueObserver.AddLink(Link: TOLLinkBase);
+procedure TOLValueMulticaster.AddLink(Link: TOLControlLink);
 begin
-  if not FLinks.Contains(Link) then
-    FLinks.Add(Link);
+  if not FControlLinks.Contains(Link) then
+    FControlLinks.Add(Link);
 end;
 
-procedure TOLValueObserver.RemoveLink(Link: TOLLinkBase);
+procedure TOLValueMulticaster.RemoveLink(Link: TOLControlLink);
 begin
-  FLinks.Remove(Link);
+  FControlLinks.Remove(Link);
 end;
 
-function TOLValueObserver.IsEmpty: Boolean;
+function TOLValueMulticaster.IsEmpty: Boolean;
 begin
-  Result := FLinks.Count = 0;
+  Result := FControlLinks.Count = 0;
 end;
 
-procedure TOLValueObserver.OnOLChange(Sender: TObject);
+procedure TOLValueMulticaster.OnOLChange(Sender: TObject);
 var
-  Link: TOLLinkBase;
+  Link: TOLControlLink;
 begin
   // Multicast: call RefreshControl on all registered links
-  for Link in FLinks do
+  for Link in FControlLinks do
     Link.RefreshControl;
 end;
 
@@ -1210,14 +1210,14 @@ begin
   FOLPointer := Value;
 end;
 
-{ TOLLinkBase }
+{ TOLControlLink }
 
-constructor TOLLinkBase.Create;
+constructor TOLControlLink.Create;
 begin
   inherited Create(nil);
 end;
 
-function TOLLinkBase.NeedsTimer: Boolean;
+function TOLControlLink.NeedsTimer: Boolean;
 begin
   Result := false;
 end;
@@ -2315,56 +2315,56 @@ begin
   FOLPointer := Value;
 end;
 
-{ TOLTypesToControlsLinks }
+{ TOLLinkManager }
 
-constructor TOLTypesToControlsLinks.Create;
+constructor TOLLinkManager.Create;
 begin
-  FLinks := TDictionary<TForm, TObjectList<TOLLinkBase>>.Create;
-  FTimers := TDictionary<TForm, TTimer>.Create;
-  FWatchers := TDictionary<TForm, TComponent>.Create;
-  FObservers := TDictionary<Pointer, TObject>.Create;
+  FControlLinks := TDictionary<TForm, TObjectList<TOLControlLink>>.Create;
+  FRefreshTimers := TDictionary<TForm, TTimer>.Create;
+  FFormCleanupHooks := TDictionary<TForm, TComponent>.Create;
+  FValueMulticasters := TDictionary<Pointer, TObject>.Create;
 end;
 
-destructor TOLTypesToControlsLinks.Destroy;
+destructor TOLLinkManager.Destroy;
 var
-  List: TObjectList<TOLLinkBase>;
+  List: TObjectList<TOLControlLink>;
   Timer: TTimer;
   Obj: TObject;
 begin
-  if Assigned(FLinks) then
+  if Assigned(FControlLinks) then
   begin
-    for List in FLinks.Values do
+    for List in FControlLinks.Values do
       List.Free;
-    FLinks.Free;
+    FControlLinks.Free;
   end;
-  if Assigned(FTimers) then
+  if Assigned(FRefreshTimers) then
   begin
     // Free all timers to avoid leaks and AVs
-    for Timer in FTimers.Values do
+    for Timer in FRefreshTimers.Values do
     begin
       Timer.Enabled := False;
       Timer.Free;
     end;
-    FTimers.Free;
+    FRefreshTimers.Free;
   end;
-  if Assigned(FWatchers) then
-    FWatchers.Free;
-  if Assigned(FObservers) then
+  if Assigned(FFormCleanupHooks) then
+    FFormCleanupHooks.Free;
+  if Assigned(FValueMulticasters) then
   begin
-    for Obj in FObservers.Values do
+    for Obj in FValueMulticasters.Values do
       Obj.Free;
-    FObservers.Free;
+    FValueMulticasters.Free;
   end;
   inherited;
 end;
 
-procedure TOLTypesToControlsLinks.AddLink(Control: TControl; Link: TOLLinkBase);
+procedure TOLLinkManager.AddLink(Control: TControl; Link: TOLControlLink);
 var
   TempControl: TWinControl;
   Form: TForm;
-  List: TObjectList<TOLLinkBase>;
+  List: TObjectList<TOLControlLink>;
   Timer: TTimer;
-  Watcher: TOLFormWatcher;
+  CleanupHook: TOLFormCleanupHook;
   NeedTimer: Boolean;
 begin
   if not Assigned(Control) then
@@ -2381,12 +2381,12 @@ begin
 
   if Form = nil then Exit;
 
-  if not Assigned(FLinks) then Exit;
+  if not Assigned(FControlLinks) then Exit;
 
-  if not FLinks.TryGetValue(Form, List) then
+  if not FControlLinks.TryGetValue(Form, List) then
   begin
-    List := TObjectList<TOLLinkBase>.Create(True);
-    FLinks.Add(Form, List);
+    List := TObjectList<TOLControlLink>.Create(True);
+    FControlLinks.Add(Form, List);
   end;
 
   List.Add(Link);
@@ -2399,23 +2399,23 @@ begin
   NeedTimer := Link.NeedsTimer;
   {$IFEND}
 
-  if NeedTimer and (not FTimers.ContainsKey(Form)) then
+  if NeedTimer and (not FRefreshTimers.ContainsKey(Form)) then
   begin
-    Timer := TRefreshTimer.Create(nil, Form); // Owned by nil, we manage it
+    Timer := TOLRefreshTimer.Create(nil, Form); // Owned by nil, we manage it
     Timer.Enabled := True;
-    FTimers.Add(Form, Timer);
+    FRefreshTimers.Add(Form, Timer);
   end;
 
-  // Ensure Watcher
-  if not FWatchers.ContainsKey(Form) then
+  // Ensure CleanupHook
+  if not FFormCleanupHooks.ContainsKey(Form) then
   begin
-    Watcher := TOLFormWatcher.Create(Form); // Owned by Form, so it dies with Form
-    FWatchers.Add(Form, Watcher);
+    CleanupHook := TOLFormCleanupHook.Create(Form); // Owned by Form, so it dies with Form
+    FFormCleanupHooks.Add(Form, CleanupHook);
   end;
 end;
 
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TSpinEdit; var i: OLInteger);
+procedure TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger);
 var
   Link: TSpinEditToOLInteger;
 begin
@@ -2430,27 +2430,27 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var i: OLInteger;
+procedure TOLLinkManager.Link(const Edit: TEdit; var i: OLInteger;
     const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLInteger;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TEditToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLInteger
-  if not FObservers.TryGetValue(@i, Observer) then
+  // Get or create multicaster for this OLInteger
+  if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@i, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@i, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  i.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLInteger
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
   
@@ -2459,7 +2459,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TTrackBar; var i: OLInteger);
+procedure TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger);
 var
   Link: TTrackBarToOLInteger;
 begin
@@ -2474,7 +2474,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TScrollBar; var i: OLInteger);
+procedure TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger);
 var
   Link: TScrollBarToOLInteger;
 begin
@@ -2489,27 +2489,27 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
+procedure TOLLinkManager.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLDouble;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TEditToOLDouble.Create;
   Link.FFormat := Format;
   Link.Edit := Edit;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLDouble
-  if not FObservers.TryGetValue(@d, Observer) then
+  // Get or create multicaster for this OLDouble
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@d, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDouble
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDouble
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
 
@@ -2518,27 +2518,27 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
+procedure TOLLinkManager.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLCurrency;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TEditToOLCurrency.Create;
   Link.FFormat := Format;
   Link.Edit := Edit;
   Link.FOLPointer := @curr;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLCurrency
-  if not FObservers.TryGetValue(@curr, Observer) then
+  // Get or create multicaster for this OLCurrency
+  if not FValueMulticasters.TryGetValue(@curr, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@curr, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@curr, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  curr.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLCurrency
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
   
@@ -2547,63 +2547,63 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TEdit; var s: OLString);
+procedure TOLLinkManager.Link(const Edit: TEdit; var s: OLString);
 var
   Link: TEditToOLString;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TEditToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLString
-  if not FObservers.TryGetValue(@s, Observer) then
+  // Get or create multicaster for this OLString
+  if not FValueMulticasters.TryGetValue(@s, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@s, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@s, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  s.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLString
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  s.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLString
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TMemo; var s: OLString);
+procedure TOLLinkManager.Link(const Edit: TMemo; var s: OLString);
 var
   Link: TMemoToOLString;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TMemoToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLString
-  if not FObservers.TryGetValue(@s, Observer) then
+  // Get or create multicaster for this OLString
+  if not FValueMulticasters.TryGetValue(@s, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@s, ValueObserver);
-    s.OnChange := ValueObserver.OnOLChange;  // Set observer's handler on OLString
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@s, ValueMulticaster);
+    s.OnChange := ValueMulticaster.OnOLChange;  // Set multicaster's handler on OLString
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TDateTimePicker; var d: OLDate);
+procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDate);
 var
   Link: TDateTimePickerToOLDate;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   if Edit.Format = '' then
   begin
@@ -2613,16 +2613,16 @@ begin
   Link := TDateTimePickerToOLDate.Create;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLDate
-  if not FObservers.TryGetValue(@d, Observer) then
+  // Get or create multicaster for this OLDate
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@d, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDate
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDate
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   Link.Edit := Edit;
   AddLink(Edit, Link);
@@ -2648,7 +2648,7 @@ end;
   After these conversions the resulting format string is compatible with
   TDateTimePicker.Format and DTM_SETFORMAT in the Windows API.
 *}
-function TOLTypesToControlsLinks.DelphiDateTimeFormatToWindowsFormat(const
+function TOLLinkManager.DelphiDateTimeFormatToWindowsFormat(const
     DelphiFormat: OLString): OLString;
 var
   OutPut: OLString;
@@ -2664,12 +2664,12 @@ begin
 end;
 
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TDateTimePicker; var d:
+procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d:
     OLDateTime);
 var
   Link: TDateTimePickerToOLDateTime;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   if Edit.Format  = '' then
   begin
@@ -2683,16 +2683,16 @@ begin
   Link := TDateTimePickerToOLDateTime.Create;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLDateTime
-  if not FObservers.TryGetValue(@d, Observer) then
+  // Get or create multicaster for this OLDateTime
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@d, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDateTime
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDateTime
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   Link.Edit := Edit;
   AddLink(Edit, Link);
@@ -2700,59 +2700,59 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Edit: TCheckBox; var b: OLBoolean);
+procedure TOLLinkManager.Link(const Edit: TCheckBox; var b: OLBoolean);
 var
   Link: TCheckBoxToOLBoolean;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TCheckBoxToOLBoolean.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @b;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLBoolean
-  if not FObservers.TryGetValue(@b, Observer) then
+  // Get or create multicaster for this OLBoolean
+  if not FValueMulticasters.TryGetValue(@b, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@b, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@b, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  b.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLBoolean
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  b.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLBoolean
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var i: OLInteger);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var i: OLInteger);
 var
   Link: TOLIntegerToLabel;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TOLIntegerToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLInteger
-  if not FObservers.TryGetValue(@i, Observer) then
+  // Get or create multicaster for this OLInteger
+  if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@i, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@i, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  i.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLInteger
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f:
+procedure TOLLinkManager.Link(const Lbl: TLabel; const f:
     TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string =
     ERROR_STRING);
 var
@@ -2767,7 +2767,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f:
+procedure TOLLinkManager.Link(const Lbl: TLabel; const f:
     TFunctionReturningOLString; const ValueOnErrorInCalculation: string =
     ERROR_STRING);
 var
@@ -2782,33 +2782,33 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var s: OLString);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var s: OLString);
 var
   Link: TOLStringToLabel;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TOLStringToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLString
-  if not FObservers.TryGetValue(@s, Observer) then
+  // Get or create multicaster for this OLString
+  if not FValueMulticasters.TryGetValue(@s, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@s, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@s, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  s.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLString
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  s.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLString
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
+procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
 var
   Link: TOLDoubleToLabel;
 begin
@@ -2822,34 +2822,34 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT);
 var
   Link: TOLDoubleToLabel;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TOLDoubleToLabel.Create;
   Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLDouble
-  if not FObservers.TryGetValue(@d, Observer) then
+  // Get or create multicaster for this OLDouble
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@d, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDouble
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDouble
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
+procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
 var
   Link: TOLCurrencyToLabel;
 begin
@@ -2863,34 +2863,34 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT);
 var
   Link: TOLCurrencyToLabel;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TOLCurrencyToLabel.Create;
   Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @curr;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLCurrency
-  if not FObservers.TryGetValue(@curr, Observer) then
+  // Get or create multicaster for this OLCurrency
+  if not FValueMulticasters.TryGetValue(@curr, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@curr, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@curr, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  curr.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLCurrency
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
+procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
 var
   Link: TOLDateToLabel;
 begin
@@ -2903,33 +2903,33 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDate);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDate);
 var
   Link: TOLDateToLabel;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TOLDateToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLDate
-  if not FObservers.TryGetValue(@d, Observer) then
+  // Get or create multicaster for this OLDate
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@d, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDate
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDate
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
+procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 var
   Link: TOLDateTimeToLabel;
 begin
@@ -2942,123 +2942,132 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.Link(const Lbl: TLabel; var d: OLDateTime);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDateTime);
 var
   Link: TOLDateTimeToLabel;
   Observer: TObject;
-  ValueObserver: TOLValueObserver;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TOLDateTimeToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  // Get or create observer for this OLDateTime
-  if not FObservers.TryGetValue(@d, Observer) then
+  // Get or create multicaster for this OLDateTime
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
-    ValueObserver := TOLValueObserver.Create;
-    FObservers.Add(@d, ValueObserver);
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
   end
   else
-    ValueObserver := Observer as TOLValueObserver;
-  d.OnChange := ValueObserver.OnOLChange;  // Always set observer's handler on OLDateTime
-  ValueObserver.AddLink(Link);  // Register this link with the observer
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDateTime
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
 end;
 
-procedure TOLTypesToControlsLinks.RefreshControls(FormToRefresh: TForm = nil);
+procedure TOLLinkManager.RefreshControls(FormToRefresh: TForm = nil);
 var
-  List: TObjectList<TOLLinkBase>;
-  Link: TOLLinkBase;
+  List: TObjectList<TOLControlLink>;
+  Link: TOLControlLink;
 begin
-  if FormToRefresh = nil then Exit;
+  if not Assigned(FControlLinks) then Exit;
 
-  if not Assigned(FLinks) then Exit;
-
-  if FLinks.TryGetValue(FormToRefresh, List) then
+  if Assigned(FormToRefresh) then
   begin
-    for Link in List do
-      Link.RefreshControl();
+    if FControlLinks.TryGetValue(FormToRefresh, List) then
+    begin
+      for Link in List do
+        Link.RefreshControl;
+    end;
+  end
+  else
+  begin
+    for List in FControlLinks.Values do
+    begin
+      for Link in List do
+        Link.RefreshControl;
+    end;
   end;
 end;
 
-procedure TOLTypesToControlsLinks.RemoveLinks(DestroyedForm: TForm = nil);
+procedure TOLLinkManager.RemoveLinks(DestroyedForm: TForm = nil);
 var
-  List: TObjectList<TOLLinkBase>;
+  List: TObjectList<TOLControlLink>;
   Timer: TTimer;
-  Watcher: TComponent;
+  CleanupHook: TComponent;
 begin
   if DestroyedForm <> nil then
   begin
-    if not Assigned(FLinks) then Exit;
+    if not Assigned(FControlLinks) then Exit;
 
-    // Remove Watcher
-    if FWatchers.TryGetValue(DestroyedForm, Watcher) then
+    // Remove CleanupHook
+    if FFormCleanupHooks.TryGetValue(DestroyedForm, CleanupHook) then
     begin
-      FWatchers.Remove(DestroyedForm);
-      // Watcher is owned by Form, so Form will free it automatically.
+      FFormCleanupHooks.Remove(DestroyedForm);
+      // CleanupHook is owned by Form, so Form will free it automatically.
       // We just remove it from our dictionary to avoid double-cleanup.
-      // If the Form is being destroyed, Watcher.Destroy will call RemoveLinks anyway.
+      // If the Form is being destroyed, CleanupHook.Destroy will call RemoveLinks anyway.
     end;
 
     // Remove Timer
-    if FTimers.TryGetValue(DestroyedForm, Timer) then
+    if FRefreshTimers.TryGetValue(DestroyedForm, Timer) then
     begin
-      FTimers.Remove(DestroyedForm);
+      FRefreshTimers.Remove(DestroyedForm);
       Timer.Enabled := False;
       Timer.Free;
     end;
 
-    if FLinks.TryGetValue(DestroyedForm, List) then
+    if FControlLinks.TryGetValue(DestroyedForm, List) then
     begin
-      // Remove links from observers before freeing
+      // Remove links from multicasters before freeing
       {$IF CompilerVersion >= 34.0}
-      if Assigned(FObservers) then
+      if Assigned(FValueMulticasters) then
       begin
         for var Link in List do
         begin
-          // Find and remove this link from any observer
-          for var ObserverPair in FObservers do
+          // Find and remove this link from any multicaster
+          for var MulticasterPair in FValueMulticasters do
           begin
-            var Observer := ObserverPair.Value as TOLValueObserver;
-            Observer.RemoveLink(Link);  // Safe to call even if link not in observer
+            var Multicaster := MulticasterPair.Value as TOLValueMulticaster;
+            Multicaster.RemoveLink(Link);  // Safe to call even if link not in multicaster
           end;
         end;
 
-        // Clean up empty observers
-        var ObserversToRemove := TList<Pointer>.Create;
+        // Clean up empty multicasters
+        var MulticastersToRemove := TList<Pointer>.Create;
         try
-          for var ObserverPair in FObservers do
+          for var MulticasterPair in FValueMulticasters do
           begin
-            var Observer := ObserverPair.Value as TOLValueObserver;
-            if Observer.IsEmpty then
-              ObserversToRemove.Add(ObserverPair.Key);
+            var Multicaster := MulticasterPair.Value as TOLValueMulticaster;
+            if Multicaster.IsEmpty then
+              MulticastersToRemove.Add(MulticasterPair.Key);
           end;
 
-          for var OLPointer in ObserversToRemove do
+          for var OLPointer in MulticastersToRemove do
           begin
-            var Observer := FObservers[OLPointer];
-            FObservers.Remove(OLPointer);
+            var Multicaster := FValueMulticasters[OLPointer];
+            FValueMulticasters.Remove(OLPointer);
             
-            // Set OnChange := nil on the OLInteger variable before freeing observer
+            // Set OnChange := nil on the OLInteger variable before freeing multicaster
             // This prevents Access Violations when the variable is reused later
             // All OL types have OnChange at the same offset, so we can use POLInteger
             var OLIntPtr := POLInteger(OLPointer);
             if Assigned(OLIntPtr) then
               OLIntPtr^.OnChange := nil;
             
-            Observer.Free;
+            Multicaster.Free;
           end;
         finally
-          ObserversToRemove.Free;
+          MulticastersToRemove.Free;
         end;
       end;
       {$IFEND}
 
       List.Free;  // Free the list and all its link objects
-      FLinks.Remove(DestroyedForm);
+      FControlLinks.Remove(DestroyedForm);
     end;
   end;
 end;
@@ -3094,10 +3103,10 @@ begin
 end;
 
 initialization
-  OLLinks := TOLTypesToControlsLinks.Create;
+  OLLinkManager := TOLLinkManager.Create;
 
 finalization
-  OLLinks.Free;
+  OLLinkManager.Free;
 
 
 
