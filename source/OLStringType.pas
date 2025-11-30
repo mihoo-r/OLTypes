@@ -157,9 +157,9 @@ type
     function UpperCase(): OLString;
     function InitCaps(): OLString;
 
-    function Trimed(): OLString;
-    function TrimedLeft(): OLString;
-    function TrimedRight(): OLString;
+    function Trimmed(): OLString;
+    function TrimmedLeft(): OLString;
+    function TrimmedRight(): OLString;
     function QuotedStr(): OLString;
     function SameStr(s: OLString): OLBoolean;
     function SameText(s: OLString): OLBoolean;
@@ -2692,7 +2692,7 @@ begin
   Result := SysUtils.TryStrToCurr(Self, c);
 end;
 
-function OLString.Trimed: OLString;
+function OLString.Trimmed: OLString;
 var
   OutPut: OLString;
 begin
@@ -2704,7 +2704,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.TrimedLeft: OLString;
+function OLString.TrimmedLeft: OLString;
 var
   OutPut: OLString;
 begin
@@ -2716,7 +2716,7 @@ begin
   Result := OutPut;
 end;
 
-function OLString.TrimedRight: OLString;
+function OLString.TrimmedRight: OLString;
 var
   OutPut: OLString;
 begin
