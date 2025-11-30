@@ -1,4 +1,4 @@
-unit OLTypes;
+ï»¿unit OLTypes;
 
 interface
 
@@ -126,7 +126,76 @@ const
 
    END_OF_THE_STRING = OLStringtype.END_OF_THE_STRING;
 
-   type
+type
+  // Helper for Integer type - provides OLInteger methods without null handling
+  {$IF CompilerVersion >= 24.0}
+  TOLIntegerHelper = record  helper for Integer
+
+    // Predicates
+    function IsDividableBy(const i: Integer): Boolean;
+    function IsOdd(): Boolean;
+    function IsEven(): Boolean;
+    function IsPositive(): Boolean;
+    function IsNegative(): Boolean;
+    function IsNonNegative(): Boolean;
+    function IsPrime(): Boolean;
+
+    // Mathematical operations
+    function Sqr(): Integer;
+    function Power(const Exponent: LongWord): Integer; overload;
+    function Power(const Exponent: Integer): Double; overload;
+    function Abs(): Integer;
+    function Max(const i: Integer): Integer;
+    function Min(const i: Integer): Integer;
+    function Round(const Digits: Integer): Integer;
+
+    // Range operations
+    function Between(const BottomIncluded, TopIncluded: Integer): Boolean;
+    function Increased(const IncreasedBy: Integer = 1): Integer;
+    function Decreased(const DecreasedBy: Integer = 1): Integer;
+    function Replaced(const FromValue: Integer; const ToValue: Integer): Integer;
+
+    // String conversion
+    function ToString(): string;
+    function ToSQLString(): string;
+    function ToNumeralSystem(const Base: Integer): string;
+
+    // Number system properties
+    function GetBinary: string;
+    function GetOctal: string;
+    function GetHexidecimal: string;
+    function GetNumeralSystem32: string;
+    function GetNumeralSystem64: string;
+    procedure SetBinary(const Value: string);
+    procedure SetOctal(const Value: string);
+    procedure SetHexidecimal(const Value: string);
+    procedure SetNumeralSystem32(const Value: string);
+    procedure SetNumeralSystem64(const Value: string);
+
+    property Binary: string read GetBinary write SetBinary;
+    property Octal: string read GetOctal write SetOctal;
+    property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
+    property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
+    property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
+
+    // Loop utility
+    procedure ForLoop(const InitialValue: Integer; const ToValue: Integer; const Proc: TProc);
+
+    // Random generation
+    class function Random(const MinValue: Integer; const MaxValue: Integer): Integer; overload; static;
+    class function RandomPrime(const MinValue: Integer; const MaxValue: Integer): Integer; overload; static;
+    class function Random(const MaxValue: Integer = MaxInt): Integer; overload; static;
+    class function RandomPrime(const MaxValue: Integer = MaxInt): Integer; overload; static;
+    procedure SetRandom(const MinValue: Integer; const MaxValue: Integer); overload;
+    procedure SetRandom(const MaxValue: Integer = MaxInt); overload;
+    procedure SetRandomPrime(const MinValue: Integer; const MaxValue: Integer); overload;
+    procedure SetRandomPrime(const MaxValue: Integer = MaxInt); overload;
+
+   end;
+  {$IFEND}
+
+
+
    TOLEditHelper = class helper for TEdit
      procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
      procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
@@ -158,8 +227,6 @@ const
    TOLCheckBoxHelper = class helper for TCheckBox
      procedure Link(var b: OLBoolean);
    end;
-
-
 
    TOLLabelHelper = class helper for TLabel
      procedure Link(var i: OLInteger); overload;
@@ -271,10 +338,10 @@ begin
     TK := f.FieldType.TypeKind;
 
     {$IF CompilerVersion >= 34.0}
-    // Delphi 10.4+ — handle Managed Records
+    // Delphi 10.4+ ï¿½ handle Managed Records
     if (TK = tkRecord) or (TK = tkMRecord) then
     {$ELSE}
-    // Delphi XE..10.3 — only standard records
+    // Delphi XE..10.3 ï¿½ only standard records
     if TK = tkRecord then
     {$IFEND}
     begin
@@ -729,5 +796,329 @@ procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDateTime; const Value
 begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
+
+
+{ TOLIntegerHelper }
+
+
+
+function TOLIntegerHelper.IsDividableBy(const i: Integer): Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.IsDividableBy(i);
+end;
+
+function TOLIntegerHelper.IsOdd: Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.IsOdd();
+end;
+
+function TOLIntegerHelper.IsEven: Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.IsEven();
+end;
+
+function TOLIntegerHelper.IsPositive: Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.IsPositive();
+end;
+
+function TOLIntegerHelper.IsNegative: Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.IsNegative();
+end;
+
+function TOLIntegerHelper.IsNonNegative: Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.IsNonNegative();
+end;
+
+function TOLIntegerHelper.IsPrime: Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.IsPrime();
+end;
+
+function TOLIntegerHelper.Sqr: Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Sqr();
+end;
+
+function TOLIntegerHelper.Power(const Exponent: LongWord): Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Power(Exponent);
+end;
+
+function TOLIntegerHelper.Power(const Exponent: Integer): Double;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Power(Exponent);
+end;
+
+function TOLIntegerHelper.Abs: Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Abs();
+end;
+
+function TOLIntegerHelper.Max(const i: Integer): Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Max(i);
+end;
+
+function TOLIntegerHelper.Min(const i: Integer): Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Min(i);
+end;
+
+function TOLIntegerHelper.Round(const Digits: Integer): Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Round(Digits);
+end;
+
+function TOLIntegerHelper.Between(const BottomIncluded, TopIncluded: Integer): Boolean;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Between(BottomIncluded, TopIncluded);
+end;
+
+function TOLIntegerHelper.Increased(const IncreasedBy: Integer): Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Increased(IncreasedBy);
+end;
+
+function TOLIntegerHelper.Decreased(const DecreasedBy: Integer): Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Decreased(DecreasedBy);
+end;
+
+function TOLIntegerHelper.Replaced(const FromValue, ToValue: Integer): Integer;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Replaced(FromValue, ToValue);
+end;
+
+function TOLIntegerHelper.ToString: string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.ToString();
+end;
+
+function TOLIntegerHelper.ToSQLString: string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.ToSQLString();
+end;
+
+function TOLIntegerHelper.ToNumeralSystem(const Base: Integer): string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.ToNumeralSystem(Base);
+end;
+
+function TOLIntegerHelper.GetBinary: string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Binary;
+end;
+
+function TOLIntegerHelper.GetOctal: string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Octal;
+end;
+
+function TOLIntegerHelper.GetHexidecimal: string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.Hexidecimal;
+end;
+
+function TOLIntegerHelper.GetNumeralSystem32: string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.NumeralSystem32;
+end;
+
+function TOLIntegerHelper.GetNumeralSystem64: string;
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  Result := ol.NumeralSystem64;
+end;
+
+procedure TOLIntegerHelper.SetBinary(const Value: string);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.Binary := Value;
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.SetOctal(const Value: string);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.Octal := Value;
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.SetHexidecimal(const Value: string);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.Hexidecimal := Value;
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.SetNumeralSystem32(const Value: string);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.NumeralSystem32 := Value;
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.SetNumeralSystem64(const Value: string);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.NumeralSystem64 := Value;
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.ForLoop(const InitialValue, ToValue: Integer; const Proc: TProc);
+var
+  i: Integer;
+begin
+  for i := InitialValue to ToValue do
+    Proc();
+end;
+
+class function TOLIntegerHelper.Random(const MinValue, MaxValue: Integer): Integer;
+begin
+  Result := OLInteger.Random(MinValue, MaxValue);
+end;
+
+class function TOLIntegerHelper.RandomPrime(const MinValue, MaxValue: Integer): Integer;
+begin
+  Result := OLInteger.RandomPrime(MinValue, MaxValue);
+end;
+
+class function TOLIntegerHelper.Random(const MaxValue: Integer): Integer;
+begin
+  Result := OLInteger.Random(MaxValue);
+end;
+
+class function TOLIntegerHelper.RandomPrime(const MaxValue: Integer): Integer;
+begin
+  Result := OLInteger.RandomPrime(MaxValue);
+end;
+
+procedure TOLIntegerHelper.SetRandom(const MinValue, MaxValue: Integer);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.SetRandom(MinValue, MaxValue);
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.SetRandom(const MaxValue: Integer);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.SetRandom(MaxValue);
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.SetRandomPrime(const MinValue, MaxValue: Integer);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.SetRandomPrime(MinValue, MaxValue);
+  Self := ol;
+end;
+
+procedure TOLIntegerHelper.SetRandomPrime(const MaxValue: Integer);
+var
+  ol: OLInteger;
+begin
+  ol := Self;
+  ol.SetRandomPrime(MaxValue);
+  Self := ol;
+end;
+
+
 
 end.
