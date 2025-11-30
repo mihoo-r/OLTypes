@@ -1,0 +1,1141 @@
+unit Test_Helpers;
+
+interface
+
+uses
+  TestFramework, SysUtils, Types, Classes, OLTypes;
+
+
+
+implementation
+
+
+
+
+{$IF CompilerVersion >= 24.0}
+type
+  TestIntegerHelper = class(TTestCase)
+  published
+    procedure TestIsDividableBy;
+    procedure TestIsOdd;
+    procedure TestIsEven;
+    procedure TestIsPositive;
+    procedure TestIsNegative;
+    procedure TestIsNonNegative;
+    procedure TestIsPrime;
+    procedure TestSqr;
+    procedure TestPower;
+    procedure TestAbs;
+    procedure TestMax;
+    procedure TestMin;
+    procedure TestRound;
+    procedure TestBetween;
+    procedure TestIncreased;
+    procedure TestDecreased;
+    procedure TestReplaced;
+    procedure TestToString;
+    procedure TestToSQLString;
+    procedure TestToNumeralSystem;
+    procedure TestBinary;
+    procedure TestOctal;
+    procedure TestHexidecimal;
+    procedure TestNumeralSystem32;
+    procedure TestNumeralSystem64;
+    procedure TestForLoop;
+    procedure TestRandom;
+    procedure TestRandomPrime;
+    procedure TestSetRandom;
+    procedure TestSetRandomPrime;
+    procedure TestBasicFunctionality;
+    procedure TestBinaryAndHex;
+    procedure TestMathOperations;
+    procedure TestPrimeNumbers;
+  end;
+
+procedure TestIntegerHelper.TestIsDividableBy;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckTrue(i.IsDividableBy(2));
+  CheckFalse(i.IsDividableBy(3));
+end;
+
+procedure TestIntegerHelper.TestIsOdd;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckTrue(i.IsOdd());
+  i := 4;
+  CheckFalse(i.IsOdd());
+end;
+
+procedure TestIntegerHelper.TestIsEven;
+var
+  i: Integer;
+begin
+  i := 4;
+  CheckTrue(i.IsEven());
+  i := 5;
+  CheckFalse(i.IsEven());
+end;
+
+procedure TestIntegerHelper.TestIsPositive;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckTrue(i.IsPositive());
+  i := -5;
+  CheckFalse(i.IsPositive());
+end;
+
+procedure TestIntegerHelper.TestIsNegative;
+var
+  i: Integer;
+begin
+  i := -5;
+  CheckTrue(i.IsNegative());
+  i := 5;
+  CheckFalse(i.IsNegative());
+end;
+
+procedure TestIntegerHelper.TestIsNonNegative;
+var
+  i: Integer;
+begin
+  i := 0;
+  CheckTrue(i.IsNonNegative());
+  i := 5;
+  CheckTrue(i.IsNonNegative());
+  i := -5;
+  CheckFalse(i.IsNonNegative());
+end;
+
+procedure TestIntegerHelper.TestIsPrime;
+var
+  i: Integer;
+begin
+  i := 7;
+  CheckTrue(i.IsPrime());
+  i := 4;
+  CheckFalse(i.IsPrime());
+end;
+
+procedure TestIntegerHelper.TestSqr;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(25, i.Sqr());
+end;
+
+procedure TestIntegerHelper.TestPower;
+var
+  i: Integer;
+begin
+  i := 2;
+  CheckEquals(8, i.Power(3));
+  i := 3;
+  CheckEquals(9.0, i.Power(2), 0.001);
+end;
+
+procedure TestIntegerHelper.TestAbs;
+var
+  i: Integer;
+begin
+  i := -5;
+  CheckEquals(5, i.Abs());
+  i := 5;
+  CheckEquals(5, i.Abs());
+end;
+
+procedure TestIntegerHelper.TestMax;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(10, i.Max(10));
+  i := 10;
+  CheckEquals(10, i.Max(5));
+end;
+
+procedure TestIntegerHelper.TestMin;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(5, i.Min(10));
+  i := 10;
+  CheckEquals(5, i.Min(5));
+end;
+
+procedure TestIntegerHelper.TestRound;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals(10, i.Round(1));
+end;
+
+procedure TestIntegerHelper.TestBetween;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckTrue(i.Between(1, 10));
+  i := 15;
+  CheckFalse(i.Between(1, 10));
+end;
+
+procedure TestIntegerHelper.TestIncreased;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(6, i.Increased());
+  CheckEquals(7, i.Increased(2));
+end;
+
+procedure TestIntegerHelper.TestDecreased;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(4, i.Decreased());
+  CheckEquals(3, i.Decreased(2));
+end;
+
+procedure TestIntegerHelper.TestReplaced;
+var
+  i: Integer;
+begin
+  i := 5;
+  CheckEquals(20, i.Replaced(5, 20));
+end;
+
+procedure TestIntegerHelper.TestToString;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals('10', i.ToString());
+end;
+
+procedure TestIntegerHelper.TestToSQLString;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals('10', i.ToSQLString());
+end;
+
+procedure TestIntegerHelper.TestToNumeralSystem;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals('1010', i.ToNumeralSystem(2));
+end;
+
+procedure TestIntegerHelper.TestBinary;
+var
+  i: Integer;
+begin
+  i := 10;
+  i.Binary := '1010';
+  CheckEquals(10, i);
+end;
+
+procedure TestIntegerHelper.TestOctal;
+var
+  i: Integer;
+begin
+  i := 8;
+  i.Octal := '10';
+  CheckEquals(8, i);
+end;
+
+procedure TestIntegerHelper.TestHexidecimal;
+var
+  i: Integer;
+begin
+  i := 16;
+  i.Hexidecimal := '10';
+  CheckEquals(16, i);
+end;
+
+procedure TestIntegerHelper.TestNumeralSystem32;
+var
+  i: Integer;
+begin
+  i := 32;
+  i.NumeralSystem32 := '10';
+  CheckEquals(32, i);
+end;
+
+procedure TestIntegerHelper.TestNumeralSystem64;
+var
+  i: Integer;
+begin
+  i := 64;
+  i.NumeralSystem64 := '10';
+  CheckEquals(64, i);
+end;
+
+procedure TestIntegerHelper.TestForLoop;
+var
+  Sum, i: Integer;
+begin
+  Sum := 0;
+  i := 5;
+  i.ForLoop(1, 3, procedure begin Inc(Sum); end);
+  CheckEquals(3, Sum);
+end;
+
+procedure TestIntegerHelper.TestRandom;
+var
+  RandVal: Integer;
+begin
+  RandVal := Integer.Random(1, 10);
+  CheckTrue(RandVal >= 1);
+  CheckTrue(RandVal <= 10);
+end;
+
+procedure TestIntegerHelper.TestRandomPrime;
+var
+  RandPrime: Integer;
+begin
+  RandPrime := Integer.RandomPrime(2, 10);
+  CheckTrue(RandPrime.IsPrime());
+end;
+
+procedure TestIntegerHelper.TestSetRandom;
+var
+  i: Integer;
+begin
+  i := 0;
+  i.SetRandom(1, 10);
+  CheckTrue((i >= 1) and (i <= 10));
+end;
+
+procedure TestIntegerHelper.TestSetRandomPrime;
+var
+  i: Integer;
+begin
+  i := 0;
+  i.SetRandomPrime(2, 10);
+  CheckTrue(i.IsPrime());
+end;
+
+procedure TestIntegerHelper.TestBasicFunctionality;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckFalse(i.IsEven, 'IsEven for 10');
+  CheckTrue(i.IsOdd, 'IsOdd for 10');
+
+  i := -5;
+  CheckEquals(5, i.Abs, 'Abs');
+  CheckTrue(i.IsNegative, 'IsNegative');
+
+  i := 5;
+  CheckFalse(i.IsNegative, 'IsNegative for positive');
+  CheckTrue(i.IsPositive, 'IsPositive');
+end;
+
+procedure TestIntegerHelper.TestBinaryAndHex;
+var
+  i: Integer;
+begin
+  i := 10;
+  i.Binary := '1011';
+
+  CheckEquals(11, i, 'Binary setter');
+  CheckEquals('1011', i.Binary, 'Binary getter');
+  CheckEquals('B', i.Hexidecimal, 'Hex getter');
+end;
+
+procedure TestIntegerHelper.TestPrimeNumbers;
+var
+  i: Integer;
+begin
+  i := 11;
+  CheckTrue(i.IsPrime, 'IsPrime (11)');
+
+  i := 10;
+  CheckFalse(i.IsPrime, 'IsPrime (10)');
+
+  i := 2;
+  CheckTrue(i.IsPrime, 'IsPrime (2)');
+
+  i := 1;
+  CheckFalse(i.IsPrime, 'IsPrime (1)');
+end;
+
+procedure TestIntegerHelper.TestMathOperations;
+var
+  i: Integer;
+begin
+  i := 10;
+  CheckEquals(15, i.Increased(5), 'Increased');
+  CheckEquals(100, i.Sqr, 'Sqr');
+
+  i := 16;
+  CheckEquals('10', i.Increased(5).Hexidecimal, 'Increased then Hex');
+end;
+
+
+type
+  TestStringHelper = class(TTestCase)
+  published
+    procedure TestIsEmptyStr;
+    procedure TestLength;
+    procedure TestSubstring;
+    procedure TestLeftStr;
+    procedure TestRightStr;
+    procedure TestContainsStr;
+    procedure TestPos;
+    procedure TestReplace;
+    procedure TestToLower;
+    procedure TestToUpper;
+    procedure TestTrim;
+    procedure TestTrimLeft;
+    procedure TestTrimRight;
+    procedure TestStartsStr;
+    procedure TestEndsStr;
+    procedure TestReversedString;
+    procedure TestHashStr;
+    procedure TestCompressed;
+    procedure TestDecompressed;
+    procedure TestExtractedFileName;
+    procedure TestExtractedFileExt;
+    procedure TestFormated;
+    procedure TestFindTagStr;
+    procedure TestLike;
+    procedure TestSameStr;
+    procedure TestSameText;
+    procedure TestToInt;
+    procedure TestTryToInt;
+    procedure TestLineCount;
+    procedure TestMatchStr;
+    procedure TestPosEx;
+    procedure TestOccurrencesCount;
+    procedure TestMidStr;
+    procedure TestReplacedText;
+    procedure TestTrimmed;
+    procedure TestTrimmedLeft;
+    procedure TestTrimmedRight;
+    procedure TestLeadingZerosAdded;
+    procedure TestInserted;
+    procedure TestDeleted;
+    procedure TestDigitsOnly;
+    procedure TestNoDigits;
+    procedure TestSpacesRemoved;
+    procedure TestQuotedStr;
+    procedure TestInitCaps;
+    procedure TestAlphanumericsOnly;
+    procedure TestRepeatedString;
+    procedure TestLineAdded;
+    procedure TestTrailingPathDelimiterIncluded;
+    procedure TestTrailingPathDelimiterExcluded;
+    procedure TestRandomString;
+    procedure TestGetLine;
+    procedure TestCSVFieldValue;
+    procedure TestSetParam;
+    procedure TestLinesProperty;
+    procedure TestCSVProperty;
+    procedure TestJSONProperty;
+    procedure JSONString;
+    procedure TestFileAndPathOperations;
+    procedure TestLineOperations;
+    procedure TestCSVOperations;
+    procedure TestSearchAndMatching;
+    procedure TestTextManipulation;
+    procedure TestConversion;
+    procedure TestProperties;
+    procedure TestCaseConversion;
+    procedure TestLastDelimiterPosition;
+    procedure TestHash;
+    procedure TestToSQLString;
+    procedure TestReplacedFirstText;
+    procedure TestPosLastEx;
+  end;
+
+procedure TestStringHelper.TestIsEmptyStr;
+var
+  s: string;
+begin
+  s := '';
+  CheckTrue(s.IsEmptyStr());
+  s := 'hello';
+  CheckFalse(s.IsEmptyStr());
+end;
+
+procedure TestStringHelper.TestLength;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckEquals(5, Integer(s.Length()));
+end;
+
+procedure TestStringHelper.TestSubstring;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckEquals('lo world', s.Substring(4));
+  CheckEquals('lo', s.Substring(4, 2));
+end;
+
+procedure TestStringHelper.TestLeftStr;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckEquals('hel', s.LeftStr(3));
+end;
+
+procedure TestStringHelper.TestRightStr;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckEquals('llo', s.RightStr(3));
+end;
+
+procedure TestStringHelper.TestContainsStr;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckTrue(s.ContainsStr('world'));
+  CheckFalse(s.ContainsStr('foo'));
+end;
+
+procedure TestStringHelper.TestPos;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckEquals(7, Integer(s.Pos('world')));
+  CheckTrue(s.Pos('foo').IsNull());
+end;
+
+procedure TestStringHelper.TestReplace;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckEquals('hello universe', s.Replace('world', 'universe'));
+end;
+
+procedure TestStringHelper.TestToLower;
+var
+  s: string;
+begin
+  s := 'HELLO';
+  CheckEquals('hello', s.LowerCase());
+end;
+
+procedure TestStringHelper.TestToUpper;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckEquals('HELLO', s.UpperCase());
+end;
+
+procedure TestStringHelper.TestTrim;
+var
+  s: string;
+begin
+  s := '  hello  ';
+  CheckEquals('hello', s.Trim());
+end;
+
+procedure TestStringHelper.TestTrimLeft;
+var
+  s: string;
+begin
+  s := '  hello';
+  CheckEquals('hello', s.TrimLeft());
+end;
+
+procedure TestStringHelper.TestTrimRight;
+var
+  s: string;
+begin
+  s := 'hello  ';
+  CheckEquals('hello', s.TrimRight());
+end;
+
+procedure TestStringHelper.TestStartsStr;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckTrue(s.StartsStr('hello'));
+  CheckFalse(s.StartsStr('world'));
+end;
+
+procedure TestStringHelper.TestEndsStr;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckTrue(s.EndsStr('world'));
+  CheckFalse(s.EndsStr('hello'));
+end;
+
+procedure TestStringHelper.TestReversedString;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckEquals('olleh', s.ReversedString());
+end;
+
+procedure TestStringHelper.TestHashStr;
+var
+  s: string;
+begin
+  s := 'test';
+  CheckNotEquals('', s.HashStr());
+  CheckNotEquals('', s.HashStr('salt'));
+end;
+
+procedure TestStringHelper.TestCompressed;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckNotEquals('', s.Compressed());
+end;
+
+procedure TestStringHelper.TestDecompressed;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckEquals('hello world', s.Compressed().Decompressed());
+end;
+
+procedure TestStringHelper.TestExtractedFileName;
+var
+  s: string;
+begin
+  s := 'C:\path\to\file.txt';
+  CheckEquals('file.txt', s.ExtractedFileName());
+end;
+
+procedure TestStringHelper.TestExtractedFileExt;
+var
+  s: string;
+begin
+  s := 'file.txt';
+  CheckEquals('.txt', s.ExtractedFileExt());
+end;
+
+procedure TestStringHelper.TestFormated;
+var
+  s: string;
+begin
+  s := 'Value: %d';
+  CheckEquals('Value: 42', s.Formated([42]));
+end;
+
+procedure TestStringHelper.TestFindTagStr;
+var
+  s: string;
+begin
+  s := '<tag>content</tag>';
+  CheckEquals('content', s.FindTagStr('tag'));
+end;
+
+procedure TestStringHelper.TestLike;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckTrue(s.Like('h%'));
+  CheckFalse(s.Like('x%'));
+end;
+
+procedure TestStringHelper.TestSameStr;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckTrue(s.SameStr('hello'));
+  CheckFalse(s.SameStr('HELLO'));
+end;
+
+procedure TestStringHelper.TestSameText;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckTrue(s.SameText('HELLO'));
+  CheckFalse(s.SameText('world'));
+end;
+
+procedure TestStringHelper.TestToInt;
+var
+  s: string;
+begin
+  s := '123';
+  CheckEquals(123, Integer(s.ToInt()));
+end;
+
+procedure TestStringHelper.TestTryToInt;
+var
+  s: string;
+  i: Integer;
+begin
+  s := '123';
+  CheckTrue(s.TryToInt());
+  CheckTrue(s.TryToInt(i));
+  CheckEquals(123, i);
+
+  s := 'abc';
+  CheckFalse(s.TryToInt());
+end;
+
+procedure TestStringHelper.TestLineCount;
+var
+  s: string;
+begin
+  s := 'line1'#13#10'line2'#13#10'line3';
+  CheckEquals(3, Integer(s.LineCount()));
+end;
+
+procedure TestStringHelper.TestMatchStr;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckTrue(s.MatchStr(['hello', 'world']));
+  CheckFalse(s.MatchStr(['hi', 'world']));
+end;
+
+procedure TestStringHelper.TestPosEx;
+var
+  s: string;
+begin
+  s := 'hello hello';
+  CheckEquals(7, Integer(s.PosEx('hello', 2)));
+end;
+
+procedure TestStringHelper.TestOccurrencesCount;
+var
+  s: string;
+begin
+  s := 'hello hello hello';
+  CheckEquals(3, Integer(s.OccurrencesCount('hello')));
+end;
+
+procedure TestStringHelper.TestMidStr;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckEquals('lo wo', s.MidStr(4, 5));
+end;
+
+procedure TestStringHelper.TestReplacedText;
+var
+  s: string;
+begin
+  s := 'Hello World';
+  CheckEquals('Hi World', s.ReplacedText('Hello', 'Hi'));
+end;
+
+procedure TestStringHelper.TestTrimmed;
+var
+  s: string;
+begin
+  s := '  hello  ';
+  CheckEquals('hello', s.Trimmed());
+end;
+
+procedure TestStringHelper.TestTrimmedLeft;
+var
+  s: string;
+begin
+  s := '  hello';
+  CheckEquals('hello', s.TrimmedLeft());
+end;
+
+procedure TestStringHelper.TestTrimmedRight;
+var
+  s: string;
+begin
+  s := 'hello  ';
+  CheckEquals('hello', s.TrimmedRight());
+end;
+
+procedure TestStringHelper.TestLeadingZerosAdded;
+var
+  s: string;
+begin
+  s := '123';
+  CheckEquals('00123', s.LeadingZerosAdded(5));
+end;
+
+procedure TestStringHelper.TestInserted;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckEquals('he inserted llo', s.Inserted(' inserted ', 3));
+end;
+
+procedure TestStringHelper.TestDeleted;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckEquals('helo world', s.Deleted(4, 1));
+end;
+
+procedure TestStringHelper.TestDigitsOnly;
+var
+  s: string;
+begin
+  s := 'abc123def456';
+  CheckEquals('123456', s.DigitsOnly());
+end;
+
+procedure TestStringHelper.TestNoDigits;
+var
+  s: string;
+begin
+  s := 'abc123def456';
+  CheckEquals('abcdef', s.NoDigits());
+end;
+
+procedure TestStringHelper.TestSpacesRemoved;
+var
+  s: string;
+begin
+  s := 'a b c';
+  CheckEquals('abc', s.SpacesRemoved());
+end;
+
+procedure TestStringHelper.TestQuotedStr;
+var
+  s: string;
+begin
+  s := 'hello';
+  CheckEquals('''hello''', s.QuotedStr());
+end;
+
+procedure TestStringHelper.TestInitCaps;
+var
+  s: string;
+begin
+  s := 'hello world';
+  CheckEquals('Hello World', s.InitCaps());
+end;
+
+procedure TestStringHelper.TestAlphanumericsOnly;
+var
+  s: string;
+begin
+  s := 'abc123!@#';
+  CheckEquals('abc123', s.AlphanumericsOnly());
+end;
+
+procedure TestStringHelper.TestRepeatedString;
+var
+  s: string;
+begin
+  s := 'ha';
+  CheckEquals('hahaha', s.RepeatedString(3));
+end;
+
+procedure TestStringHelper.TestLineAdded;
+var
+  s: string;
+begin
+  s := 'line1';
+  CheckEquals('line1'#13#10'line2', s.LineAdded('line2'));
+end;
+
+procedure TestStringHelper.TestTrailingPathDelimiterIncluded;
+var
+  s: string;
+begin
+  s := 'C:\path';
+  CheckEquals('C:\path\', s.TrailingPathDelimiterIncluded());
+end;
+
+procedure TestStringHelper.TestTrailingPathDelimiterExcluded;
+var
+  s: string;
+begin
+  s := 'C:\path\';
+  CheckEquals('C:\path', s.TrailingPathDelimiterExcluded());
+end;
+
+procedure TestStringHelper.TestRandomString;
+var
+  s: string;
+begin
+  s := string.RandomString(5);
+  CheckEquals(5, Length(s));
+end;
+
+procedure TestStringHelper.TestGetLine;
+var
+  s: string;
+begin
+  s := 'line1'#13#10'line2'#13#10'line3';
+  CheckEquals('line2', s.GetLine(1));
+end;
+
+procedure TestStringHelper.TestCSVFieldValue;
+var
+  s: string;
+begin
+  s := 'field1;field2;field3';
+  CheckEquals('field2', s.CSVFieldValue(1));
+end;
+
+procedure TestStringHelper.TestSetParam;
+var
+  s: string;
+begin
+  s := 'Hello :name, you are :age years old';
+  s.Params['name'] := 'John';
+  s.Params['age'] := '30';
+  Check(s = 'Hello John, you are 30 years old');
+
+  s := 'Hello :Param, you are :Param2 years old';
+  s.Params['Param'] := 'John';
+  s.Params['Param2'] := '30';
+  Check(s = 'Hello John, you are 30 years old');
+end;
+
+procedure TestStringHelper.TestLinesProperty;
+var
+  s: string;
+begin
+  s := 'line1'#13#10'line2';
+  CheckEquals('line2', string(s.Lines[1]));
+  s.Lines[1] := 'new line2';
+  CheckEquals('new line2', string(s.Lines[1]));
+end;
+
+procedure TestStringHelper.TestCSVProperty;
+var
+  s: string;
+begin
+  s := 'field1;field2;field3';
+  CheckEquals('field2', string(s.CSV[1]));
+  s.CSV[1] := 'new field2';
+  CheckEquals('new field2', string(s.CSV[1]));
+end;
+
+procedure TestStringHelper.TestJSONProperty;
+var
+  s: string;
+begin
+  s := '{"key":"value"}';
+  CheckEquals('value', string(s.JSON['key']));
+  s.JSON['key'] := 'new value';
+  CheckEquals('new value', string(s.JSON['key']));
+end;
+
+procedure TestStringHelper.JSONString;
+var
+  s: string;
+begin
+  s := '{"name":"John","age":30,"city":"NYC"}';
+  Check(s.JSON['name'] = 'John');
+  Check(s.JSON['age'] = '30');
+  Check(s.JSON['city'] = 'NYC');
+
+  s.JSON['name'] := 'Jane';
+  Check(s.JSON['name'] = 'Jane');
+
+  s := '{"User":{"name":"John","age":30,"city":"NYC"}}';
+  Check(s.JSON['User.name'] = 'John');
+  Check(s.JSON['User.age'] = '30');
+  Check(s.JSON['User.city'] = 'NYC');
+
+  s.JSON['User.name'] := 'Jane';
+  Check(s.JSON['User.name'] = 'Jane');
+
+
+  s :='{"People":[{"name":"John"},{"name":"Anna"},{"name":"Nick"}]}';
+  Check(s.JSON['People[0].name'] = 'John');
+  Check(s.JSON['People[1].name'] = 'Anna');
+  Check(s.JSON['People[2].name'] = 'Nick');
+
+  s.JSON['People[1].name'] := 'Joanna';
+  Check(s.JSON['People[1].name'] = 'Joanna');
+  Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"}]}');
+
+  s.JSON['People[3].name'] := 'Kate';
+  s.JSON['People[3].age'] := 15;
+
+  Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"},{"name":"Kate","age":15}]}');
+end;
+
+procedure TestStringHelper.TestFileAndPathOperations;
+var
+  s: string;
+begin
+  s := 'C:\MyDir\MyFile.txt';
+  CheckEquals('MyFile.txt', s.ExtractedFileName, 'ExtractedFileName');
+  CheckEquals('.txt', s.ExtractedFileExt, 'ExtractedFileExt');
+end;
+
+procedure TestStringHelper.TestLineOperations;
+var
+  s: string;
+begin
+  s := 'Line1' + sLineBreak + 'Line2';
+  CheckEquals(2, s.LineCount, 'LineCount');
+  CheckEquals('Line1', s.GetLine(0), 'GetLine(0)');
+  CheckEquals('Line2', s.GetLine(1), 'GetLine(1)');
+
+  s.LineAdd('Line3');
+  CheckEquals(3, s.LineCount, 'LineAdd');
+  CheckEquals('Line3', s.GetLine(2), 'LineAdd content');
+
+  s.LineDelete(1); // Deletes 'Line2'
+  CheckEquals(2, s.LineCount, 'LineDelete');
+  CheckEquals('Line3', s.GetLine(1), 'LineDelete content shift');
+end;
+
+procedure TestStringHelper.TestCSVOperations;
+var
+  s: string;
+begin
+  s := 'Val1;Val2;Val3';
+  CheckEquals(3, s.CSVFieldCount, 'CSVFieldCount');
+  CheckEquals('Val1', s.CSVFieldValue(0), 'CSVFieldValue(1)');
+  CheckEquals('Val2', s.CSVFieldValue(1), 'CSVFieldValue(2)');
+
+  s.SetCSVFieldValue(1, 'NewVal2');
+  CheckEquals('NewVal2', s.CSVFieldValue(1), 'SetCSVFieldValue');
+  CheckEquals('Val1;NewVal2;Val3', s, 'CSV string update');
+end;
+
+procedure TestStringHelper.TestSearchAndMatching;
+var
+  s: string;
+begin
+  s := 'Hello World';
+  CheckTrue(s.ContainsText('world'), 'ContainsText (case insensitive)');
+  CheckTrue(s.StartsText('he'), 'StartsText (case insensitive)');
+  CheckTrue(s.EndsText('LD'), 'EndsText (case insensitive)');
+end;
+
+procedure TestStringHelper.TestTextManipulation;
+var
+  s: string;
+  arr: TStringDynArray;
+begin
+  s := 'A;B;C';
+  arr := s.SplitString(';');
+  CheckEquals(3, Length(arr), 'SplitString count');
+  CheckEquals('A', arr[0], 'SplitString[0]');
+
+  s := '12345';
+  CheckEquals('234', s.MidStrEx(2, 4), 'MidStrEx');
+
+  s := '  abc  ';
+  CheckEquals('     abc  ', s.LeadingSpacesAdded(10), 'LeadingSpacesAdded');
+end;
+
+procedure TestStringHelper.TestConversion;
+var
+  s: string;
+begin
+  s := '123';
+  CheckEquals(123, s.ToInt64, 'ToInt64');
+end;
+
+procedure TestStringHelper.TestProperties;
+var
+  s: string;
+begin
+  s := '';
+  s.Base64 := 'SGVsbG8='; // "Hello" in Base64
+  CheckEquals('SGVsbG8=', s.Base64, 'Base64 Property Read');
+
+  s := 'Hello';
+  CheckEquals('SGVsbG8=', s.Base64, 'GetBase64 from "Hello"');
+
+  s.Base64 := 'SGVsbG8=';
+  CheckEquals('Hello', s, 'SetBase64 updates Value');
+end;
+
+procedure TestStringHelper.TestCaseConversion;
+var
+  s: string;
+begin
+  s := 'Hello World';
+  CheckEquals('hello world', s.LowerCase, 'LowerCase');
+  CheckEquals('HELLO WORLD', s.UpperCase, 'UpperCase');
+end;
+
+procedure TestStringHelper.TestLastDelimiterPosition;
+var
+  s: string;
+begin
+  s := 'path/to/file';
+  CheckEquals(8, s.LastDelimiterPosition('/'), 'LastDelimiterPosition');
+end;
+
+procedure TestStringHelper.TestHash;
+var
+  s: string;
+begin
+  s := 'test';
+  CheckTrue(s.Hash > 0, 'Hash');
+end;
+
+procedure TestStringHelper.TestToSQLString;
+var
+  s: string;
+begin
+  s := 'O''Neil';
+  CheckEquals('''O''''Neil''', s.ToSQLString, 'ToSQLString');
+end;
+
+procedure TestStringHelper.TestReplacedFirstText;
+var
+  s: string;
+begin
+  s := 'Hello World hello';
+  CheckEquals('Hi World hello', s.ReplacedFirstText('HELLO', 'Hi'));
+  CheckEquals('Hello World hello', s.ReplacedFirstText('xyz', 'abc'));
+end;
+
+procedure TestStringHelper.TestPosLastEx;
+var
+  s: string;
+begin
+  s := '12345 hello hello hello';
+  CheckEquals(19, Integer(s.PosLastEx('hello', 21)));
+  CheckEquals(13, Integer(s.PosLastEx('hello', 16)));
+  CheckTrue(s.PosLastEx('hello', 5).IsNull());
+end;
+
+{$IFEND}
+
+initialization
+  {$IF CompilerVersion >= 24.0}
+  RegisterTest(TestIntegerHelper.Suite);
+  RegisterTest(TestStringHelper.Suite);
+  {$IFEND}
+
+end.
