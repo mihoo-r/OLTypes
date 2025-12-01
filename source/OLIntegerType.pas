@@ -168,7 +168,6 @@ function OLInteger.Between(const BottomIncluded, TopIncluded: OLInteger):
 var
   OutPut: OLBoolean;
 begin
-
   if HasValue() then
     OutPut := ((FValue <= TopIncluded) and (FValue >= BottomIncluded))
   else

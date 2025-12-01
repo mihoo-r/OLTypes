@@ -25,7 +25,7 @@ type
     function IsPositive(): OLBoolean;
     function IsNegative(): OLBoolean;
     function IsNonNegative(): OLBoolean;
-    function Between(const BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+    function Between(const BottomIncluded, TopIncluded: OLCurrency): OLBoolean;
     function Max(const i: OLCurrency): OLCurrency;
     function Min(const i: OLCurrency): OLCurrency;
     function Abs(): OLCurrency;
@@ -125,9 +125,17 @@ begin
   Result := returnrec;
 end;
 
-function OLCurrency.Between(const BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+function OLCurrency.Between(const BottomIncluded, TopIncluded: OLCurrency):
+    OLBoolean;
+var
+  OutPut: OLBoolean;
 begin
-  Result := HasValue.IfThen((FValue <= TopIncluded) and (FValue >= BottomIncluded), null);
+  if HasValue() then
+    OutPut := ((FValue <= TopIncluded) and (FValue >= BottomIncluded))
+  else
+    OutPut := Null;
+
+  Result := OutPut;
 end;
 
 function OLCurrency.Ceil: OLInteger;
