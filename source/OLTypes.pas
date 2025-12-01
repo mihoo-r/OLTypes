@@ -20,8 +20,6 @@ uses
 type
   TRttiFieldHack = class(TRttiField);
 
-
-
 const
   ERROR_STRING = '#ERROR';
   DOUBLE_FORMAT = '###,###,###,##0.0####';
@@ -69,7 +67,7 @@ type
   OLBooleanArray = OLArrays.OLBooleanArray;
   OLCurrencyArray = OLArrays.OLCurrencyArray;
   OLDateTimeArray = OLArrays.OLDateTimeArray;
-  
+
   {$IF CompilerVersion >= 34.0}
   OLIntIntDictionary = OLDictionaries.OLIntIntDictionary;
   OLIntStrDictionary = OLDictionaries.OLIntStrDictionary;
@@ -83,14 +81,12 @@ type
   OLStrDblDictionary = OLDictionaries.OLStrDblDictionary;
   {$IFEND}
 
-
   TStringPatternFind = OLStringType.TStringPatternFind;
 
   TCaseSensitivity = OLStringType.TCaseSensitivity;
   const
     csCaseSensitive = OLStringType.csCaseSensitive;
     csCaseInsensitive = OLStringType.csCaseInsensitive;
-
 
 function OLType(b: System.Boolean): OLBoolean; overload;
 function OLType(c: System.Currency): OLCurrency; overload;
@@ -101,8 +97,6 @@ function OLType(d: System.Extended): OLDouble; overload;
 function OLType(i: System.Integer): OLInteger; overload;
 function OLType(i: System.Int64): OLInt64; overload;
 function OLType(s: System.string): OLString; overload;
-
-
 
 const
   // today, yesterday, tomorow
@@ -270,6 +264,163 @@ type
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
+  TOLDateTimeHelper = record helper for TDateTime
+  private
+    function GetYear: Integer;
+    function GetMonth: Integer;
+    function GetDay: Integer;
+    function GetHour: Integer;
+    function GetMinute: Integer;
+    function GetSecond: Integer;
+    function GetMilliSecond: Integer;
+    procedure SetYear(const Value: Integer);
+    procedure SetMonth(const Value: Integer);
+    procedure SetDay(const Value: Integer);
+    procedure SetHour(const Value: Integer);
+    procedure SetMinute(const Value: Integer);
+    procedure SetSecond(const Value: Integer);
+    procedure SetMilliSecond(const Value: Integer);
+  public
+    property Year: Integer read GetYear write SetYear;
+    property Month: Integer read GetMonth write SetMonth;
+    property Day: Integer read GetDay write SetDay;
+    property Hour: Integer read GetHour write SetHour;
+    property Minute: Integer read GetMinute write SetMinute;
+    property Second: Integer read GetSecond write SetSecond;
+    property Test: Integer read GetMilliSecond write SetMilliSecond; //MilliSecond
+
+    function ToString(): string; overload;
+    function ToString(const Format: string): string; overload;
+    function ToSQLString(): string;
+
+    function DateOf(): TDateTime;
+    function TimeOf(): TDateTime;
+
+    function IsInLeapYear(): Boolean;
+    function IsPM(): Boolean;
+    function IsAM(): Boolean;
+    function WeeksInYear(): Integer;
+    function DaysInYear(): Integer;
+    function DaysInMonth(): Integer;
+
+    class function Today: TDateTime; static;
+    class function Yesterday: TDateTime; static;
+    class function Tomorrow: TDateTime; static;
+    class function Now(): TDateTime; static;
+
+    procedure SetNow();
+    procedure SetToday();
+    procedure SetTomorrow();
+    procedure SetYesterday();
+
+    function IsToday(): Boolean;
+    function SameDay(const DateTimeToCompare: TDateTime): Boolean;
+
+    function StartOfTheYear(): TDateTime;
+    function EndOfTheYear(): TDateTime;
+    class function StartOfAYear(const AYear: Word): TDateTime; static;
+    class function EndOfAYear(const AYear: Word): TDateTime; static;
+    procedure SetStartOfAYear(const AYear: Word);
+    procedure SetEndOfAYear(const AYear: Word);
+
+    function StartOfTheMonth(): TDateTime;
+    function EndOfTheMonth(): TDateTime;
+    class function StartOfAMonth(const AYear, AMonth: Word): TDateTime; static;
+    class function EndOfAMonth(const AYear, AMonth: Word): TDateTime; static;
+    procedure SetStartOfAMonth(const AYear, AMonth: Word);
+    procedure SetEndOfAMonth(const AYear, AMonth: Word);
+
+    function StartOfTheWeek(): TDateTime;
+    function EndOfTheWeek(): TDateTime;
+
+    function StartOfTheDay(): TDateTime;
+    function EndOfTheDay(): TDateTime;
+
+    function DayOfTheYear(): Integer;
+    function HourOfTheYear(): Integer;
+    function MinuteOfTheYear(): LongWord;
+    function SecondOfTheYear(): LongWord;
+    function MilliSecondOfTheYear(): Int64;
+
+    function HourOfTheMonth(): Integer;
+    function MinuteOfTheMonth(): Integer;
+    function SecondOfTheMonth(): LongWord;
+    function MilliSecondOfTheMonth(): LongWord;
+
+    function DayOfTheWeek(): Integer;
+    function HourOfTheWeek(): Integer;
+    function MinuteOfTheWeek(): Integer;
+    function SecondOfTheWeek(): LongWord;
+    function MilliSecondOfTheWeek(): LongWord;
+
+    function MinuteOfTheDay(): Integer;
+    function SecondOfTheDay(): LongWord;
+    function MilliSecondOfTheDay(): LongWord;
+
+    function SecondOfTheHour(): Integer;
+    function MilliSecondOfTheHour(): LongWord;
+
+    function MilliSecondOfTheMinute(): LongWord;
+
+    class function SecondCount(const StartingYear: Integer = 2017): Integer; static;
+    class function DateTimeFromSecondCount(const Count: Integer; const StartingYear: Integer = 2017): TDateTime; static;
+    procedure SetFromSecondCount(const Count: Integer; const StartingYear: Integer = 2017);
+
+    function YearsBetween(const AThen: TDateTime): Integer;
+    function MonthsBetween(const AThen: TDateTime): Integer;
+    function WeeksBetween(const AThen: TDateTime): Integer;
+    function DaysBetween(const AThen: TDateTime): Integer;
+    function HoursBetween(const AThen: TDateTime): Int64;
+    function MinutesBetween(const AThen: TDateTime): Int64;
+    function SecondsBetween(const AThen: TDateTime): Int64;
+    function MilliSecondsBetween(const AThen: TDateTime): Int64;
+
+    function InRange(const AStartDateTime, AEndDateTime: TDateTime; const aInclusive: Boolean = True): Boolean;
+    function InDateRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean = True): Boolean;
+
+    function YearSpan(const AThen: TDateTime): Double;
+    function MonthSpan(const AThen: TDateTime): Double;
+    function WeekSpan(const AThen: TDateTime): Double;
+    function DaySpan(const AThen: TDateTime): Double;
+    function HourSpan(const AThen: TDateTime): Double;
+    function MinuteSpan(const AThen: TDateTime): Double;
+    function SecondSpan(const AThen: TDateTime): Double;
+    function MilliSecondSpan(const AThen: TDateTime): Double;
+
+    function IncYear(const ANumberOfYears: Integer = 1): TDateTime;
+    function IncMonth(const ANumberOfMonths: Integer = 1): TDateTime;
+    function IncWeek(const ANumberOfWeeks: Integer = 1): TDateTime;
+    function IncDay(const ANumberOfDays: Integer = 1): TDateTime;
+    function IncHour(const ANumberOfHours: Int64 = 1): TDateTime;
+    function IncMinute(const ANumberOfMinutes: Int64 = 1): TDateTime;
+    function IncSecond(const ANumberOfSeconds: Int64 = 1): TDateTime;
+    function IncMilliSecond(const ANumberOfMilliSeconds: Int64 = 1): TDateTime;
+
+    procedure DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word);
+    procedure EncodeDateTime(const AYear, AMonth, ADay: Word; const AHour: Word = 0; const AMinute: Word = 0;
+      const ASecond: Word = 0; const AMilliSecond: Word = 0);
+
+    function RecodedYear(const AYear: Word): TDateTime;
+    function RecodedMonth(const AMonth: Word): TDateTime;
+    function RecodedDay(const ADay: Word): TDateTime;
+    function RecodedHour(const AHour: Word): TDateTime;
+    function RecodedMinute(const AMinute: Word): TDateTime;
+    function RecodedSecond(const ASecond: Word): TDateTime;
+    function RecodedMilliSecond(const AMilliSecond: Word): TDateTime;
+
+    function SameTime(const DateTimeToCompare: TDateTime): Boolean;
+
+    function LongDayName(): string;
+    function LongMonthName(): string;
+    function ShortDayName(): string;
+    function ShortMonthName(): string;
+
+    function Max(const CompareDate: TDateTime): TDateTime;
+    function Min(const CompareDate: TDateTime): TDateTime;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 24.0}
   TOLStringHelper = record helper for string
   private
     function GetLines(const Index: Integer): OLString;
@@ -416,7 +567,7 @@ type
     function CSVFieldByName(const FieldName: string; const RowIndex: Integer = 1): string;
     {$IFDEF VCL}
     function PixelWidth(const F: TFont): OLInteger;
-    {$IFEND}
+    {$ENDIF}
     function IsValidIBAN: OLBoolean;
     function TrailingComaExcluded(): string;
     function LeadingComaExcluded(): string;
@@ -514,7 +665,12 @@ type
 
 implementation
 
-uses OLTypesToEdits, TypInfo, System.Character;
+uses OLTypesToEdits, TypInfo,
+    {$IF CompilerVersion >= 23.0}
+        System.Character;
+    {$ELSE}
+        Character;
+    {$IFEND}
 
 function GetFieldAddressHack(f: TRttiField; Instance: Pointer): Pointer;
 begin
@@ -665,7 +821,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(i) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -687,7 +843,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(d) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -709,7 +865,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(curr) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -730,7 +886,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(s) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -753,7 +909,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(i) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -776,7 +932,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(i) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -799,7 +955,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(i) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -822,7 +978,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(s) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -845,7 +1001,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(d) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -866,7 +1022,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(d) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -889,7 +1045,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(b) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -912,7 +1068,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(i) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -938,7 +1094,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(s) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -964,7 +1120,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(d) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -990,7 +1146,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(curr) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -1016,7 +1172,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(d) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -1042,7 +1198,7 @@ begin
    Form := Self.Owner as TForm;
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
-   
+
    if not Form.IsMyField(d) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
@@ -1059,6 +1215,8 @@ begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
+
+ {$IF CompilerVersion >= 24.0}
 
 { TOLIntegerHelper }
 
@@ -1793,6 +1951,925 @@ var
 begin
   ol := Self;
   Result := ol.Floor();
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 24.0}
+{ TOLDateTimeHelper }
+
+function TOLDateTimeHelper.GetYear: Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Year;
+end;
+
+function TOLDateTimeHelper.GetMonth: Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Month;
+end;
+
+function TOLDateTimeHelper.GetDay: Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Day;
+end;
+
+function TOLDateTimeHelper.GetHour: Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Hour;
+end;
+
+function TOLDateTimeHelper.GetMinute: Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Minute;
+end;
+
+function TOLDateTimeHelper.GetSecond: Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Second;
+end;
+
+function TOLDateTimeHelper.GetMilliSecond: Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecond;
+end;
+
+procedure TOLDateTimeHelper.SetYear(const Value: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.Year := Value;
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetMonth(const Value: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.Month := Value;
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetDay(const Value: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.Day := Value;
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetHour(const Value: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.Hour := Value;
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetMinute(const Value: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.Minute := Value;
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetSecond(const Value: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.Second := Value;
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetMilliSecond(const Value: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.MilliSecond := Value;
+  Self := ol;
+end;
+
+function TOLDateTimeHelper.ToString(): string;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.ToString();
+end;
+
+function TOLDateTimeHelper.ToString(const Format: string): string;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.ToString(Format);
+end;
+
+function TOLDateTimeHelper.ToSQLString(): string;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.ToSQLString();
+end;
+
+function TOLDateTimeHelper.DateOf(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DateOf();
+end;
+
+function TOLDateTimeHelper.TimeOf(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.TimeOf();
+end;
+
+function TOLDateTimeHelper.IsInLeapYear(): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IsInLeapYear();
+end;
+
+function TOLDateTimeHelper.IsPM(): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IsPM();
+end;
+
+function TOLDateTimeHelper.IsAM(): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IsAM();
+end;
+
+function TOLDateTimeHelper.WeeksInYear(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.WeeksInYear();
+end;
+
+function TOLDateTimeHelper.DaysInYear(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DaysInYear();
+end;
+
+function TOLDateTimeHelper.DaysInMonth(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DaysInMonth();
+end;
+
+class function TOLDateTimeHelper.Today: TDateTime;
+begin
+  Result := OLDateTime.Today;
+end;
+
+class function TOLDateTimeHelper.Yesterday: TDateTime;
+begin
+  Result := OLDateTime.Yesterday;
+end;
+
+class function TOLDateTimeHelper.Tomorrow: TDateTime;
+begin
+  Result := OLDateTime.Tomorrow;
+end;
+
+class function TOLDateTimeHelper.Now(): TDateTime;
+begin
+  Result := OLDateTime.Now();
+end;
+
+procedure TOLDateTimeHelper.SetNow();
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetNow();
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetToday();
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetToday();
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetTomorrow();
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetTomorrow();
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetYesterday();
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetYesterday();
+  Self := ol;
+end;
+
+function TOLDateTimeHelper.IsToday(): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IsToday();
+end;
+
+function TOLDateTimeHelper.SameDay(const DateTimeToCompare: TDateTime): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SameDay(DateTimeToCompare);
+end;
+
+function TOLDateTimeHelper.StartOfTheYear(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.StartOfTheYear();
+end;
+
+function TOLDateTimeHelper.EndOfTheYear(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.EndOfTheYear();
+end;
+
+class function TOLDateTimeHelper.StartOfAYear(const AYear: Word): TDateTime;
+begin
+  Result := OLDateTime.StartOfAYear(AYear);
+end;
+
+class function TOLDateTimeHelper.EndOfAYear(const AYear: Word): TDateTime;
+begin
+  Result := OLDateTime.EndOfAYear(AYear);
+end;
+
+procedure TOLDateTimeHelper.SetStartOfAYear(const AYear: Word);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetStartOfAYear(AYear);
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetEndOfAYear(const AYear: Word);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetEndOfAYear(AYear);
+  Self := ol;
+end;
+
+function TOLDateTimeHelper.StartOfTheMonth(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.StartOfTheMonth();
+end;
+
+function TOLDateTimeHelper.EndOfTheMonth(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.EndOfTheMonth();
+end;
+
+class function TOLDateTimeHelper.StartOfAMonth(const AYear, AMonth: Word): TDateTime;
+begin
+  Result := OLDateTime.StartOfAMonth(AYear, AMonth);
+end;
+
+class function TOLDateTimeHelper.EndOfAMonth(const AYear, AMonth: Word): TDateTime;
+begin
+  Result := OLDateTime.EndOfAMonth(AYear, AMonth);
+end;
+
+procedure TOLDateTimeHelper.SetStartOfAMonth(const AYear, AMonth: Word);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetStartOfAMonth(AYear, AMonth);
+  Self := ol;
+end;
+
+procedure TOLDateTimeHelper.SetEndOfAMonth(const AYear, AMonth: Word);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetEndOfAMonth(AYear, AMonth);
+  Self := ol;
+end;
+
+function TOLDateTimeHelper.StartOfTheWeek(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.StartOfTheWeek();
+end;
+
+function TOLDateTimeHelper.EndOfTheWeek(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.EndOfTheWeek();
+end;
+
+function TOLDateTimeHelper.StartOfTheDay(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.StartOfTheDay();
+end;
+
+function TOLDateTimeHelper.EndOfTheDay(): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.EndOfTheDay();
+end;
+
+function TOLDateTimeHelper.DayOfTheYear(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DayOfTheYear();
+end;
+
+function TOLDateTimeHelper.HourOfTheYear(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.HourOfTheYear();
+end;
+
+function TOLDateTimeHelper.MinuteOfTheYear(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinuteOfTheYear();
+end;
+
+function TOLDateTimeHelper.SecondOfTheYear(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondOfTheYear();
+end;
+
+function TOLDateTimeHelper.MilliSecondOfTheYear(): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondOfTheYear();
+end;
+
+function TOLDateTimeHelper.HourOfTheMonth(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.HourOfTheMonth();
+end;
+
+function TOLDateTimeHelper.MinuteOfTheMonth(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinuteOfTheMonth();
+end;
+
+function TOLDateTimeHelper.SecondOfTheMonth(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondOfTheMonth();
+end;
+
+function TOLDateTimeHelper.MilliSecondOfTheMonth(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondOfTheMonth();
+end;
+
+function TOLDateTimeHelper.DayOfTheWeek(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DayOfTheWeek();
+end;
+
+function TOLDateTimeHelper.HourOfTheWeek(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.HourOfTheWeek();
+end;
+
+function TOLDateTimeHelper.MinuteOfTheWeek(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinuteOfTheWeek();
+end;
+
+function TOLDateTimeHelper.SecondOfTheWeek(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondOfTheWeek();
+end;
+
+function TOLDateTimeHelper.MilliSecondOfTheWeek(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondOfTheWeek();
+end;
+
+function TOLDateTimeHelper.MinuteOfTheDay(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinuteOfTheDay();
+end;
+
+function TOLDateTimeHelper.SecondOfTheDay(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondOfTheDay();
+end;
+
+function TOLDateTimeHelper.MilliSecondOfTheDay(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondOfTheDay();
+end;
+
+function TOLDateTimeHelper.SecondOfTheHour(): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondOfTheHour();
+end;
+
+function TOLDateTimeHelper.MilliSecondOfTheHour(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondOfTheHour();
+end;
+
+function TOLDateTimeHelper.MilliSecondOfTheMinute(): LongWord;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondOfTheMinute();
+end;
+
+class function TOLDateTimeHelper.SecondCount(const StartingYear: Integer): Integer;
+begin
+  Result := OLDateTime.SecondCount(StartingYear);
+end;
+
+class function TOLDateTimeHelper.DateTimeFromSecondCount(const Count: Integer; const StartingYear: Integer): TDateTime;
+begin
+  Result := OLDateTime.DateTimeFromSecondCount(Count, StartingYear);
+end;
+
+procedure TOLDateTimeHelper.SetFromSecondCount(const Count: Integer; const StartingYear: Integer);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.SetFromSecondCount(Count, StartingYear);
+  Self := ol;
+end;
+
+function TOLDateTimeHelper.YearsBetween(const AThen: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.YearsBetween(AThen);
+end;
+
+function TOLDateTimeHelper.MonthsBetween(const AThen: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MonthsBetween(AThen);
+end;
+
+function TOLDateTimeHelper.WeeksBetween(const AThen: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.WeeksBetween(AThen);
+end;
+
+function TOLDateTimeHelper.DaysBetween(const AThen: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DaysBetween(AThen);
+end;
+
+function TOLDateTimeHelper.HoursBetween(const AThen: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.HoursBetween(AThen);
+end;
+
+function TOLDateTimeHelper.MinutesBetween(const AThen: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinutesBetween(AThen);
+end;
+
+function TOLDateTimeHelper.SecondsBetween(const AThen: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondsBetween(AThen);
+end;
+
+function TOLDateTimeHelper.MilliSecondsBetween(const AThen: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondsBetween(AThen);
+end;
+
+function TOLDateTimeHelper.InRange(const AStartDateTime, AEndDateTime: TDateTime; const aInclusive: Boolean): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.InRange(AStartDateTime, AEndDateTime, aInclusive);
+end;
+
+function TOLDateTimeHelper.InDateRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.InDateRange(AStartDateTime, AEndDateTime, aInclusive);
+end;
+
+function TOLDateTimeHelper.YearSpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.YearSpan(AThen);
+end;
+
+function TOLDateTimeHelper.MonthSpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MonthSpan(AThen);
+end;
+
+function TOLDateTimeHelper.WeekSpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.WeekSpan(AThen);
+end;
+
+function TOLDateTimeHelper.DaySpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DaySpan(AThen);
+end;
+
+function TOLDateTimeHelper.HourSpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.HourSpan(AThen);
+end;
+
+function TOLDateTimeHelper.MinuteSpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinuteSpan(AThen);
+end;
+
+function TOLDateTimeHelper.SecondSpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondSpan(AThen);
+end;
+
+function TOLDateTimeHelper.MilliSecondSpan(const AThen: TDateTime): Double;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondSpan(AThen);
+end;
+
+function TOLDateTimeHelper.IncYear(const ANumberOfYears: Integer): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncYear(ANumberOfYears);
+end;
+
+function TOLDateTimeHelper.IncMonth(const ANumberOfMonths: Integer): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncMonth(ANumberOfMonths);
+end;
+
+function TOLDateTimeHelper.IncWeek(const ANumberOfWeeks: Integer): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncWeek(ANumberOfWeeks);
+end;
+
+function TOLDateTimeHelper.IncDay(const ANumberOfDays: Integer): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncDay(ANumberOfDays);
+end;
+
+function TOLDateTimeHelper.IncHour(const ANumberOfHours: Int64): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncHour(ANumberOfHours);
+end;
+
+function TOLDateTimeHelper.IncMinute(const ANumberOfMinutes: Int64): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncMinute(ANumberOfMinutes);
+end;
+
+function TOLDateTimeHelper.IncSecond(const ANumberOfSeconds: Int64): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncSecond(ANumberOfSeconds);
+end;
+
+function TOLDateTimeHelper.IncMilliSecond(const ANumberOfMilliSeconds: Int64): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.IncMilliSecond(ANumberOfMilliSeconds);
+end;
+
+procedure TOLDateTimeHelper.DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.DecodeDateTime(AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond);
+end;
+
+procedure TOLDateTimeHelper.EncodeDateTime(const AYear, AMonth, ADay: Word; const AHour, AMinute, ASecond, AMilliSecond: Word);
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  ol.EncodeDateTime(AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond);
+  Self := ol;
+end;
+
+function TOLDateTimeHelper.RecodedYear(const AYear: Word): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.RecodedYear(AYear);
+end;
+
+function TOLDateTimeHelper.RecodedMonth(const AMonth: Word): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.RecodedMonth(AMonth);
+end;
+
+function TOLDateTimeHelper.RecodedDay(const ADay: Word): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.RecodedDay(ADay);
+end;
+
+function TOLDateTimeHelper.RecodedHour(const AHour: Word): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.RecodedHour(AHour);
+end;
+
+function TOLDateTimeHelper.RecodedMinute(const AMinute: Word): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.RecodedMinute(AMinute);
+end;
+
+function TOLDateTimeHelper.RecodedSecond(const ASecond: Word): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.RecodedSecond(ASecond);
+end;
+
+function TOLDateTimeHelper.RecodedMilliSecond(const AMilliSecond: Word): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.RecodedMilliSecond(AMilliSecond);
+end;
+
+function TOLDateTimeHelper.SameTime(const DateTimeToCompare: TDateTime): Boolean;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SameTime(DateTimeToCompare);
+end;
+
+function TOLDateTimeHelper.LongDayName(): string;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.LongDayName();
+end;
+
+function TOLDateTimeHelper.LongMonthName(): string;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.LongMonthName();
+end;
+
+function TOLDateTimeHelper.ShortDayName(): string;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.ShortDayName();
+end;
+
+function TOLDateTimeHelper.ShortMonthName(): string;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.ShortMonthName();
+end;
+
+function TOLDateTimeHelper.Max(const CompareDate: TDateTime): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Max(CompareDate);
+end;
+
+function TOLDateTimeHelper.Min(const CompareDate: TDateTime): TDateTime;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.Min(CompareDate);
 end;
 {$IFEND}
 
@@ -3052,7 +4129,10 @@ begin
   ol.JSON[JsonFieldName] := Value;
   Self := ol;
 end;
+{$IFEND}  //CompilerVersion >= 27.0
+
 {$IFEND}
-{$IFEND}
+
+{$IFEND}     //CompilerVersion >= 24.0
 
 end.
