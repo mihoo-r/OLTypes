@@ -1023,6 +1023,161 @@ begin
 end;
 
 
+
+type
+  TestDateHelper = class(TTestCase)
+  published
+    procedure TestProperties;
+    procedure TestToString;
+    procedure TestChecks;
+    procedure TestStartEnd;
+    procedure TestParts;
+    procedure TestBetween;
+    procedure TestSpan;
+    procedure TestInc;
+    procedure TestRecoded;
+    procedure TestEncodeDecode;
+    procedure TestNames;
+    procedure TestMaxMin;
+    procedure TestStaticCreators;
+  end;
+
+procedure TestDateHelper.TestProperties;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2023, 10, 27);
+  CheckEquals(2023, d.Year);
+  CheckEquals(10, d.Month);
+  CheckEquals(27, d.Day);
+
+  d.Year := 2024;
+  CheckEquals(2024, d.Year);
+end;
+
+procedure TestDateHelper.TestToString;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2023, 1, 1);
+  CheckNotEquals('', d.ToString);
+  CheckNotEquals('', d.ToString('yyyy-mm-dd'));
+  CheckNotEquals('', d.ToSQLString);
+end;
+
+procedure TestDateHelper.TestChecks;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2020, 1, 1); // Leap year
+  CheckTrue(d.IsInLeapYear);
+  d := EncodeDate(2023, 1, 1);
+  CheckFalse(d.IsInLeapYear);
+
+  d := Date;
+  CheckTrue(d.IsToday);
+end;
+
+procedure TestDateHelper.TestStartEnd;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2023, 10, 27);
+  CheckEquals(EncodeDate(2023, 1, 1), d.StartOfTheYear);
+  CheckEquals(EncodeDate(2023, 12, 31), d.EndOfTheYear);
+  CheckEquals(EncodeDate(2023, 10, 1), d.StartOfTheMonth);
+  CheckEquals(EncodeDate(2023, 10, 31), d.EndOfTheMonth);
+end;
+
+procedure TestDateHelper.TestParts;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2023, 1, 1);
+  CheckEquals(1, d.DayOfTheYear);
+end;
+
+procedure TestDateHelper.TestBetween;
+var
+  d1, d2: TDate;
+begin
+  d1 := EncodeDate(2024, 1, 1);
+  d2 := EncodeDate(2023, 1, 1);
+  CheckEquals(1, d1.YearsBetween(d2));
+  CheckEquals(12, d1.MonthsBetween(d2));
+  CheckEquals(365, d1.DaysBetween(d2));
+end;
+
+procedure TestDateHelper.TestSpan;
+var
+  d1, d2: TDate;
+begin
+  d1 := EncodeDate(2023, 1, 1);
+  d2 := EncodeDate(2023, 1, 8);
+  CheckEquals(1.0, d1.WeekSpan(d2), 0.001);
+end;
+
+procedure TestDateHelper.TestInc;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2023, 1, 1);
+  CheckEquals(EncodeDate(2024, 1, 1), d.IncYear(1));
+  CheckEquals(EncodeDate(2023, 2, 1), d.IncMonth(1));
+  CheckEquals(EncodeDate(2023, 1, 2), d.IncDay(1));
+end;
+
+procedure TestDateHelper.TestRecoded;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2023, 1, 1);
+  CheckEquals(EncodeDate(2024, 1, 1), d.RecodedYear(2024));
+end;
+
+procedure TestDateHelper.TestEncodeDecode;
+var
+  dt: TDate;
+  Y, M, D: Word;
+begin
+  dt := EncodeDate(2023, 10, 27);
+  dt.DecodeDate(Y, M, D);
+  CheckEquals(2023, Y);
+  CheckEquals(10, M);
+  CheckEquals(27, D);
+end;
+
+procedure TestDateHelper.TestNames;
+var
+  d: TDate;
+begin
+  d := EncodeDate(2023, 1, 1); // Sunday
+  CheckNotEquals('', d.LongDayName);
+  CheckNotEquals('', d.ShortDayName);
+  CheckNotEquals('', d.LongMonthName);
+  CheckNotEquals('', d.ShortMonthName);
+end;
+
+procedure TestDateHelper.TestMaxMin;
+var
+  d1, d2: TDate;
+begin
+  d1 := EncodeDate(2023, 1, 1);
+  d2 := EncodeDate(2024, 1, 1);
+  CheckEquals(d2, d1.Max(d2));
+  CheckEquals(d1, d1.Min(d2));
+end;
+
+procedure TestDateHelper.TestStaticCreators;
+begin
+  CheckEquals(Date, TDate.Today);
+  TDate.Yesterday;
+  TDate.Tomorrow;
+  CheckTrue(TDate.IsValidDate(2023, 1, 1));
+  CheckFalse(TDate.IsValidDate(2023, 2, 30));
+end;
+
+
 type
   TestStringHelper = class(TTestCase)
   published
@@ -1774,6 +1929,7 @@ initialization
   RegisterTest(TestDoubleHelper.Suite);
   RegisterTest(TestCurrencyHelper.Suite);
   RegisterTest(TestDateTimeHelper.Suite);
+  RegisterTest(TestDateHelper.Suite);
   RegisterTest(TestStringHelper.Suite);
   {$IFEND}
 
