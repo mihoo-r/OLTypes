@@ -704,6 +704,150 @@ end;
 
 
 type
+  TestCurrencyHelper = class(TTestCase)
+  published
+    procedure TestSqr;
+    procedure TestPower;
+    procedure TestIsPositive;
+    procedure TestIsNegative;
+    procedure TestIsNonNegative;
+    procedure TestBetween;
+    procedure TestMaxMin;
+    procedure TestAbs;
+    procedure TestToString;
+    procedure TestToSQLString;
+    procedure TestToStrF;
+    procedure TestRound;
+    procedure TestFloorCeil;
+  end;
+
+procedure TestCurrencyHelper.TestSqr;
+var
+  c: Currency;
+begin
+  c := 5.0;
+  CheckEquals(25.0, c.Sqr, 0.01);
+end;
+
+procedure TestCurrencyHelper.TestPower;
+var
+  c: Currency;
+begin
+  c := 2.0;
+  CheckEquals(8.0, c.Power(3), 0.01);
+end;
+
+procedure TestCurrencyHelper.TestIsPositive;
+var
+  c: Currency;
+begin
+  c := 5.50;
+  CheckTrue(c.IsPositive);
+  c := -5.50;
+  CheckFalse(c.IsPositive);
+end;
+
+procedure TestCurrencyHelper.TestIsNegative;
+var
+  c: Currency;
+begin
+  c := -5.50;
+  CheckTrue(c.IsNegative);
+  c := 5.50;
+  CheckFalse(c.IsNegative);
+end;
+
+procedure TestCurrencyHelper.TestIsNonNegative;
+var
+  c: Currency;
+begin
+  c := 0.0;
+  CheckTrue(c.IsNonNegative);
+  c := 5.50;
+  CheckTrue(c.IsNonNegative);
+  c := -5.50;
+  CheckFalse(c.IsNonNegative);
+end;
+
+procedure TestCurrencyHelper.TestBetween;
+var
+  c: Currency;
+begin
+  c := 5.50;
+
+  CheckTrue(c.Between(1.1, 5.5));
+  c := 15.50;
+  CheckFalse(c.Between(1, 15.4999));
+end;
+
+procedure TestCurrencyHelper.TestMaxMin;
+var
+  c: Currency;
+begin
+  c := 5.50;
+  CheckEquals(10.0, c.Max(10.0), 0.01);
+  CheckEquals(5.50, c.Max(3.0), 0.01);
+  CheckEquals(3.0, c.Min(3.0), 0.01);
+  CheckEquals(5.50, c.Min(10.0), 0.01);
+end;
+
+procedure TestCurrencyHelper.TestAbs;
+var
+  c: Currency;
+begin
+  c := -5.50;
+  CheckEquals(5.50, c.Abs, 0.01);
+  c := 5.50;
+  CheckEquals(5.50, c.Abs, 0.01);
+end;
+
+procedure TestCurrencyHelper.TestToString;
+var
+  c: Currency;
+begin
+  c := 123.45;
+  CheckNotEquals('', c.ToString);
+  CheckNotEquals('', c.ToString(',', '.'));
+end;
+
+procedure TestCurrencyHelper.TestToSQLString;
+var
+  c: Currency;
+begin
+  c := 123.45;
+  CheckNotEquals('', c.ToSQLString);
+end;
+
+procedure TestCurrencyHelper.TestToStrF;
+var
+  c: Currency;
+begin
+  c := 123.45;
+  CheckNotEquals('', c.ToStrF(ffCurrency, 2));
+end;
+
+procedure TestCurrencyHelper.TestRound;
+var
+  c: Currency;
+  i: Integer;
+begin
+  c := 123.456;
+  CheckEquals(123.46, c.Round(-2), 0.01);
+  i := c.Round;
+  CheckEquals(123, i);
+end;
+
+procedure TestCurrencyHelper.TestFloorCeil;
+var
+  c: Currency;
+begin
+  c := 123.7;
+  CheckEquals(123, c.Floor);
+  CheckEquals(124, c.Ceil);
+end;
+
+
+type
   TestStringHelper = class(TTestCase)
   published
     procedure TestIsEmptyStr;
@@ -1452,6 +1596,7 @@ initialization
   RegisterTest(TestIntegerHelper.Suite);
   RegisterTest(TestBooleanHelper.Suite);
   RegisterTest(TestDoubleHelper.Suite);
+  RegisterTest(TestCurrencyHelper.Suite);
   RegisterTest(TestStringHelper.Suite);
   {$IFEND}
 
