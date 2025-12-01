@@ -1527,7 +1527,7 @@ var
 begin
   s := 'hello world';
   CheckEquals(7, Integer(s.Pos('world')));
-  CheckTrue(s.Pos('foo').IsNull());
+  CheckTrue(s.Pos('foo') = 0);
 end;
 
 procedure TestStringHelper.TestReplace;
@@ -2132,7 +2132,7 @@ begin
   s := '12345 hello hello hello';
   CheckEquals(19, Integer(s.PosLastEx('hello', 21)));
   CheckEquals(13, Integer(s.PosLastEx('hello', 16)));
-  CheckTrue(s.PosLastEx('hello', 5).IsNull());
+  CheckTrue(s.PosLastEx('hello', 5) = 0);
 end;
 
 {$IFEND}

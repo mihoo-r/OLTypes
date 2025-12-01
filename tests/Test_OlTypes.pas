@@ -2107,7 +2107,7 @@ begin
   Check(s.LineIndexOf('Second line') = 1);
 
   s.LineDelete(1);
-  Check(s.LineIndexOf('Second line').IsNull());
+  Check(s.LineIndexOf('Second line') = -1);
 
 
   TestFileName := GetTemp() + 'test.txt';
@@ -2702,7 +2702,7 @@ begin
   s := 'Three';
 
   Check(s.IndexStr(['One', 'Two', 'Three']) = 2);
-  Check(s.IndexStr(['one', 'two', 'three']).IsNull());
+  Check(s.IndexStr(['one', 'two', 'three'])= -1);
 
   Check(s.IndexText(['one', 'two', 'three']) = 2);
 end;
@@ -3809,7 +3809,7 @@ begin
   Check(i = 21);
 
   i := s.PosLast('xyz');
-  Check(i.IsNull());
+  Check(i= 0);
 
   s := Null;
   i := s.PosLast('test');
@@ -3825,7 +3825,7 @@ begin
   Check(s.CSVIndex('banana') = 1);
   Check(s.CSVIndex('cherry') = 2);
   Check(s.CSVIndex('apple') = 0);
-  Check(s.CSVIndex('xyz').IsNull());
+  Check(s.CSVIndex('xyz') = -1);
 
   s := Null;
   Check(s.CSVIndex('test').IsNull());
@@ -3967,7 +3967,10 @@ begin
   Check(s.LineIndexLike('Second%') = 1);
   Check(s.LineIndexLike('Third%') = 2);
   Check(s.LineIndexLike('%line') = 0);
-  Check(s.LineIndexLike('%xyz%').IsNull());
+  Check(s.LineIndexLike('__rs__line') = 0);
+  Check(s.LineIndexLike('%rs__line') = 0);
+  Check(s.LineIndexLike('%con__line') = 1);
+  Check(s.LineIndexLike('%xyz%') = -1);
 
   s := Null;
   Check(s.LineIndexLike('test').IsNull());
