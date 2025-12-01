@@ -504,6 +504,55 @@ type
 
     class function IsValidDate(const Year, Month, Day: Integer): Boolean; static;
   end;
+
+  TOLInt64Helper = record helper for Int64
+  public
+    function IsDividableBy(i: Int64): Boolean;
+    function IsOdd(): Boolean;
+    function IsEven(): Boolean;
+    function Sqr(): Int64;
+    function Power(Exponent: LongWord): Int64; overload;
+    function Power(Exponent: Int64): Double; overload;
+    function IsPositive(): Boolean;
+    function IsNegative(): Boolean;
+    function IsNonNegative(): Boolean;
+    function Max(i: Int64): Int64;
+    function Min(i: Int64): Int64;
+    function Abs(): Int64;
+    function ToString(): string;
+    function ToSQLString(): string;
+    function Round(Digits: Int64): Int64;
+    function Between(BottomIncluded, TopIncluded: Int64): Boolean;
+    function Increased(IncreasedBy: Int64 = 1): Int64;
+    function Decreased(DecreasedBy: Int64 = 1): Int64;
+    function Replaced(FromValue: Int64; ToValue: Int64): Int64;
+
+    function ToNumeralSystem(const Base: Integer): string;
+    function Binary: string;
+    function Octal: string;
+    function Hexidecimal: string;
+    function NumeralSystem32: string;
+    function NumeralSystem64: string;
+
+    procedure SetBinary(const Value: string);
+    procedure SetOctal(const Value: string);
+    procedure SetHexidecimal(const Value: string);
+    procedure SetNumeralSystem32(const Value: string);
+    procedure SetNumeralSystem64(const Value: string);
+
+    procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
+    function IsPrime(): Boolean;
+
+    class function Random(MinValue: Int64; MaxValue: Int64): Int64; overload; static;
+    class function RandomPrime(MinValue: Int64; MaxValue: Int64): Int64; overload; static;
+    class function Random(MaxValue: Int64 = MaxInt): Int64; overload; static;
+    class function RandomPrime(MaxValue: Int64 = MaxInt): Int64; overload; static;
+
+    procedure SetRandom(MinValue: Int64; MaxValue: Int64); overload;
+    procedure SetRandom(MaxValue: Int64 = MaxInt); overload;
+    procedure SetRandomPrime(MinValue: Int64; MaxValue: Int64); overload;
+    procedure SetRandomPrime(MaxValue: Int64 = MaxInt); overload;
+  end;
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
@@ -3435,6 +3484,323 @@ end;
 class function TOLDateHelper.IsValidDate(const Year, Month, Day: Integer): Boolean;
 begin
   Result := OLDate.IsValidDate(Year, Month, Day);
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 24.0}
+{ TOLInt64Helper }
+
+function TOLInt64Helper.IsDividableBy(i: Int64): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.IsDividableBy(i);
+end;
+
+function TOLInt64Helper.IsOdd(): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.IsOdd();
+end;
+
+function TOLInt64Helper.IsEven(): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.IsEven();
+end;
+
+function TOLInt64Helper.Sqr(): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Sqr();
+end;
+
+function TOLInt64Helper.Power(Exponent: LongWord): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Power(Exponent);
+end;
+
+function TOLInt64Helper.Power(Exponent: Int64): Double;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Power(Exponent);
+end;
+
+function TOLInt64Helper.IsPositive(): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.IsPositive();
+end;
+
+function TOLInt64Helper.IsNegative(): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.IsNegative();
+end;
+
+function TOLInt64Helper.IsNonNegative(): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.IsNonNegative();
+end;
+
+function TOLInt64Helper.Max(i: Int64): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Max(i);
+end;
+
+function TOLInt64Helper.Min(i: Int64): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Min(i);
+end;
+
+function TOLInt64Helper.Abs(): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Abs();
+end;
+
+function TOLInt64Helper.ToString(): string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.ToString();
+end;
+
+function TOLInt64Helper.ToSQLString(): string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.ToSQLString();
+end;
+
+function TOLInt64Helper.Round(Digits: Int64): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Round(Digits);
+end;
+
+function TOLInt64Helper.Between(BottomIncluded, TopIncluded: Int64): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Between(BottomIncluded, TopIncluded);
+end;
+
+function TOLInt64Helper.Increased(IncreasedBy: Int64): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Increased(IncreasedBy);
+end;
+
+function TOLInt64Helper.Decreased(DecreasedBy: Int64): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Decreased(DecreasedBy);
+end;
+
+function TOLInt64Helper.Replaced(FromValue: Int64; ToValue: Int64): Int64;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Replaced(FromValue, ToValue);
+end;
+
+function TOLInt64Helper.ToNumeralSystem(const Base: Integer): string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.ToNumeralSystem(Base);
+end;
+
+function TOLInt64Helper.Binary: string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Binary;
+end;
+
+function TOLInt64Helper.Octal: string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Octal;
+end;
+
+function TOLInt64Helper.Hexidecimal: string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.Hexidecimal;
+end;
+
+function TOLInt64Helper.NumeralSystem32: string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.NumeralSystem32;
+end;
+
+function TOLInt64Helper.NumeralSystem64: string;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.NumeralSystem64;
+end;
+
+procedure TOLInt64Helper.SetBinary(const Value: string);
+var
+  ol: OLInt64;
+begin
+  ol.Binary := Value;
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.SetOctal(const Value: string);
+var
+  ol: OLInt64;
+begin
+  ol.Octal := Value;
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.SetHexidecimal(const Value: string);
+var
+  ol: OLInt64;
+begin
+  ol.Hexidecimal := Value;
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.SetNumeralSystem32(const Value: string);
+var
+  ol: OLInt64;
+begin
+  ol.NumeralSystem32 := Value;
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.SetNumeralSystem64(const Value: string);
+var
+  ol: OLInt64;
+begin
+  ol.NumeralSystem64 := Value;
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  ol.ForLoop(InitialValue, ToValue, Proc);
+  Self := ol;
+end;
+
+function TOLInt64Helper.IsPrime(): Boolean;
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  Result := ol.IsPrime();
+end;
+
+class function TOLInt64Helper.Random(MinValue: Int64; MaxValue: Int64): Int64;
+begin
+  Result := OLInt64.Random(MinValue, MaxValue);
+end;
+
+class function TOLInt64Helper.RandomPrime(MinValue: Int64; MaxValue: Int64): Int64;
+begin
+  Result := OLInt64.RandomPrime(MinValue, MaxValue);
+end;
+
+class function TOLInt64Helper.Random(MaxValue: Int64): Int64;
+begin
+  Result := OLInt64.Random(MaxValue);
+end;
+
+class function TOLInt64Helper.RandomPrime(MaxValue: Int64): Int64;
+begin
+  Result := OLInt64.RandomPrime(MaxValue);
+end;
+
+procedure TOLInt64Helper.SetRandom(MinValue: Int64; MaxValue: Int64);
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  ol.SetRandom(MinValue, MaxValue);
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.SetRandom(MaxValue: Int64);
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  ol.SetRandom(MaxValue);
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.SetRandomPrime(MinValue: Int64; MaxValue: Int64);
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  ol.SetRandomPrime(MinValue, MaxValue);
+  Self := ol;
+end;
+
+procedure TOLInt64Helper.SetRandomPrime(MaxValue: Int64);
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  ol.SetRandomPrime(MaxValue);
+  Self := ol;
 end;
 {$IFEND}
 
