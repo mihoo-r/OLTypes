@@ -491,6 +491,219 @@ end;
 
 
 type
+  TestDoubleHelper = class(TTestCase)
+  published
+    procedure TestSqr;
+    procedure TestSqrt;
+    procedure TestPower;
+    procedure TestIsPositive;
+    procedure TestIsNegative;
+    procedure TestIsNonNegative;
+    procedure TestMaxMin;
+    procedure TestAbs;
+    procedure TestToString;
+    procedure TestToSQLString;
+    procedure TestRound;
+    procedure TestFloorCeil;
+    procedure TestIsNan;
+    procedure TestIsInfinite;
+    procedure TestIsZero;
+    procedure TestInRange;
+    procedure TestEnsureRange;
+    procedure TestSameValue;
+    procedure TestRandom;
+  end;
+
+procedure TestDoubleHelper.TestSqr;
+var
+  d: Double;
+begin
+  d := 5.0;
+  CheckEquals(25.0, d.Sqr, 0.01);
+end;
+
+procedure TestDoubleHelper.TestSqrt;
+var
+  d: Double;
+begin
+  d := 25.0;
+  CheckEquals(5.0, d.Sqrt, 0.01);
+end;
+
+procedure TestDoubleHelper.TestPower;
+var
+  d: Double;
+begin
+  d := 2.0;
+  CheckEquals(8.0, d.Power(3), 0.01);
+  CheckEquals(8.0, d.Power(3.0), 0.01);
+end;
+
+procedure TestDoubleHelper.TestIsPositive;
+var
+  d: Double;
+begin
+  d := 5.5;
+  CheckTrue(d.IsPositive);
+  d := -5.5;
+  CheckFalse(d.IsPositive);
+end;
+
+procedure TestDoubleHelper.TestIsNegative;
+var
+  d: Double;
+begin
+  d := -5.5;
+  CheckTrue(d.IsNegative);
+  d := 5.5;
+  CheckFalse(d.IsNegative);
+end;
+
+procedure TestDoubleHelper.TestIsNonNegative;
+var
+  d: Double;
+begin
+  d := 0.0;
+  CheckTrue(d.IsNonNegative);
+  d := 5.5;
+  CheckTrue(d.IsNonNegative);
+  d := -5.5;
+  CheckFalse(d.IsNonNegative);
+end;
+
+procedure TestDoubleHelper.TestMaxMin;
+var
+  d: Double;
+begin
+  d := 5.5;
+  CheckEquals(10.0, d.Max(10.0), 0.01);
+  CheckEquals(5.5, d.Max(3.0), 0.01);
+  CheckEquals(3.0, d.Min(3.0), 0.01);
+  CheckEquals(5.5, d.Min(10.0), 0.01);
+end;
+
+procedure TestDoubleHelper.TestAbs;
+var
+  d: Double;
+begin
+  d := -5.5;
+  CheckEquals(5.5, d.Abs, 0.01);
+  d := 5.5;
+  CheckEquals(5.5, d.Abs, 0.01);
+end;
+
+procedure TestDoubleHelper.TestToString;
+var
+  d: Double;
+begin
+  d := 123.45;
+  CheckNotEquals('', d.ToString);
+  CheckNotEquals('', d.ToString(2));
+  CheckNotEquals('', d.ToString(',', '.'));
+end;
+
+procedure TestDoubleHelper.TestToSQLString;
+var
+  d: Double;
+begin
+  d := 123.45;
+  CheckNotEquals('', d.ToSQLString);
+end;
+
+procedure TestDoubleHelper.TestRound;
+var
+  d: Double;
+  i: Integer;
+begin
+  d := 123.456;
+  CheckEquals(123.46, d.Round(-2), 0.01);
+  i := d.Round;
+  CheckEquals(123, i);
+end;
+
+procedure TestDoubleHelper.TestFloorCeil;
+var
+  d: Double;
+begin
+  d := 123.7;
+  CheckEquals(123, d.Floor);
+  CheckEquals(124, d.Ceil);
+end;
+
+procedure TestDoubleHelper.TestIsNan;
+var
+  d: Double;
+begin
+  d := 0.0 / 0.0;
+  CheckTrue(d.IsNan);
+  d := 5.5;
+  CheckFalse(d.IsNan);
+end;
+
+procedure TestDoubleHelper.TestIsInfinite;
+var
+  d: Double;
+begin
+  d := 1.0 / 0.0;
+  CheckTrue(d.IsInfinite);
+  d := 5.5;
+  CheckFalse(d.IsInfinite);
+end;
+
+procedure TestDoubleHelper.TestIsZero;
+var
+  d: Double;
+begin
+  d := 0.0;
+  CheckTrue(d.IsZero);
+  d := 0.0000001;
+  CheckTrue(d.IsZero(0.001));
+  d := 5.5;
+  CheckFalse(d.IsZero);
+end;
+
+procedure TestDoubleHelper.TestInRange;
+var
+  d: Double;
+begin
+  d := 5.5;
+  CheckTrue(d.InRange(1.0, 10.0));
+  d := 15.5;
+  CheckFalse(d.InRange(1.0, 10.0));
+end;
+
+procedure TestDoubleHelper.TestEnsureRange;
+var
+  d: Double;
+begin
+  d := 15.5;
+  CheckEquals(10.0, d.EnsureRange(1.0, 10.0), 0.01);
+  d := 5.5;
+  CheckEquals(5.5, d.EnsureRange(1.0, 10.0), 0.01);
+end;
+
+procedure TestDoubleHelper.TestSameValue;
+var
+  d: Double;
+begin
+  d := 5.5;
+  CheckTrue(d.SameValue(5.5));
+  CheckTrue(d.SameValue(5.50001, 0.001));
+  CheckFalse(d.SameValue(6.0));
+end;
+
+procedure TestDoubleHelper.TestRandom;
+var
+  d: Double;
+begin
+  d := Double.Random(1.0, 10.0);
+  CheckTrue((d >= 1.0) and (d <= 10.0));
+  d := Double.Random(10.0);
+  CheckTrue((d >= 0.0) and (d <= 10.0));
+end;
+
+
+type
   TestStringHelper = class(TTestCase)
   published
     procedure TestIsEmptyStr;
@@ -1238,6 +1451,7 @@ initialization
   {$IF CompilerVersion >= 24.0}
   RegisterTest(TestIntegerHelper.Suite);
   RegisterTest(TestBooleanHelper.Suite);
+  RegisterTest(TestDoubleHelper.Suite);
   RegisterTest(TestStringHelper.Suite);
   {$IFEND}
 
