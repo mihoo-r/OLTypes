@@ -1084,10 +1084,7 @@ begin
 
   index := StrUtils.IndexStr(Self.Value, AValues);
 
-  if index = -1 then
-    Result := Null
-  else
-    Result := index;
+  Result := index;
 end;
 
 function OLString.IndexText(const AValues: array of string): OLInteger;
@@ -1100,10 +1097,7 @@ begin
 
   index := StrUtils.IndexText(Self.Value, AValues);
 
-  if index = -1 then
-    Result := Null
-  else
-    Result := index;
+  Result := index;
 end;
 
 function OLString.InitCaps: OLString;
@@ -1447,6 +1441,8 @@ begin
   if IsNull then
     Exit(Null);
 
+  OutPut := -1;
+
   for i := StartingFrom to Self.LineCount - 1 do
   begin
     if Self.Lines[i].Like(s) then
@@ -1464,11 +1460,11 @@ var
   i: Integer;
   OutPut: OLInteger;
 begin
-  // Changed to return NULL instead of -1 when not found (previously used TStringList.IndexOf)
-  OutPut := Null;
-
   if not Self.IsNull() then
   begin
+    // Changed to return -1 instead of NULL when not found (previously used TStringList.IndexOf)
+    OutPut := -1;
+
     for i := 0 to Self.LineCount - 1 do
     begin
       if Self.Lines[i] = s then
@@ -1671,7 +1667,7 @@ begin
   if IsNull then
     Exit(Null);
 
-  // Changed to return NULL instead of 0 when not found
+  // Changed to return 0 instead of NULL when not found
   if CaseSensitivity = csCaseSensitive then
     position := System.Pos(SubStr, Self)
   else
@@ -1680,10 +1676,7 @@ begin
     position := System.Pos(UpperSubString, Self.UpperCase());
   end;
 
-  if position = 0 then
-    OutPut := Null
-  else
-    OutPut := position;
+  OutPut := position;
 
   Result := OutPut;
 end;
@@ -1698,7 +1691,7 @@ begin
   if IsNull then
     Exit(Null);
 
-  // Changed to return NULL instead of 0 when not found
+  // Changed to return 0 instead of NULL when not found
   if CaseSensitivity = csCaseSensitive then
     position := StrUtils.PosEx(SubStr, Self, Offset)
   else
@@ -1707,10 +1700,7 @@ begin
     position := StrUtils.PosEx(UpperSubString, Self.UpperCase(), Offset);
   end;
 
-  if position = 0 then
-    OutPut := Null
-  else
-    OutPut := position;
+  OutPut := position;
 
   Result := OutPut;
 end;
@@ -1726,8 +1716,8 @@ begin
   if IsNull then
     Exit(Null);
 
-  // Changed to consistently return NULL instead of 0 when not found
-  OutPut := Null;
+  // Changed to consistently return 0 instead of NULL when not found
+  OutPut := 0;
 
   if Self.HasValue() then
   begin
@@ -1781,8 +1771,8 @@ begin
   if IsNull then
     Exit(Null);
 
-  // Changed to consistently return NULL instead of 0 when not found
-  OutPut := Null;
+  // Changed to consistently return 0 instead of NULL when not found
+  OutPut := 0;
 
   if Self.HasValue() then
   begin
@@ -3125,7 +3115,7 @@ begin
   begin
     Position := Self.Pos(SubString, CaseSensitivity);
 
-    while Position.HasValue() do
+    while Position > 0 do
     begin
       inc(OutPut);
       Position := Self.PosEx(SubString, Position + 1, CaseSensitivity);
@@ -3249,6 +3239,8 @@ var
 begin
   if IsNull then
     Exit(Null);
+
+  OutPut := -1;
 
   for I := 0 to CSVFieldCount() - 1 do
     if GetCSV(i) = ValueToFind then
