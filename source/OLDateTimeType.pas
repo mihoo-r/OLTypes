@@ -216,6 +216,7 @@ type
 
 implementation
 
+
 const
   NonEmptyStr = ' ';
 
@@ -294,7 +295,10 @@ end;
 
 function OLDateTime.DaysBetween(const AThen: OLDateTime): OLInteger;
 begin
-  Result := DateUtils.DaysBetween(Self, AThen);
+  if IsNull or AThen.IsNull then
+    exit(null);
+
+  Result := Round(Self.FValue - AThen.FValue);
 end;
 
 function OLDateTime.DaysInMonth(): OLInteger;
@@ -448,8 +452,12 @@ begin
 end;
 
 function OLDateTime.HoursBetween(const AThen: OLDateTime): Int64;
+var
+  MinusSign: OLBoolean;
 begin
-  Result := DateUtils.HoursBetween(Self, AThen);
+  MinusSign := (AThen > Self);
+
+  Result := DateUtils.HoursBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
 end;
 
 function OLDateTime.HourSpan(const AThen: OLDateTime): OLDouble;
@@ -644,8 +652,12 @@ begin
 end;
 
 function OLDateTime.MilliSecondsBetween(const AThen: OLDateTime): Int64;
+var
+  MinusSign: OLBoolean;
 begin
-  Result := DateUtils.MilliSecondsBetween(Self, AThen);
+  MinusSign := (AThen > Self);
+
+  Result := DateUtils.MilliSecondsBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
 end;
 
 function OLDateTime.MilliSecondSpan(const AThen: OLDateTime): OLDouble;
@@ -696,8 +708,12 @@ begin
 end;
 
 function OLDateTime.MinutesBetween(const AThen: OLDateTime): Int64;
+var
+  MinusSign: OLBoolean;
 begin
-  Result := DateUtils.MinutesBetween(Self, AThen);
+  MinusSign := (AThen > Self);
+
+  Result := DateUtils.MinutesBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
 end;
 
 function OLDateTime.MinuteSpan(const AThen: OLDateTime): OLDouble;
@@ -714,21 +730,40 @@ function OLDateTime.MonthsBetween(const AThen: OLDateTime): OLInteger;
 var
   Y1, Y2, M1, M2, D1, D2: Integer;
   FullMonth: OLBoolean;
+  MinusSign: OLBoolean;
 begin
 //Result := Self.Value.MonthsBetween(AThen); //Useless - returns "approximate" number of months based on avg days in month (30.4375 days)
 
-  Y1 := AThen.Year;
-  M1 := AThen.Month;
-  D1 := AThen.Day;
+  if AThen > Self then
+  begin
+    MinusSign := True;
 
-  Y2 := Self.Year;
-  M2 := Self.Month;
-  D2 := Self.Day;
+    Y2 := AThen.Year;
+    M2 := AThen.Month;
+    D2 := AThen.Day;
+
+    Y1 := Self.Year;
+    M1 := Self.Month;
+    D1 := Self.Day;
+  end
+  else
+  begin
+    MinusSign := False;
+
+    Y1 := AThen.Year;
+    M1 := AThen.Month;
+    D1 := AThen.Day;
+
+    Y2 := Self.Year;
+    M2 := Self.Month;
+    D2 := Self.Day;
+  end;
 
   FullMonth := (D2 >= D1) or (D2 = DaysInAMonth(Y2, M2));
 
   //Decrease when comparing for example '2020-01-10' and '2020-02-09' - not a full month so result is 0
-  Result := 12 * (Y2 - Y1) + (M2 - M1) + FullMonth.IfThen(0, -1);
+  //Revert the sign when AThen DateTime larger than Self
+  Result := ((12 * (Y2 - Y1) + (M2 - M1) + FullMonth.IfThen(0, -1))) * MinusSign.IfThen(-1, 1);
 end;
 
 function OLDateTime.MonthSpan(const AThen: OLDateTime): OLDouble;
@@ -817,8 +852,12 @@ begin
 end;
 
 function OLDateTime.SecondsBetween(const AThen: OLDateTime): Int64;
+var
+  MinusSign: OLBoolean;
 begin
-  Result := DateUtils.SecondsBetween(Self, AThen);
+  MinusSign := (AThen > Self);
+
+  Result := DateUtils.SecondsBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
 end;
 
 function OLDateTime.SecondSpan(const AThen: OLDateTime): OLDouble;
@@ -1112,8 +1151,12 @@ end;
 
 
 function OLDateTime.WeeksBetween(const AThen: OLDateTime): OLInteger;
+var
+  MinusSign: OLBoolean;
 begin
-  Result := DateUtils.WeeksBetween(Self, AThen);
+  MinusSign := (AThen > Self);
+
+  Result := DateUtils.WeeksBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
 end;
 
 function OLDateTime.WeeksInYear: OLInteger;
@@ -1132,8 +1175,49 @@ begin
 end;
 
 function OLDateTime.YearsBetween(const AThen: OLDateTime): OLInteger;
+var
+  Y1, Y2, M1, M2, D1, D2: Integer;
+  FullYear: OLBoolean;
+  MinusSign: OLBoolean;
 begin
-  Result := DateUtils.YearsBetween(Self, AThen);
+  // Result := DateUtils.YearsBetween(Self, AThen); // Replaced to maintain consistency with MonthsBetween logic
+  if AThen > Self then
+  begin
+    MinusSign := True;
+
+    Y2 := AThen.Year;
+    M2 := AThen.Month;
+    D2 := AThen.Day;
+
+    Y1 := Self.Year;
+    M1 := Self.Month;
+    D1 := Self.Day;
+  end
+  else
+  begin
+    MinusSign := False;
+
+    Y1 := AThen.Year;
+    M1 := AThen.Month;
+    D1 := AThen.Day;
+
+    Y2 := Self.Year;
+    M2 := Self.Month;
+    D2 := Self.Day;
+  end;
+
+  // Check if a full year cycle has passed based on Month and Day comparison
+  if M2 > M1 then
+    FullYear := True
+  else if M2 < M1 then
+    FullYear := False
+  else // M2 = M1
+    // Same month: check days. The (D2 = DaysInAMonth) check handles cases like Feb 29 -> Feb 28
+    FullYear := (D2 >= D1) or (D2 = DaysInAMonth(Y2, M2));
+
+  // Calculate year difference and decrease by 1 if the current date hasn't reached the start date's Month/Day yet
+  //Revert the sign when AThen DateTime larger than Self
+  Result := ((Y2 - Y1) + FullYear.IfThen(0, -1)) * MinusSign.IfThen(-1, 1);
 end;
 
 function OLDateTime.YearSpan(const AThen: OLDateTime): OLDouble;
