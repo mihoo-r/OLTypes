@@ -201,6 +201,20 @@ type
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
+  TOLBooleanHelper = record helper for Boolean
+  public
+    function ToString(): string;
+    function ToSQLString(): string;
+    function IfThen(const ATrue: string; const AFalse: string = ''): string; overload;
+    function IfThen(const ATrue: Integer; const AFalse: Integer): Integer; overload;
+    function IfThen(const ATrue: Currency; const AFalse: Currency): Currency; overload;
+    function IfThen(const ATrue: Extended; const AFalse: Extended): Extended; overload;
+    function IfThen(const ATrue: TDateTime; const AFalse: TDateTime): TDateTime; overload;
+    function IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 24.0}
   TOLStringHelper = record helper for string
   private
     function GetLines(const Index: Integer): OLString;
@@ -1311,6 +1325,74 @@ begin
   ol.SetRandomPrime(MaxValue);
   Self := ol;
 end;
+
+{$IF CompilerVersion >= 24.0}
+{ TOLBooleanHelper }
+
+function TOLBooleanHelper.ToString(): string;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.ToString();
+end;
+
+function TOLBooleanHelper.ToSQLString(): string;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.ToSQLString();
+end;
+
+function TOLBooleanHelper.IfThen(const ATrue: string; const AFalse: string): string;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.IfThen(ATrue, AFalse);
+end;
+
+function TOLBooleanHelper.IfThen(const ATrue: Integer; const AFalse: Integer): Integer;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.IfThen(ATrue, AFalse);
+end;
+
+function TOLBooleanHelper.IfThen(const ATrue: Currency; const AFalse: Currency): Currency;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.IfThen(ATrue, AFalse);
+end;
+
+function TOLBooleanHelper.IfThen(const ATrue: Extended; const AFalse: Extended): Extended;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.IfThen(ATrue, AFalse);
+end;
+
+function TOLBooleanHelper.IfThen(const ATrue: TDateTime; const AFalse: TDateTime): TDateTime;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.IfThen(ATrue, AFalse);
+end;
+
+function TOLBooleanHelper.IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean;
+var
+  ol: OLBoolean;
+begin
+  ol := Self;
+  Result := ol.IfThen(ATrue, AFalse);
+end;
+{$IFEND}
 
 {$IF CompilerVersion >= 24.0}
 { TOLStringHelper }
