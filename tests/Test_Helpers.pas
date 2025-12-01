@@ -3,16 +3,14 @@ unit Test_Helpers;
 interface
 
 uses
-  TestFramework, SysUtils, Types, Classes, OLTypes;
+  TestFramework, SysUtils, Types, Classes, DateUtils, OLTypes;
 
 
 
 implementation
 
-
-
-
 {$IF CompilerVersion >= 24.0}
+
 type
   TestIntegerHelper = class(TTestCase)
   published
@@ -334,8 +332,8 @@ var
   i: Integer;
 begin
   i := 10;
-  CheckFalse(i.IsEven, 'IsEven for 10');
-  CheckTrue(i.IsOdd, 'IsOdd for 10');
+  CheckTrue(i.IsEven, 'IsEven for 10');
+  CheckFalse(i.IsOdd, 'IsOdd for 10');
 
   i := -5;
   CheckEquals(5, i.Abs, 'Abs');
@@ -383,7 +381,7 @@ begin
   CheckEquals(15, i.Increased(5), 'Increased');
   CheckEquals(100, i.Sqr, 'Sqr');
 
-  i := 16;
+  i := 11;
   CheckEquals('10', i.Increased(5).Hexidecimal, 'Increased then Hex');
 end;
 
@@ -844,6 +842,184 @@ begin
   c := 123.7;
   CheckEquals(123, c.Floor);
   CheckEquals(124, c.Ceil);
+end;
+
+
+
+
+type
+  TestDateTimeHelper = class(TTestCase)
+  published
+    procedure TestProperties;
+    procedure TestToString;
+    procedure TestDateOfTimeOf;
+    procedure TestChecks;
+    procedure TestStartEnd;
+    procedure TestParts;
+    procedure TestBetween;
+    procedure TestSpan;
+    procedure TestInc;
+    procedure TestRecoded;
+    procedure TestEncodeDecode;
+    procedure TestNames;
+    procedure TestMaxMin;
+    procedure TestStaticCreators;
+  end;
+
+procedure TestDateTimeHelper.TestProperties;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDateTime(2023, 10, 27, 14, 30, 45, 500);
+
+  CheckEquals(2023, dt.Year);
+  CheckEquals(10, dt.Month);
+  CheckEquals(27, dt.Day);
+  CheckEquals(14, dt.Hour);
+  CheckEquals(30, dt.Minute);
+  CheckEquals(45, dt.Second);
+  CheckEquals(500, dt.test);
+
+  dt.Year := 2024;
+  CheckEquals(2024, dt.Year);
+end;
+
+procedure TestDateTimeHelper.TestToString;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDate(2023, 1, 1);
+  CheckNotEquals('', dt.ToString);
+  CheckNotEquals('', dt.ToString('yyyy-mm-dd'));
+  CheckNotEquals('', dt.ToSQLString);
+end;
+
+procedure TestDateTimeHelper.TestDateOfTimeOf;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDateTime(2023, 10, 27, 14, 30, 45, 500);
+  CheckEquals(EncodeDate(2023, 10, 27), dt.DateOf);
+  CheckEquals(EncodeTime(14, 30, 45, 500), dt.TimeOf, 0.00000001);
+end;
+
+procedure TestDateTimeHelper.TestChecks;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDate(2020, 1, 1); // Leap year
+  CheckTrue(dt.IsInLeapYear);
+  dt := EncodeDate(2023, 1, 1);
+  CheckFalse(dt.IsInLeapYear);
+
+  dt := EncodeTime(14, 0, 0, 0);
+  CheckTrue(dt.IsPM);
+  CheckFalse(dt.IsAM);
+
+  dt := Date;
+  CheckTrue(dt.IsToday);
+end;
+
+procedure TestDateTimeHelper.TestStartEnd;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDate(2023, 10, 27);
+  CheckEquals(EncodeDate(2023, 1, 1), dt.StartOfTheYear);
+  CheckEquals(EncodeDate(2023, 12, 31), dt.EndOfTheYear.DateOf); // EndOfTheYear includes time
+  CheckEquals(EncodeDate(2023, 10, 1), dt.StartOfTheMonth);
+  CheckEquals(EncodeDate(2023, 10, 31), dt.EndOfTheMonth.DateOf);
+end;
+
+procedure TestDateTimeHelper.TestParts;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDate(2023, 1, 1);
+  CheckEquals(1, dt.DayOfTheYear);
+end;
+
+procedure TestDateTimeHelper.TestBetween;
+var
+  dt1, dt2: TDateTime;
+begin
+  dt1 := EncodeDate(2023, 1, 1);
+  dt2 := EncodeDate(2024, 1, 1);
+  CheckEquals(-1, dt1.YearsBetween(dt2));
+  CheckEquals(-12, dt1.MonthsBetween(dt2));
+  CheckEquals(-365, dt1.DaysBetween(dt2));
+end;
+
+procedure TestDateTimeHelper.TestSpan;
+var
+  dt1, dt2: TDateTime;
+begin
+  dt1 := EncodeDate(2023, 1, 1);
+  dt2 := EncodeDate(2023, 1, 2);
+  CheckEquals(1.0, dt1.DaySpan(dt2), 0.001);
+end;
+
+procedure TestDateTimeHelper.TestInc;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDate(2023, 1, 1);
+  CheckEquals(EncodeDate(2024, 1, 1), dt.IncYear(1));
+  CheckEquals(EncodeDate(2023, 2, 1), dt.IncMonth(1));
+  CheckEquals(EncodeDate(2023, 1, 2), dt.IncDay(1));
+end;
+
+procedure TestDateTimeHelper.TestRecoded;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDate(2023, 1, 1);
+  CheckEquals(EncodeDate(2024, 1, 1), dt.RecodedYear(2024));
+end;
+
+procedure TestDateTimeHelper.TestEncodeDecode;
+var
+  dt: TDateTime;
+  Y, M, D, H, N, S, MS: Word;
+begin
+  dt := EncodeDateTime(2023, 10, 27, 14, 30, 45, 500);
+  dt.DecodeDateTime(Y, M, D, H, N, S, MS);
+  CheckEquals(2023, Y);
+  CheckEquals(10, M);
+  CheckEquals(27, D);
+  CheckEquals(14, H);
+  CheckEquals(30, N);
+  CheckEquals(45, S);
+  CheckEquals(500, MS);
+end;
+
+procedure TestDateTimeHelper.TestNames;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDate(2023, 1, 1); // Sunday
+  CheckNotEquals('', dt.LongDayName);
+  CheckNotEquals('', dt.ShortDayName);
+  CheckNotEquals('', dt.LongMonthName);
+  CheckNotEquals('', dt.ShortMonthName);
+end;
+
+procedure TestDateTimeHelper.TestMaxMin;
+var
+  dt1, dt2: TDateTime;
+begin
+  dt1 := EncodeDate(2023, 1, 1);
+  dt2 := EncodeDate(2024, 1, 1);
+  CheckEquals(dt2, dt1.Max(dt2));
+  CheckEquals(dt1, dt1.Min(dt2));
+end;
+
+procedure TestDateTimeHelper.TestStaticCreators;
+begin
+  CheckEquals(Date, TDateTime.Today);
+  TDateTime.Now;
+  TDateTime.Yesterday;
+  TDateTime.Tomorrow;
 end;
 
 
@@ -1597,6 +1773,7 @@ initialization
   RegisterTest(TestBooleanHelper.Suite);
   RegisterTest(TestDoubleHelper.Suite);
   RegisterTest(TestCurrencyHelper.Suite);
+  RegisterTest(TestDateTimeHelper.Suite);
   RegisterTest(TestStringHelper.Suite);
   {$IFEND}
 
