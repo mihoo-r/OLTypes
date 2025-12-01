@@ -387,6 +387,108 @@ begin
   CheckEquals('10', i.Increased(5).Hexidecimal, 'Increased then Hex');
 end;
 
+type
+  TestBooleanHelper = class(TTestCase)
+  published
+    procedure TestToString;
+    procedure TestToSQLString;
+    procedure TestIfThenString;
+    procedure TestIfThenInteger;
+    procedure TestIfThenCurrency;
+    procedure TestIfThenExtended;
+    procedure TestIfThenDateTime;
+    procedure TestIfThenBoolean;
+  end;
+
+procedure TestBooleanHelper.TestToString;
+var
+  b: Boolean;
+begin
+  b := True;
+  CheckEquals('True', b.ToString());
+  b := False;
+  CheckEquals('False', b.ToString());
+end;
+
+procedure TestBooleanHelper.TestToSQLString;
+var
+  b: Boolean;
+begin
+  b := True;
+  CheckEquals('True', b.ToSQLString());
+  b := False;
+  CheckEquals('False', b.ToSQLString());
+end;
+
+procedure TestBooleanHelper.TestIfThenString;
+var
+  b: Boolean;
+begin
+  b := True;
+  CheckEquals('Yes', b.IfThen('Yes', 'No'));
+  b := False;
+  CheckEquals('No', b.IfThen('Yes', 'No'));
+end;
+
+procedure TestBooleanHelper.TestIfThenInteger;
+var
+  b: Boolean;
+begin
+  b := True;
+  CheckEquals(1, b.IfThen(1, 0));
+  b := False;
+  CheckEquals(0, b.IfThen(1, 0));
+end;
+
+procedure TestBooleanHelper.TestIfThenCurrency;
+var
+  b: Boolean;
+  result: Currency;
+begin
+  b := True;
+  result := b.IfThen(100.50, 0.0);
+  CheckEquals(100.50, result, 0.01);
+  b := False;
+  result := b.IfThen(100.50, 0.0);
+  CheckEquals(0.0, result, 0.01);
+end;
+
+procedure TestBooleanHelper.TestIfThenExtended;
+var
+  b: Boolean;
+  result: Extended;
+begin
+  b := True;
+  result := b.IfThen(3.14, 0.0);
+  CheckEquals(3.14, result, 0.01);
+  b := False;
+  result := b.IfThen(3.14, 0.0);
+  CheckEquals(0.0, result, 0.01);
+end;
+
+procedure TestBooleanHelper.TestIfThenDateTime;
+var
+  b: Boolean;
+  dt1, dt2: TDateTime;
+begin
+  b := True;
+  dt1 := EncodeDate(2023, 1, 1);
+  dt2 := EncodeDate(2024, 1, 1);
+  CheckEquals(dt1, b.IfThen(dt1, dt2));
+  b := False;
+  CheckEquals(dt2, b.IfThen(dt1, dt2));
+end;
+
+procedure TestBooleanHelper.TestIfThenBoolean;
+var
+  b: Boolean;
+begin
+  b := True;
+  CheckTrue(b.IfThen(True, False));
+  b := False;
+  CheckFalse(b.IfThen(True, False));
+end;
+
 
 type
   TestStringHelper = class(TTestCase)
@@ -1135,6 +1237,7 @@ end;
 initialization
   {$IF CompilerVersion >= 24.0}
   RegisterTest(TestIntegerHelper.Suite);
+  RegisterTest(TestBooleanHelper.Suite);
   RegisterTest(TestStringHelper.Suite);
   {$IFEND}
 
