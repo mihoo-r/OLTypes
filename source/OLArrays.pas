@@ -21,17 +21,35 @@ type
   // 1. GENERIC ENGINE (OLArray<T>)
   // Contains all memory management logic and algorithms.
   // ===========================================================================
+  /// <summary>
+  ///   Enumerator for OLArray<T>.
+  /// </summary>
   TEnumerator<T> = record
   private
     FIndex: Integer;
     FItems: TArray<T>;
   public
+    /// <summary>
+    ///   Creates a new enumerator with the specified items.
+    /// </summary>
     constructor Create(const AItems: TArray<T>);
+    /// <summary>
+    ///   Advances the enumerator to the next element.
+    /// </summary>
     function MoveNext: Boolean;
+    /// <summary>
+    ///   Gets the current element.
+    /// </summary>
     function GetCurrent: T;
+    /// <summary>
+    ///   Gets the current element.
+    /// </summary>
     property Current: T read GetCurrent;
   end;
 
+  /// <summary>
+  ///   Generic array wrapper with advanced functionality.
+  /// </summary>
   OLArray<T> = record
   private
     arr: TArray<T>;
@@ -42,32 +60,81 @@ type
     procedure SetLength(const Value: Integer);
     procedure MakeUnique; inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: T read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
+    /// <summary>
+    ///   Gets whether the array is sorted.
+    /// </summary>
     property IsSorted: Boolean read FSorted;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(const Value: T);
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; const Value: T);
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer);
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear;
 
-    // Sorts the array "in-place"
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
 
-    // Returns a new, sorted copy
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLArray<T>;
 
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(const v: T): Boolean;
     {$IF CompilerVersion >= 23.0} // XE2+
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct(const Comparer: IEqualityComparer<T> = nil): OLArray<T>;
     {$ELSE}
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct(const Comparer: IEqualityComparer<T>): OLArray<T>;
     {$IFEND}
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLArray<T>;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<T>;
 
+    /// <summary>
+    ///   Implicit conversion from TArray<T> to OLArray<T>.
+    /// </summary>
     class operator Implicit(const A: TArray<T>): OLArray<T>; overload;
+    /// <summary>
+    ///   Implicit conversion from OLArray<T> to TArray<T>.
+    /// </summary>
     class operator Implicit(const A: OLArray<T>): TArray<T>; overload;
   end;
 
@@ -88,6 +155,9 @@ type
   // ===========================================================================
 
   // --- OLIntegerArray ---
+  /// <summary>
+  ///   Array wrapper for OLInteger.
+  /// </summary>
   OLIntegerArray = record
   private
     FEngine: OLArray<OLInteger>;
@@ -96,28 +166,82 @@ type
     procedure SetItems(Index: Integer; const Value: OLInteger); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLInteger read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLInteger); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLInteger); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort; // In-place
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLIntegerArray; // Copy
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLInteger): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLIntegerArray;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLIntegerArray;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLInteger>;
 
+    /// <summary>
+    ///   Implicit conversion from array of Integer to OLIntegerArray.
+    /// </summary>
     class operator Implicit(const A: array of Integer): OLIntegerArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLIntegerArray to TIntegerDynArray.
+    /// </summary>
     class operator Implicit(const A: OLIntegerArray): TIntegerDynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<Integer> to OLIntegerArray.
+    /// </summary>
     class operator Implicit(const A: TArray<Integer>): OLIntegerArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLIntegerArray to TArray<Integer>.
+    /// </summary>
     class operator Implicit(const A: OLIntegerArray): TArray<Integer>; overload;
   end;
 
   // --- OLStringArray ---
+  /// <summary>
+  ///   Array wrapper for OLString.
+  /// </summary>
   OLStringArray = record
   private
     FEngine: OLArray<OLString>;
@@ -126,28 +250,82 @@ type
     procedure SetItems(Index: Integer; const Value: OLString); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLString read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLString); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLString); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLStringArray;
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLString): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLStringArray;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLStringArray;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLString>;
 
+    /// <summary>
+    ///   Implicit conversion from array of string to OLStringArray.
+    /// </summary>
     class operator Implicit(const A: array of string): OLStringArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLStringArray to TStringDynArray.
+    /// </summary>
     class operator Implicit(const A: OLStringArray): TStringDynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<string> to OLStringArray.
+    /// </summary>
     class operator Implicit(const A: TArray<string>): OLStringArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLStringArray to TArray<string>.
+    /// </summary>
     class operator Implicit(const A: OLStringArray): TArray<string>; overload;
   end;
 
   // --- OLBooleanArray ---
+  /// <summary>
+  ///   Array wrapper for OLBoolean.
+  /// </summary>
   OLBooleanArray = record
   private
     FEngine: OLArray<OLBoolean>;
@@ -156,28 +334,82 @@ type
     procedure SetItems(Index: Integer; const Value: OLBoolean); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLBoolean read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLBoolean); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLBoolean); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLBooleanArray;
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLBoolean): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLBooleanArray;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLBooleanArray;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLBoolean>;
 
+    /// <summary>
+    ///   Implicit conversion from array of Boolean to OLBooleanArray.
+    /// </summary>
     class operator Implicit(const A: array of Boolean): OLBooleanArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLBooleanArray to TBooleanDynArray.
+    /// </summary>
     class operator Implicit(const A: OLBooleanArray): TBooleanDynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<Boolean> to OLBooleanArray.
+    /// </summary>
     class operator Implicit(const A: TArray<Boolean>): OLBooleanArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLBooleanArray to TArray<Boolean>.
+    /// </summary>
     class operator Implicit(const A: OLBooleanArray): TArray<Boolean>; overload;
   end;
 
   // --- OLCurrencyArray ---
+  /// <summary>
+  ///   Array wrapper for OLCurrency.
+  /// </summary>
   OLCurrencyArray = record
   private
     FEngine: OLArray<OLCurrency>;
@@ -186,28 +418,82 @@ type
     procedure SetItems(Index: Integer; const Value: OLCurrency); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLCurrency read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLCurrency); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLCurrency); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLCurrencyArray;
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLCurrency): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLCurrencyArray;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLCurrencyArray;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLCurrency>;
 
+    /// <summary>
+    ///   Implicit conversion from array of Currency to OLCurrencyArray.
+    /// </summary>
     class operator Implicit(const A: array of Currency): OLCurrencyArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLCurrencyArray to TCurrencyDynArray.
+    /// </summary>
     class operator Implicit(const A: OLCurrencyArray): TCurrencyDynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<Currency> to OLCurrencyArray.
+    /// </summary>
     class operator Implicit(const A: TArray<Currency>): OLCurrencyArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLCurrencyArray to TArray<Currency>.
+    /// </summary>
     class operator Implicit(const A: OLCurrencyArray): TArray<Currency>; overload;
   end;
 
   // --- OLDateTimeArray ---
+  /// <summary>
+  ///   Array wrapper for OLDateTime.
+  /// </summary>
   OLDateTimeArray = record
   private
     FEngine: OLArray<OLDateTime>;
@@ -216,28 +502,82 @@ type
     procedure SetItems(Index: Integer; const Value: OLDateTime); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLDateTime read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLDateTime); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLDateTime); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLDateTimeArray;
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLDateTime): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLDateTimeArray;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLDateTimeArray;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLDateTime>;
 
+    /// <summary>
+    ///   Implicit conversion from array of TDateTime to OLDateTimeArray.
+    /// </summary>
     class operator Implicit(const A: array of TDateTime): OLDateTimeArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLDateTimeArray to TDateTimeDynArray.
+    /// </summary>
     class operator Implicit(const A: OLDateTimeArray): TDateTimeDynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<TDateTime> to OLDateTimeArray.
+    /// </summary>
     class operator Implicit(const A: TArray<TDateTime>): OLDateTimeArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLDateTimeArray to TArray<TDateTime>.
+    /// </summary>
     class operator Implicit(const A: OLDateTimeArray): TArray<TDateTime>; overload;
   end;
 
   // --- OLDateArray ---
+  /// <summary>
+  ///   Array wrapper for OLDate.
+  /// </summary>
   OLDateArray = record
   private
     FEngine: OLArray<OLDate>;
@@ -246,28 +586,82 @@ type
     procedure SetItems(Index: Integer; const Value: OLDate); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLDate read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLDate); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLDate); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLDateArray;
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLDate): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLDateArray;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLDateArray;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLDate>;
 
+    /// <summary>
+    ///   Implicit conversion from array of TDate to OLDateArray.
+    /// </summary>
     class operator Implicit(const A: array of TDate): OLDateArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLDateArray to TDateDynArray.
+    /// </summary>
     class operator Implicit(const A: OLDateArray): TDateDynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<TDate> to OLDateArray.
+    /// </summary>
     class operator Implicit(const A: TArray<TDate>): OLDateArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLDateArray to TArray<TDate>.
+    /// </summary>
     class operator Implicit(const A: OLDateArray): TArray<TDate>; overload;
   end;
 
   // --- OLDoubleArray ---
+  /// <summary>
+  ///   Array wrapper for OLDouble.
+  /// </summary>
   OLDoubleArray = record
   private
     FEngine: OLArray<OLDouble>;
@@ -276,28 +670,82 @@ type
     procedure SetItems(Index: Integer; const Value: OLDouble); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLDouble read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLDouble); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLDouble); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLDoubleArray;
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLDouble): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLDoubleArray;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLDoubleArray;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLDouble>;
 
+    /// <summary>
+    ///   Implicit conversion from array of Double to OLDoubleArray.
+    /// </summary>
     class operator Implicit(const A: array of Double): OLDoubleArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLDoubleArray to TDoubleDynArray.
+    /// </summary>
     class operator Implicit(const A: OLDoubleArray): TDoubleDynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<Double> to OLDoubleArray.
+    /// </summary>
     class operator Implicit(const A: TArray<Double>): OLDoubleArray; overload;
+    /// <summary>
+    ///   Implicit conversion from OLDoubleArray to TArray<Double>.
+    /// </summary>
     class operator Implicit(const A: OLDoubleArray): TArray<Double>; overload;
   end;
 
   // --- OLInt64Array ---
+  /// <summary>
+  ///   Array wrapper for OLInt64.
+  /// </summary>
   OLInt64Array = record
   private
     FEngine: OLArray<OLInt64>;
@@ -306,24 +754,75 @@ type
     procedure SetItems(Index: Integer; const Value: OLInt64); inline;
     procedure SetLength(const Value: Integer); inline;
   public
+    /// <summary>
+    ///   Gets or sets the item at the specified index.
+    /// </summary>
     property Items[Index: Integer]: OLInt64 read GetItems write SetItems; default;
+    /// <summary>
+    ///   Gets or sets the length of the array.
+    /// </summary>
     property Length: Integer read GetLength write SetLength;
 
+    /// <summary>
+    ///   Adds a value to the end of the array.
+    /// </summary>
     procedure Add(Value: OLInt64); inline;
+    /// <summary>
+    ///   Inserts a value at the specified index.
+    /// </summary>
     procedure Insert(AtIndex: Integer; Value: OLInt64); inline;
+    /// <summary>
+    ///   Deletes the item at the specified index.
+    /// </summary>
     procedure Delete(Index: Integer); inline;
+    /// <summary>
+    ///   Clears the array.
+    /// </summary>
     procedure Clear; inline;
+    /// <summary>
+    ///   Sorts the array in-place.
+    /// </summary>
     procedure Sort;
+    /// <summary>
+    ///   Returns a new sorted copy of the array.
+    /// </summary>
     function Sorted: OLInt64Array;
+    /// <summary>
+    ///   Returns the index of the last item.
+    /// </summary>
     function LastItemIndex: Integer; inline;
+    /// <summary>
+    ///   Checks if the array contains the specified value.
+    /// </summary>
     function ContainsValue(v: OLInt64): Boolean;
+    /// <summary>
+    ///   Returns a new array with distinct values.
+    /// </summary>
     function Distinct: OLInt64Array;
+    /// <summary>
+    ///   Returns a new reversed copy of the array.
+    /// </summary>
     function Reversed: OLInt64Array;
+    /// <summary>
+    ///   Gets the enumerator for the array.
+    /// </summary>
     function GetEnumerator: TEnumerator<OLInt64>;
 
+    /// <summary>
+    ///   Implicit conversion from array of Int64 to OLInt64Array.
+    /// </summary>
     class operator Implicit(const A: array of Int64): OLInt64Array; overload;
+    /// <summary>
+    ///   Implicit conversion from OLInt64Array to TInt64DynArray.
+    /// </summary>
     class operator Implicit(const A: OLInt64Array): TInt64DynArray; overload;
+    /// <summary>
+    ///   Implicit conversion from TArray<Int64> to OLInt64Array.
+    /// </summary>
     class operator Implicit(const A: TArray<Int64>): OLInt64Array; overload;
+    /// <summary>
+    ///   Implicit conversion from OLInt64Array to TArray<Int64>.
+    /// </summary>
     class operator Implicit(const A: OLInt64Array): TArray<Int64>; overload;
   end;
 

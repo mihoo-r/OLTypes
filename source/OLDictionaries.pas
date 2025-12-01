@@ -1,4 +1,4 @@
-﻿unit OLDictionaries;
+unit OLDictionaries;
 
 interface
 
@@ -60,6 +60,9 @@ type
     property Keys: TArray<K> read GetKeys;
   end;
 
+  /// <summary>
+  ///   Dictionary wrapper for Integer to OLInteger mappings.
+  /// </summary>
   OLIntIntDictionary = record
   private
     FEngine: OLGenericDictionary<Integer, OLInteger>;
@@ -67,6 +70,9 @@ type
     procedure SetValue(const Key: Integer; const Value: OLInteger);
     function GetKeys: TArray<Integer>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntIntDictionary; const [ref] Src: OLIntIntDictionary);
     {$ELSE}
@@ -74,19 +80,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: Integer; const Value: OLInteger);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: Integer; out Value: OLInteger): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLInteger): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<Integer, OLInteger>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<Integer, OLInteger>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: Integer]: OLInteger read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<Integer> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for Integer to OLString mappings.
+  /// </summary>
   OLIntStrDictionary = record
   private
     FEngine: OLGenericDictionary<Integer, OLString>;
@@ -94,6 +136,9 @@ type
     procedure SetValue(const Key: Integer; const Value: OLString);
     function GetKeys: TArray<Integer>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntStrDictionary; const [ref] Src: OLIntStrDictionary);
     {$ELSE}
@@ -101,19 +146,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: Integer; const Value: OLString);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: Integer; out Value: OLString): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLString): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<Integer, OLString>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<Integer, OLString>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: Integer]: OLString read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<Integer> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for Integer to OLDouble mappings.
+  /// </summary>
   OLIntDblDictionary = record
   private
     FEngine: OLGenericDictionary<Integer, OLDouble>;
@@ -121,6 +202,9 @@ type
     procedure SetValue(const Key: Integer; const Value: OLDouble);
     function GetKeys: TArray<Integer>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntDblDictionary; const [ref] Src: OLIntDblDictionary);
     {$ELSE}
@@ -128,19 +212,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: Integer; const Value: OLDouble);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: Integer; out Value: OLDouble): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLDouble): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<Integer, OLDouble>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<Integer, OLDouble>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: Integer]: OLDouble read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<Integer> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for Integer to OLCurrency mappings.
+  /// </summary>
   OLIntCurrDictionary = record
   private
     FEngine: OLGenericDictionary<Integer, OLCurrency>;
@@ -148,6 +268,9 @@ type
     procedure SetValue(const Key: Integer; const Value: OLCurrency);
     function GetKeys: TArray<Integer>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntCurrDictionary; const [ref] Src: OLIntCurrDictionary);
     {$ELSE}
@@ -155,19 +278,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: Integer; const Value: OLCurrency);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: Integer; out Value: OLCurrency): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLCurrency): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<Integer, OLCurrency>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<Integer, OLCurrency>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: Integer]: OLCurrency read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<Integer> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for Integer to OLBoolean mappings.
+  /// </summary>
   OLIntBooleanDictionary = record
   private
     FEngine: OLGenericDictionary<Integer, OLBoolean>;
@@ -175,6 +334,9 @@ type
     procedure SetValue(const Key: Integer; const Value: OLBoolean);
     function GetKeys: TArray<Integer>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntBooleanDictionary; const [ref] Src: OLIntBooleanDictionary);
     {$ELSE}
@@ -182,19 +344,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: Integer; const Value: OLBoolean);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: Integer; out Value: OLBoolean): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLBoolean): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<Integer, OLBoolean>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<Integer, OLBoolean>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: Integer]: OLBoolean read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<Integer> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for Integer to OLDate mappings.
+  /// </summary>
   OLIntDateDictionary = record
   private
     FEngine: OLGenericDictionary<Integer, OLDate>;
@@ -202,6 +400,9 @@ type
     procedure SetValue(const Key: Integer; const Value: OLDate);
     function GetKeys: TArray<Integer>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLIntDateDictionary; const [ref] Src: OLIntDateDictionary);
     {$ELSE}
@@ -209,19 +410,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: Integer; const Value: OLDate);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: Integer; out Value: OLDate): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: Integer): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLDate): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<Integer, OLDate>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<Integer, OLDate>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: Integer]: OLDate read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<Integer> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for string to OLString mappings.
+  /// </summary>
   OLStrStrDictionary = record
   private
     FEngine: OLGenericDictionary<string, OLString>;
@@ -229,6 +466,9 @@ type
     procedure SetValue(const Key: string; const Value: OLString);
     function GetKeys: TArray<string>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrStrDictionary; const [ref] Src: OLStrStrDictionary);
     {$ELSE}
@@ -236,19 +476,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: string; const Value: OLString);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: string; out Value: OLString): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLString): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<string, OLString>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<string, OLString>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: string]: OLString read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<string> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for string to OLInteger mappings.
+  /// </summary>
   OLStrIntDictionary = record
   private
     FEngine: OLGenericDictionary<string, OLInteger>;
@@ -256,6 +532,9 @@ type
     procedure SetValue(const Key: string; const Value: OLInteger);
     function GetKeys: TArray<string>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrIntDictionary; const [ref] Src: OLStrIntDictionary);
     {$ELSE}
@@ -263,19 +542,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: string; const Value: OLInteger);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: string; out Value: OLInteger): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLInteger): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<string, OLInteger>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<string, OLInteger>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: string]: OLInteger read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<string> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for string to OLCurrency mappings.
+  /// </summary>
   OLStrCurrDictionary = record
   private
     FEngine: OLGenericDictionary<string, OLCurrency>;
@@ -283,6 +598,9 @@ type
     procedure SetValue(const Key: string; const Value: OLCurrency);
     function GetKeys: TArray<string>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrCurrDictionary; const [ref] Src: OLStrCurrDictionary);
     {$ELSE}
@@ -290,19 +608,55 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: string; const Value: OLCurrency);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: string; out Value: OLCurrency): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLCurrency): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<string, OLCurrency>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<string, OLCurrency>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: string]: OLCurrency read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<string> read GetKeys;
   end;
+  /// <summary>
+  ///   Dictionary wrapper for string to OLDouble mappings.
+  /// </summary>
   OLStrDblDictionary = record
   private
     FEngine: OLGenericDictionary<string, OLDouble>;
@@ -310,6 +664,9 @@ type
     procedure SetValue(const Key: string; const Value: OLDouble);
     function GetKeys: TArray<string>;
   public
+    /// <summary>
+    ///   Assigns one dictionary to another.
+    /// </summary>
     {$IF CompilerVersion >= 31.0}
     class operator Assign(var Dest: OLStrDblDictionary; const [ref] Src: OLStrDblDictionary);
     {$ELSE}
@@ -317,17 +674,50 @@ type
     {$IFEND}
 
 
+    /// <summary>
+    ///   Clears the dictionary.
+    /// </summary>
     procedure Clear;
+    /// <summary>
+    ///   Adds a key-value pair to the dictionary.
+    /// </summary>
     procedure Add(const Key: string; const Value: OLDouble);
+    /// <summary>
+    ///   Removes the key-value pair with the specified key.
+    /// </summary>
     function Remove(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Tries to get the value associated with the specified key.
+    /// </summary>
     function TryGetValue(const Key: string; out Value: OLDouble): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified key.
+    /// </summary>
     function ContainsKey(const Key: string): OLBoolean;
+    /// <summary>
+    ///   Checks if the dictionary contains the specified value.
+    /// </summary>
     function ContainsValue(const Value: OLDouble): OLBoolean;
+    /// <summary>
+    ///   Returns the number of key-value pairs in the dictionary.
+    /// </summary>
     function Count: Integer;
+    /// <summary>
+    ///   Gets the enumerator for the dictionary.
+    /// </summary>
     function GetEnumerator: TDictionary<string, OLDouble>.TPairEnumerator;
+    /// <summary>
+    ///   Converts the dictionary to an array of pairs.
+    /// </summary>
     function ToArray: TArray<TPair<string, OLDouble>>;
 
+    /// <summary>
+    ///   Gets or sets the value associated with the specified key.
+    /// </summary>
     property Values[const Key: string]: OLDouble read GetValue write SetValue; default;
+    /// <summary>
+    ///   Gets an array of all keys in the dictionary.
+    /// </summary>
     property Keys: TArray<string> read GetKeys;
   end;
 {$IFEND}

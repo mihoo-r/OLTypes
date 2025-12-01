@@ -196,69 +196,201 @@ type
 
   {$IF CompilerVersion >= 24.0}
   TOLBooleanHelper = record helper for Boolean
-  public
+   public
+    /// <summary>
+    ///   Converts the boolean to a string representation.
+    /// </summary>
     function ToString(): string;
+    /// <summary>
+    ///   Converts the boolean to a SQL-safe string representation.
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: string; const AFalse: string = ''): string; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Integer; const AFalse: Integer): Integer; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Currency; const AFalse: Currency): Currency; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Extended; const AFalse: Extended): Extended; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: TDateTime; const AFalse: TDateTime): TDateTime; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
   end;
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
   TOLDoubleHelper = record helper for Double
-  public
+   public
+    /// <summary>
+    ///   Returns the square of the double.
+    /// </summary>
     function Sqr(): Double;
+    /// <summary>
+    ///   Returns the square root of the double.
+    /// </summary>
     function Sqrt(): Double;
+    /// <summary>
+    ///   Returns the double raised to the specified exponent.
+    /// </summary>
     function Power(const Exponent: Integer): Double; overload;
+    /// <summary>
+    ///   Returns the double raised to the specified exponent.
+    /// </summary>
     function Power(const Exponent: Extended): Double; overload;
+    /// <summary>
+    ///   Checks if the double is positive (> 0).
+    /// </summary>
     function IsPositive(): Boolean;
+    /// <summary>
+    ///   Checks if the double is negative (< 0).
+    /// </summary>
     function IsNegative(): Boolean;
     function IsNonNegative(): Boolean;
+    /// <summary>
+    ///   Returns the larger of the two doubles.
+    /// </summary>
     function Max(const d: Double): Double;
+    /// <summary>
+    ///   Returns the smaller of the two doubles.
+    /// </summary>
     function Min(const d: Double): Double;
+    /// <summary>
+    ///   Returns the absolute value of the double.
+    /// </summary>
     function Abs(): Double;
+    /// <summary>
+    ///   Converts the double to a string representation.
+    /// </summary>
     function ToString(): string; overload;
+    /// <summary>
+    ///   Converts the double to a formatted string representation.
+    /// </summary>
     function ToString(const Digits: Integer; const Format: TFloatFormat = ffFixed; const Precision: Integer = 16): string; overload;
+    /// <summary>
+    ///   Converts the double to a string with custom separators.
+    /// </summary>
     function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
     function ToSQLString(): string;
+    /// <summary>
+    ///   Rounds the double to the specified power of ten.
+    /// </summary>
     function Round(const PowerOfTen: Integer): Double; overload;
+    /// <summary>
+    ///   Rounds the double to the nearest integer.
+    /// </summary>
     function Round(): Integer; overload;
+    /// <summary>
+    ///   Returns the largest integer less than or equal to the double.
+    /// </summary>
     function Floor(): Integer;
+    /// <summary>
+    ///   Returns the smallest integer greater than or equal to the double.
+    /// </summary>
     function Ceil(): Integer;
+    /// <summary>
+    ///   Checks if the double is NaN (Not a Number).
+    /// </summary>
     function IsNan(): Boolean;
+    /// <summary>
+    ///   Checks if the double is infinite.
+    /// </summary>
     function IsInfinite(): Boolean;
+    /// <summary>
+    ///   Checks if the double is zero within the specified epsilon.
+    /// </summary>
     function IsZero(const Epsilon: Extended = 0): Boolean;
+    /// <summary>
+    ///   Checks if the double is within the specified range.
+    /// </summary>
     function InRange(const AMin, AMax: Extended): Boolean;
+    /// <summary>
+    ///   Ensures the double is within the specified range.
+    /// </summary>
     function EnsureRange(const AMin, AMax: Extended): Extended;
+    /// <summary>
+    ///   Checks if the double is equal to another within the specified epsilon.
+    /// </summary>
     function SameValue(const B: Extended; const Epsilon: Extended = 0): Boolean;
+    /// <summary>
+    ///   Generates a random double between MinValue and MaxValue.
+    /// </summary>
     class function Random(const MinValue: Double; const MaxValue: Double): Double; overload; static;
+    /// <summary>
+    ///   Generates a random double up to MaxValue.
+    /// </summary>
     class function Random(const MaxValue: Double = MaxInt): Double; overload; static;
   end;
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
   TOLCurrencyHelper = record helper for Currency
-  public
+   public
+    /// <summary>
+    ///   Returns the square of the currency.
+    /// </summary>
     function Sqr(): Currency;
+    /// <summary>
+    ///   Returns the currency raised to the specified exponent.
+    /// </summary>
     function Power(const Exponent: Integer): Currency;
+    /// <summary>
+    ///   Checks if the currency is positive (> 0).
+    /// </summary>
     function IsPositive(): Boolean;
+    /// <summary>
+    ///   Checks if the currency is negative (< 0).
+    /// </summary>
     function IsNegative(): Boolean;
     function IsNonNegative(): Boolean;
+    /// <summary>
+    ///   Checks if the currency is between the specified values (inclusive).
+    /// </summary>
     function Between(const BottomIncluded, TopIncluded: Currency): Boolean;
+    /// <summary>
+    ///   Returns the larger of the two currencies.
+    /// </summary>
     function Max(const c: Currency): Currency;
+    /// <summary>
+    ///   Returns the smaller of the two currencies.
+    /// </summary>
     function Min(const c: Currency): Currency;
+    /// <summary>
+    ///   Returns the absolute value of the currency.
+    /// </summary>
     function Abs(): Currency;
     function ToString(): string; overload;
+    /// <summary>
+    ///   Converts the currency to a string with custom separators.
+    /// </summary>
     function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
     function ToSQLString(): string;
+    /// <summary>
+    ///   Converts the currency to a formatted string.
+    /// </summary>
     function ToStrF(Format: TFloatFormat; Digits: Integer): string;
     function Round(): Integer; overload;
+    /// <summary>
+    ///   Rounds the currency to the specified power of ten.
+    /// </summary>
     function Round(const PowerOfTen: Integer): Currency; overload;
     function Ceil(): Integer;
+    /// <summary>
+    ///   Returns the largest integer less than or equal to the currency.
+    /// </summary>
     function Floor(): Integer;
   end;
   {$IFEND}
@@ -279,144 +411,471 @@ type
     procedure SetHour(const Value: Integer);
     procedure SetMinute(const Value: Integer);
     procedure SetSecond(const Value: Integer);
-    procedure SetMilliSecond(const Value: Integer);
-  public
-    property Year: Integer read GetYear write SetYear;
-    property Month: Integer read GetMonth write SetMonth;
-    property Day: Integer read GetDay write SetDay;
+     procedure SetMilliSecond(const Value: Integer);
+   public
+     /// <summary>
+     ///   Gets or sets the year component of the date/time.
+     /// </summary>
+     property Year: Integer read GetYear write SetYear;
+     /// <summary>
+     ///   Gets or sets the month component of the date/time.
+     /// </summary>
+     property Month: Integer read GetMonth write SetMonth;
+     /// <summary>
+     ///   Gets or sets the day component of the date/time.
+     /// </summary>
+     property Day: Integer read GetDay write SetDay;
+    /// <summary>
+    ///   Gets or sets the hour component of the date/time.
+    /// </summary>
     property Hour: Integer read GetHour write SetHour;
+    /// <summary>
+    ///   Gets or sets the minute component of the date/time.
+    /// </summary>
     property Minute: Integer read GetMinute write SetMinute;
+    /// <summary>
+    ///   Gets or sets the second component of the date/time.
+    /// </summary>
     property Second: Integer read GetSecond write SetSecond;
+    /// <summary>
+    ///   Gets or sets the millisecond component of the date/time.
+    /// </summary>
     property Test: Integer read GetMilliSecond write SetMilliSecond; //MilliSecond
 
+    /// <summary>
+    ///   Converts the date/time to a string representation.
+    /// </summary>
     function ToString(): string; overload;
-    function ToString(const Format: string): string; overload;
-    function ToSQLString(): string;
+    /// <summary>
+    ///   Converts the date/time to a formatted string representation.
+    /// </summary>
+     function ToString(const Format: string): string; overload;
+     /// <summary>
+     ///   Converts the date/time to a SQL-compatible string representation.
+     /// </summary>
+     function ToSQLString(): string;
 
+    /// <summary>
+    ///   Returns the date part of the date/time.
+    /// </summary>
     function DateOf(): TDateTime;
+    /// <summary>
+    ///   Returns the time part of the date/time.
+    /// </summary>
     function TimeOf(): TDateTime;
 
+    /// <summary>
+    ///   Checks if the year of the date/time is a leap year.
+    /// </summary>
     function IsInLeapYear(): Boolean;
+    /// <summary>
+    ///   Checks if the time is in PM.
+    /// </summary>
     function IsPM(): Boolean;
+    /// <summary>
+    ///   Checks if the time is in AM.
+    /// </summary>
     function IsAM(): Boolean;
-    function WeeksInYear(): Integer;
-    function DaysInYear(): Integer;
-    function DaysInMonth(): Integer;
+    /// <summary>
+    ///   Returns the number of weeks in the year of the date/time.
+    /// </summary>
+     function WeeksInYear(): Integer;
+     /// <summary>
+     ///   Returns the number of days in the year of the date/time.
+     /// </summary>
+     function DaysInYear(): Integer;
+     /// <summary>
+     ///   Returns the number of days in the month of the date/time.
+     /// </summary>
+     function DaysInMonth(): Integer;
 
+    /// <summary>
+    ///   Returns the current date.
+    /// </summary>
     class function Today: TDateTime; static;
+    /// <summary>
+    ///   Returns yesterday's date.
+    /// </summary>
     class function Yesterday: TDateTime; static;
+    /// <summary>
+    ///   Returns tomorrow's date.
+    /// </summary>
     class function Tomorrow: TDateTime; static;
+    /// <summary>
+    ///   Returns the current date and time.
+    /// </summary>
     class function Now(): TDateTime; static;
 
+    /// <summary>
+    ///   Sets the date/time to the current date and time.
+    /// </summary>
     procedure SetNow();
+    /// <summary>
+    ///   Sets the date/time to today's date.
+    /// </summary>
     procedure SetToday();
+    /// <summary>
+    ///   Sets the date/time to tomorrow's date.
+    /// </summary>
     procedure SetTomorrow();
-    procedure SetYesterday();
+    /// <summary>
+    ///   Sets the date/time to yesterday's date.
+    /// </summary>
+     procedure SetYesterday();
 
-    function IsToday(): Boolean;
+     /// <summary>
+     ///   Checks if the date/time represents today's date.
+     /// </summary>
+     function IsToday(): Boolean;
+    /// <summary>
+    ///   Checks if the date/time is the same day as the specified date/time.
+    /// </summary>
     function SameDay(const DateTimeToCompare: TDateTime): Boolean;
 
+    /// <summary>
+    ///   Returns the start of the year for the date/time.
+    /// </summary>
     function StartOfTheYear(): TDateTime;
+    /// <summary>
+    ///   Returns the end of the year for the date/time.
+    /// </summary>
     function EndOfTheYear(): TDateTime;
+    /// <summary>
+    ///   Returns the start of the specified year.
+    /// </summary>
     class function StartOfAYear(const AYear: Word): TDateTime; static;
+    /// <summary>
+    ///   Returns the end of the specified year.
+    /// </summary>
     class function EndOfAYear(const AYear: Word): TDateTime; static;
+    /// <summary>
+    ///   Sets the date/time to the start of the specified year.
+    /// </summary>
     procedure SetStartOfAYear(const AYear: Word);
+    /// <summary>
+    ///   Sets the date/time to the end of the specified year.
+    /// </summary>
     procedure SetEndOfAYear(const AYear: Word);
 
+    /// <summary>
+    ///   Returns the start of the month for the date/time.
+    /// </summary>
     function StartOfTheMonth(): TDateTime;
+    /// <summary>
+    ///   Returns the end of the month for the date/time.
+    /// </summary>
     function EndOfTheMonth(): TDateTime;
+    /// <summary>
+    ///   Returns the start of the specified month and year.
+    /// </summary>
     class function StartOfAMonth(const AYear, AMonth: Word): TDateTime; static;
+    /// <summary>
+    ///   Returns the end of the specified month and year.
+    /// </summary>
     class function EndOfAMonth(const AYear, AMonth: Word): TDateTime; static;
+    /// <summary>
+    ///   Sets the date/time to the start of the specified month and year.
+    /// </summary>
     procedure SetStartOfAMonth(const AYear, AMonth: Word);
+    /// <summary>
+    ///   Sets the date/time to the end of the specified month and year.
+    /// </summary>
     procedure SetEndOfAMonth(const AYear, AMonth: Word);
 
+    /// <summary>
+    ///   Returns the start of the week for the date/time.
+    /// </summary>
     function StartOfTheWeek(): TDateTime;
+    /// <summary>
+    ///   Returns the end of the week for the date/time.
+    /// </summary>
     function EndOfTheWeek(): TDateTime;
 
+    /// <summary>
+    ///   Returns the start of the day for the date/time.
+    /// </summary>
     function StartOfTheDay(): TDateTime;
+    /// <summary>
+    ///   Returns the end of the day for the date/time.
+    /// </summary>
     function EndOfTheDay(): TDateTime;
 
+    /// <summary>
+    ///   Returns the day of the year for the date/time.
+    /// </summary>
     function DayOfTheYear(): Integer;
+    /// <summary>
+    ///   Returns the hour of the year for the date/time.
+    /// </summary>
     function HourOfTheYear(): Integer;
+    /// <summary>
+    ///   Returns the minute of the year for the date/time.
+    /// </summary>
     function MinuteOfTheYear(): LongWord;
+    /// <summary>
+    ///   Returns the second of the year for the date/time.
+    /// </summary>
     function SecondOfTheYear(): LongWord;
+    /// <summary>
+    ///   Returns the millisecond of the year for the date/time.
+    /// </summary>
     function MilliSecondOfTheYear(): Int64;
 
+    /// <summary>
+    ///   Returns the hour of the month for the date/time.
+    /// </summary>
     function HourOfTheMonth(): Integer;
+    /// <summary>
+    ///   Returns the minute of the month for the date/time.
+    /// </summary>
     function MinuteOfTheMonth(): Integer;
+    /// <summary>
+    ///   Returns the second of the month for the date/time.
+    /// </summary>
     function SecondOfTheMonth(): LongWord;
+    /// <summary>
+    ///   Returns the millisecond of the month for the date/time.
+    /// </summary>
     function MilliSecondOfTheMonth(): LongWord;
 
+    /// <summary>
+    ///   Returns the day of the week for the date/time.
+    /// </summary>
     function DayOfTheWeek(): Integer;
+    /// <summary>
+    ///   Returns the hour of the week for the date/time.
+    /// </summary>
     function HourOfTheWeek(): Integer;
+    /// <summary>
+    ///   Returns the minute of the week for the date/time.
+    /// </summary>
     function MinuteOfTheWeek(): Integer;
+    /// <summary>
+    ///   Returns the second of the week for the date/time.
+    /// </summary>
     function SecondOfTheWeek(): LongWord;
+    /// <summary>
+    ///   Returns the millisecond of the week for the date/time.
+    /// </summary>
     function MilliSecondOfTheWeek(): LongWord;
 
+    /// <summary>
+    ///   Returns the minute of the day for the date/time.
+    /// </summary>
     function MinuteOfTheDay(): Integer;
+    /// <summary>
+    ///   Returns the second of the day for the date/time.
+    /// </summary>
     function SecondOfTheDay(): LongWord;
+    /// <summary>
+    ///   Returns the millisecond of the day for the date/time.
+    /// </summary>
     function MilliSecondOfTheDay(): LongWord;
 
+    /// <summary>
+    ///   Returns the second of the hour for the date/time.
+    /// </summary>
     function SecondOfTheHour(): Integer;
+    /// <summary>
+    ///   Returns the millisecond of the hour for the date/time.
+    /// </summary>
     function MilliSecondOfTheHour(): LongWord;
 
+    /// <summary>
+    ///   Returns the millisecond of the minute for the date/time.
+    /// </summary>
     function MilliSecondOfTheMinute(): LongWord;
 
+    /// <summary>
+    ///   Returns the total number of seconds from the starting year to the date/time.
+    /// </summary>
     class function SecondCount(const StartingYear: Integer = 2017): Integer; static;
+    /// <summary>
+    ///   Returns the date/time from the total number of seconds since the starting year.
+    /// </summary>
     class function DateTimeFromSecondCount(const Count: Integer; const StartingYear: Integer = 2017): TDateTime; static;
+    /// <summary>
+    ///   Sets the date/time from the total number of seconds since the starting year.
+    /// </summary>
     procedure SetFromSecondCount(const Count: Integer; const StartingYear: Integer = 2017);
 
+    /// <summary>
+    ///   Returns the number of years between the date/time and the specified date/time.
+    /// </summary>
     function YearsBetween(const AThen: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of months between the date/time and the specified date/time.
+    /// </summary>
     function MonthsBetween(const AThen: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of weeks between the date/time and the specified date/time.
+    /// </summary>
     function WeeksBetween(const AThen: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of days between the date/time and the specified date/time.
+    /// </summary>
     function DaysBetween(const AThen: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of hours between the date/time and the specified date/time.
+    /// </summary>
     function HoursBetween(const AThen: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of minutes between the date/time and the specified date/time.
+    /// </summary>
     function MinutesBetween(const AThen: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of seconds between the date/time and the specified date/time.
+    /// </summary>
     function SecondsBetween(const AThen: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of milliseconds between the date/time and the specified date/time.
+    /// </summary>
     function MilliSecondsBetween(const AThen: TDateTime): Int64;
 
+    /// <summary>
+    ///   Checks if the date/time is within the specified range.
+    /// </summary>
     function InRange(const AStartDateTime, AEndDateTime: TDateTime; const aInclusive: Boolean = True): Boolean;
+    /// <summary>
+    ///   Checks if the date is within the specified date range.
+    /// </summary>
     function InDateRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean = True): Boolean;
 
+    /// <summary>
+    ///   Returns the number of years as a double between the date/time and the specified date/time.
+    /// </summary>
     function YearSpan(const AThen: TDateTime): Double;
+    /// <summary>
+    ///   Returns the number of months as a double between the date/time and the specified date/time.
+    /// </summary>
     function MonthSpan(const AThen: TDateTime): Double;
+    /// <summary>
+    ///   Returns the number of weeks as a double between the date/time and the specified date/time.
+    /// </summary>
     function WeekSpan(const AThen: TDateTime): Double;
+    /// <summary>
+    ///   Returns the number of days as a double between the date/time and the specified date/time.
+    /// </summary>
     function DaySpan(const AThen: TDateTime): Double;
+    /// <summary>
+    ///   Returns the number of hours as a double between the date/time and the specified date/time.
+    /// </summary>
     function HourSpan(const AThen: TDateTime): Double;
+    /// <summary>
+    ///   Returns the number of minutes as a double between the date/time and the specified date/time.
+    /// </summary>
     function MinuteSpan(const AThen: TDateTime): Double;
+    /// <summary>
+    ///   Returns the number of seconds as a double between the date/time and the specified date/time.
+    /// </summary>
     function SecondSpan(const AThen: TDateTime): Double;
+    /// <summary>
+    ///   Returns the number of milliseconds as a double between the date/time and the specified date/time.
+    /// </summary>
     function MilliSecondSpan(const AThen: TDateTime): Double;
 
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of years.
+    /// </summary>
     function IncYear(const ANumberOfYears: Integer = 1): TDateTime;
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of months.
+    /// </summary>
     function IncMonth(const ANumberOfMonths: Integer = 1): TDateTime;
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of weeks.
+    /// </summary>
     function IncWeek(const ANumberOfWeeks: Integer = 1): TDateTime;
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of days.
+    /// </summary>
     function IncDay(const ANumberOfDays: Integer = 1): TDateTime;
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of hours.
+    /// </summary>
     function IncHour(const ANumberOfHours: Int64 = 1): TDateTime;
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of minutes.
+    /// </summary>
     function IncMinute(const ANumberOfMinutes: Int64 = 1): TDateTime;
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of seconds.
+    /// </summary>
     function IncSecond(const ANumberOfSeconds: Int64 = 1): TDateTime;
-    function IncMilliSecond(const ANumberOfMilliSeconds: Int64 = 1): TDateTime;
+    /// <summary>
+    ///   Returns the date/time incremented by the specified number of milliseconds.
+    /// </summary>
+     function IncMilliSecond(const ANumberOfMilliSeconds: Int64 = 1): TDateTime;
 
-    procedure DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word);
-    procedure EncodeDateTime(const AYear, AMonth, ADay: Word; const AHour: Word = 0; const AMinute: Word = 0;
-      const ASecond: Word = 0; const AMilliSecond: Word = 0);
+     /// <summary>
+     ///   Decodes the date/time into its component parts.
+     /// </summary>
+     procedure DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word);
+     /// <summary>
+     ///   Encodes the date/time from its component parts.
+     /// </summary>
+     procedure EncodeDateTime(const AYear, AMonth, ADay: Word; const AHour: Word = 0; const AMinute: Word = 0;
+       const ASecond: Word = 0; const AMilliSecond: Word = 0);
 
-    function RecodedYear(const AYear: Word): TDateTime;
-    function RecodedMonth(const AMonth: Word): TDateTime;
-    function RecodedDay(const ADay: Word): TDateTime;
-    function RecodedHour(const AHour: Word): TDateTime;
-    function RecodedMinute(const AMinute: Word): TDateTime;
-    function RecodedSecond(const ASecond: Word): TDateTime;
-    function RecodedMilliSecond(const AMilliSecond: Word): TDateTime;
+     /// <summary>
+     ///   Returns a new date/time with the year component changed.
+     /// </summary>
+     function RecodedYear(const AYear: Word): TDateTime;
+     /// <summary>
+     ///   Returns a new date/time with the month component changed.
+     /// </summary>
+     function RecodedMonth(const AMonth: Word): TDateTime;
+     /// <summary>
+     ///   Returns a new date/time with the day component changed.
+     /// </summary>
+     function RecodedDay(const ADay: Word): TDateTime;
+     /// <summary>
+     ///   Returns a new date/time with the hour component changed.
+     /// </summary>
+     function RecodedHour(const AHour: Word): TDateTime;
+     /// <summary>
+     ///   Returns a new date/time with the minute component changed.
+     /// </summary>
+     function RecodedMinute(const AMinute: Word): TDateTime;
+     /// <summary>
+     ///   Returns a new date/time with the second component changed.
+     /// </summary>
+     function RecodedSecond(const ASecond: Word): TDateTime;
+     /// <summary>
+     ///   Returns a new date/time with the millisecond component changed.
+     /// </summary>
+     function RecodedMilliSecond(const AMilliSecond: Word): TDateTime;
 
-    function SameTime(const DateTimeToCompare: TDateTime): Boolean;
+     /// <summary>
+     ///   Checks if the time part of the date/time is the same as the specified date/time.
+     /// </summary>
+     function SameTime(const DateTimeToCompare: TDateTime): Boolean;
 
-    function LongDayName(): string;
-    function LongMonthName(): string;
-    function ShortDayName(): string;
-    function ShortMonthName(): string;
+     /// <summary>
+     ///   Returns the long name of the day of the week.
+     /// </summary>
+     function LongDayName(): string;
+     /// <summary>
+     ///   Returns the long name of the month.
+     /// </summary>
+     function LongMonthName(): string;
+     /// <summary>
+     ///   Returns the short name of the day of the week.
+     /// </summary>
+     function ShortDayName(): string;
+     /// <summary>
+     ///   Returns the short name of the month.
+     /// </summary>
+     function ShortMonthName(): string;
 
-    function Max(const CompareDate: TDateTime): TDateTime;
-    function Min(const CompareDate: TDateTime): TDateTime;
+     /// <summary>
+     ///   Returns the maximum of the current date/time and the specified date/time.
+     /// </summary>
+     function Max(const CompareDate: TDateTime): TDateTime;
+     /// <summary>
+     ///   Returns the minimum of the current date/time and the specified date/time.
+     /// </summary>
+     function Min(const CompareDate: TDateTime): TDateTime;
   end;
 
   TOLDateHelper = record helper for TDate
@@ -427,131 +886,425 @@ type
     procedure SetYear(const Value: Integer);
     procedure SetMonth(const Value: Integer);
     procedure SetDay(const Value: Integer);
-  public
-    property Year: Integer read GetYear write SetYear;
-    property Month: Integer read GetMonth write SetMonth;
-    property Day: Integer read GetDay write SetDay;
+   public
+     /// <summary>
+     ///   Gets or sets the year component of the date.
+     /// </summary>
+     property Year: Integer read GetYear write SetYear;
+     /// <summary>
+     ///   Gets or sets the month component of the date.
+     /// </summary>
+     property Month: Integer read GetMonth write SetMonth;
+     /// <summary>
+     ///   Gets or sets the day component of the date.
+     /// </summary>
+     property Day: Integer read GetDay write SetDay;
 
-    function ToString(): string; overload;
-    function ToString(const Format: string): string; overload;
-    function ToSQLString(): string;
+     /// <summary>
+     ///   Converts the date to a string representation.
+     /// </summary>
+     function ToString(): string; overload;
+     /// <summary>
+     ///   Converts the date to a formatted string representation.
+     /// </summary>
+     function ToString(const Format: string): string; overload;
+     /// <summary>
+     ///   Converts the date/time to a SQL-compatible string representation.
+     /// </summary>
+      function ToSQLString(): string;
 
-    function IsInLeapYear(): Boolean;
-    function WeeksInYear(): Integer;
-    function DaysInYear(): Integer;
-    function DaysInMonth(): Integer;
+     /// <summary>
+     ///   Checks if the year of the date is a leap year.
+     /// </summary>
+     function IsInLeapYear(): Boolean;
+     /// <summary>
+     ///   Returns the number of weeks in the year of the date.
+     /// </summary>
+     function WeeksInYear(): Integer;
+     /// <summary>
+     ///   Returns the number of days in the year of the date/time.
+     /// </summary>
+     function DaysInYear(): Integer;
+     /// <summary>
+     ///   Returns the number of days in the month of the date/time.
+     /// </summary>
+      function DaysInMonth(): Integer;
 
-    class function Today: TDate; static;
-    class function Yesterday: TDate; static;
-    class function Tomorrow: TDate; static;
+     /// <summary>
+     ///   Returns the current date.
+     /// </summary>
+     class function Today: TDate; static;
+     /// <summary>
+     ///   Returns yesterday's date.
+     /// </summary>
+     class function Yesterday: TDate; static;
+     /// <summary>
+     ///   Returns tomorrow's date.
+     /// </summary>
+     class function Tomorrow: TDate; static;
 
-    procedure SetToday();
-    procedure SetTomorow();
-    procedure SetYesterday();
+     /// <summary>
+     ///   Sets the date to today's date.
+     /// </summary>
+     procedure SetToday();
+     /// <summary>
+     ///   Sets the date to tomorrow's date.
+     /// </summary>
+     procedure SetTomorow();
+     /// <summary>
+     ///   Sets the date to yesterday's date.
+     /// </summary>
+     procedure SetYesterday();
 
-    function IsToday(): Boolean;
-    function SameDay(const DateToCompare: TDate): Boolean;
+     /// <summary>
+     ///   Checks if the date/time represents today's date.
+     /// </summary>
+      function IsToday(): Boolean;
+     /// <summary>
+     ///   Checks if the date is the same day as the specified date.
+     /// </summary>
+     function SameDay(const DateToCompare: TDate): Boolean;
 
-    function StartOfTheYear(): TDate;
-    function EndOfTheYear(): TDate;
-    class function StartOfAYear(const AYear: Word): TDate; static;
-    class function EndOfAYear(const AYear: Word): TDate; static;
-    procedure SetStartOfAYear(const AYear: Word);
-    procedure SetEndOfAYear(const AYear: Word);
+     /// <summary>
+     ///   Returns the start of the year for the date.
+     /// </summary>
+     function StartOfTheYear(): TDate;
+     /// <summary>
+     ///   Returns the end of the year for the date.
+     /// </summary>
+     function EndOfTheYear(): TDate;
+     /// <summary>
+     ///   Returns the start of the specified year.
+     /// </summary>
+     class function StartOfAYear(const AYear: Word): TDate; static;
+     /// <summary>
+     ///   Returns the end of the specified year.
+     /// </summary>
+     class function EndOfAYear(const AYear: Word): TDate; static;
+     /// <summary>
+     ///   Sets the date to the start of the specified year.
+     /// </summary>
+     procedure SetStartOfAYear(const AYear: Word);
+     /// <summary>
+     ///   Sets the date to the end of the specified year.
+     /// </summary>
+     procedure SetEndOfAYear(const AYear: Word);
 
-    function StartOfTheMonth(): TDate;
-    function EndOfTheMonth(): TDate;
-    class function StartOfAMonth(const AYear, AMonth: Word): TDate; static;
-    class function EndOfAMonth(const AYear, AMonth: Word): TDate; static;
-    procedure SetStartOfAMonth(const AYear, AMonth: Word);
-    procedure SetEndOfAMonth(const AYear, AMonth: Word);
+     /// <summary>
+     ///   Returns the start of the month for the date.
+     /// </summary>
+     function StartOfTheMonth(): TDate;
+     /// <summary>
+     ///   Returns the end of the month for the date.
+     /// </summary>
+     function EndOfTheMonth(): TDate;
+     /// <summary>
+     ///   Returns the start of the specified month and year.
+     /// </summary>
+     class function StartOfAMonth(const AYear, AMonth: Word): TDate; static;
+     /// <summary>
+     ///   Returns the end of the specified month and year.
+     /// </summary>
+     class function EndOfAMonth(const AYear, AMonth: Word): TDate; static;
+     /// <summary>
+     ///   Sets the date to the start of the specified month and year.
+     /// </summary>
+     procedure SetStartOfAMonth(const AYear, AMonth: Word);
+     /// <summary>
+     ///   Sets the date to the end of the specified month and year.
+     /// </summary>
+     procedure SetEndOfAMonth(const AYear, AMonth: Word);
 
-    function StartOfTheWeek(): TDate;
-    function EndOfTheWeek(): TDate;
+     /// <summary>
+     ///   Returns the start of the week for the date.
+     /// </summary>
+     function StartOfTheWeek(): TDate;
+     /// <summary>
+     ///   Returns the end of the week for the date.
+     /// </summary>
+     function EndOfTheWeek(): TDate;
 
-    function DayOfTheYear(): Integer;
-    function DayOfTheWeek(): Integer;
+     /// <summary>
+     ///   Returns the day of the year for the date.
+     /// </summary>
+     function DayOfTheYear(): Integer;
+     /// <summary>
+     ///   Returns the day of the week for the date.
+     /// </summary>
+     function DayOfTheWeek(): Integer;
 
-    function YearsBetween(const AThen: TDate): Integer;
-    function MonthsBetween(const AThen: TDate): Integer;
-    function WeeksBetween(const AThen: TDate): Integer;
-    function DaysBetween(const AThen: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of years between the date and the specified date.
+     /// </summary>
+     function YearsBetween(const AThen: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of months between the date and the specified date.
+     /// </summary>
+     function MonthsBetween(const AThen: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of weeks between the date and the specified date.
+     /// </summary>
+     function WeeksBetween(const AThen: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of days between the date and the specified date.
+     /// </summary>
+     function DaysBetween(const AThen: TDate): Integer;
 
-    function InRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean = True): Boolean;
+     /// <summary>
+     ///   Checks if the date is within the specified date range.
+     /// </summary>
+     function InRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean = True): Boolean;
 
-    function YearSpan(const AThen: TDate): Double;
-    function MonthSpan(const AThen: TDate): Double;
-    function WeekSpan(const AThen: TDate): Double;
-    function IncYear(const ANumberOfYears: Integer = 1): TDate;
-    function IncMonth(const ANumberOfMonths: Integer = 1): TDate;
-    function IncWeek(const ANumberOfWeeks: Integer = 1): TDate;
-    function IncDay(const ANumberOfDays: Integer = 1): TDate;
+     /// <summary>
+     ///   Returns the number of years as a double between the date and the specified date.
+     /// </summary>
+     function YearSpan(const AThen: TDate): Double;
+     /// <summary>
+     ///   Returns the number of months as a double between the date and the specified date.
+     /// </summary>
+     function MonthSpan(const AThen: TDate): Double;
+     /// <summary>
+     ///   Returns the number of weeks as a double between the date and the specified date.
+     /// </summary>
+     function WeekSpan(const AThen: TDate): Double;
+     /// <summary>
+     ///   Returns the date incremented by the specified number of years.
+     /// </summary>
+     function IncYear(const ANumberOfYears: Integer = 1): TDate;
+     /// <summary>
+     ///   Returns the date incremented by the specified number of months.
+     /// </summary>
+     function IncMonth(const ANumberOfMonths: Integer = 1): TDate;
+     /// <summary>
+     ///   Returns the date incremented by the specified number of weeks.
+     /// </summary>
+     function IncWeek(const ANumberOfWeeks: Integer = 1): TDate;
+     /// <summary>
+     ///   Returns the date incremented by the specified number of days.
+     /// </summary>
+     function IncDay(const ANumberOfDays: Integer = 1): TDate;
 
-    procedure DecodeDate(out AYear, AMonth, ADay: Word);
-    procedure EncodeDate(const AYear, AMonth, ADay: Word);
+     /// <summary>
+     ///   Decodes the date into its component parts.
+     /// </summary>
+     procedure DecodeDate(out AYear, AMonth, ADay: Word);
+     /// <summary>
+     ///   Encodes the date from its component parts.
+     /// </summary>
+     procedure EncodeDate(const AYear, AMonth, ADay: Word);
 
-    function RecodedYear(const AYear: Word): TDate;
-    function RecodedMonth(const AMonth: Word): TDate;
-    function RecodedDay(const ADay: Word): TDate;
+     /// <summary>
+     ///   Returns a new date with the year component changed.
+     /// </summary>
+     function RecodedYear(const AYear: Word): TDate;
+     /// <summary>
+     ///   Returns a new date with the month component changed.
+     /// </summary>
+     function RecodedMonth(const AMonth: Word): TDate;
+     /// <summary>
+     ///   Returns a new date with the day component changed.
+     /// </summary>
+     function RecodedDay(const ADay: Word): TDate;
 
-    function LongDayName(): string;
-    function LongMonthName(): string;
-    function ShortDayName(): string;
-    function ShortMonthName(): string;
+     /// <summary>
+     ///   Returns the long name of the day of the week.
+     /// </summary>
+     function LongDayName(): string;
+     /// <summary>
+     ///   Returns the long name of the month.
+     /// </summary>
+     function LongMonthName(): string;
+     /// <summary>
+     ///   Returns the short name of the day of the week.
+     /// </summary>
+     function ShortDayName(): string;
+     /// <summary>
+     ///   Returns the short name of the month.
+     /// </summary>
+     function ShortMonthName(): string;
 
-    function Max(const CompareDate: TDate): TDate;
-    function Min(const CompareDate: TDate): TDate;
+     /// <summary>
+     ///   Returns the maximum of the current date and the specified date.
+     /// </summary>
+     function Max(const CompareDate: TDate): TDate;
+     /// <summary>
+     ///   Returns the minimum of the current date and the specified date.
+     /// </summary>
+     function Min(const CompareDate: TDate): TDate;
 
-    class function IsValidDate(const Year, Month, Day: Integer): Boolean; static;
+     /// <summary>
+     ///   Checks if the specified year, month, and day form a valid date.
+     /// </summary>
+     class function IsValidDate(const Year, Month, Day: Integer): Boolean; static;
   end;
 
   TOLInt64Helper = record helper for Int64
-  public
-    function IsDividableBy(i: Int64): Boolean;
-    function IsOdd(): Boolean;
-    function IsEven(): Boolean;
-    function Sqr(): Int64;
-    function Power(Exponent: LongWord): Int64; overload;
-    function Power(Exponent: Int64): Double; overload;
-    function IsPositive(): Boolean;
-    function IsNegative(): Boolean;
-    function IsNonNegative(): Boolean;
-    function Max(i: Int64): Int64;
-    function Min(i: Int64): Int64;
-    function Abs(): Int64;
-    function ToString(): string;
-    function ToSQLString(): string;
-    function Round(Digits: Int64): Int64;
-    function Between(BottomIncluded, TopIncluded: Int64): Boolean;
-    function Increased(IncreasedBy: Int64 = 1): Int64;
-    function Decreased(DecreasedBy: Int64 = 1): Int64;
-    function Replaced(FromValue: Int64; ToValue: Int64): Int64;
+   public
+     /// <summary>
+     ///   Checks if the value is divisible by the specified integer.
+     /// </summary>
+     function IsDividableBy(i: Int64): Boolean;
+     /// <summary>
+     ///   Checks if the value is an odd number.
+     /// </summary>
+     function IsOdd(): Boolean;
+     /// <summary>
+     ///   Checks if the value is an even number.
+     /// </summary>
+     function IsEven(): Boolean;
+     /// <summary>
+     ///   Returns the square of the value.
+     /// </summary>
+     function Sqr(): Int64;
+     /// <summary>
+     ///   Returns the value raised to the specified power.
+     /// </summary>
+     function Power(Exponent: LongWord): Int64; overload;
+     /// <summary>
+     ///   Returns the value raised to the specified power as a double.
+     /// </summary>
+     function Power(Exponent: Int64): Double; overload;
+     /// <summary>
+     ///   Checks if the value is positive.
+     /// </summary>
+     function IsPositive(): Boolean;
+     /// <summary>
+     ///   Checks if the value is negative.
+     /// </summary>
+     function IsNegative(): Boolean;
+     /// <summary>
+     ///   Checks if the value is non-negative.
+     /// </summary>
+     function IsNonNegative(): Boolean;
+     /// <summary>
+     ///   Returns the maximum of the value and the specified integer.
+     /// </summary>
+     function Max(i: Int64): Int64;
+     /// <summary>
+     ///   Returns the minimum of the value and the specified integer.
+     /// </summary>
+     function Min(i: Int64): Int64;
+     /// <summary>
+     ///   Returns the absolute value of the value.
+     /// </summary>
+     function Abs(): Int64;
+     /// <summary>
+     ///   Converts the value to a string representation.
+     /// </summary>
+     function ToString(): string;
+     /// <summary>
+     ///   Converts the value to a SQL-compatible string representation.
+     /// </summary>
+     function ToSQLString(): string;
+     /// <summary>
+     ///   Rounds the value to the specified number of digits.
+     /// </summary>
+     function Round(Digits: Int64): Int64;
+     /// <summary>
+     ///   Checks if the value is between the specified bounds.
+     /// </summary>
+     function Between(BottomIncluded, TopIncluded: Int64): Boolean;
+     /// <summary>
+     ///   Returns the value increased by the specified amount.
+     /// </summary>
+     function Increased(IncreasedBy: Int64 = 1): Int64;
+     /// <summary>
+     ///   Returns the value decreased by the specified amount.
+     /// </summary>
+     function Decreased(DecreasedBy: Int64 = 1): Int64;
+     /// <summary>
+     ///   Replaces the specified value with another value.
+     /// </summary>
+     function Replaced(FromValue: Int64; ToValue: Int64): Int64;
 
-    function ToNumeralSystem(const Base: Integer): string;
-    function Binary: string;
-    function Octal: string;
-    function Hexidecimal: string;
-    function NumeralSystem32: string;
-    function NumeralSystem64: string;
+     /// <summary>
+     ///   Converts the value to a string in the specified numeral system.
+     /// </summary>
+     function ToNumeralSystem(const Base: Integer): string;
+     /// <summary>
+     ///   Returns the binary representation of the value.
+     /// </summary>
+     function Binary: string;
+     /// <summary>
+     ///   Returns the octal representation of the value.
+     /// </summary>
+     function Octal: string;
+     /// <summary>
+     ///   Returns the hexadecimal representation of the value.
+     /// </summary>
+     function Hexidecimal: string;
+     /// <summary>
+     ///   Returns the base-32 numeral system representation of the value.
+     /// </summary>
+     function NumeralSystem32: string;
+     /// <summary>
+     ///   Returns the base-64 numeral system representation of the value.
+     /// </summary>
+     function NumeralSystem64: string;
 
-    procedure SetBinary(const Value: string);
-    procedure SetOctal(const Value: string);
-    procedure SetHexidecimal(const Value: string);
-    procedure SetNumeralSystem32(const Value: string);
-    procedure SetNumeralSystem64(const Value: string);
+     /// <summary>
+     ///   Sets the value from a binary string.
+     /// </summary>
+     procedure SetBinary(const Value: string);
+     /// <summary>
+     ///   Sets the value from an octal string.
+     /// </summary>
+     procedure SetOctal(const Value: string);
+     /// <summary>
+     ///   Sets the value from a hexadecimal string.
+     /// </summary>
+     procedure SetHexidecimal(const Value: string);
+     /// <summary>
+     ///   Sets the value from a base-32 numeral system string.
+     /// </summary>
+     procedure SetNumeralSystem32(const Value: string);
+     /// <summary>
+     ///   Sets the value from a base-64 numeral system string.
+     /// </summary>
+     procedure SetNumeralSystem64(const Value: string);
 
-    procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
-    function IsPrime(): Boolean;
+     /// <summary>
+     ///   Executes a procedure for each value in the range.
+     /// </summary>
+     procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
+     /// <summary>
+     ///   Checks if the value is a prime number.
+     /// </summary>
+     function IsPrime(): Boolean;
 
-    class function Random(MinValue: Int64; MaxValue: Int64): Int64; overload; static;
-    class function RandomPrime(MinValue: Int64; MaxValue: Int64): Int64; overload; static;
-    class function Random(MaxValue: Int64 = MaxInt): Int64; overload; static;
-    class function RandomPrime(MaxValue: Int64 = MaxInt): Int64; overload; static;
+     /// <summary>
+     ///   Returns a random integer between the specified minimum and maximum values.
+     /// </summary>
+     class function Random(MinValue: Int64; MaxValue: Int64): Int64; overload; static;
+     /// <summary>
+     ///   Returns a random prime integer between the specified minimum and maximum values.
+     /// </summary>
+     class function RandomPrime(MinValue: Int64; MaxValue: Int64): Int64; overload; static;
+     /// <summary>
+     ///   Returns a random integer up to the specified maximum value.
+     /// </summary>
+     class function Random(MaxValue: Int64 = MaxInt): Int64; overload; static;
+     /// <summary>
+     ///   Returns a random prime integer up to the specified maximum value.
+     /// </summary>
+     class function RandomPrime(MaxValue: Int64 = MaxInt): Int64; overload; static;
 
-    procedure SetRandom(MinValue: Int64; MaxValue: Int64); overload;
-    procedure SetRandom(MaxValue: Int64 = MaxInt); overload;
-    procedure SetRandomPrime(MinValue: Int64; MaxValue: Int64); overload;
-    procedure SetRandomPrime(MaxValue: Int64 = MaxInt); overload;
+     /// <summary>
+     ///   Sets the value to a random integer between the specified minimum and maximum values.
+     /// </summary>
+     procedure SetRandom(MinValue: Int64; MaxValue: Int64); overload;
+     /// <summary>
+     ///   Sets the value to a random integer up to the specified maximum value.
+     /// </summary>
+     procedure SetRandom(MaxValue: Int64 = MaxInt); overload;
+     /// <summary>
+     ///   Sets the value to a random prime integer between the specified minimum and maximum values.
+     /// </summary>
+     procedure SetRandomPrime(MinValue: Int64; MaxValue: Int64); overload;
+     /// <summary>
+     ///   Sets the value to a random prime integer up to the specified maximum value.
+     /// </summary>
+     procedure SetRandomPrime(MaxValue: Int64 = MaxInt); overload;
   end;
   {$IFEND}
 
@@ -570,176 +1323,622 @@ type
     function GetBase64: string;
     procedure SetBase64(const Value: string);
 
-  Public
-    // Basic properties
-    function IsEmptyStr(): OLBoolean;
-    function Length(): OLInteger;
+   Public
+     // Basic properties
+     /// <summary>
+     ///   Checks if the string is empty.
+     /// </summary>
+     function IsEmptyStr(): OLBoolean;
+     /// <summary>
+     ///   Returns the length of the string.
+     /// </summary>
+     function Length(): OLInteger;
 
-    // Substring operations
-    function Substring(StartIndex: Integer): string; overload;
-    function Substring(StartIndex, Length: Integer): string; overload;
-    function LeftStr(Count: Integer): string;
-    function RightStr(Count: Integer): string;
+     // Substring operations
+     /// <summary>
+     ///   Returns a substring starting from the specified index.
+     /// </summary>
+     function Substring(StartIndex: Integer): string; overload;
+     /// <summary>
+     ///   Returns a substring starting from the specified index with the specified length.
+     /// </summary>
+     function Substring(StartIndex, Length: Integer): string; overload;
+     /// <summary>
+     ///   Returns the left part of the string with the specified count of characters.
+     /// </summary>
+     function LeftStr(Count: Integer): string;
+     /// <summary>
+     ///   Returns the right part of the string with the specified count of characters.
+     /// </summary>
+     function RightStr(Count: Integer): string;
 
-    // Search and replace
-    function ContainsStr(SubString: string): OLBoolean;
-    function Pos(SubString: string): OLInteger;
-    function Replace(OldValue, NewValue: string): string;
+     // Search and replace
+     /// <summary>
+     ///   Checks if the string contains the specified substring.
+     /// </summary>
+     function ContainsStr(SubString: string): OLBoolean;
+     /// <summary>
+     ///   Returns the position of the specified substring in the string.
+     /// </summary>
+     function Pos(SubString: string): OLInteger;
+     /// <summary>
+     ///   Replaces occurrences of the old value with the new value in the string.
+     /// </summary>
+     function Replace(OldValue, NewValue: string): string;
 
-    // Case operations
-    function LowerCase(): string;
-    function UpperCase(): string;
+     // Case operations
+     /// <summary>
+     ///   Converts the string to lowercase.
+     /// </summary>
+     function LowerCase(): string;
+     /// <summary>
+     ///   Converts the string to uppercase.
+     /// </summary>
+     function UpperCase(): string;
 
-    // Trim operations
-    function Trim(): string;
-    function TrimLeft(): string;
-    function TrimRight(): string;
+     // Trim operations
+     /// <summary>
+     ///   Trims whitespace from both ends of the string.
+     /// </summary>
+     function Trim(): string;
+     /// <summary>
+     ///   Trims whitespace from the left end of the string.
+     /// </summary>
+     function TrimLeft(): string;
+     /// <summary>
+     ///   Trims whitespace from the right end of the string.
+     /// </summary>
+     function TrimRight(): string;
 
-    // Other utilities
-    function StartsStr(Value: string): OLBoolean;
-    function EndsStr(Value: string): OLBoolean;
-    function ReversedString(): string;
+     // Other utilities
+     /// <summary>
+     ///   Checks if the string starts with the specified value.
+     /// </summary>
+     function StartsStr(Value: string): OLBoolean;
+     /// <summary>
+     ///   Checks if the string ends with the specified value.
+     /// </summary>
+     function EndsStr(Value: string): OLBoolean;
+     /// <summary>
+     ///   Returns the reversed string.
+     /// </summary>
+     function ReversedString(): string;
 
-    // Additional methods from OLString
-    function HashStr(const Salt: string = ''): string;
-    function Compressed(): string;
-    function Decompressed(): string;
-    function ExtractedFileName(): string;
-    function ExtractedFileExt(): string;
-    function ExtractedFileDriveString(): string;
-    function ExtractedFileDir(): string;
-    function ExtractedFilePath(): string;
-    procedure LoadFromFile(const FileName: string); overload;
-    procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
-    procedure SaveToFile(const FileName: string); overload;
-    procedure SaveToFile(const FileName: string; Encoding: TEncoding); overload;
-    procedure EndcodeBase64FromFile(const FileName: string);
-    procedure DecodeBase64ToFile(const FileName: string);
-    function Formated(const Data: array of const): string;
-    function FindTagStr(const Tag: string; const StartingPosition: Integer = 1): string;
-    function Like(Pattern: string): OLBoolean;
-    function SameStr(s: string): OLBoolean;
-    function SameText(s: string): OLBoolean;
-    function ToInt(): OLInteger;
-    function TryToInt(): OLBoolean; overload;
-    function TryToInt(var i: Integer): OLBoolean; overload;
-    function LineCount(): OLInteger;
-    function LastLineIndex(): Integer;
-    procedure LineAdd(const NewLine: string);
-    procedure LineDelete(const LineIndex: Integer);
-    procedure LineInsertAt(const LineIndex: Integer; const s: string);
-    function LineIndexLike(const s: string; StartingFrom: Integer = 0): OLInteger;
-    function LinesSorted(): string;
-    function GetLineStartPosition(const Index: Integer): OLInteger;
-    function GetLineEndPosition(const Index: Integer): OLInteger;
-    function LineEndAt(const LineIndex: Integer): OLInteger;
-    function MatchStr(const AValues: array of string): OLBoolean;
-    function ContainsText(SubString: string): OLBoolean;
-    function StartsText(Value: string): OLBoolean;
-    function EndsText(Value: string): OLBoolean;
-    function IndexStr(const AValues: array of string): OLInteger;
-    function IndexText(const AValues: array of string): OLInteger;
-    function MatchText(const AValues: array of string): OLBoolean;
-    function FindPatternStr(const InFront, Behind: string; const StartingPosition: Integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): string; overload;
-    function FindPatternStr(const Tag: string; const StartingPosition: Integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive): string; overload;
-    function PosEx(const SubStr: string; const Offset: Integer): OLInteger;
-    function OccurrencesCount(const SubString: string): OLInteger;
-    function MidStr(const AStart, ACount: Integer): string;
-    function SplitString(const Delimiters: string = ';'): TStringDynArray;
-    function MidStrEx(const AStart, AEnd: Integer): string;
-    function ReplacedStartingAt(const Position: Cardinal; const NewValue: string): string;
-    function EndingRemoved(const ACount: Integer): string;
-    function RightStrFrom(const StartFrom: Integer): string;
-    function LeadingSpacesAdded(const NewLength: Integer): string;
-    function TrailingSpacesAdded(const NewLength: Integer): string;
-    function TrailingCharExcluded(const c: Char): string;
-    function TrailingCharIncluded(const c: Char): string;
-    function TrailingApostropheExcluded(): string;
-    function TrailingApostropheIncluded(): string;
-    function LeadingCharExcluded(const c: Char): string;
-    function LeadingCharIncluded(const c: Char): string;
-    function LeadingComaIncluded(): string;
-    function LeadingApostropheExcluded(): string;
-    function LeadingApostropheIncluded(): string;
-    function ReplacedText(const AFromText, AToText: string): string;
-    function Trimmed(): string;
-    function TrimmedLeft(): string;
-    function TrimmedRight(): string;
-    function LeadingZerosAdded(const NewLength: Integer): string;
-    function Inserted(const InsertStr: string; const Position: Integer): string;
-    function Deleted(const FromPosition: Integer; const Count: Integer = 1): string;
-    function DigitsOnly(): string;
-    function NoDigits(): string;
-    function SpacesRemoved(): string;
-    function QuotedStr(): string;
-    function InitCaps(): string;
-    function AlphanumericsOnly(): string;
-    function RepeatedString(const ACount: Integer): string;
-    function LineAdded(const NewLine: string): string;
-    function TrailingPathDelimiterIncluded(): string;
-    function TrailingPathDelimiterExcluded(): string;
-    class function RandomString(const Length: Integer): string; static;
-    function GetLine(const Index: Integer): string;
-    function CSVFieldValue(const FieldIndex: Integer; const Delimiter: Char = ';'): string;
+     // Additional methods from OLString
+     /// <summary>
+     ///   Returns a hash of the string with the optional salt.
+     /// </summary>
+     function HashStr(const Salt: string = ''): string;
+     /// <summary>
+     ///   Returns the compressed version of the string.
+     /// </summary>
+     function Compressed(): string;
+     /// <summary>
+     ///   Returns the decompressed version of the string.
+     /// </summary>
+     function Decompressed(): string;
+     /// <summary>
+     ///   Extracts the file name from the string.
+     /// </summary>
+     function ExtractedFileName(): string;
+     /// <summary>
+     ///   Extracts the file extension from the string.
+     /// </summary>
+     function ExtractedFileExt(): string;
+     /// <summary>
+     ///   Extracts the file drive string from the string.
+     /// </summary>
+     function ExtractedFileDriveString(): string;
+     /// <summary>
+     ///   Extracts the file directory from the string.
+     /// </summary>
+     function ExtractedFileDir(): string;
+     /// <summary>
+     ///   Extracts the file path from the string.
+     /// </summary>
+     function ExtractedFilePath(): string;
+     /// <summary>
+     ///   Loads the string from the specified file.
+     /// </summary>
+     procedure LoadFromFile(const FileName: string); overload;
+     /// <summary>
+     ///   Loads the string from the specified file with the specified encoding.
+     /// </summary>
+     procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
+     /// <summary>
+     ///   Saves the string to the specified file.
+     /// </summary>
+     procedure SaveToFile(const FileName: string); overload;
+     /// <summary>
+     ///   Saves the string to the specified file with the specified encoding.
+     /// </summary>
+     procedure SaveToFile(const FileName: string; Encoding: TEncoding); overload;
+     /// <summary>
+     ///   Encodes the file content to Base64 and sets it to the string.
+     /// </summary>
+     procedure EndcodeBase64FromFile(const FileName: string);
+     /// <summary>
+     ///   Decodes the Base64 string and saves it to the specified file.
+     /// </summary>
+     procedure DecodeBase64ToFile(const FileName: string);
+     /// <summary>
+     ///   Formats the string with the specified data.
+     /// </summary>
+     function Formated(const Data: array of const): string;
+     /// <summary>
+     ///   Finds a tag in the string starting from the specified position.
+     /// </summary>
+     function FindTagStr(const Tag: string; const StartingPosition: Integer = 1): string;
+     /// <summary>
+     ///   Checks if the string matches the specified pattern.
+     /// </summary>
+     function Like(Pattern: string): OLBoolean;
+     /// <summary>
+     ///   Checks if the string is the same as the specified string (case-sensitive).
+     /// </summary>
+     function SameStr(s: string): OLBoolean;
+     /// <summary>
+     ///   Checks if the string is the same as the specified string (case-insensitive).
+     /// </summary>
+     function SameText(s: string): OLBoolean;
+     /// <summary>
+     ///   Converts the string to an integer.
+     /// </summary>
+     function ToInt(): OLInteger;
+     /// <summary>
+     ///   Tries to convert the string to an integer.
+     /// </summary>
+     function TryToInt(): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to an integer and stores the result in the variable.
+     /// </summary>
+     function TryToInt(var i: Integer): OLBoolean; overload;
+     /// <summary>
+     ///   Returns the number of lines in the string.
+     /// </summary>
+     function LineCount(): OLInteger;
+     /// <summary>
+     ///   Returns the index of the last line in the string.
+     /// </summary>
+     function LastLineIndex(): Integer;
+     /// <summary>
+     ///   Adds a new line to the string.
+     /// </summary>
+     procedure LineAdd(const NewLine: string);
+     /// <summary>
+     ///   Deletes the line at the specified index.
+     /// </summary>
+     procedure LineDelete(const LineIndex: Integer);
+     /// <summary>
+     ///   Inserts a string at the specified line index.
+     /// </summary>
+     procedure LineInsertAt(const LineIndex: Integer; const s: string);
+     /// <summary>
+     ///   Returns the index of the line that matches the specified string.
+     /// </summary>
+     function LineIndexLike(const s: string; StartingFrom: Integer = 0): OLInteger;
+     /// <summary>
+     ///   Returns the lines of the string sorted.
+     /// </summary>
+     function LinesSorted(): string;
+     /// <summary>
+     ///   Returns the start position of the line at the specified index.
+     /// </summary>
+     function GetLineStartPosition(const Index: Integer): OLInteger;
+     /// <summary>
+     ///   Returns the end position of the line at the specified index.
+     /// </summary>
+     function GetLineEndPosition(const Index: Integer): OLInteger;
+     /// <summary>
+     ///   Returns the end position of the line at the specified index.
+     /// </summary>
+     function LineEndAt(const LineIndex: Integer): OLInteger;
+     /// <summary>
+     ///   Checks if the string matches any of the specified values.
+     /// </summary>
+     function MatchStr(const AValues: array of string): OLBoolean;
+     /// <summary>
+     ///   Checks if the string contains the specified substring (case-insensitive).
+     /// </summary>
+     function ContainsText(SubString: string): OLBoolean;
+     /// <summary>
+     ///   Checks if the string starts with the specified value (case-insensitive).
+     /// </summary>
+     function StartsText(Value: string): OLBoolean;
+     /// <summary>
+     ///   Checks if the string ends with the specified value (case-insensitive).
+     /// </summary>
+     function EndsText(Value: string): OLBoolean;
+     /// <summary>
+     ///   Returns the index of the first matching value in the array.
+     /// </summary>
+     function IndexStr(const AValues: array of string): OLInteger;
+     /// <summary>
+     ///   Returns the index of the first matching value in the array (case-insensitive).
+     /// </summary>
+     function IndexText(const AValues: array of string): OLInteger;
+     /// <summary>
+     ///   Checks if the string matches any of the specified values (case-insensitive).
+     /// </summary>
+     function MatchText(const AValues: array of string): OLBoolean;
+     /// <summary>
+     ///   Finds a pattern in the string between the specified front and behind strings.
+     /// </summary>
+     function FindPatternStr(const InFront, Behind: string; const StartingPosition: Integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): string; overload;
+     /// <summary>
+     ///   Finds a tag in the string starting from the specified position.
+     /// </summary>
+     function FindPatternStr(const Tag: string; const StartingPosition: Integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive): string; overload;
+     /// <summary>
+     ///   Returns the position of the substring starting from the specified offset.
+     /// </summary>
+     function PosEx(const SubStr: string; const Offset: Integer): OLInteger;
+     /// <summary>
+     ///   Returns the number of occurrences of the substring in the string.
+     /// </summary>
+     function OccurrencesCount(const SubString: string): OLInteger;
+     /// <summary>
+     ///   Returns a substring starting from the specified position with the specified count.
+     /// </summary>
+     function MidStr(const AStart, ACount: Integer): string;
+     /// <summary>
+     ///   Splits the string into an array using the specified delimiters.
+     /// </summary>
+     function SplitString(const Delimiters: string = ';'): TStringDynArray;
+     /// <summary>
+     ///   Returns a substring from the start to the end position.
+     /// </summary>
+     function MidStrEx(const AStart, AEnd: Integer): string;
+     /// <summary>
+     ///   Replaces the string starting from the specified position with the new value.
+     /// </summary>
+     function ReplacedStartingAt(const Position: Cardinal; const NewValue: string): string;
+     /// <summary>
+     ///   Removes the specified number of characters from the end of the string.
+     /// </summary>
+     function EndingRemoved(const ACount: Integer): string;
+     /// <summary>
+     ///   Returns the right part of the string starting from the specified position.
+     /// </summary>
+     function RightStrFrom(const StartFrom: Integer): string;
+     /// <summary>
+     ///   Adds leading spaces to the string to reach the specified length.
+     /// </summary>
+     function LeadingSpacesAdded(const NewLength: Integer): string;
+     /// <summary>
+     ///   Adds trailing spaces to the string to reach the specified length.
+     /// </summary>
+     function TrailingSpacesAdded(const NewLength: Integer): string;
+     /// <summary>
+     ///   Excludes the specified trailing character from the string.
+     /// </summary>
+     function TrailingCharExcluded(const c: Char): string;
+     /// <summary>
+     ///   Includes the specified trailing character in the string.
+     /// </summary>
+     function TrailingCharIncluded(const c: Char): string;
+     /// <summary>
+     ///   Excludes trailing apostrophes from the string.
+     /// </summary>
+     function TrailingApostropheExcluded(): string;
+     /// <summary>
+     ///   Includes trailing apostrophes in the string.
+     /// </summary>
+     function TrailingApostropheIncluded(): string;
+     /// <summary>
+     ///   Excludes the specified leading character from the string.
+     /// </summary>
+     function LeadingCharExcluded(const c: Char): string;
+     /// <summary>
+     ///   Includes the specified leading character in the string.
+     /// </summary>
+     function LeadingCharIncluded(const c: Char): string;
+     /// <summary>
+     ///   Includes a leading comma in the string.
+     /// </summary>
+     function LeadingComaIncluded(): string;
+     /// <summary>
+     ///   Excludes leading apostrophes from the string.
+     /// </summary>
+     function LeadingApostropheExcluded(): string;
+     /// <summary>
+     ///   Includes leading apostrophes in the string.
+     /// </summary>
+     function LeadingApostropheIncluded(): string;
+     /// <summary>
+     ///   Replaces the specified text with another text (case-insensitive).
+     /// </summary>
+     function ReplacedText(const AFromText, AToText: string): string;
+     /// <summary>
+     ///   Trims whitespace from both ends of the string.
+     /// </summary>
+     function Trimmed(): string;
+     /// <summary>
+     ///   Trims whitespace from the left end of the string.
+     /// </summary>
+     function TrimmedLeft(): string;
+     /// <summary>
+     ///   Trims whitespace from the right end of the string.
+     /// </summary>
+     function TrimmedRight(): string;
+     /// <summary>
+     ///   Adds leading zeros to the string to reach the specified length.
+     /// </summary>
+     function LeadingZerosAdded(const NewLength: Integer): string;
+     /// <summary>
+     ///   Inserts the specified string at the specified position.
+     /// </summary>
+     function Inserted(const InsertStr: string; const Position: Integer): string;
+     /// <summary>
+     ///   Deletes the specified number of characters from the specified position.
+     /// </summary>
+     function Deleted(const FromPosition: Integer; const Count: Integer = 1): string;
+     /// <summary>
+     ///   Returns only the digits from the string.
+     /// </summary>
+     function DigitsOnly(): string;
+     /// <summary>
+     ///   Returns the string with all digits removed.
+     /// </summary>
+     function NoDigits(): string;
+     /// <summary>
+     ///   Removes all spaces from the string.
+     /// </summary>
+     function SpacesRemoved(): string;
+     /// <summary>
+     ///   Quotes the string.
+     /// </summary>
+     function QuotedStr(): string;
+     /// <summary>
+     ///   Capitalizes the first letter of each word in the string.
+     /// </summary>
+     function InitCaps(): string;
+     /// <summary>
+     ///   Returns only alphanumeric characters from the string.
+     /// </summary>
+     function AlphanumericsOnly(): string;
+     /// <summary>
+     ///   Repeats the string the specified number of times.
+     /// </summary>
+     function RepeatedString(const ACount: Integer): string;
+     /// <summary>
+     ///   Adds a new line to the string.
+     /// </summary>
+     function LineAdded(const NewLine: string): string;
+     /// <summary>
+     ///   Includes a trailing path delimiter in the string.
+     /// </summary>
+     function TrailingPathDelimiterIncluded(): string;
+     /// <summary>
+     ///   Excludes the trailing path delimiter from the string.
+     /// </summary>
+     function TrailingPathDelimiterExcluded(): string;
+     /// <summary>
+     ///   Returns a random string of the specified length.
+     /// </summary>
+     class function RandomString(const Length: Integer): string; static;
+     /// <summary>
+     ///   Returns the line at the specified index.
+     /// </summary>
+     function GetLine(const Index: Integer): string;
+     /// <summary>
+     ///   Returns the value of the CSV field at the specified index.
+     /// </summary>
+     function CSVFieldValue(const FieldIndex: Integer; const Delimiter: Char = ';'): string;
 
-    property Params[const ParamName: string]: OLString write SetParams;
-    property Lines[const Index: Integer]: OLString read GetLines write SetLines;
-    property CSV[const Index: Integer]: OLString read GetCSV write SetCSV;
-    function ReplacedFirst(const AFromText, AToText: string): string;
-    function ReplacedFirstText(const AFromText, AToText: string): string;
-    function LeadingCharsAdded(const C: Char; const NewLength: Integer): string;
-    function TrailingCharsAdded(const C: Char; const NewLength: Integer): string;
-    function OccurrencesPosition(const SubString: string; const Index: Integer): OLInteger;
-    function PosLast(const SubStr: string): OLInteger;
-    function PosLastEx(const SubStr: string; const NotAfterPosition: Integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
-    function FindPattern(const InFront, Behind: string; const StartingPosition:
-        Integer = 1): TStringPatternFind;
-    function LineIndexOf(const s: string): OLInteger;
-    function CSVIndex(const ValueToFind: string): OLInteger;
-    function CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
-    procedure SetCSVFieldValue(const FieldIndex: Integer; const Value: OLString; const Delimiter: Char = ';');
-    function CSVFieldName(const index: Integer): string;
-    function CSVFieldByName(const FieldName: string; const RowIndex: Integer = 1): string;
-    {$IFDEF VCL}
-    function PixelWidth(const F: TFont): OLInteger;
-    {$ENDIF}
-    function IsValidIBAN: OLBoolean;
-    function TrailingComaExcluded(): string;
-    function LeadingComaExcluded(): string;
-    function TryToFloat(): OLBoolean; overload;
-    function TryToFloat(var e: Double): OLBoolean; overload;
-    function TryToDate(): OLBoolean; overload;
-    function TryToDate(var d: TDate): OLBoolean; overload;
-    function TryToCurr(): OLBoolean; overload;
-    function TryToCurr(var c: Currency): OLBoolean; overload;
-    function TryToInt64(): OLBoolean; overload;
-    function TryToInt64(var i: Int64): OLBoolean; overload;
-    function ToCurr(): OLCurrency;
-    function ToDate(): OLDate;
-    function ToDateTime(): OLDateTime;
-    function ToFloat(): OLDouble;
-    function ToInt64(): OLInt64;
-    function TrySmartStrToDate(): OLBoolean; overload;
-    function TrySmartStrToDate(var d: TDate): OLBoolean; overload;
-    function SmartStrToDate(): OLDate;
-    function ToPWideChar(): PWideChar;
-    function LastDelimiterPosition(const Delimiters: string = ';'): OLInteger;
-    function Hash(const Salt: string = ''): Cardinal;
-    function ToSQLString(): string;
-    procedure CopyToClipboard();
-    procedure PasteFromClipboard();
-    procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
-    class function RandomFrom(const AValues: array of string): string; static;
-    class procedure SetNullAsDefault(); static;
+     /// <summary>
+     ///   Gets or sets the parameter value by name.
+     /// </summary>
+     property Params[const ParamName: string]: OLString write SetParams;
+     /// <summary>
+     ///   Gets or sets the line at the specified index.
+     /// </summary>
+     property Lines[const Index: Integer]: OLString read GetLines write SetLines;
+     /// <summary>
+     ///   Gets or sets the CSV field at the specified index.
+     /// </summary>
+     property CSV[const Index: Integer]: OLString read GetCSV write SetCSV;
+     /// <summary>
+     ///   Replaces the first occurrence of the specified text with another text.
+     /// </summary>
+     function ReplacedFirst(const AFromText, AToText: string): string;
+     /// <summary>
+     ///   Replaces the first occurrence of the specified text with another text (case-insensitive).
+     /// </summary>
+     function ReplacedFirstText(const AFromText, AToText: string): string;
+     /// <summary>
+     ///   Adds leading characters to the string to reach the specified length.
+     /// </summary>
+     function LeadingCharsAdded(const C: Char; const NewLength: Integer): string;
+     /// <summary>
+     ///   Adds trailing characters to the string to reach the specified length.
+     /// </summary>
+     function TrailingCharsAdded(const C: Char; const NewLength: Integer): string;
+     /// <summary>
+     ///   Returns the position of the specified occurrence of the substring.
+     /// </summary>
+     function OccurrencesPosition(const SubString: string; const Index: Integer): OLInteger;
+     /// <summary>
+     ///   Returns the last position of the substring in the string.
+     /// </summary>
+     function PosLast(const SubStr: string): OLInteger;
+     /// <summary>
+     ///   Returns the last position of the substring in the string before the specified position.
+     /// </summary>
+     function PosLastEx(const SubStr: string; const NotAfterPosition: Integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+     /// <summary>
+     ///   Finds a pattern in the string between the specified front and behind strings.
+     /// </summary>
+     function FindPattern(const InFront, Behind: string; const StartingPosition: Integer = 1): TStringPatternFind;
+     /// <summary>
+     ///   Returns the index of the line that contains the specified string.
+     /// </summary>
+     function LineIndexOf(const s: string): OLInteger;
+     /// <summary>
+     ///   Returns the index of the CSV field that contains the specified value.
+     /// </summary>
+     function CSVIndex(const ValueToFind: string): OLInteger;
+     /// <summary>
+     ///   Returns the number of CSV fields in the string.
+     /// </summary>
+     function CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
+     /// <summary>
+     ///   Sets the value of the CSV field at the specified index.
+     /// </summary>
+     procedure SetCSVFieldValue(const FieldIndex: Integer; const Value: OLString; const Delimiter: Char = ';');
+     /// <summary>
+     ///   Returns the name of the CSV field at the specified index.
+     /// </summary>
+     function CSVFieldName(const index: Integer): string;
+     /// <summary>
+     ///   Returns the value of the CSV field by name.
+     /// </summary>
+     function CSVFieldByName(const FieldName: string; const RowIndex: Integer = 1): string;
+     {$IFDEF VCL}
+     /// <summary>
+     ///   Returns the pixel width of the string using the specified font.
+     /// </summary>
+     function PixelWidth(const F: TFont): OLInteger;
+     {$ENDIF}
+     /// <summary>
+     ///   Checks if the string is a valid IBAN.
+     /// </summary>
+     function IsValidIBAN: OLBoolean;
+     /// <summary>
+     ///   Excludes trailing commas from the string.
+     /// </summary>
+     function TrailingComaExcluded(): string;
+     /// <summary>
+     ///   Excludes leading commas from the string.
+     /// </summary>
+     function LeadingComaExcluded(): string;
+     /// <summary>
+     ///   Tries to convert the string to a float.
+     /// </summary>
+     function TryToFloat(): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to a float and stores the result in the variable.
+     /// </summary>
+     function TryToFloat(var e: Double): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to a date.
+     /// </summary>
+     function TryToDate(): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to a date and stores the result in the variable.
+     /// </summary>
+     function TryToDate(var d: TDate): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to a currency.
+     /// </summary>
+     function TryToCurr(): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to a currency and stores the result in the variable.
+     /// </summary>
+     function TryToCurr(var c: Currency): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to an Int64.
+     /// </summary>
+     function TryToInt64(): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to an Int64 and stores the result in the variable.
+     /// </summary>
+     function TryToInt64(var i: Int64): OLBoolean; overload;
+     /// <summary>
+     ///   Converts the string to a currency.
+     /// </summary>
+     function ToCurr(): OLCurrency;
+     /// <summary>
+     ///   Converts the string to a date.
+     /// </summary>
+     function ToDate(): OLDate;
+     /// <summary>
+     ///   Converts the string to a date/time.
+     /// </summary>
+     function ToDateTime(): OLDateTime;
+     /// <summary>
+     ///   Converts the string to a float.
+     /// </summary>
+     function ToFloat(): OLDouble;
+     /// <summary>
+     ///   Converts the string to an Int64.
+     /// </summary>
+     function ToInt64(): OLInt64;
+     /// <summary>
+     ///   Tries to convert the string to a date using smart parsing.
+     /// </summary>
+     function TrySmartStrToDate(): OLBoolean; overload;
+     /// <summary>
+     ///   Tries to convert the string to a date using smart parsing and stores the result in the variable.
+     /// </summary>
+     function TrySmartStrToDate(var d: TDate): OLBoolean; overload;
+     /// <summary>
+     ///   Converts the string to a date using smart parsing.
+     /// </summary>
+     function SmartStrToDate(): OLDate;
+     /// <summary>
+     ///   Converts the string to a PWideChar.
+     /// </summary>
+     function ToPWideChar(): PWideChar;
+     /// <summary>
+     ///   Returns the position of the last delimiter in the string.
+     /// </summary>
+     function LastDelimiterPosition(const Delimiters: string = ';'): OLInteger;
+     /// <summary>
+     ///   Returns a hash of the string with the optional salt.
+     /// </summary>
+     function Hash(const Salt: string = ''): Cardinal;
+     /// <summary>
+     ///   Converts the string to a SQL-compatible string representation.
+     /// </summary>
+     function ToSQLString(): string;
+     /// <summary>
+     ///   Copies the string to the clipboard.
+     /// </summary>
+     procedure CopyToClipboard();
+     /// <summary>
+     ///   Pastes the string from the clipboard.
+     /// </summary>
+     procedure PasteFromClipboard();
+     /// <summary>
+     ///   Loads the string from the specified URL.
+     /// </summary>
+     procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
+     /// <summary>
+     ///   Returns a random string from the specified array of values.
+     /// </summary>
+     class function RandomFrom(const AValues: array of string): string; static;
+     /// <summary>
+     ///   Sets null as the default value for strings.
+     /// </summary>
+     class procedure SetNullAsDefault(); static;
 
-    property HtmlUnicodeText: string read GetHtmlUnicodeText write SetHtmlUnicodeText;
-    property UrlEncodedText: string read GetUrlEncodedText write SetUrlEncodedText;
-    property Base64: string read GetBase64 write SetBase64;
-    {$IF CompilerVersion >= 27.0}
-    function GetJSON(const JsonFieldName: string): OLString;
-    procedure SetJSON(const JsonFieldName: string; const Value: OLString);
-    property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
-    {$IFEND}
+     /// <summary>
+     ///   Gets or sets the HTML Unicode text representation of the string.
+     /// </summary>
+     property HtmlUnicodeText: string read GetHtmlUnicodeText write SetHtmlUnicodeText;
+     /// <summary>
+     ///   Gets or sets the URL-encoded text representation of the string.
+     /// </summary>
+     property UrlEncodedText: string read GetUrlEncodedText write SetUrlEncodedText;
+     /// <summary>
+     ///   Gets or sets the Base64 representation of the string.
+     /// </summary>
+     property Base64: string read GetBase64 write SetBase64;
+     {$IF CompilerVersion >= 27.0}
+     /// <summary>
+     ///   Gets the JSON value for the specified field name.
+     /// </summary>
+     function GetJSON(const JsonFieldName: string): OLString;
+     /// <summary>
+     ///   Sets the JSON value for the specified field name.
+     /// </summary>
+     procedure SetJSON(const JsonFieldName: string; const Value: OLString);
+     /// <summary>
+     ///   Gets or sets the JSON value for the specified field name.
+     /// </summary>
+     property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
+     {$IFEND}
 
   end;
   {$IFEND}
