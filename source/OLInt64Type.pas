@@ -6,6 +6,9 @@ uses
   variants, SysUtils, OLBooleanType, OLDoubleType, OLIntegerType;
 
 type
+  /// <summary>
+  ///   A record type representing a 64-bit integer with null-handling capabilities.
+  /// </summary>
   OLInt64 = record
   private
     Value: Int64;
@@ -27,45 +30,149 @@ type
     procedure SetNumeralSystem32(const Value: string);
     procedure SetNumeralSystem64(const Value: string);
     procedure SetOctal(const Value: string);
+    /// <summary>
+    ///   Gets or sets whether the Int64 has a value (is not null).
+    /// </summary>
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
+    /// <summary>
+    ///   Checks if the Int64 is divisible by the specified value.
+    /// </summary>
     function IsDividableBy(i: Int64): OLBoolean;
+    /// <summary>
+    ///   Checks if the Int64 is odd.
+    /// </summary>
     function IsOdd(): OLBoolean;
+    /// <summary>
+    ///   Checks if the Int64 is even.
+    /// </summary>
     function IsEven(): OLBoolean;
+    /// <summary>
+    ///   Returns the square of the Int64.
+    /// </summary>
     function Sqr(): OLInt64;
+    /// <summary>
+    ///   Returns the Int64 raised to the specified exponent.
+    /// </summary>
     function Power(Exponent: LongWord): OLInt64; overload;
+    /// <summary>
+    ///   Returns the Int64 raised to the specified exponent as a Double.
+    /// </summary>
     function Power(Exponent: Int64): Double; overload;
+    /// <summary>
+    ///   Checks if the Int64 is positive (> 0).
+    /// </summary>
     function IsPositive(): OLBoolean;
+    /// <summary>
+    ///   Checks if the Int64 is negative (< 0).
+    /// </summary>
     function IsNegative(): OLBoolean;
+    /// <summary>
+    ///   Checks if the Int64 is non-negative (>= 0).
+    /// </summary>
     function IsNonNegative(): OLBoolean;
+    /// <summary>
+    ///   Returns the larger of the two Int64 values.
+    /// </summary>
     function Max(i: OLInt64): OLInt64;
+    /// <summary>
+    ///   Returns the smaller of the two Int64 values.
+    /// </summary>
     function Min(i: OLInt64): OLInt64;
+    /// <summary>
+    ///   Returns the absolute value of the Int64.
+    /// </summary>
     function Abs(): OLInt64;
+    /// <summary>
+    ///   Checks if the Int64 is null (has no value).
+    /// </summary>
     function IsNull(): OLBoolean;
+    /// <summary>
+    ///   Checks if the Int64 has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Converts the Int64 to a string.
+    /// </summary>
     function ToString(): string;
+    /// <summary>
+    ///   Converts the Int64 to a SQL-safe string (value or NULL).
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Returns the current Int64 if it has a value, otherwise returns the provided default value.
+    /// </summary>
     function IfNull(i: OLInt64): OLInt64;
+    /// <summary>
+    ///   Rounds the Int64 to the specified number of digits.
+    ///   A parameter value of one rounds to the nearest ten.
+    ///   A parameter value of two rounds to the nearest hundred, and so on
+    /// </summary>
     function Round(Digits: OLInt64): OLInt64;
+    /// <summary>
+    ///   Checks if the Int64 is between the specified values (inclusive).
+    /// </summary>
     function Between(BottomIncluded, TopIncluded: OLInt64): OLBoolean;
+    /// <summary>
+    ///   Returns the Int64 increased by the specified amount.
+    /// </summary>
     function Increased(IncreasedBy: Int64 = 1): OLInt64;
+    /// <summary>
+    ///   Returns the Int64 decreased by the specified amount.
+    /// </summary>
     function Decreased(DecreasedBy: Int64 = 1): OLInt64;
+    /// <summary>
+    ///   Returns the Int64 with the value replaced if it matches FromValue.
+    /// </summary>
     function Replaced(FromValue: OLInt64; ToValue: OLInt64): OLInt64;
 
+    /// <summary>
+    ///   Converts the Int64 to a string representation in the specified base.
+    /// </summary>
     function ToNumeralSystem(const Base: Integer): string;
 
+    /// <summary>
+    ///   Executes a procedure for each value from InitialValue to ToValue.
+    /// </summary>
     procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
+    /// <summary>
+    ///   Checks if the Int64 is a prime number.
+    /// </summary>
     function IsPrime(): OLBoolean;
+    /// <summary>
+    ///   Generates a random Int64 between MinValue and MaxValue.
+    /// </summary>
     class function Random(MinValue: Int64; MaxValue:Int64): OLInt64;  overload; static;
+    /// <summary>
+    ///   Generates a random prime number between MinValue and MaxValue.
+    /// </summary>
     class function RandomPrime(MinValue: Int64; MaxValue:Int64): OLInt64; overload; static;
 
+    /// <summary>
+    ///   Generates a random Int64 up to MaxValue.
+    /// </summary>
     class function Random(MaxValue:Int64 = MaxInt): OLInt64;  overload; static;
+    /// <summary>
+    ///   Generates a random prime number up to MaxValue.
+    /// </summary>
     class function RandomPrime(MaxValue:Int64 = MaxInt): OLInt64; overload; static;
 
+    /// <summary>
+    ///   Sets the Int64 to a random value between MinValue and MaxValue.
+    /// </summary>
     procedure SetRandom(MinValue: Int64; MaxValue:Int64); overload;
+    /// <summary>
+    ///   Sets the Int64 to a random value up to MaxValue.
+    /// </summary>
     procedure SetRandom(MaxValue:Int64 = MaxInt); overload;
 
+    /// <summary>
+    ///   Sets the Int64 to a random prime value between MinValue and MaxValue.
+    /// </summary>
     procedure SetRandomPrime(MinValue: Int64; MaxValue:Int64); overload;
+    /// <summary>
+    ///   Sets the Int64 to a random prime value up to MaxValue.
+    /// </summary>
     procedure SetRandomPrime(MaxValue:Int64 = MaxInt); overload;
 
     class operator Add(a, b: OLInt64): OLInt64;
@@ -113,10 +220,25 @@ type
     class operator LessThan(a: OLInt64; b: Extended): Boolean;  overload;
     class operator LessThanOrEqual(a: OLInt64; b: Extended): Boolean;  overload;
 
+    /// <summary>
+    ///   Gets or sets the binary string representation of the Int64.
+    /// </summary>
     property Binary: string read GetBinary write SetBinary;
+    /// <summary>
+    ///   Gets or sets the octal string representation of the Int64.
+    /// </summary>
     property Octal: string read GetOctal write SetOctal;
+    /// <summary>
+    ///   Gets or sets the hexadecimal string representation of the Int64.
+    /// </summary>
     property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
+    /// <summary>
+    ///   Gets or sets the base-32 string representation of the Int64.
+    /// </summary>
     property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
+    /// <summary>
+    ///   Gets or sets the base-64 string representation of the Int64.
+    /// </summary>
     property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
 
     {$IF CompilerVersion >= 34.0}

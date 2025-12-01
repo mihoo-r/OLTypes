@@ -6,6 +6,9 @@ uses
   Variants, SysUtils, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
+  /// <summary>
+  ///   A record type representing a boolean value with null-handling capabilities.
+  /// </summary>
   OLBoolean = record
   private
     FValue: Boolean;
@@ -18,18 +21,54 @@ type
 
     function GetHasValue(): Boolean;
     procedure SetHasValue(const Value: Boolean);
+    /// <summary>
+    ///   Gets or sets whether the boolean has a value (is not null).
+    /// </summary>
     property ValuePresent: Boolean read GetHasValue write SetHasValue;
   public
+    /// <summary>
+    ///   Checks if the boolean is null (has no value).
+    /// </summary>
     function IsNull(): Boolean;
+    /// <summary>
+    ///   Converts the boolean to a string.
+    /// </summary>
     function ToString(): string;
+    /// <summary>
+    ///   Converts the boolean to a SQL-safe string (value or NULL).
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Returns the current boolean if it has a value, otherwise returns the provided default value.
+    /// </summary>
     function IfNull(const b: OLBoolean): OLBoolean;
+    /// <summary>
+    ///   Checks if the boolean has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: string; const AFalse: string = ''): string; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Integer; const AFalse: Integer): integer; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Currency; const AFalse: Currency): Currency; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Extended; const AFalse: Extended): Extended; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: TDateTime; const AFalse: TDateTime): TDateTime; overload;
+    /// <summary>
+    ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
+    /// </summary>
     function IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 
     class operator Implicit(const a: Boolean): OLBoolean;
@@ -53,6 +92,9 @@ type
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLBoolean);
     class operator Assign(var Dest: OLBoolean; const [ref] Src: OLBoolean);
+    /// <summary>
+    ///   Event handler for value changes.
+    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;

@@ -7,6 +7,9 @@ uses
   {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
+  /// <summary>
+  ///   A record type representing a date and time value with null-handling capabilities.
+  /// </summary>
   OLDateTime = record
   private
     FValue: TDateTime;
@@ -33,6 +36,9 @@ type
     procedure SetSecond(const Value: OLInteger);
     procedure SetYear(const Value: OLInteger);
     procedure SetDay(const Value: OLInteger);
+    /// <summary>
+    ///   Gets or sets whether the datetime has a value (is not null).
+    /// </summary>
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
 
     function YearOf(): OLInteger;
@@ -44,19 +50,58 @@ type
     function SecondOf(): OLInteger;
     function MilliSecondOf(): OLInteger;
   public
+    /// <summary>
+    ///   Gets or sets the year component.
+    /// </summary>
     property Year: OLInteger read GetYear write SetYear;
+    /// <summary>
+    ///   Gets or sets the month component.
+    /// </summary>
     property Month: OLInteger read GetMonth write SetMonth;
+    /// <summary>
+    ///   Gets or sets the day component.
+    /// </summary>
     property Day: OLInteger read GetDay write SetDay;
+    /// <summary>
+    ///   Gets or sets the hour component.
+    /// </summary>
     property Hour: OLInteger read GetHour write SetHour;
+    /// <summary>
+    ///   Gets or sets the minute component.
+    /// </summary>
     property Minute: OLInteger read GetMinute write SetMinute;
+    /// <summary>
+    ///   Gets or sets the second component.
+    /// </summary>
     property Second: OLInteger read GetSecond write SetSecond;
+    /// <summary>
+    ///   Gets or sets the millisecond component.
+    /// </summary>
     property MilliSecond: OLInteger read GetMilliSecond write SetMilliSecond;
 
+    /// <summary>
+    ///   Checks if the datetime is null (has no value).
+    /// </summary>
     function IsNull(): OLBoolean;
+    /// <summary>
+    ///   Checks if the datetime has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Converts the datetime to a string.
+    /// </summary>
     function ToString(): string; overload;
+    /// <summary>
+    ///   Converts the datetime to a string with the specified format.
+    /// </summary>
     function ToString(const Format: string): string; overload;
+    /// <summary>
+    ///   Converts the datetime to a SQL-safe string (value or NULL).
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Returns the current datetime if it has a value, otherwise returns the provided default value.
+    /// </summary>
     function IfNull(b: OLDateTime): OLDateTime;
 
     class operator Implicit(const a: TDateTime): OLDateTime;
@@ -76,138 +121,438 @@ type
     class operator Add(const a: OLDateTime; const b: Extended): OLDateTime;
     class operator Subtract(const a: OLDateTime; const b: Extended): OLDateTime;
 
+    /// <summary>
+    ///   Returns the date part of the datetime.
+    /// </summary>
     function DateOf(): OLDateTime;
+    /// <summary>
+    ///   Returns the time part of the datetime.
+    /// </summary>
     function TimeOf(): OLDateTime;
 
+    /// <summary>
+    ///   Checks if the datetime is in a leap year.
+    /// </summary>
     function IsInLeapYear(): OLBoolean;
 
+    /// <summary>
+    ///   Checks if the time is PM (afternoon).
+    /// </summary>
     function IsPM(): OLBoolean;
+    /// <summary>
+    ///   Checks if the time is AM (morning).
+    /// </summary>
     function IsAM(): OLBoolean;
 
+    /// <summary>
+    ///   Returns the number of weeks in the year (ISO 8601).
+    /// </summary>
     function WeeksInYear(): OLInteger; { ISO 8601 }
 
+    /// <summary>
+    ///   Returns the number of days in the year.
+    /// </summary>
     function DaysInYear(): OLInteger;
+    /// <summary>
+    ///   Returns the number of days in the month.
+    /// </summary>
     function DaysInMonth(): OLInteger;
+    /// <summary>
+    ///   Returns today's date.
+    /// </summary>
     class function Today: OLDateTime; static;
+    /// <summary>
+    ///   Returns yesterday's date.
+    /// </summary>
     class function Yesterday: OLDateTime; static;
+    /// <summary>
+    ///   Returns tomorrow's date.
+    /// </summary>
     class function Tomorrow: OLDateTime; static;
+    /// <summary>
+    ///   Returns the current date and time.
+    /// </summary>
     class function Now(): OLDateTime; static;
 
+    /// <summary>
+    ///   Sets the datetime to the current date and time.
+    /// </summary>
     procedure SetNow();
+    /// <summary>
+    ///   Sets the datetime to today's date.
+    /// </summary>
     procedure SetToday();
+    /// <summary>
+    ///   Sets the datetime to tomorrow's date.
+    /// </summary>
     procedure SetTomorrow();
+    /// <summary>
+    ///   Sets the datetime to yesterday's date.
+    /// </summary>
     procedure SetYesterday();
 
+    /// <summary>
+    ///   Checks if the datetime is today.
+    /// </summary>
     function IsToday(): OLBoolean;
+    /// <summary>
+    ///   Checks if the datetime is on the same day as the specified datetime.
+    /// </summary>
     function SameDay(const DateTimeToCompare: OLDateTime): OLBoolean;
 
+    /// <summary>
+    ///   Returns the start of the current year.
+    /// </summary>
     function StartOfTheYear(): OLDateTime;
+    /// <summary>
+    ///   Returns the end of the current year.
+    /// </summary>
     function EndOfTheYear(): OLDateTime;
+    /// <summary>
+    ///   Returns the start of the specified year.
+    /// </summary>
     class function StartOfAYear(const AYear: Word): OLDateTime; static;
+    /// <summary>
+    ///   Returns the end of the specified year.
+    /// </summary>
     class function EndOfAYear(const AYear: Word): OLDateTime; static;
 
+    /// <summary>
+    ///   Sets the datetime to the start of the specified year.
+    /// </summary>
     procedure SetStartOfAYear(const AYear: Word);
+    /// <summary>
+    ///   Sets the datetime to the end of the specified year.
+    /// </summary>
     procedure SetEndOfAYear(const AYear: Word);
 
+    /// <summary>
+    ///   Returns the start of the current month.
+    /// </summary>
     function StartOfTheMonth(): OLDateTime;
+    /// <summary>
+    ///   Returns the end of the current month.
+    /// </summary>
     function EndOfTheMonth(): OLDateTime;
+    /// <summary>
+    ///   Returns the start of the specified month.
+    /// </summary>
     class function StartOfAMonth(const AYear, AMonth: Word): OLDateTime; static;
+    /// <summary>
+    ///   Returns the end of the specified month.
+    /// </summary>
     class function EndOfAMonth(const AYear, AMonth: Word): OLDateTime; static;
+    /// <summary>
+    ///   Sets the datetime to the start of the specified month.
+    /// </summary>
     procedure SetStartOfAMonth(const AYear, AMonth: Word);
+    /// <summary>
+    ///   Sets the datetime to the end of the specified month.
+    /// </summary>
     procedure SetEndOfAMonth(const AYear, AMonth: Word);
 
+    /// <summary>
+    ///   Returns the start of the current week (ISO 8601).
+    /// </summary>
     function StartOfTheWeek(): OLDateTime; { ISO 8601 }
+    /// <summary>
+    ///   Returns the end of the current week (ISO 8601).
+    /// </summary>
     function EndOfTheWeek(): OLDateTime; { ISO 8601 }
 
+    /// <summary>
+    ///   Returns the start of the current day.
+    /// </summary>
     function StartOfTheDay(): OLDateTime;
+    /// <summary>
+    ///   Returns the end of the current day.
+    /// </summary>
     function EndOfTheDay(): OLDateTime;
 
+    /// <summary>
+    ///   Returns the day number within the year.
+    /// </summary>
     function DayOfTheYear(): OLInteger;
+    /// <summary>
+    ///   Returns the hour number within the year.
+    /// </summary>
     function HourOfTheYear(): OLInteger;
+    /// <summary>
+    ///   Returns the minute number within the year.
+    /// </summary>
     function MinuteOfTheYear(): LongWord;
+    /// <summary>
+    ///   Returns the second number within the year.
+    /// </summary>
     function SecondOfTheYear(): LongWord;
+    /// <summary>
+    ///   Returns the millisecond number within the year.
+    /// </summary>
     function MilliSecondOfTheYear(): Int64;
 
+    /// <summary>
+    ///   Returns the hour number within the month.
+    /// </summary>
     function HourOfTheMonth(): OLInteger;
+    /// <summary>
+    ///   Returns the minute number within the month.
+    /// </summary>
     function MinuteOfTheMonth(): OLInteger;
+    /// <summary>
+    ///   Returns the second number within the month.
+    /// </summary>
     function SecondOfTheMonth(): LongWord;
+    /// <summary>
+    ///   Returns the millisecond number within the month.
+    /// </summary>
     function MilliSecondOfTheMonth(): LongWord;
 
+    /// <summary>
+    ///   Returns the day number within the week (ISO 8601).
+    /// </summary>
     function DayOfTheWeek(): OLInteger; { ISO 8601 }
+    /// <summary>
+    ///   Returns the hour number within the week (ISO 8601).
+    /// </summary>
     function HourOfTheWeek(): OLInteger; { ISO 8601 }
+    /// <summary>
+    ///   Returns the minute number within the week (ISO 8601).
+    /// </summary>
     function MinuteOfTheWeek(): OLInteger; { ISO 8601 }
+    /// <summary>
+    ///   Returns the second number within the week (ISO 8601).
+    /// </summary>
     function SecondOfTheWeek(): LongWord; { ISO 8601 }
+    /// <summary>
+    ///   Returns the millisecond number within the week (ISO 8601).
+    /// </summary>
     function MilliSecondOfTheWeek(): LongWord; { ISO 8601 }
 
+    /// <summary>
+    ///   Returns the minute number within the day.
+    /// </summary>
     function MinuteOfTheDay(): OLInteger;
+    /// <summary>
+    ///   Returns the second number within the day.
+    /// </summary>
     function SecondOfTheDay(): LongWord;
+    /// <summary>
+    ///   Returns the millisecond number within the day.
+    /// </summary>
     function MilliSecondOfTheDay(): LongWord;
 
+    /// <summary>
+    ///   Returns the second number within the hour.
+    /// </summary>
     function SecondOfTheHour(): OLInteger;
+    /// <summary>
+    ///   Returns the millisecond number within the hour.
+    /// </summary>
     function MilliSecondOfTheHour(): LongWord;
 
+    /// <summary>
+    ///   Returns the millisecond number within the minute.
+    /// </summary>
     function MilliSecondOfTheMinute(): LongWord;
 
+    /// <summary>
+    ///   Returns the number of seconds since the start of the specified year.
+    /// </summary>
     class function SecondCount(const StartingYear: Integer = 2017): OLInteger; static;
+    /// <summary>
+    ///   Creates a datetime from a second count since the start of the specified year.
+    /// </summary>
     class function DateTimeFromSecondCount(const Count: integer; const StartingYear: Integer = 2017): OLDateTime; static;
+    /// <summary>
+    ///   Sets the datetime from a second count since the start of the specified year.
+    /// </summary>
     procedure SetFromSecondCount(const Count: integer; const StartingYear: Integer = 2017);
 
+    /// <summary>
+    ///   Returns the number of complete years between this datetime and the specified datetime.
+    /// </summary>
     function YearsBetween(const AThen: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete months between this datetime and the specified datetime.
+    /// </summary>
     function MonthsBetween(const AThen: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete weeks between this datetime and the specified datetime.
+    /// </summary>
     function WeeksBetween(const AThen: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete days between this datetime and the specified datetime.
+    /// </summary>
     function DaysBetween(const AThen: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete hours between this datetime and the specified datetime.
+    /// </summary>
     function HoursBetween(const AThen: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete minutes between this datetime and the specified datetime.
+    /// </summary>
     function MinutesBetween(const AThen: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete seconds between this datetime and the specified datetime.
+    /// </summary>
     function SecondsBetween(const AThen: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete milliseconds between this datetime and the specified datetime.
+    /// </summary>
     function MilliSecondsBetween(const AThen: OLDateTime): Int64;
 
+    /// <summary>
+    ///   Checks if the datetime is within the specified range.
+    /// </summary>
     function InRange(const AStartDateTime, AEndDateTime: OLDateTime; const aInclusive: Boolean = True): OLBoolean;
+    /// <summary>
+    ///   Checks if the date part is within the specified date range.
+    /// </summary>
     function InDateRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean = True): OLBoolean;
 
+    /// <summary>
+    ///   Returns the approximate number of years between this datetime and the specified datetime.
+    /// </summary>
     function YearSpan(const AThen: OLDateTime): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of months between this datetime and the specified datetime.
+    /// </summary>
     function MonthSpan(const AThen: OLDateTime): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of weeks between this datetime and the specified datetime.
+    /// </summary>
     function WeekSpan(const AThen: OLDateTime): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of days between this datetime and the specified datetime.
+    /// </summary>
     function DaySpan(const AThen: OLDateTime): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of hours between this datetime and the specified datetime.
+    /// </summary>
     function HourSpan(const AThen: OLDateTime): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of minutes between this datetime and the specified datetime.
+    /// </summary>
     function MinuteSpan(const AThen: OLDateTime): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of seconds between this datetime and the specified datetime.
+    /// </summary>
     function SecondSpan(const AThen: OLDateTime): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of milliseconds between this datetime and the specified datetime.
+    /// </summary>
     function MilliSecondSpan(const AThen: OLDateTime): OLDouble;
 
 
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of years.
+    /// </summary>
     function IncYear(const ANumberOfYears: Integer = 1): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of months.
+    /// </summary>
     function IncMonth(const ANumberOfMonths: Integer = 1): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of weeks.
+    /// </summary>
     function IncWeek(const ANumberOfWeeks: Integer = 1): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of days.
+    /// </summary>
     function IncDay(const ANumberOfDays: Integer = 1): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of hours.
+    /// </summary>
     function IncHour(const ANumberOfHours: Int64 = 1): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of minutes.
+    /// </summary>
     function IncMinute(const ANumberOfMinutes: Int64 = 1): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of seconds.
+    /// </summary>
     function IncSecond(const ANumberOfSeconds: Int64 = 1): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime incremented by the specified number of milliseconds.
+    /// </summary>
     function IncMilliSecond(const ANumberOfMilliSeconds: Int64 = 1): OLDateTime;
 
+    /// <summary>
+    ///   Decodes the datetime into its component parts.
+    /// </summary>
     procedure DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word);
+    /// <summary>
+    ///   Encodes the datetime from component parts.
+    /// </summary>
     procedure EncodeDateTime(const AYear, AMonth, ADay: Word; const AHour: Word = 0; const AMinute: Word = 0;
       const ASecond: Word = 0; const AMilliSecond: Word = 0);
 
+    /// <summary>
+    ///   Returns the datetime with the year component changed.
+    /// </summary>
     function RecodedYear(const AYear: Word): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the month component changed.
+    /// </summary>
     function RecodedMonth(const AMonth: Word): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the day component changed.
+    /// </summary>
     function RecodedDay(const ADay: Word): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the hour component changed.
+    /// </summary>
     function RecodedHour(const AHour: Word): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the minute component changed.
+    /// </summary>
     function RecodedMinute(const AMinute: Word): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the second component changed.
+    /// </summary>
     function RecodedSecond(const ASecond: Word): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the millisecond component changed.
+    /// </summary>
     function RecodedMilliSecond(const AMilliSecond: Word): OLDateTime;
 
+    /// <summary>
+    ///   Checks if the time part is the same as the specified datetime.
+    /// </summary>
     function SameTime(const DateTimeToCompare: OLDateTime): OLBoolean;
 
+    /// <summary>
+    ///   Returns the full name of the day of the week.
+    /// </summary>
     function LongDayName(): string;
+    /// <summary>
+    ///   Returns the full name of the month.
+    /// </summary>
     function LongMonthName(): string;
+    /// <summary>
+    ///   Returns the abbreviated name of the day of the week.
+    /// </summary>
     function ShortDayName(): string;
+    /// <summary>
+    ///   Returns the abbreviated name of the month.
+    /// </summary>
     function ShortMonthName(): string;
 
+    /// <summary>
+    ///   Returns the later of the two datetimes.
+    /// </summary>
     function Max(const CompareDate: OLDateTime): OLDateTime;
+    /// <summary>
+    ///   Returns the earlier of the two datetimes.
+    /// </summary>
     function Min(const CompareDate: OLDateTime): OLDateTime;
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLDateTime);
     class operator Assign(var Dest: OLDateTime; const [ref] Src: OLDateTime);
+    /// <summary>
+    ///   Event handler for value changes.
+    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;

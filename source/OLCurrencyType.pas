@@ -6,6 +6,9 @@ uses
   variants, SysUtils, OLIntegerType, OlBooleanType, OLDoubleType, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
+  /// <summary>
+  ///   A record type representing a currency value with null-handling capabilities.
+  /// </summary>
   OLCurrency = record
   private
     FValue: Currency;
@@ -18,27 +21,90 @@ type
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(const Value: OLBoolean);
+    /// <summary>
+    ///   Gets or sets whether the currency has a value (is not null).
+    /// </summary>
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
+    /// <summary>
+    ///   Returns the square of the currency value.
+    /// </summary>
     function Sqr(): OLCurrency;
+    /// <summary>
+    ///   Returns the currency raised to the specified integer exponent.
+    /// </summary>
     function Power(const Exponent: integer): OLCurrency;
+    /// <summary>
+    ///   Checks if the currency is positive (> 0).
+    /// </summary>
     function IsPositive(): OLBoolean;
+    /// <summary>
+    ///   Checks if the currency is negative (< 0).
+    /// </summary>
     function IsNegative(): OLBoolean;
+    /// <summary>
+    ///   Checks if the currency is non-negative (>= 0).
+    /// </summary>
     function IsNonNegative(): OLBoolean;
+    /// <summary>
+    ///   Checks if the currency is between the specified values (inclusive).
+    /// </summary>
     function Between(const BottomIncluded, TopIncluded: OLCurrency): OLBoolean;
+    /// <summary>
+    ///   Returns the larger of the two currency values.
+    /// </summary>
     function Max(const i: OLCurrency): OLCurrency;
+    /// <summary>
+    ///   Returns the smaller of the two currency values.
+    /// </summary>
     function Min(const i: OLCurrency): OLCurrency;
+    /// <summary>
+    ///   Returns the absolute value of the currency.
+    /// </summary>
     function Abs(): OLCurrency;
+    /// <summary>
+    ///   Checks if the currency is null (has no value).
+    /// </summary>
     function IsNull(): OLBoolean;
+    /// <summary>
+    ///   Checks if the currency has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Converts the currency to a string.
+    /// </summary>
     function ToString(): string; overload;
+    /// <summary>
+    ///   Converts the currency to a string with custom separators and format.
+    /// </summary>
     function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    /// <summary>
+    ///   Converts the currency to a SQL-safe string (value or NULL).
+    /// </summary>
     function ToSQLString: string;
+    /// <summary>
+    ///   Converts the currency to a string with specified formatting.
+    /// </summary>
     function ToStrF(Format: TFloatFormat; Digits: Integer): string;
+    /// <summary>
+    ///   Returns the current currency if it has a value, otherwise returns the provided default value.
+    /// </summary>
     function IfNull(const i: OLCurrency): OLCurrency;
+    /// <summary>
+    ///   Rounds the currency to the nearest integer.
+    /// </summary>
     function Round(): OLInteger; overload;
+    /// <summary>
+    ///   Rounds the currency to the specified power of ten.
+    /// </summary>
     function Round(const PowerOfTen: integer): OLCurrency; overload;
+    /// <summary>
+    ///   Returns the smallest integer greater than or equal to the currency.
+    /// </summary>
     function Ceil(): OLInteger;
+    /// <summary>
+    ///   Returns the largest integer less than or equal to the currency.
+    /// </summary>
     function Floor(): OLInteger;
 
     class operator Add(const a, b: OLCurrency): OLCurrency;
@@ -92,6 +158,9 @@ type
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLCurrency);
     class operator Assign(var Dest: OLCurrency; const [ref] Src: OLCurrency);
+    /// <summary>
+    ///   Event handler for value changes.
+    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;

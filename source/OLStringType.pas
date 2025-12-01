@@ -17,8 +17,20 @@ uses
 type
   TCaseSensitivity = (csCaseSensitive, csCaseInsensitive);
   TStringPatternFind = record
+    /// <summary>
+    ///   The found string value.
+    /// </summary>
     Value: string;
+    /// <summary>
+    ///   The position where the string was found.
+    /// </summary>
     Position: integer;
+    /// <summary>
+    ///   Checks if a pattern was found.
+    /// </summary>
+    /// <returns>
+    ///   True if Position > 0, False otherwise.
+    /// </returns>
     function Found(): boolean;
   end;
 
@@ -68,204 +80,660 @@ type
     function GetUrlEncodedText: OLString;
     procedure SetUrlEncodedText(const Value: OLString);
     function Utf8Code(const c: Char): OLString;
+    /// <summary>
+    ///   Gets or sets whether the string has a value (is not null).
+    /// </summary>
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
 
     function GetCharAtIndex(const Index: integer): Char;
     procedure SetCharAtIndex(const Index: integer; const Value: Char);
     procedure TurnDefaultValueFlagOff();
 
+    /// <summary>
+    ///   Gets or sets the string value.
+    /// </summary>
     property Value: string read GetValue write SetValue;
   public
+    /// <summary>
+    ///   Returns a string containing only alphanumeric characters from the current string.
+    /// </summary>
     function AlphanumericsOnly: OLString;
+    /// <summary>
+    ///   Checks if the string is null (has no value).
+    /// </summary>
     function IsNull(): OLBoolean;
+    /// <summary>
+    ///   Checks if the string has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Checks if the string is empty (equals '').
+    /// </summary>
     function IsEmptyStr(): OLBoolean;
+    /// <summary>
+    ///   Returns the current string if it has a value, otherwise returns the provided default string.
+    /// </summary>
     function IfNull(const s: OLString): OLString;
+    /// <summary>
+    ///   Returns the current string if it is not null or empty, otherwise returns the provided default string.
+    /// </summary>
     function IfNullOrEmpty(const s: OLString): OLString;
+    /// <summary>
+    ///   Checks if the string is null or empty.
+    /// </summary>
     function IsNullOrEmpty(): OLBoolean;
+    /// <summary>
+    ///   Checks if the string is neither null nor empty.
+    /// </summary>
     function NotNullNorEmpty(): OLBoolean;
 
+    /// <summary>
+    ///   Gets the starting position of the line at the specified index.
+    /// </summary>
     function GetLineStartPosition(const Index: integer): OLInteger;
+    /// <summary>
+    ///   Gets the ending position of the line at the specified index.
+    /// </summary>
     function GetLineEndPosition(const Index: integer): OLInteger;
 
+    /// <summary>
+    ///   Gets the value of a CSV field at the specified index.
+    /// </summary>
     function CSVFieldValue(const FieldIndex: integer; const Delimiter: Char = ';'): OLString;
+    /// <summary>
+    ///   Gets the number of CSV fields.
+    /// </summary>
     function CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
+    /// <summary>
+    ///   Sets the value of a CSV field at the specified index.
+    /// </summary>
     procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
+    /// <summary>
+    ///   Returns the length of the string.
+    /// </summary>
     function Length(): OLInteger;
 
+    /// <summary>
+    ///   Checks if the string contains the specified substring (case-sensitive).
+    /// </summary>
     function ContainsStr(const ASubString: OLString): OLBoolean;
+    /// <summary>
+    ///   Checks if the string contains the specified substring (case-insensitive).
+    /// </summary>
     function ContainsText(const ASubText: OLString): OLBoolean;
+    /// <summary>
+    ///   Returns a string consisting of the current string repeated ACount times.
+    /// </summary>
     function RepeatedString(const ACount: integer): OLString;
 
+    /// <summary>
+    ///   Checks if the string starts with the specified substring (case-sensitive).
+    /// </summary>
     function StartsStr(const ASubString: string): OLBoolean;
+    /// <summary>
+    ///   Checks if the string starts with the specified substring (case-insensitive).
+    /// </summary>
     function StartsText(const ASubText: string): OLBoolean;
+    /// <summary>
+    ///   Checks if the string ends with the specified substring (case-sensitive).
+    /// </summary>
     function EndsStr(const ASubString: OLString): OLBoolean;
+    /// <summary>
+    ///   Checks if the string ends with the specified substring (case-insensitive).
+    /// </summary>
     function EndsText(const ASubString: OLString): OLBoolean;
 
+    /// <summary>
+    ///   Returns the index of the string in the provided array of values (case-sensitive).
+    /// </summary>
     function IndexStr(const AValues: array of string): OLInteger;
+    /// <summary>
+    ///   Returns the index of the string in the provided array of values (case-insensitive).
+    /// </summary>
     function IndexText(const AValues: array of string): OLInteger;
+    /// <summary>
+    ///   Checks if the string matches any of the values in the provided array (case-sensitive).
+    /// </summary>
     function MatchStr(const AValues: array of string): OLBoolean;
+    /// <summary>
+    ///   Checks if the string matches any of the values in the provided array (case-insensitive).
+    /// </summary>
     function MatchText(const AValues: array of string): OLBoolean;
 
+    /// <summary>
+    ///   Returns a substring starting at AStart with length ACount.
+    /// </summary>
     function MidStr(const AStart, ACount: integer): OLString;
+    /// <summary>
+    ///   Returns a substring starting at AStart and ending at AEnd.
+    /// </summary>
     function MidStrEx(const AStart, AEnd: integer): OLString;
+    /// <summary>
+    ///   Finds a string enclosed by the specified tag.
+    /// </summary>
     function FindTagStr(const Tag: OLString; const StartingPosition: integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive): OLString;
+    /// <summary>
+    ///   Finds a string between InFront and Behind strings.
+    /// </summary>
     function FindPatternStr(const InFront: OLString; const Behind: OLString; const StartingPosition: integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseSensitive) : OLString; overload;
+    /// <summary>
+    ///   Finds a string enclosed by the specified tag.
+    /// </summary>
     function FindPatternStr(const Tag: OLString; const StartingPosition: integer = 1; const CaseSensitivity: TCaseSensitivity = csCaseInsensitive): OLString; overload;
+    /// <summary>
+    ///   Finds a pattern between InFront and Behind strings and returns the result as a TStringPatternFind record.
+    /// </summary>
     function FindPattern(InFront: OLString; Behind: OLString; const
         StartingPosition: integer = 1; const CaseSensitivity: TCaseSensitivity =
         csCaseSensitive): TStringPatternFind; overload;
+    /// <summary>
+    ///   Finds a pattern enclosed by the specified tag and returns the result as a TStringPatternFind record.
+    /// </summary>
     function FindPattern(Tag: OLString; const StartingPosition: integer = 1; const
         CaseSensitivity: TCaseSensitivity = csCaseInsensitive): TStringPatternFind;
         overload;
 
+    /// <summary>
+    ///   Checks if the string matches the specified pattern (supports wildcards like % and _).
+    /// </summary>
     function Like(Pattern: OLString): OLBoolean;
 
+    /// <summary>
+    ///   Returns the position of the first occurrence of SubStr.
+    /// </summary>
     function Pos(const SubStr: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    /// <summary>
+    ///   Returns the position of the first occurrence of SubStr starting from Offset.
+    /// </summary>
     function PosEx(const SubStr: string; const Offset: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    /// <summary>
+    ///   Returns the position of the last occurrence of SubStr.
+    /// </summary>
     function PosLast(const SubStr: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    /// <summary>
+    ///   Returns the position of the last occurrence of SubStr, searching backwards from NotAfterPosition.
+    /// </summary>
     function PosLastEx(const SubStr: string; const NotAfterPosition: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 
+    /// <summary>
+    ///   Returns a string with all occurrences of AFromText replaced by AToText (case-sensitive).
+    /// </summary>
     function Replaced(const AFromText, AToText: string): OLString;
+    /// <summary>
+    ///   Returns a string with the first occurrence of AFromText replaced by AToText (case-sensitive).
+    /// </summary>
     function ReplacedFirst(const AFromText, AToText: string): OLString;
+    /// <summary>
+    ///   Returns a string with all occurrences of AFromText replaced by AToText (case-insensitive).
+    /// </summary>
     function ReplacedText(const AFromText, AToText: string): OLString;
+    /// <summary>
+    ///   Returns a string with the first occurrence of AFromText replaced by AToText (case-insensitive).
+    /// </summary>
     function ReplacedFirstText(const AFromText, AToText: string): OLString;
+    /// <summary>
+    ///   Returns a string with content replaced starting at the specified position.
+    /// </summary>
     function ReplacedStartingAt(const Position: Cardinal; const NewValue: OLString): OLString;
 
+    /// <summary>
+    ///   Returns the reversed string.
+    /// </summary>
     function ReversedString(): OLString;
 
+    /// <summary>
+    ///   Returns the last ACount characters of the string.
+    /// </summary>
     function RightStr(const ACount: integer): OLString;
+    /// <summary>
+    ///   Returns the first ACount characters of the string.
+    /// </summary>
     function LeftStr(const ACount: integer): OLString;
+    /// <summary>
+    ///   Returns the string with the last ACount characters removed.
+    /// </summary>
     function EndingRemoved(const ACount: integer): OLString;
+    /// <summary>
+    ///   Returns the substring starting from StartFrom to the end of the string.
+    /// </summary>
     function RightStrFrom(const StartFrom: integer): OLString;
 
+    /// <summary>
+    ///   Splits the string into an array of strings using the specified delimiters.
+    /// </summary>
     function SplitString(const Delimiters: string = ';'): TStringDynArray;
 
+    /// <summary>
+    ///   Returns a string with InsertStr inserted at the specified position.
+    /// </summary>
     function Inserted(const InsertStr: string; const Position: integer): OLString;
+    /// <summary>
+    ///   Returns a string with Count characters deleted starting from FromPosition.
+    /// </summary>
     function Deleted(const FromPosition: integer; const Count: integer = 1): OLString;
 
+    /// <summary>
+    ///   Extracts the drive part from the file path string.
+    /// </summary>
     function ExtractedFileDriveString(): OLString;
+    /// <summary>
+    ///   Extracts the directory part from the file path string.
+    /// </summary>
     function ExtractedFileDir(): OLString;
+    /// <summary>
+    ///   Extracts the file path part from the file path string.
+    /// </summary>
     function ExtractedFilePath(): OLString;
+    /// <summary>
+    ///   Extracts the file name part from the file path string.
+    /// </summary>
     function ExtractedFileName(): OLString;
+    /// <summary>
+    ///   Extracts the file extension part from the file path string.
+    /// </summary>
     function ExtractedFileExt(): OLString;
 
+    /// <summary>
+    ///   Formats the string using the provided data arguments.
+    /// </summary>
     function Formated(Const Data: array of const ): OLString;
+    /// <summary>
+    ///   Returns the position of the last delimiter.
+    /// </summary>
     function LastDelimiterPosition(const Delimiters: string = ';'): OLInteger;
 
+    /// <summary>
+    ///   Returns the string in lower case.
+    /// </summary>
     function LowerCase(): OLString;
+    /// <summary>
+    ///   Returns the string in upper case.
+    /// </summary>
     function UpperCase(): OLString;
+    /// <summary>
+    ///   Returns the string with the first letter of each word capitalized.
+    /// </summary>
     function InitCaps(): OLString;
 
+    /// <summary>
+    ///   Returns the string with leading and trailing whitespace removed.
+    /// </summary>
     function Trimmed(): OLString;
+    /// <summary>
+    ///   Returns the string with leading whitespace removed.
+    /// </summary>
     function TrimmedLeft(): OLString;
+    /// <summary>
+    ///   Returns the string with trailing whitespace removed.
+    /// </summary>
     function TrimmedRight(): OLString;
+    /// <summary>
+    ///   Returns the quoted version of the string.
+    /// </summary>
     function QuotedStr(): OLString;
+    /// <summary>
+    ///   Checks if the string is the same as another string (case-sensitive).
+    /// </summary>
     function SameStr(s: OLString): OLBoolean;
+    /// <summary>
+    ///   Checks if the string is the same as another string (case-insensitive).
+    /// </summary>
     function SameText(s: OLString): OLBoolean;
 
+    /// <summary>
+    ///   Returns a string containing only the digits from the current string.
+    /// </summary>
     function DigitsOnly(): OLString;
+    /// <summary>
+    ///   Returns a string with all digits removed.
+    /// </summary>
     function NoDigits(): OLString;
+    /// <summary>
+    ///   Returns a string with all spaces removed.
+    /// </summary>
     function SpacesRemoved(): OLString;
 
+    /// <summary>
+    ///   Returns a string padded with leading characters to reach the specified length.
+    /// </summary>
     function LeadingCharsAdded(const C: Char; const NewLength: integer): OLString;
+    /// <summary>
+    ///   Returns a string padded with trailing characters to reach the specified length.
+    /// </summary>
     function TrailingCharsAdded(const C: Char; const NewLength: integer): OLString;
+    /// <summary>
+    ///   Returns a string padded with leading zeros to reach the specified length.
+    /// </summary>
     function LeadingZerosAdded(const NewLength: integer): OLString;
+    /// <summary>
+    ///   Returns a string padded with leading spaces to reach the specified length.
+    /// </summary>
     function LeadingSpacesAdded(const NewLength: integer): OLString;
+    /// <summary>
+    ///   Returns a string padded with trailing spaces to reach the specified length.
+    /// </summary>
     function TrailingSpacesAdded(const NewLength: integer): OLString;
 
+    /// <summary>
+    ///   Converts the OLString to a standard string.
+    /// </summary>
     function ToString(): string;
+    /// <summary>
+    ///   Converts the string to a SQL-safe string (quoted or NULL).
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Converts the string to an OLCurrency value.
+    /// </summary>
     function ToCurr(): OLCurrency;
+    /// <summary>
+    ///   Converts the string to an OLDate value.
+    /// </summary>
     function ToDate(): OLDate;
+    /// <summary>
+    ///   Converts the string to an OLDateTime value.
+    /// </summary>
     function ToDateTime(): OLDateTime;
+    /// <summary>
+    ///   Converts the string to an OLDouble value.
+    /// </summary>
     function ToFloat(): OLDouble;
+    /// <summary>
+    ///   Converts the string to an OLInteger value.
+    /// </summary>
     function ToInt(): OLInteger;
+    /// <summary>
+    ///   Converts the string to an OLInt64 value.
+    /// </summary>
     function ToInt64(): OLInt64;
 
+    /// <summary>
+    ///   Tries to convert the string to an OLCurrency value.
+    /// </summary>
     function TryToCurr(): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLDate value.
+    /// </summary>
     function TryToDate(): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLDateTime value.
+    /// </summary>
     function TryToDateTime(): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLDouble value.
+    /// </summary>
     function TryToFloat(): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLInteger value.
+    /// </summary>
     function TryToInt(): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLInt64 value.
+    /// </summary>
     function TryToInt64(): OLBoolean; overload;
 
+    /// <summary>
+    ///   Tries to convert the string to a Currency value.
+    /// </summary>
     function TryToCurr(var c: Currency): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLCurrency value.
+    /// </summary>
     function TryToCurr(var c: OLCurrency): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to a TDate value.
+    /// </summary>
     function TryToDate(var d: TDate): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLDate value.
+    /// </summary>
     function TryToDate(var d: OLDate): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to a TDateTime value (as date only).
+    /// </summary>
     function TryToDate(var d: TDateTime): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to a TDateTime value.
+    /// </summary>
     function TryToDateTime(var dt: TDateTime): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLDateTime value.
+    /// </summary>
     function TryToDateTime(var dt: OLDateTime): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an Extended value.
+    /// </summary>
     function TryToFloat(var e: Extended): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to a Double value.
+    /// </summary>
     function TryToFloat(var e: Double): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLDouble value.
+    /// </summary>
     function TryToFloat(var e: OLDouble): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an integer value.
+    /// </summary>
     function TryToInt(var i: integer): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLInteger value.
+    /// </summary>
     function TryToInt(var i: OLInteger): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an Int64 value.
+    /// </summary>
     function TryToInt64(var i: Int64): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLInt64 value.
+    /// </summary>
     function TryToInt64(var i: OLInt64): OLBoolean; overload;
 
+    /// <summary>
+    ///   Tries to convert the string to an OLDate using smart parsing.
+    /// </summary>
     function TrySmartStrToDate(): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to a TDate using smart parsing.
+    /// </summary>
     function TrySmartStrToDate(var d: TDate): OLBoolean; overload;
+    /// <summary>
+    ///   Tries to convert the string to an OLDate using smart parsing.
+    /// </summary>
     function TrySmartStrToDate(var d: OLDate): OLBoolean; overload;
+    /// <summary>
+    ///   Converts the string to an OLDate using smart parsing.
+    /// </summary>
     function SmartStrToDate(): OLDate;
 
+    /// <summary>
+    ///   Encodes the file content to Base64 and assigns it to the string.
+    /// </summary>
     procedure EndcodeBase64FromFile(const FileName: string);
+    /// <summary>
+    ///   Decodes the Base64 string content to a file.
+    /// </summary>
     procedure DecodeBase64ToFile(const FileName: string);
 
+    /// <summary>
+    ///   Returns the compressed version of the string.
+    /// </summary>
     function Compressed(): OLString;
+    /// <summary>
+    ///   Returns the decompressed version of the string.
+    /// </summary>
     function Decompressed(): OLString;
 
+    /// <summary>
+    ///   Returns the string with the trailing path delimiter excluded.
+    /// </summary>
     function TrailingPathDelimiterExcluded(): OLString;
+    /// <summary>
+    ///   Returns the string with the trailing path delimiter included.
+    /// </summary>
     function TrailingPathDelimiterIncluded(): OLString;
 
+    /// <summary>
+    ///   Returns the string with the specified trailing character excluded.
+    /// </summary>
     function TrailingCharExcluded(const c: Char): OLString;
+    /// <summary>
+    ///   Returns the string with the specified trailing character included.
+    /// </summary>
     function TrailingCharIncluded(const c: Char): OLString;
+    /// <summary>
+    ///   Returns the string with the trailing comma excluded.
+    /// </summary>
     function TrailingComaExcluded(): OLString;
+    /// <summary>
+    ///   Returns the string with the trailing comma included.
+    /// </summary>
     function TrailingComaIncluded(): OLString;
+    /// <summary>
+    ///   Returns the string with the trailing apostrophe excluded.
+    /// </summary>
     function TrailingApostropheExcluded(): OLString;
+    /// <summary>
+    ///   Returns the string with the trailing apostrophe included.
+    /// </summary>
     function TrailingApostropheIncluded(): OLString;
 
+    /// <summary>
+    ///   Returns the string with the specified leading character excluded.
+    /// </summary>
     function LeadingCharExcluded(const c: Char): OLString;
+    /// <summary>
+    ///   Returns the string with the specified leading character included.
+    /// </summary>
     function LeadingCharIncluded(const c: Char): OLString;
+    /// <summary>
+    ///   Returns the string with the leading comma excluded.
+    /// </summary>
     function LeadingComaExcluded(): OLString;
+    /// <summary>
+    ///   Returns the string with the leading comma included.
+    /// </summary>
     function LeadingComaIncluded(): OLString;
+    /// <summary>
+    ///   Returns the string with the leading apostrophe excluded.
+    /// </summary>
     function LeadingApostropheExcluded(): OLString;
+    /// <summary>
+    ///   Returns the string with the leading apostrophe included.
+    /// </summary>
     function LeadingApostropheIncluded(): OLString;
 
     {$IF DEFINED(VCL) OR DEFINED(FMX)}
+    /// <summary>
+    ///   Calculates the width of the string in pixels using the specified font.
+    /// </summary>
     function PixelWidth(const F: TFont): OLInteger;
     {$IFEND}
 
+    /// <summary>
+    ///   Counts the occurrences of a substring.
+    /// </summary>
     function OccurrencesCount(const SubString: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
+    /// <summary>
+    ///   Finds the position of the Nth occurrence of a substring.
+    /// </summary>
     function OccurrencesPosition(const SubString: string; const Index: integer; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
 
+    /// <summary>
+    ///   Returns the number of lines in the string.
+    /// </summary>
     function LineCount(): OLInteger;
+    /// <summary>
+    ///   Returns the index of the last line.
+    /// </summary>
     function LastLineIndex(): Integer;
+    /// <summary>
+    ///   Adds a new line to the string.
+    /// </summary>
     procedure LineAdd(const NewLine: string);
+    /// <summary>
+    ///   Deletes the line at the specified index.
+    /// </summary>
     procedure LineDelete(const LineIndex: integer);
+    /// <summary>
+    ///   Inserts a line at the specified index.
+    /// </summary>
     procedure LineInsertAt(const LineIndex: integer; const s: string);
+    /// <summary>
+    ///   Returns the index of the line matching the specified string.
+    /// </summary>
     function LineIndexOf(const s: string): OLInteger;
+    /// <summary>
+    ///   Returns the index of the line matching the specified pattern.
+    /// </summary>
     function LineIndexLike(const s: string; StartingFrom: Integer = 0): OLInteger;
+    /// <summary>
+    ///   Returns the lines of the string sorted.
+    /// </summary>
     function LinesSorted(): OLString;
+    /// <summary>
+    ///   Loads the string content from a file.
+    /// </summary>
     procedure LoadFromFile(const FileName: string); overload;
+    /// <summary>
+    ///   Loads the string content from a file using the specified encoding.
+    /// </summary>
     procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
+    /// <summary>
+    ///   Saves the string content to a file.
+    /// </summary>
     procedure SaveToFile(const FileName: string); overload;
+    /// <summary>
+    ///   Saves the string content to a file using the specified encoding.
+    /// </summary>
     procedure SaveToFile(const FileName: string; Encoding: TEncoding); overload;
+    /// <summary>
+    ///   Returns a new string with the line added.
+    /// </summary>
     function LineAdded(const NewLine: string): OLString;
+    /// <summary>
+    ///   Returns the end position of the line at the specified index.
+    /// </summary>
     function LineEndAt(const LineIndex: Integer): OLInteger;
 
+    /// <summary>
+    ///   Copies the string to the clipboard.
+    /// </summary>
     procedure CopyToClipboard();
+    /// <summary>
+    ///   Pastes the string from the clipboard.
+    /// </summary>
     procedure PasteFromClipboard();
 
+    /// <summary>
+    ///   Calculates the hash of the string.
+    /// </summary>
     function Hash(const Salt: string = ''): cardinal;
+    /// <summary>
+    ///   Calculates the hash of the string and returns it as a hex string.
+    /// </summary>
     function HashStr(const Salt: string = ''): OLString;
 
+    /// <summary>
+    ///   Downloads content from the specified URL.
+    /// </summary>
     procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
+    /// <summary>
+    ///   Checks if the string is a valid IBAN.
+    /// </summary>
     function IsValidIBAN(): OLBoolean;
+    /// <summary>
+    ///   Converts the string to a PWideChar.
+    /// </summary>
     function ToPWideChar(): PWideChar;
 
+    /// <summary>
+    ///   Returns a random string from the provided array.
+    /// </summary>
     class function RandomFrom(const AValues: array of string): OLString; static;
+    /// <summary>
+    ///   Generates a random string of the specified length.
+    /// </summary>
     class function RandomString(const Length: integer): OLString; static;
 
     class operator Add(const a, b: OLString): OLString;
@@ -283,27 +751,73 @@ type
     class operator LessThan(const a, b: OLString): Boolean;
     class operator LessThanOrEqual(const a, b: OLString): Boolean;
 
+    /// <summary>
+    ///   Returns the index of the CSV field matching the value.
+    /// </summary>
     function CSVIndex(const ValueToFind: OLString): OLInteger;
+    /// <summary>
+    ///   Returns the name of the CSV field at the specified index (assuming first row is header).
+    /// </summary>
     function CSVFieldName(const index: Integer): OLString;
+    /// <summary>
+    ///   Returns the value of the CSV field by name.
+    /// </summary>
     function CSVFieldByName(const FieldName: OLString; const RowIndex: Integer = 1):
         OLString;
 
+    /// <summary>
+    ///   Sets the default value behavior to use empty string for null.
+    /// </summary>
     class procedure SetNullAsDefault(); static;
 
+    /// <summary>
+    ///   Gets or sets the Base64 encoded representation of the string.
+    /// </summary>
     property Base64: OLString read GetBase64 write SetBase64;
+    /// <summary>
+    ///   Gets or sets the character at the specified index.
+    /// </summary>
     property Chars[const Index: integer]: Char read GetCharAtIndex write SetCharAtIndex; default;
+    /// <summary>
+    ///   Gets or sets the line at the specified index.
+    /// </summary>
     property Lines[const Index: integer]: OLString read GetLine write SetLine;
+    /// <summary>
+    ///   Gets or sets the CSV field at the specified index.
+    /// </summary>
     property CSV[const Index: integer]: OLString read GetCSV write SetCSV;
+    /// <summary>
+    ///   Gets or sets the parameter value by name.
+    /// </summary>
     property Params[const ParamName: string]: OLString read GetParam write SetParam;
     {$IF CompilerVersion >= 27.0}
+    /// <summary> Gets or sets the JSON field value by name.
+    /// </summary>
+    /// <example>
+    ///   s := '{"name":"John","age":30,"city":"NYC"}';
+    ///   if s.JSON['name'] = 'John' then Showmessage('OK');
+    ///
+    ///   s := '{"User":{"name":"John","age":30,"city":"NYC"}}';
+    ///   s.JSON['User.name'] := 'Jane';
+    ///   if s.JSON['User.name'] = 'Jane' then Showmessage('OK');
+    /// </example>
     property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
     {$IFEND}
 
+    /// <summary>
+    ///   Gets or sets the HTML Unicode encoded text.
+    /// </summary>
     property HtmlUnicodeText: OLString read GetHtmlUnicodeText write SetHtmlUnicodeText;
+    /// <summary>
+    ///   Gets or sets the URL encoded text.
+    /// </summary>
     property UrlEncodedText: OLString read GetUrlEncodedText write SetUrlEncodedText;
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLString);
+    /// <summary>
+    ///   Gets or sets the event handler for value changes.
+    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     class operator Assign(var Dest: OLString; const [ref] Src: OLString);
     {$IFEND}

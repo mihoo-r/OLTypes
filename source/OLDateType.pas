@@ -7,6 +7,9 @@ uses
   SmartToDate, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
+  /// <summary>
+  ///   A record type representing a date value with null-handling capabilities.
+  /// </summary>
   OLDate = record
   private
     FValue: OLDateTime;
@@ -21,15 +24,42 @@ type
     procedure SetYear(const Value: OLInteger);
 
   public
+    /// <summary>
+    ///   Gets or sets the year component.
+    /// </summary>
     property Year: OLInteger read GetYear write SetYear;
+    /// <summary>
+    ///   Gets or sets the month component.
+    /// </summary>
     property Month: OLInteger read GetMonth write SetMonth;
+    /// <summary>
+    ///   Gets or sets the day component.
+    /// </summary>
     property Day: OLInteger read GetDay write SetDay;
 
+    /// <summary>
+    ///   Checks if the date is null (has no value).
+    /// </summary>
     function IsNull(): OLBoolean;
+    /// <summary>
+    ///   Checks if the date has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Converts the date to a string.
+    /// </summary>
     function ToString(): string; overload;
+    /// <summary>
+    ///   Converts the date to a string with the specified format.
+    /// </summary>
     function ToString(const Format: string): string; overload;
+    /// <summary>
+    ///   Converts the date to a SQL-safe string (value or NULL).
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Returns the current date if it has a value, otherwise returns the provided default value.
+    /// </summary>
     function IfNull(const b: OLDate): OLDate;
 
     class operator Implicit(const a: TDate): OLDate;
@@ -53,81 +83,240 @@ type
     class operator Add(const a: OLDate; b: integer): OLDate;
     class operator Subtract(const a: OLDate; const b: integer): OLDate;
 
+    /// <summary>
+    ///   Checks if the date is in a leap year.
+    /// </summary>
     function IsInLeapYear(): OLBoolean;
 
+    /// <summary>
+    ///   Returns the number of weeks in the year (ISO 8601).
+    /// </summary>
     function WeeksInYear(): OLInteger; { ISO 8601 }
 
+    /// <summary>
+    ///   Returns the number of days in the year.
+    /// </summary>
     function DaysInYear(): OLInteger;
+    /// <summary>
+    ///   Returns the number of days in the month.
+    /// </summary>
     function DaysInMonth(): OLInteger;
+    /// <summary>
+    ///   Returns today's date.
+    /// </summary>
     class function Today: OLDate; static;
+    /// <summary>
+    ///   Returns yesterday's date.
+    /// </summary>
     class function Yesterday: OLDate; static;
+    /// <summary>
+    ///   Returns tomorrow's date.
+    /// </summary>
     class function Tomorrow: OLDate; static;
 
+    /// <summary>
+    ///   Sets the date to today.
+    /// </summary>
     procedure SetToday();
+    /// <summary>
+    ///   Sets the date to tomorrow.
+    /// </summary>
     procedure SetTomorow();
+    /// <summary>
+    ///   Sets the date to yesterday.
+    /// </summary>
     procedure SetYesterday();
 
+    /// <summary>
+    ///   Checks if the date is today.
+    /// </summary>
     function IsToday(): OLBoolean;
+    /// <summary>
+    ///   Checks if the date is on the same day as the specified date.
+    /// </summary>
     function SameDay(const DateToCompare: OLDate): OLBoolean;
 
+    /// <summary>
+    ///   Returns the start of the current year.
+    /// </summary>
     function StartOfTheYear(): OLDate;
+    /// <summary>
+    ///   Returns the end of the current year.
+    /// </summary>
     function EndOfTheYear(): OLDate;
+    /// <summary>
+    ///   Returns the start of the specified year.
+    /// </summary>
     class function StartOfAYear(const AYear: Word): OLDate; static;
+    /// <summary>
+    ///   Returns the end of the specified year.
+    /// </summary>
     class function EndOfAYear(const AYear: Word): OLDate; static;
 
+    /// <summary>
+    ///   Sets the date to the start of the specified year.
+    /// </summary>
     procedure SetStartOfAYear(const AYear: Word);
+    /// <summary>
+    ///   Sets the date to the end of the specified year.
+    /// </summary>
     procedure SetEndOfAYear(const AYear: Word);
 
+    /// <summary>
+    ///   Returns the start of the current month.
+    /// </summary>
     function StartOfTheMonth(): OLDate;
+    /// <summary>
+    ///   Returns the end of the current month.
+    /// </summary>
     function EndOfTheMonth(): OLDate;
+    /// <summary>
+    ///   Returns the start of the specified month.
+    /// </summary>
     class function StartOfAMonth(const AYear, AMonth: Word): OLDate; static;
+    /// <summary>
+    ///   Returns the end of the specified month.
+    /// </summary>
     class function EndOfAMonth(const AYear, AMonth: Word): OLDate; static;
+    /// <summary>
+    ///   Sets the date to the start of the specified month.
+    /// </summary>
     procedure SetStartOfAMonth(const AYear, AMonth: Word);
+    /// <summary>
+    ///   Sets the date to the end of the specified month.
+    /// </summary>
     procedure SetEndOfAMonth(const AYear, AMonth: Word);
 
+    /// <summary>
+    ///   Returns the start of the current week (ISO 8601).
+    /// </summary>
     function StartOfTheWeek(): OLDate; { ISO 8601 }
+    /// <summary>
+    ///   Returns the end of the current week (ISO 8601).
+    /// </summary>
     function EndOfTheWeek(): OLDate; { ISO 8601 }
 
+    /// <summary>
+    ///   Returns the day number within the year.
+    /// </summary>
     function DayOfTheYear(): OLInteger;
 
+    /// <summary>
+    ///   Returns the day number within the week (ISO 8601).
+    /// </summary>
     function DayOfTheWeek(): OLInteger; { ISO 8601 }
 
+    /// <summary>
+    ///   Returns the number of complete years between this date and the specified date.
+    /// </summary>
     function YearsBetween(const AThen: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete months between this date and the specified date.
+    /// </summary>
     function MonthsBetween(const AThen: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete weeks between this date and the specified date.
+    /// </summary>
     function WeeksBetween(const AThen: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete days between this date and the specified date.
+    /// </summary>
     function DaysBetween(const AThen: OLDate): OLInteger;
 
+    /// <summary>
+    ///   Checks if the date is within the specified range.
+    /// </summary>
     function InRange(const AStartDateTime, AEndDateTime: OLDate; const aInclusive: Boolean = True): OLBoolean;
 
+    /// <summary>
+    ///   Returns the approximate number of years between this date and the specified date.
+    /// </summary>
     function YearSpan(const AThen: OLDate): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of months between this date and the specified date.
+    /// </summary>
     function MonthSpan(const AThen: OLDate): OLDouble;
+    /// <summary>
+    ///   Returns the approximate number of weeks between this date and the specified date.
+    /// </summary>
     function WeekSpan(const AThen: OLDate): OLDouble;
 
+    /// <summary>
+    ///   Returns the date incremented by the specified number of years.
+    /// </summary>
     function IncYear(const ANumberOfYears: Integer = 1): OLDate;
+    /// <summary>
+    ///   Returns the date incremented by the specified number of months.
+    /// </summary>
     function IncMonth(const ANumberOfMonths: Integer = 1): OLDate;
+    /// <summary>
+    ///   Returns the date incremented by the specified number of weeks.
+    /// </summary>
     function IncWeek(const ANumberOfWeeks: Integer = 1): OLDate;
+    /// <summary>
+    ///   Returns the date incremented by the specified number of days.
+    /// </summary>
     function IncDay(const ANumberOfDays: Integer = 1): OLDate;
 
+    /// <summary>
+    ///   Decodes the date into its component parts.
+    /// </summary>
     procedure DecodeDate(out AYear, AMonth, ADay: Word);
+    /// <summary>
+    ///   Encodes the date from component parts.
+    /// </summary>
     procedure EncodeDate(const AYear, AMonth, ADay: Word);
 
+    /// <summary>
+    ///   Returns the date with the year component changed.
+    /// </summary>
     function RecodedYear(const AYear: Word): OLDate;
+    /// <summary>
+    ///   Returns the date with the month component changed.
+    /// </summary>
     function RecodedMonth(const AMonth: Word): OLDate;
+    /// <summary>
+    ///   Returns the date with the day component changed.
+    /// </summary>
     function RecodedDay(const ADay: Word): OLDate;
 
+    /// <summary>
+    ///   Returns the full name of the day of the week.
+    /// </summary>
     function LongDayName(): string;
+    /// <summary>
+    ///   Returns the full name of the month.
+    /// </summary>
     function LongMonthName(): string;
+    /// <summary>
+    ///   Returns the abbreviated name of the day of the week.
+    /// </summary>
     function ShortDayName(): string;
+    /// <summary>
+    ///   Returns the abbreviated name of the month.
+    /// </summary>
     function ShortMonthName(): string;
 
+    /// <summary>
+    ///   Returns the later of the two dates.
+    /// </summary>
     function Max(const CompareDate: OLDate): OLDate;
+    /// <summary>
+    ///   Returns the earlier of the two dates.
+    /// </summary>
     function Min(const CompareDate: OLDate): OLDate;
 
+    /// <summary>
+    ///   Checks if the specified year, month, and day form a valid date.
+    /// </summary>
     class function IsValidDate(const Year, Month, Day: OLInteger): OLBoolean; static;
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLDate);
     class operator Assign(var Dest: OLDate; const [ref] Src: OLDate);
+    /// <summary>
+    ///   Event handler for value changes.
+    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;

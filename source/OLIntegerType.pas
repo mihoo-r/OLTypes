@@ -6,6 +6,9 @@ uses
   variants, SysUtils, OLBooleanType, OLDoubleType, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
+  /// <summary>
+  ///   A record type representing an integer with null-handling capabilities.
+  /// </summary>
   OLInteger = record
   private
     FValue: integer;
@@ -28,46 +31,153 @@ type
     procedure SetNumeralSystem32(const Value: string);
     procedure SetNumeralSystem64(const Value: string);
     procedure SetOctal(const Value: string);
+    /// <summary>
+    ///   Gets or sets whether the integer has a value (is not null).
+    /// </summary>
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
+    /// <summary>
+    ///   Checks if the integer is divisible by the specified value.
+    /// </summary>
     function IsDividableBy(const i: integer): OLBoolean;
+    /// <summary>
+    ///   Checks if the integer is odd.
+    /// </summary>
     function IsOdd(): OLBoolean;
+    /// <summary>
+    ///   Checks if the integer is even.
+    /// </summary>
     function IsEven(): OLBoolean;
+    /// <summary>
+    ///   Returns the square of the integer.
+    /// </summary>
     function Sqr(): OLInteger;
+    /// <summary>
+    ///   Returns the integer raised to the specified exponent.
+    /// </summary>
     function Power(const Exponent: LongWord): OLInteger; overload;
+    /// <summary>
+    ///   Returns the integer raised to the specified exponent as a Double.
+    /// </summary>
     function Power(const Exponent: integer): Double; overload;
+    /// <summary>
+    ///   Checks if the integer is positive (> 0).
+    /// </summary>
     function IsPositive(): OLBoolean;
+    /// <summary>
+    ///   Checks if the integer is negative (< 0).
+    /// </summary>
     function IsNegative(): OLBoolean;
+    /// <summary>
+    ///   Checks if the integer is non-negative (>= 0).
+    /// </summary>
     function IsNonNegative(): OLBoolean;
+    /// <summary>
+    ///   Returns the larger of the two integers.
+    /// </summary>
     function Max(const i: OLInteger): OLInteger;
+    /// <summary>
+    ///   Returns the smaller of the two integers.
+    /// </summary>
     function Min(const i: OLInteger): OLInteger;
+    /// <summary>
+    ///   Returns the absolute value of the integer.
+    /// </summary>
     function Abs(): OLInteger;
+    /// <summary>
+    ///   Checks if the integer is null (has no value).
+    /// </summary>
     function IsNull(): OLBoolean;
+    /// <summary>
+    ///   Checks if the integer has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Converts the integer to a string.
+    /// </summary>
     function ToString(): string;
+    /// <summary>
+    ///   Converts the integer to a SQL-safe string (value or NULL).
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Returns the current integer if it has a value, otherwise returns the provided default value.
+    /// </summary>
     function IfNull(const i: OLInteger): OLInteger;
+    /// <summary>
+    ///   Returns the integer value, or a replacement value if null.
+    /// </summary>
     function AsInteger(const NullReplacement: Integer = 0): Integer;
+    /// <summary>
+    ///   Rounds the integer to the specified number of digits.
+    ///   A parameter value of one rounds to the nearest ten.
+    ///   A parameter value of two rounds to the nearest hundred, and so on
+    /// </summary>
     function Round(const Digits: OLInteger): OLInteger;
+    /// <summary>
+    ///   Checks if the integer is between the specified values (inclusive).
+    /// </summary>
     function Between(const BottomIncluded, TopIncluded: OLInteger): OLBoolean;
+    /// <summary>
+    ///   Returns the integer increased by the specified amount.
+    /// </summary>
     function Increased(const IncreasedBy: integer = 1): OLInteger;
+    /// <summary>
+    ///   Returns the integer decreased by the specified amount.
+    /// </summary>
     function Decreased(const DecreasedBy: integer = 1): OLInteger;
+    /// <summary>
+    ///   Returns the integer with the value replaced if it matches FromValue.
+    /// </summary>
     function Replaced(const FromValue: OLInteger; const ToValue: OLInteger): OLInteger;
 
+    /// <summary>
+    ///   Converts the integer to a string representation in the specified base.
+    /// </summary>
     function ToNumeralSystem(const Base: Integer): string;
 
+    /// <summary>
+    ///   Executes a procedure for each value from InitialValue to ToValue.
+    /// </summary>
     procedure ForLoop(const InitialValue: integer; const ToValue: integer; const Proc: TProc);
+    /// <summary>
+    ///   Checks if the integer is a prime number.
+    /// </summary>
     function IsPrime(): OLBoolean;
+    /// <summary>
+    ///   Generates a random integer between MinValue and MaxValue.
+    /// </summary>
     class function Random(const MinValue: Integer; const MaxValue:Integer): OLInteger;  overload; static;
+    /// <summary>
+    ///   Generates a random prime number between MinValue and MaxValue.
+    /// </summary>
     class function RandomPrime(const MinValue: Integer; const MaxValue:Integer): OLInteger; overload; static;
 
+    /// <summary>
+    ///   Generates a random integer up to MaxValue.
+    /// </summary>
     class function Random(const MaxValue:Integer = MaxInt): OLInteger;  overload; static;
+    /// <summary>
+    ///   Generates a random prime number up to MaxValue.
+    /// </summary>
     class function RandomPrime(const MaxValue:Integer = MaxInt): OLInteger; overload; static;
 
+    /// <summary>
+    ///   Sets the integer to a random value between MinValue and MaxValue.
+    /// </summary>
     procedure SetRandom(const MinValue: Integer; const MaxValue:Integer); overload;
+    /// <summary>
+    ///   Sets the integer to a random value up to MaxValue.
+    /// </summary>
     procedure SetRandom(const MaxValue:Integer = MaxInt); overload;
 
+    /// <summary>
+    ///   Sets the integer to a random prime value between MinValue and MaxValue.
+    /// </summary>
     procedure SetRandomPrime(const MinValue: Integer; const MaxValue:Integer); overload;
+    /// <summary>
+    ///   Sets the integer to a random prime value up to MaxValue.
+    /// </summary>
     procedure SetRandomPrime(const MaxValue:Integer = MaxInt); overload;
 
     class operator Add(const a, b: OLInteger): OLInteger;
@@ -117,13 +227,31 @@ type
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLInteger);
     class operator Assign(var Dest: OLInteger; const [ref] Src: OLInteger);
+    /// <summary>
+    ///   Event handler for value changes.
+    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
 
+    /// <summary>
+    ///   Gets or sets the binary string representation of the integer.
+    /// </summary>
     property Binary: string read GetBinary write SetBinary;
+    /// <summary>
+    ///   Gets or sets the octal string representation of the integer.
+    /// </summary>
     property Octal: string read GetOctal write SetOctal;
+    /// <summary>
+    ///   Gets or sets the hexadecimal string representation of the integer.
+    /// </summary>
     property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
+    /// <summary>
+    ///   Gets or sets the base-32 string representation of the integer.
+    /// </summary>
     property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
+    /// <summary>
+    ///   Gets or sets the base-64 string representation of the integer.
+    /// </summary>
     property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
   end;
 

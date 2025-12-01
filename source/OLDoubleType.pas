@@ -6,6 +6,9 @@ uses
   variants, SysUtils, Math, Types, OLBooleanType, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
+  /// <summary>
+  ///   A record type representing a double-precision floating point number with null-handling capabilities.
+  /// </summary>
   OLDouble = record
   private
     FValue: Double;
@@ -18,42 +21,132 @@ type
 
     function GetHasValue(): OLBoolean;
     procedure SetHasValue(const Value: OLBoolean);
+    /// <summary>
+    ///   Gets or sets whether the double has a value (is not null).
+    /// </summary>
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
+    /// <summary>
+    ///   Returns the square of the double.
+    /// </summary>
     function Sqr(): OLDouble;
+    /// <summary>
+    ///   Returns the square root of the double.
+    /// </summary>
     function Sqrt(): OLDouble;
+    /// <summary>
+    ///   Returns the double raised to the specified integer exponent.
+    /// </summary>
     function Power(const Exponent: integer): OLDouble;  overload;
+    /// <summary>
+    ///   Checks if the double is positive (> 0).
+    /// </summary>
     function IsPositive(): OLBoolean;
+    /// <summary>
+    ///   Checks if the double is negative (< 0).
+    /// </summary>
     function IsNegative(): OLBoolean;
+    /// <summary>
+    ///   Checks if the double is non-negative (>= 0).
+    /// </summary>
     function IsNonNegative(): OLBoolean;
+    /// <summary>
+    ///   Returns the larger of the two doubles.
+    /// </summary>
     function Max(const d: OLDouble): OLDouble;
+    /// <summary>
+    ///   Returns the smaller of the two doubles.
+    /// </summary>
     function Min(const d: OLDouble): OLDouble;
+    /// <summary>
+    ///   Returns the absolute value of the double.
+    /// </summary>
     function Abs(): OLDouble;
+    /// <summary>
+    ///   Checks if the double is null (has no value).
+    /// </summary>
     function IsNull(): OLBoolean;
+    /// <summary>
+    ///   Checks if the double has a value (is not null).
+    /// </summary>
     function HasValue(): OLBoolean;
+    /// <summary>
+    ///   Converts the double to a string.
+    /// </summary>
     function ToString(): string; overload;
+    /// <summary>
+    ///   Converts the double to a string with specified formatting.
+    /// </summary>
     function ToString(const Digits: integer; const Format: TFloatFormat = ffFixed; const Precision: integer = 16): string; overload;
+    /// <summary>
+    ///   Converts the double to a string with custom separators and format.
+    /// </summary>
     function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    /// <summary>
+    ///   Converts the double to a SQL-safe string (value or NULL).
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Returns the current double if it has a value, otherwise returns the provided default value.
+    /// </summary>
     function IfNull(const d: OLDouble): OLDouble;
 
+    /// <summary>
+    ///   Rounds the double to the specified power of ten.
+    /// </summary>
     function Round(const PowerOfTen: integer): OLDouble; overload;
+    /// <summary>
+    ///   Rounds the double to the nearest integer.
+    /// </summary>
     function Round(): Integer; overload;
+    /// <summary>
+    ///   Returns the largest integer less than or equal to the double.
+    /// </summary>
     function Floor(): Integer;
+    /// <summary>
+    ///   Returns the smallest integer greater than or equal to the double.
+    /// </summary>
     function Ceil(): Integer;
 
+    /// <summary>
+    ///   Returns the double raised to the specified extended exponent.
+    /// </summary>
     function Power(const Exponent: Extended): OLDouble;  overload;
 
+    /// <summary>
+    ///   Checks if the double is NaN (Not a Number).
+    /// </summary>
     function IsNan(): OLBoolean;
+    /// <summary>
+    ///   Checks if the double is infinite.
+    /// </summary>
     function IsInfinite(): OLBoolean;
+    /// <summary>
+    ///   Checks if the double is zero within the specified epsilon.
+    /// </summary>
     function IsZero(const Epsilon: Extended = 0): OLBoolean;
 
+    /// <summary>
+    ///   Checks if the double is within the specified range.
+    /// </summary>
     function InRange(const AMin, AMax: Extended): OLBoolean;
+    /// <summary>
+    ///   Ensures the double is within the specified range.
+    /// </summary>
     function EnsureRange(const AMin, AMax: Extended): Extended;
 
+    /// <summary>
+    ///   Checks if the double is equal to B within the specified epsilon.
+    /// </summary>
     function SameValue(const B: Extended; const Epsilon: Extended = 0): OLBoolean;
 
+    /// <summary>
+    ///   Generates a random double between MinValue and MaxValue.
+    /// </summary>
     class function Random(const MinValue: Double; const MaxValue:Double): OLDouble;  overload; static;
+    /// <summary>
+    ///   Generates a random double up to MaxValue.
+    /// </summary>
     class function Random(const MaxValue:Double = MaxInt): OLDouble;  overload; static;
 
     class operator Add(const a, b: OLDouble): OLDouble;
@@ -84,6 +177,9 @@ type
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLDouble);
     class operator Assign(var Dest: OLDouble; const [ref] Src: OLDouble);
+    /// <summary>
+    ///   Event handler for value changes.
+    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;
