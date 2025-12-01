@@ -1178,6 +1178,221 @@ begin
 end;
 
 
+
+
+type
+  TestInt64Helper = class(TTestCase)
+  published
+    procedure TestIsDividableBy;
+    procedure TestIsOdd;
+    procedure TestIsEven;
+    procedure TestSqr;
+    procedure TestPower;
+    procedure TestIsPositive;
+    procedure TestIsNegative;
+    procedure TestIsNonNegative;
+    procedure TestMaxMin;
+    procedure TestAbs;
+    procedure TestToString;
+    procedure TestBetween;
+    procedure TestIncreaseDecrease;
+    procedure TestReplaced;
+    procedure TestNumeralSystems;
+    procedure TestIsPrime;
+    procedure TestRandom;
+  end;
+
+procedure TestInt64Helper.TestIsDividableBy;
+var
+  i: Int64;
+begin
+  i := 10;
+  CheckTrue(i.IsDividableBy(2));
+  CheckTrue(i.IsDividableBy(5));
+  CheckFalse(i.IsDividableBy(3));
+end;
+
+procedure TestInt64Helper.TestIsOdd;
+var
+  i: Int64;
+begin
+  i := 5;
+  CheckTrue(i.IsOdd);
+  i := 10;
+  CheckFalse(i.IsOdd);
+end;
+
+procedure TestInt64Helper.TestIsEven;
+var
+  i: Int64;
+begin
+  i := 10;
+  CheckTrue(i.IsEven);
+  i := 5;
+  CheckFalse(i.IsEven);
+end;
+
+procedure TestInt64Helper.TestSqr;
+var
+  i: Int64;
+begin
+  i := 5;
+  CheckEquals(25, i.Sqr);
+end;
+
+procedure TestInt64Helper.TestPower;
+var
+  i: Int64;
+begin
+  i := 2;
+  CheckEquals(8, i.Power(3));
+  CheckEquals(8.0, i.Power(Int64(3)), 0.001);
+end;
+
+procedure TestInt64Helper.TestIsPositive;
+var
+  i: Int64;
+begin
+  i := 5;
+  CheckTrue(i.IsPositive);
+  i := -5;
+  CheckFalse(i.IsPositive);
+  i := 0;
+  CheckFalse(i.IsPositive);
+end;
+
+procedure TestInt64Helper.TestIsNegative;
+var
+  i: Int64;
+begin
+  i := -5;
+  CheckTrue(i.IsNegative);
+  i := 5;
+  CheckFalse(i.IsNegative);
+  i := 0;
+  CheckFalse(i.IsNegative);
+end;
+
+procedure TestInt64Helper.TestIsNonNegative;
+var
+  i: Int64;
+begin
+  i := 5;
+  CheckTrue(i.IsNonNegative);
+  i := 0;
+  CheckTrue(i.IsNonNegative);
+  i := -5;
+  CheckFalse(i.IsNonNegative);
+end;
+
+procedure TestInt64Helper.TestMaxMin;
+var
+  i: Int64;
+begin
+  i := 10;
+  CheckEquals(15, i.Max(15));
+  CheckEquals(10, i.Max(5));
+  CheckEquals(5, i.Min(5));
+  CheckEquals(10, i.Min(15));
+end;
+
+procedure TestInt64Helper.TestAbs;
+var
+  i: Int64;
+begin
+  i := -5;
+  CheckEquals(5, i.Abs);
+  i := 5;
+  CheckEquals(5, i.Abs);
+end;
+
+procedure TestInt64Helper.TestToString;
+var
+  i: Int64;
+begin
+  i := 123;
+  CheckEquals('123', i.ToString);
+  CheckEquals('123', i.ToSQLString);
+end;
+
+procedure TestInt64Helper.TestBetween;
+var
+  i: Int64;
+begin
+  i := 10;
+  CheckTrue(i.Between(5, 15));
+  CheckTrue(i.Between(10, 15));
+  CheckTrue(i.Between(5, 10));
+  CheckFalse(i.Between(11, 15));
+  CheckFalse(i.Between(1, 9));
+end;
+
+procedure TestInt64Helper.TestIncreaseDecrease;
+var
+  i: Int64;
+begin
+  i := 10;
+  CheckEquals(15, i.Increased(5));
+  CheckEquals(5, i.Decreased(5));
+  CheckEquals(11, i.Increased);
+  CheckEquals(9, i.Decreased);
+end;
+
+procedure TestInt64Helper.TestReplaced;
+var
+  i: Int64;
+begin
+  i := 10;
+  CheckEquals(20, i.Replaced(10, 20));
+  CheckEquals(10, i.Replaced(15, 20));
+end;
+
+procedure TestInt64Helper.TestNumeralSystems;
+var
+  i: Int64;
+begin
+  i := 255;
+  CheckEquals('11111111', i.Binary);
+  CheckEquals('377', i.Octal);
+  CheckEquals('FF', i.Hexidecimal);
+  CheckNotEquals('', i.NumeralSystem32);
+  CheckNotEquals('', i.NumeralSystem64);
+end;
+
+procedure TestInt64Helper.TestIsPrime;
+var
+  i: Int64;
+begin
+  i := 2;
+  CheckTrue(i.IsPrime);
+  i := 3;
+  CheckTrue(i.IsPrime);
+  i := 5;
+  CheckTrue(i.IsPrime);
+  i := 7;
+  CheckTrue(i.IsPrime);
+  i := 4;
+  CheckFalse(i.IsPrime);
+  i := 6;
+  CheckFalse(i.IsPrime);
+  i := 9;
+  CheckFalse(i.IsPrime);
+end;
+
+procedure TestInt64Helper.TestRandom;
+var
+  i: Int64;
+begin
+  i := Int64.Random(100);
+  CheckTrue(i >= 0);
+  CheckTrue(i <= 100);
+
+  i := Int64.Random(10, 20);
+  CheckTrue(i >= 10);
+  CheckTrue(i <= 20);
+end;
+
+
 type
   TestStringHelper = class(TTestCase)
   published
@@ -1930,6 +2145,7 @@ initialization
   RegisterTest(TestCurrencyHelper.Suite);
   RegisterTest(TestDateTimeHelper.Suite);
   RegisterTest(TestDateHelper.Suite);
+  RegisterTest(TestInt64Helper.Suite);
   RegisterTest(TestStringHelper.Suite);
   {$IFEND}
 
