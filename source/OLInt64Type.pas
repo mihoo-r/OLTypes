@@ -567,79 +567,32 @@ end;
 
 function OLInt64.IsPrime: OLBoolean;
 var
-  i, j: Int64;
-  PrimeLen: Int64;
-  OutPut: OLBoolean;
-  MaxPrimeDivader: Int64;
-  PrimeAddStart, PrimeAddFinnish: Int64;
-  LoopCount: Int64;
-  k: OLInt64;
+  i: Int64;
+  Limit: Int64;
 begin
   if not Self.ValuePresent then
     Exit(Null);
 
   if Value <= 1 then
+    Exit(False);
+
+  if Value <= 3 then
+    Exit(True);
+
+  if (Value mod 2 = 0) or (Value mod 3 = 0) then
+    Exit(False);
+
+  i := 5;
+  Limit := Trunc(Sqrt(Value));
+
+  while i <= Limit do
   begin
-    OutPut := False;
-  end
-  else
-  begin
-    i := 0;
-    PrimeLen := Length(primes);
-
-    MaxPrimeDivader := Ceil(Sqrt(Value));
-    LoopCount := Math.Min(PrimeLen, MaxPrimeDivader);
-
-    while (i < LoopCount) and (Value mod primes[i] > 0) do
-      system.inc(i);
-
-    if (i < LoopCount) then
-      OutPut := False
-    else
-    begin
-      OutPut := true;
-
-      if MaxPrimeDivader > PrimeLen then
-      begin
-        OutPut := true;
-
-        PrimeAddStart := (primes[PrimeLen - 1] div 6) + 1;
-        PrimeAddFinnish := Math.Max(PrimeAddStart, (MaxPrimeDivader div 6));
-
-        j := PrimeAddStart;
-        while j <= PrimeAddFinnish do
-        begin
-          k := 6 * j + 1;
-
-          if k.IsPrime() then
-          begin
-            AddPrime(6 * j + 1);
-            if Value mod (6 * j + 1) = 0 then
-            begin
-              OutPut := false;
-              break;
-            end;
-          end;
-
-          k := 6 * j + 5;
-
-          if k.IsPrime() then
-          begin
-            AddPrime(6 * j + 5);
-            if Value mod (6 * j + 5) = 0 then
-            begin
-              OutPut := false;
-              break;
-            end;
-          end;
-
-          system.inc(j);
-        end;
-      end;
-    end;
+    if (Value mod i = 0) or (Value mod (i + 2) = 0) then
+      Exit(False);
+    Inc(i, 6);
   end;
 
-  Result := OutPut;
+  Result := True;
 end;
 
 procedure OLInt64.SetBinary(const Value: string);
@@ -769,7 +722,7 @@ begin
   else
     OutPut := Self;
 
-  Result := Self;
+  Result := OutPut;
 end;
 
 function OLInt64.Round(Digits: OLInt64): OLInt64;
