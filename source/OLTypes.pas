@@ -247,6 +247,29 @@ type
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
+  TOLCurrencyHelper = record helper for Currency
+  public
+    function Sqr(): Currency;
+    function Power(const Exponent: Integer): Currency;
+    function IsPositive(): Boolean;
+    function IsNegative(): Boolean;
+    function IsNonNegative(): Boolean;
+    function Between(const BottomIncluded, TopIncluded: Currency): Boolean;
+    function Max(const c: Currency): Currency;
+    function Min(const c: Currency): Currency;
+    function Abs(): Currency;
+    function ToString(): string; overload;
+    function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    function ToSQLString(): string;
+    function ToStrF(Format: TFloatFormat; Digits: Integer): string;
+    function Round(): Integer; overload;
+    function Round(const PowerOfTen: Integer): Currency; overload;
+    function Ceil(): Integer;
+    function Floor(): Integer;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 24.0}
   TOLStringHelper = record helper for string
   private
     function GetLines(const Index: Integer): OLString;
@@ -1629,6 +1652,147 @@ end;
 class function TOLDoubleHelper.Random(const MaxValue: Double): Double;
 begin
   Result := OLDouble.Random(MaxValue);
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 24.0}
+{ TOLCurrencyHelper }
+
+function TOLCurrencyHelper.Sqr(): Currency;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Sqr();
+end;
+
+function TOLCurrencyHelper.Power(const Exponent: Integer): Currency;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Power(Exponent);
+end;
+
+function TOLCurrencyHelper.IsPositive(): Boolean;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.IsPositive();
+end;
+
+function TOLCurrencyHelper.IsNegative(): Boolean;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.IsNegative();
+end;
+
+function TOLCurrencyHelper.IsNonNegative(): Boolean;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.IsNonNegative();
+end;
+
+function TOLCurrencyHelper.Between(const BottomIncluded, TopIncluded:
+    Currency): Boolean;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Between(BottomIncluded, TopIncluded);
+end;
+
+function TOLCurrencyHelper.Max(const c: Currency): Currency;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Max(c);
+end;
+
+function TOLCurrencyHelper.Min(const c: Currency): Currency;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Min(c);
+end;
+
+function TOLCurrencyHelper.Abs(): Currency;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Abs();
+end;
+
+function TOLCurrencyHelper.ToString(): string;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.ToString();
+end;
+
+function TOLCurrencyHelper.ToString(ThousandSeparator: Char; DecimalSeparator: Char; Format: string): string;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.ToString(ThousandSeparator, DecimalSeparator, Format);
+end;
+
+function TOLCurrencyHelper.ToSQLString(): string;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.ToSQLString();
+end;
+
+function TOLCurrencyHelper.ToStrF(Format: TFloatFormat; Digits: Integer): string;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.ToStrF(Format, Digits);
+end;
+
+function TOLCurrencyHelper.Round(): Integer;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Round();
+end;
+
+function TOLCurrencyHelper.Round(const PowerOfTen: Integer): Currency;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Round(PowerOfTen);
+end;
+
+function TOLCurrencyHelper.Ceil(): Integer;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Ceil();
+end;
+
+function TOLCurrencyHelper.Floor(): Integer;
+var
+  ol: OLCurrency;
+begin
+  ol := Self;
+  Result := ol.Floor();
 end;
 {$IFEND}
 
