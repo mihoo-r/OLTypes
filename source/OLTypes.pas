@@ -215,6 +215,38 @@ type
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
+  TOLDoubleHelper = record helper for Double
+  public
+    function Sqr(): Double;
+    function Sqrt(): Double;
+    function Power(const Exponent: Integer): Double; overload;
+    function Power(const Exponent: Extended): Double; overload;
+    function IsPositive(): Boolean;
+    function IsNegative(): Boolean;
+    function IsNonNegative(): Boolean;
+    function Max(const d: Double): Double;
+    function Min(const d: Double): Double;
+    function Abs(): Double;
+    function ToString(): string; overload;
+    function ToString(const Digits: Integer; const Format: TFloatFormat = ffFixed; const Precision: Integer = 16): string; overload;
+    function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    function ToSQLString(): string;
+    function Round(const PowerOfTen: Integer): Double; overload;
+    function Round(): Integer; overload;
+    function Floor(): Integer;
+    function Ceil(): Integer;
+    function IsNan(): Boolean;
+    function IsInfinite(): Boolean;
+    function IsZero(const Epsilon: Extended = 0): Boolean;
+    function InRange(const AMin, AMax: Extended): Boolean;
+    function EnsureRange(const AMin, AMax: Extended): Extended;
+    function SameValue(const B: Extended; const Epsilon: Extended = 0): Boolean;
+    class function Random(const MinValue: Double; const MaxValue: Double): Double; overload; static;
+    class function Random(const MaxValue: Double = MaxInt): Double; overload; static;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 24.0}
   TOLStringHelper = record helper for string
   private
     function GetLines(const Index: Integer): OLString;
@@ -1391,6 +1423,212 @@ var
 begin
   ol := Self;
   Result := ol.IfThen(ATrue, AFalse);
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 24.0}
+{ TOLDoubleHelper }
+
+function TOLDoubleHelper.Sqr(): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Sqr();
+end;
+
+function TOLDoubleHelper.Sqrt(): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Sqrt();
+end;
+
+function TOLDoubleHelper.Power(const Exponent: Integer): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Power(Exponent);
+end;
+
+function TOLDoubleHelper.Power(const Exponent: Extended): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Power(Exponent);
+end;
+
+function TOLDoubleHelper.IsPositive(): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.IsPositive();
+end;
+
+function TOLDoubleHelper.IsNegative(): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.IsNegative();
+end;
+
+function TOLDoubleHelper.IsNonNegative(): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.IsNonNegative();
+end;
+
+function TOLDoubleHelper.Max(const d: Double): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Max(d);
+end;
+
+function TOLDoubleHelper.Min(const d: Double): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Min(d);
+end;
+
+function TOLDoubleHelper.Abs(): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Abs();
+end;
+
+function TOLDoubleHelper.ToString(): string;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.ToString();
+end;
+
+function TOLDoubleHelper.ToString(const Digits: Integer; const Format: TFloatFormat; const Precision: Integer): string;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.ToString(Digits, Format, Precision);
+end;
+
+function TOLDoubleHelper.ToString(ThousandSeparator: Char; DecimalSeparator: Char; Format: string): string;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.ToString(ThousandSeparator, DecimalSeparator, Format);
+end;
+
+function TOLDoubleHelper.ToSQLString(): string;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.ToSQLString();
+end;
+
+function TOLDoubleHelper.Round(const PowerOfTen: Integer): Double;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Round(PowerOfTen);
+end;
+
+function TOLDoubleHelper.Round(): Integer;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Round();
+end;
+
+function TOLDoubleHelper.Floor(): Integer;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Floor();
+end;
+
+function TOLDoubleHelper.Ceil(): Integer;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.Ceil();
+end;
+
+function TOLDoubleHelper.IsNan(): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.IsNan();
+end;
+
+function TOLDoubleHelper.IsInfinite(): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.IsInfinite();
+end;
+
+function TOLDoubleHelper.IsZero(const Epsilon: Extended): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.IsZero(Epsilon);
+end;
+
+function TOLDoubleHelper.InRange(const AMin, AMax: Extended): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.InRange(AMin, AMax);
+end;
+
+function TOLDoubleHelper.EnsureRange(const AMin, AMax: Extended): Extended;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.EnsureRange(AMin, AMax);
+end;
+
+function TOLDoubleHelper.SameValue(const B: Extended; const Epsilon: Extended): Boolean;
+var
+  ol: OLDouble;
+begin
+  ol := Self;
+  Result := ol.SameValue(B, Epsilon);
+end;
+
+class function TOLDoubleHelper.Random(const MinValue: Double; const MaxValue: Double): Double;
+begin
+  Result := OLDouble.Random(MinValue, MaxValue);
+end;
+
+class function TOLDoubleHelper.Random(const MaxValue: Double): Double;
+begin
+  Result := OLDouble.Random(MaxValue);
 end;
 {$IFEND}
 
