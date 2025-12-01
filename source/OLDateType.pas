@@ -103,7 +103,6 @@ type
     function MonthSpan(const AThen: OLDate): OLDouble;
     function WeekSpan(const AThen: OLDate): OLDouble;
 
-
     function IncYear(const ANumberOfYears: Integer = 1): OLDate;
     function IncMonth(const ANumberOfMonths: Integer = 1): OLDate;
     function IncWeek(const ANumberOfWeeks: Integer = 1): OLDate;

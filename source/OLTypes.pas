@@ -418,6 +418,92 @@ type
     function Max(const CompareDate: TDateTime): TDateTime;
     function Min(const CompareDate: TDateTime): TDateTime;
   end;
+
+  TOLDateHelper = record helper for TDate
+  private
+    function GetYear: Integer;
+    function GetMonth: Integer;
+    function GetDay: Integer;
+    procedure SetYear(const Value: Integer);
+    procedure SetMonth(const Value: Integer);
+    procedure SetDay(const Value: Integer);
+  public
+    property Year: Integer read GetYear write SetYear;
+    property Month: Integer read GetMonth write SetMonth;
+    property Day: Integer read GetDay write SetDay;
+
+    function ToString(): string; overload;
+    function ToString(const Format: string): string; overload;
+    function ToSQLString(): string;
+
+    function IsInLeapYear(): Boolean;
+    function WeeksInYear(): Integer;
+    function DaysInYear(): Integer;
+    function DaysInMonth(): Integer;
+
+    class function Today: TDate; static;
+    class function Yesterday: TDate; static;
+    class function Tomorrow: TDate; static;
+
+    procedure SetToday();
+    procedure SetTomorow();
+    procedure SetYesterday();
+
+    function IsToday(): Boolean;
+    function SameDay(const DateToCompare: TDate): Boolean;
+
+    function StartOfTheYear(): TDate;
+    function EndOfTheYear(): TDate;
+    class function StartOfAYear(const AYear: Word): TDate; static;
+    class function EndOfAYear(const AYear: Word): TDate; static;
+    procedure SetStartOfAYear(const AYear: Word);
+    procedure SetEndOfAYear(const AYear: Word);
+
+    function StartOfTheMonth(): TDate;
+    function EndOfTheMonth(): TDate;
+    class function StartOfAMonth(const AYear, AMonth: Word): TDate; static;
+    class function EndOfAMonth(const AYear, AMonth: Word): TDate; static;
+    procedure SetStartOfAMonth(const AYear, AMonth: Word);
+    procedure SetEndOfAMonth(const AYear, AMonth: Word);
+
+    function StartOfTheWeek(): TDate;
+    function EndOfTheWeek(): TDate;
+
+    function DayOfTheYear(): Integer;
+    function DayOfTheWeek(): Integer;
+
+    function YearsBetween(const AThen: TDate): Integer;
+    function MonthsBetween(const AThen: TDate): Integer;
+    function WeeksBetween(const AThen: TDate): Integer;
+    function DaysBetween(const AThen: TDate): Integer;
+
+    function InRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean = True): Boolean;
+
+    function YearSpan(const AThen: TDate): Double;
+    function MonthSpan(const AThen: TDate): Double;
+    function WeekSpan(const AThen: TDate): Double;
+    function IncYear(const ANumberOfYears: Integer = 1): TDate;
+    function IncMonth(const ANumberOfMonths: Integer = 1): TDate;
+    function IncWeek(const ANumberOfWeeks: Integer = 1): TDate;
+    function IncDay(const ANumberOfDays: Integer = 1): TDate;
+
+    procedure DecodeDate(out AYear, AMonth, ADay: Word);
+    procedure EncodeDate(const AYear, AMonth, ADay: Word);
+
+    function RecodedYear(const AYear: Word): TDate;
+    function RecodedMonth(const AMonth: Word): TDate;
+    function RecodedDay(const ADay: Word): TDate;
+
+    function LongDayName(): string;
+    function LongMonthName(): string;
+    function ShortDayName(): string;
+    function ShortMonthName(): string;
+
+    function Max(const CompareDate: TDate): TDate;
+    function Min(const CompareDate: TDate): TDate;
+
+    class function IsValidDate(const Year, Month, Day: Integer): Boolean; static;
+  end;
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
@@ -2870,6 +2956,485 @@ var
 begin
   ol := Self;
   Result := ol.Min(CompareDate);
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 24.0}
+{ TOLDateHelper }
+
+function TOLDateHelper.GetYear: Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.Year;
+end;
+
+function TOLDateHelper.GetMonth: Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.Month;
+end;
+
+function TOLDateHelper.GetDay: Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.Day;
+end;
+
+procedure TOLDateHelper.SetYear(const Value: Integer);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.Year := Value;
+  Self := ol;
+end;
+
+procedure TOLDateHelper.SetMonth(const Value: Integer);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.Month := Value;
+  Self := ol;
+end;
+
+procedure TOLDateHelper.SetDay(const Value: Integer);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.Day := Value;
+  Self := ol;
+end;
+
+function TOLDateHelper.ToString(): string;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.ToString();
+end;
+
+function TOLDateHelper.ToString(const Format: string): string;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.ToString(Format);
+end;
+
+function TOLDateHelper.ToSQLString(): string;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.ToSQLString();
+end;
+
+function TOLDateHelper.IsInLeapYear(): Boolean;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.IsInLeapYear();
+end;
+
+function TOLDateHelper.WeeksInYear(): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.WeeksInYear();
+end;
+
+function TOLDateHelper.DaysInYear(): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.DaysInYear();
+end;
+
+function TOLDateHelper.DaysInMonth(): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.DaysInMonth();
+end;
+
+class function TOLDateHelper.Today: TDate;
+begin
+  Result := OLDate.Today;
+end;
+
+class function TOLDateHelper.Yesterday: TDate;
+begin
+  Result := OLDate.Yesterday;
+end;
+
+class function TOLDateHelper.Tomorrow: TDate;
+begin
+  Result := OLDate.Tomorrow;
+end;
+
+procedure TOLDateHelper.SetToday();
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.SetToday();
+  Self := ol;
+end;
+
+procedure TOLDateHelper.SetTomorow();
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.SetTomorow();
+  Self := ol;
+end;
+
+procedure TOLDateHelper.SetYesterday();
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.SetYesterday();
+  Self := ol;
+end;
+
+function TOLDateHelper.IsToday(): Boolean;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.IsToday();
+end;
+
+function TOLDateHelper.SameDay(const DateToCompare: TDate): Boolean;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.SameDay(DateToCompare);
+end;
+
+function TOLDateHelper.StartOfTheYear(): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.StartOfTheYear();
+end;
+
+function TOLDateHelper.EndOfTheYear(): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.EndOfTheYear();
+end;
+
+class function TOLDateHelper.StartOfAYear(const AYear: Word): TDate;
+begin
+  Result := OLDate.StartOfAYear(AYear);
+end;
+
+class function TOLDateHelper.EndOfAYear(const AYear: Word): TDate;
+begin
+  Result := OLDate.EndOfAYear(AYear);
+end;
+
+procedure TOLDateHelper.SetStartOfAYear(const AYear: Word);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.SetStartOfAYear(AYear);
+  Self := ol;
+end;
+
+procedure TOLDateHelper.SetEndOfAYear(const AYear: Word);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.SetEndOfAYear(AYear);
+  Self := ol;
+end;
+
+function TOLDateHelper.StartOfTheMonth(): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.StartOfTheMonth();
+end;
+
+function TOLDateHelper.EndOfTheMonth(): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.EndOfTheMonth();
+end;
+
+class function TOLDateHelper.StartOfAMonth(const AYear, AMonth: Word): TDate;
+begin
+  Result := OLDate.StartOfAMonth(AYear, AMonth);
+end;
+
+class function TOLDateHelper.EndOfAMonth(const AYear, AMonth: Word): TDate;
+begin
+  Result := OLDate.EndOfAMonth(AYear, AMonth);
+end;
+
+procedure TOLDateHelper.SetStartOfAMonth(const AYear, AMonth: Word);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.SetStartOfAMonth(AYear, AMonth);
+  Self := ol;
+end;
+
+procedure TOLDateHelper.SetEndOfAMonth(const AYear, AMonth: Word);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.SetEndOfAMonth(AYear, AMonth);
+  Self := ol;
+end;
+
+function TOLDateHelper.StartOfTheWeek(): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.StartOfTheWeek();
+end;
+
+function TOLDateHelper.EndOfTheWeek(): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.EndOfTheWeek();
+end;
+
+function TOLDateHelper.DayOfTheYear(): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.DayOfTheYear();
+end;
+
+function TOLDateHelper.DayOfTheWeek(): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.DayOfTheWeek();
+end;
+
+function TOLDateHelper.YearsBetween(const AThen: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.YearsBetween(AThen);
+end;
+
+function TOLDateHelper.MonthsBetween(const AThen: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.MonthsBetween(AThen);
+end;
+
+function TOLDateHelper.WeeksBetween(const AThen: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.WeeksBetween(AThen);
+end;
+
+function TOLDateHelper.DaysBetween(const AThen: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.DaysBetween(AThen);
+end;
+
+function TOLDateHelper.InRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean): Boolean;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.InRange(AStartDateTime, AEndDateTime, aInclusive);
+end;
+
+function TOLDateHelper.YearSpan(const AThen: TDate): Double;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.YearSpan(AThen);
+end;
+
+function TOLDateHelper.MonthSpan(const AThen: TDate): Double;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.MonthSpan(AThen);
+end;
+
+function TOLDateHelper.WeekSpan(const AThen: TDate): Double;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.WeekSpan(AThen);
+end;
+
+function TOLDateHelper.IncYear(const ANumberOfYears: Integer): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.IncYear(ANumberOfYears);
+end;
+
+function TOLDateHelper.IncMonth(const ANumberOfMonths: Integer): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.IncMonth(ANumberOfMonths);
+end;
+
+function TOLDateHelper.IncWeek(const ANumberOfWeeks: Integer): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.IncWeek(ANumberOfWeeks);
+end;
+
+function TOLDateHelper.IncDay(const ANumberOfDays: Integer): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.IncDay(ANumberOfDays);
+end;
+
+procedure TOLDateHelper.DecodeDate(out AYear, AMonth, ADay: Word);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.DecodeDate(AYear, AMonth, ADay);
+end;
+
+procedure TOLDateHelper.EncodeDate(const AYear, AMonth, ADay: Word);
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  ol.EncodeDate(AYear, AMonth, ADay);
+  Self := ol;
+end;
+
+function TOLDateHelper.RecodedYear(const AYear: Word): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.RecodedYear(AYear);
+end;
+
+function TOLDateHelper.RecodedMonth(const AMonth: Word): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.RecodedMonth(AMonth);
+end;
+
+function TOLDateHelper.RecodedDay(const ADay: Word): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.RecodedDay(ADay);
+end;
+
+function TOLDateHelper.LongDayName(): string;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.LongDayName();
+end;
+
+function TOLDateHelper.LongMonthName(): string;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.LongMonthName();
+end;
+
+function TOLDateHelper.ShortDayName(): string;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.ShortDayName();
+end;
+
+function TOLDateHelper.ShortMonthName(): string;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.ShortMonthName();
+end;
+
+function TOLDateHelper.Max(const CompareDate: TDate): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.Max(CompareDate);
+end;
+
+function TOLDateHelper.Min(const CompareDate: TDate): TDate;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.Min(CompareDate);
+end;
+
+class function TOLDateHelper.IsValidDate(const Year, Month, Day: Integer): Boolean;
+begin
+  Result := OLDate.IsValidDate(Year, Month, Day);
 end;
 {$IFEND}
 
