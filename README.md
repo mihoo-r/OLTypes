@@ -27,7 +27,9 @@ OLTypes library is distributed under **[the MIT License](https://www.wikiwand.co
 If you wish for the library to be globally available for all new projects, you should add the source folder to your **Library path** instead.
 (Menu Tools -> Options -> Environment Options -> Delphi Options -> Library -> Library path).
 
-**You may also want to open the OLTypesTest.dpr to run the tests and see the new types in use before you start using it yourself.**
+**Feel free to open OLTypesTest.dpr to run the tests and see the new types in action before you start using them yourself.**
+
+You may also want to **[check the Wiki](https://bitbucket.org/mihoor/oltypes/wiki/Home)**
 
 ### Contribution guidelines ###
 
