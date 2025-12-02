@@ -156,7 +156,7 @@ type
     function Replaced(const FromValue: Integer; const ToValue: Integer): Integer;
 
     // String conversion
-    function ToString(): string;
+    function ToString(): string; overload;
     function ToSQLString(): string;
     function ToNumeralSystem(const Base: Integer): string;
 
@@ -191,16 +191,29 @@ type
     procedure SetRandomPrime(const MinValue: Integer; const MaxValue: Integer); overload;
     procedure SetRandomPrime(const MaxValue: Integer = MaxInt); overload;
 
+    const
+      MaxValue = 2147483647;
+      MinValue = -2147483648;
+
+    function ToBoolean: Boolean; inline;
+    function ToHexString: string; overload; inline;
+    function ToHexString(const MinDigits: Integer): string; overload; inline;
+    function ToSingle: Single; inline;
+    function ToDouble: Double; inline;
+    function ToExtended: Extended; inline;
+
+    class function Size: Integer; static; inline;
+    class function ToString(const Value: Integer): string; overload; static; inline;
+    class function Parse(const S: string): Integer; static;
+    class function TryParse(const S: string; out Value: Integer): Boolean; static;
+        inline;
+
    end;
   {$IFEND}
 
   {$IF CompilerVersion >= 24.0}
   TOLBooleanHelper = record helper for Boolean
    public
-    /// <summary>
-    ///   Converts the boolean to a string representation.
-    /// </summary>
-    function ToString(): string;
     /// <summary>
     ///   Converts the boolean to a SQL-safe string representation.
     /// </summary>
@@ -229,6 +242,16 @@ type
     ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
     /// </summary>
     function IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
+
+    function ToInteger: Integer; inline;
+    function ToString(UseBoolStrs: TUseBoolStrs = TUseBoolStrs.False): string;
+        overload; inline;
+    class function Size: Integer; static; inline;
+    class function ToString(const Value: Boolean; UseBoolStrs: TUseBoolStrs =
+        TUseBoolStrs.False): string; overload; static; inline;
+    class function Parse(const S: string): Boolean; static; inline;
+    class function TryToParse(const S: string; out Value: Boolean): Boolean;
+        static; inline;
   end;
   {$IFEND}
 
@@ -392,6 +415,29 @@ type
     ///   Returns the largest integer less than or equal to the currency.
     /// </summary>
     function Floor(): Integer;
+
+    const
+       MaxValue: Currency =  922337203685477.5807;
+       MinValue: Currency = -922337203685477.5807;
+
+    function ToString(const AFormatSettings: TFormatSettings): string; overload;
+        inline;
+
+    function Frac: Currency; inline;
+    function Trunc: Int64; inline;
+
+    class function Size: Integer; static; inline;
+    class function ToString(const Value: Currency; const AFormatSettings:
+        TFormatSettings): string; overload; static; inline;
+    class function ToString(const Value: Currency): string; overload; static;
+        inline;
+    class function Parse(const S: string; const AFormatSettings: TFormatSettings):
+        Currency; overload; static;
+    class function Parse(const S: string): Currency; overload; static; inline;
+    class function TryParse(const S: string; out Value: Currency; const
+        AFormatSettings: TFormatSettings): Boolean; overload; static; inline;
+    class function TryParse(const S: string; out Value: Currency): Boolean;
+        overload; static; inline;
   end;
   {$IFEND}
 
@@ -1364,31 +1410,31 @@ type
      /// <summary>
      ///   Replaces occurrences of the old value with the new value in the string.
      /// </summary>
-     function Replace(OldValue, NewValue: string): string;
+     function Replace(OldValue, NewValue: string): string; overload;
 
      // Case operations
      /// <summary>
      ///   Converts the string to lowercase.
      /// </summary>
-     function LowerCase(): string;
+     function LowerCase(): string; overload;
      /// <summary>
      ///   Converts the string to uppercase.
      /// </summary>
-     function UpperCase(): string;
+     function UpperCase(): string; overload;
 
      // Trim operations
      /// <summary>
      ///   Trims whitespace from both ends of the string.
      /// </summary>
-     function Trim(): string;
+     function Trim(): string; overload;
      /// <summary>
      ///   Trims whitespace from the left end of the string.
      /// </summary>
-     function TrimLeft(): string;
+     function TrimLeft(): string; overload;
      /// <summary>
      ///   Trims whitespace from the right end of the string.
      /// </summary>
-     function TrimRight(): string;
+     function TrimRight(): string; overload;
 
      // Other utilities
      /// <summary>
@@ -1544,11 +1590,11 @@ type
      /// <summary>
      ///   Checks if the string starts with the specified value (case-insensitive).
      /// </summary>
-     function StartsText(Value: string): OLBoolean;
+     function StartsText(Value: string): OLBoolean; overload;
      /// <summary>
      ///   Checks if the string ends with the specified value (case-insensitive).
      /// </summary>
-     function EndsText(Value: string): OLBoolean;
+     function EndsText(Value: string): OLBoolean; overload;
      /// <summary>
      ///   Returns the index of the first matching value in the array.
      /// </summary>
@@ -1863,7 +1909,7 @@ type
      /// <summary>
      ///   Converts the string to an Int64.
      /// </summary>
-     function ToInt64(): OLInt64;
+     function ToInt64(): OLInt64;  overload;
      /// <summary>
      ///   Tries to convert the string to a date using smart parsing.
      /// </summary>
@@ -1940,6 +1986,209 @@ type
      property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
      {$IFEND}
 
+     const Empty = '';
+      // Methods
+      class function Create(C: Char; Count: Integer): string; overload; static;
+          inline;
+      class function Create(const Value: array of Char; StartIndex: Integer; Length:
+          Integer): string; overload; static;
+      class function Create(const Value: array of Char): string; overload; static;
+      class function Compare(const StrA: string; const StrB: string): Integer;
+          overload; static; inline;
+      class function Compare(const StrA: string; const StrB: string; LocaleID:
+          TLocaleID): Integer; overload; static; inline;
+      class function Compare(const StrA: string; const StrB: string; IgnoreCase:
+          Boolean): Integer; overload; static; inline;
+      class function Compare(const StrA: string; const StrB: string; IgnoreCase:
+          Boolean; LocaleID: TLocaleID): Integer; overload; static; inline;
+      class function Compare(const StrA: string; const StrB: string; Options:
+          TCompareOptions): Integer; overload; static; inline;
+      class function Compare(const StrA: string; const StrB: string; Options:
+          TCompareOptions; LocaleID: TLocaleID): Integer; overload; static; inline;
+      class function Compare(const StrA: string; IndexA: Integer; const StrB: string;
+          IndexB: Integer; Length: Integer): Integer; overload; static; inline;
+      class function Compare(const StrA: string; IndexA: Integer; const StrB: string;
+          IndexB: Integer; Length: Integer; LocaleID: TLocaleID): Integer; overload;
+          static; inline;
+      class function Compare(const StrA: string; IndexA: Integer; const StrB: string;
+          IndexB: Integer; Length: Integer; IgnoreCase: Boolean): Integer; overload;
+          static; inline;
+      class function Compare(const StrA: string; IndexA: Integer; const StrB: string;
+          IndexB: Integer; Length: Integer; IgnoreCase: Boolean; LocaleID:
+          TLocaleID): Integer; overload; static; inline;
+      class function Compare(const StrA: string; IndexA: Integer; const StrB: string;
+          IndexB: Integer; Length: Integer; Options: TCompareOptions): Integer;
+          overload; static; inline;
+      class function Compare(const StrA: string; IndexA: Integer; const StrB: string;
+          IndexB: Integer; Length: Integer; Options: TCompareOptions; LocaleID:
+          TLocaleID): Integer; overload; static; inline;
+      class function CompareOrdinal(const StrA: string; const StrB: string): Integer;
+          overload; static;
+      class function CompareOrdinal(const StrA: string; IndexA: Integer; const StrB:
+          string; IndexB: Integer; Length: Integer): Integer; overload; static;
+      class function CompareText(const StrA: string; const StrB: string): Integer;
+          static; inline;
+      class function Parse(const Value: Integer): string; overload; static; inline;
+      class function Parse(const Value: Int64): string; overload; static; inline;
+      class function Parse(const Value: Boolean): string; overload; static; inline;
+      class function Parse(const Value: Extended): string; overload; static; inline;
+      class function ToBoolean(const S: string): Boolean; overload; static; inline;
+      class function ToInteger(const S: string): Integer; overload; static; inline;
+      /// <summary>Class function to Convert a string to an Int64 value</summary>
+      class function ToSingle(const S: string): Single; overload; static; inline;
+      class function ToDouble(const S: string): Double; overload; static; inline;
+      class function ToExtended(const S: string): Extended; overload; static; inline;
+      class function LowerCase(const S: string): string; overload; static; inline;
+      class function LowerCase(const S: string; LocaleOptions: TLocaleOptions):
+          string; overload; static; inline;
+      class function UpperCase(const S: string): string; overload; static; inline;
+      class function UpperCase(const S: string; LocaleOptions: TLocaleOptions):
+          string; overload; static; inline;
+      function CompareTo(const strB: string): Integer;
+      function Contains(const Value: string): Boolean;
+      class function Copy(const Str: string): string; static; inline;
+      procedure CopyTo(SourceIndex: Integer; var destination: array of Char;
+          DestinationIndex: Integer; Count: Integer);
+      function CountChar(const C: Char): Integer;
+      function DeQuotedString: string; overload;
+      function DeQuotedString(const QuoteChar: Char): string; overload;
+      class function EndsText(const ASubText, AText: string): Boolean; overload; static;
+      function EndsWith(const Value: string): Boolean; overload; inline;
+      function EndsWith(const Value: string; IgnoreCase: Boolean): Boolean; overload;
+      function Equals(const Value: string): Boolean; overload;
+      class function Equals(const a: string; const b: string): Boolean; overload;
+          static;
+      class function Format(const Format: string; const args: array of const):
+          string; overload; static;
+      function GetHashCode: Integer;
+      function IndexOf(Value: Char): Integer; overload;
+      function IndexOf(const Value: string): Integer; overload; inline;
+      function IndexOf(Value: Char; StartIndex: Integer): Integer; overload;
+      function IndexOf(const Value: string; StartIndex: Integer): Integer; overload;
+      function IndexOf(Value: Char; StartIndex: Integer; Count: Integer): Integer;
+          overload;
+      function IndexOf(const Value: string; StartIndex: Integer; Count: Integer):
+          Integer; overload;
+      function IndexOfAny(const AnyOf: array of Char): Integer; overload;
+      function IndexOfAny(const AnyOf: array of Char; StartIndex: Integer): Integer;
+          overload;
+      function IndexOfAny(const AnyOf: array of Char; StartIndex: Integer; Count:
+          Integer): Integer; overload;
+      /// <summary>Index of any given chars, excluding those that are between quotes</summary>
+      function IndexOfAnyUnquoted(const AnyOf: array of Char; StartQuote, EndQuote:
+          Char): Integer; overload;
+      function IndexOfAnyUnquoted(const AnyOf: array of Char; StartQuote, EndQuote:
+          Char; StartIndex: Integer): Integer; overload;
+      function IndexOfAnyUnquoted(const AnyOf: array of Char; StartQuote, EndQuote:
+          Char; StartIndex: Integer; Count: Integer): Integer; overload;
+      function Insert(StartIndex: Integer; const Value: string): string;
+      function IsDelimiter(const Delimiters: string; Index: Integer): Boolean;
+      function IsEmpty: Boolean; inline;
+      class function IsNullOrEmpty(const Value: string): Boolean; static; inline;
+      class function IsNullOrWhiteSpace(const Value: string): Boolean; static;
+      class function Join(const Separator: string; const Values: array of const):
+          string; overload; static;
+      class function Join(const Separator: string; const Values: array of string):
+          string; overload; static;
+      class function Join(const Separator: string; const Values:
+          IEnumerator<string>): string; overload; static;
+      class function Join(const Separator: string; const Values:
+          IEnumerable<string>): string; overload; static; inline;
+      class function Join(const Separator: string; const Values: array of string;
+          StartIndex: Integer; Count: Integer): string; overload; static;
+      function LastDelimiter(const Delims: string): Integer; overload;
+      function LastDelimiter(const Delims: TSysCharSet): Integer; overload;
+      function LastIndexOf(Value: Char): Integer; overload;
+      function LastIndexOf(const Value: string): Integer; overload;
+      function LastIndexOf(Value: Char; StartIndex: Integer): Integer; overload;
+      function LastIndexOf(const Value: string; StartIndex: Integer): Integer;
+          overload;
+      function LastIndexOf(Value: Char; StartIndex: Integer; Count: Integer):
+          Integer; overload;
+      function LastIndexOf(const Value: string; StartIndex: Integer; Count: Integer):
+          Integer; overload;
+      function LastIndexOfAny(const AnyOf: array of Char): Integer; overload;
+      function LastIndexOfAny(const AnyOf: array of Char; StartIndex: Integer):
+          Integer; overload;
+      function LastIndexOfAny(const AnyOf: array of Char; StartIndex: Integer; Count:
+          Integer): Integer; overload;
+      function PadLeft(TotalWidth: Integer): string; overload; inline;
+      function PadLeft(TotalWidth: Integer; PaddingChar: Char): string; overload;
+          inline;
+      function PadRight(TotalWidth: Integer): string; overload; inline;
+      function PadRight(TotalWidth: Integer; PaddingChar: Char): string; overload;
+          inline;
+      function QuotedString: string; overload;
+      function QuotedString(const QuoteChar: Char): string; overload;
+      function Remove(StartIndex: Integer): string; overload; inline;
+      function Remove(StartIndex: Integer; Count: Integer): string; overload; inline;
+      function Replace(OldChar: Char; NewChar: Char): string; overload;
+      function Replace(OldChar: Char; NewChar: Char; ReplaceFlags: TReplaceFlags):
+          string; overload;
+      function Replace(const OldValue: string; const NewValue: string; ReplaceFlags:
+          TReplaceFlags): string; overload;
+      function Split(const Separator: array of Char): TArray<string>; overload;
+      function Split(const Separator: array of Char; Count: Integer): TArray<string>;
+          overload;
+      function Split(const Separator: array of Char; Options: TStringSplitOptions):
+          TArray<string>; overload;
+      function Split(const Separator: array of Char; Count: Integer; Options:
+          TStringSplitOptions): TArray<string>; overload;
+      function Split(const Separator: array of string): TArray<string>; overload;
+      function Split(const Separator: array of string; Count: Integer):
+          TArray<string>; overload;
+      function Split(const Separator: array of string; Options: TStringSplitOptions):
+          TArray<string>; overload;
+      function Split(const Separator: array of string; Count: Integer; Options:
+          TStringSplitOptions): TArray<string>; overload;
+      function Split(const Separator: array of Char; Quote: Char): TArray<string>;
+          overload;
+      function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char):
+          TArray<string>; overload;
+      function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char;
+          Options: TStringSplitOptions): TArray<string>; overload;
+      function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char;
+          Count: Integer): TArray<string>; overload;
+      function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char;
+          Count: Integer; Options: TStringSplitOptions): TArray<string>; overload;
+      function Split(const Separator: array of string; Quote: Char): TArray<string>;
+          overload;
+      function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char):
+          TArray<string>; overload;
+      function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char;
+          Options: TStringSplitOptions): TArray<string>; overload;
+      function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char;
+          Count: Integer): TArray<string>; overload;
+      function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char;
+          Count: Integer; Options: TStringSplitOptions): TArray<string>; overload;
+      class function StartsText(const ASubText, AText: string): Boolean; overload;
+          static;
+      function StartsWith(const Value: string): Boolean; overload; inline;
+      function StartsWith(const Value: string; IgnoreCase: Boolean): Boolean;
+          overload;
+      function ToBoolean: Boolean; overload; inline;
+      function ToInteger: Integer; overload; inline;
+      /// <summary>Converts the string to an Int64 value</summary>
+      function ToSingle: Single; overload; inline;
+      function ToDouble: Double; overload; inline;
+      function ToExtended: Extended; overload; inline;
+      function ToCharArray: TArray<Char>; overload;
+      function ToCharArray(StartIndex: Integer; Length: Integer): TArray<Char>;
+          overload;
+      function ToLower: string; overload; inline;
+      function ToLower(LocaleID: TLocaleID): string; overload;
+      function ToLowerInvariant: string; inline;
+      function ToUpper: string; overload; inline;
+      function ToUpper(LocaleID: TLocaleID): string; overload;
+      function ToUpperInvariant: string; inline;
+      function Trim(const TrimChars: array of Char): string; overload;
+      function TrimLeft(const TrimChars: array of Char): string; overload;
+      function TrimRight(const TrimChars: array of Char): string; overload;
+      function TrimEnd(const TrimChars: array of Char): string; deprecated
+          'Use TrimRight';
+      function TrimStart(const TrimChars: array of Char): string; deprecated
+          'Use TrimLeft';
+
   end;
   {$IFEND}
 
@@ -2001,7 +2250,8 @@ implementation
 
 uses OLTypesToEdits, TypInfo,
     {$IF CompilerVersion >= 23.0}
-        System.Character;
+        System.Character, IntegerHelperFunctions, StringHelperFunctions,
+        BooleanHelperFunctions, CurrencyHelperFunctions;
     {$ELSE}
         Character;
     {$IFEND}
@@ -2817,6 +3067,11 @@ begin
     Proc();
 end;
 
+class function TOLIntegerHelper.Parse(const S: string): Integer;
+begin
+  Result := IntegerHelperFunctions.Type_Parse(s);
+end;
+
 class function TOLIntegerHelper.Random(const MinValue, MaxValue: Integer): Integer;
 begin
   Result := OLInteger.Random(MinValue, MaxValue);
@@ -2873,17 +3128,53 @@ begin
   Self := ol;
 end;
 
-{$IF CompilerVersion >= 24.0}
-{ TOLBooleanHelper }
-
-function TOLBooleanHelper.ToString(): string;
-var
-  ol: OLBoolean;
+class function TOLIntegerHelper.Size: Integer;
 begin
-  ol := Self;
-  Result := ol.ToString();
+  Result := integer.size;
 end;
 
+function TOLIntegerHelper.ToBoolean: Boolean;
+begin
+  Result := IntegerHelperFunctions.Instance_ToBoolean(self);
+end;
+
+function TOLIntegerHelper.ToDouble: Double;
+begin
+  Result := IntegerHelperFunctions.Instance_ToDouble(Self);
+end;
+
+function TOLIntegerHelper.ToExtended: Extended;
+begin
+  Result := IntegerHelperFunctions.Instance_ToExtended(Self);
+end;
+
+function TOLIntegerHelper.ToHexString: string;
+begin
+  Result := IntegerHelperFunctions.Instance_ToHexString(self);
+end;
+
+function TOLIntegerHelper.ToHexString(const MinDigits: Integer): string;
+begin
+  Result := IntegerHelperFunctions.Instance_ToHexString(Self, MinDigits);
+end;
+
+function TOLIntegerHelper.ToSingle: Single;
+begin
+  Result := IntegerHelperFunctions.Instance_ToSingle(Self);
+end;
+
+class function TOLIntegerHelper.ToString(const Value: Integer): string;
+begin
+  Result := IntegerHelperFunctions.Type_ToString(Value);
+end;
+
+class function TOLIntegerHelper.TryParse(const S: string; out Value: Integer):
+    Boolean;
+begin
+  Result := IntegerHelperFunctions.Type_TryParse(s, Value);
+end;
+
+{$IF CompilerVersion >= 24.0}
 function TOLBooleanHelper.ToSQLString(): string;
 var
   ol: OLBoolean;
@@ -2939,6 +3230,40 @@ begin
   ol := Self;
   Result := ol.IfThen(ATrue, AFalse);
 end;
+
+class function TOLBooleanHelper.Parse(const S: string): Boolean;
+begin
+  Result := BooleanHelperFunctions.Type_Parse(S);
+end;
+
+class function TOLBooleanHelper.Size: Integer;
+begin
+  Result := BooleanHelperFunctions.Type_Size();
+end;
+
+function TOLBooleanHelper.ToInteger: Integer;
+begin
+  Result := BooleanHelperFunctions.Instance_ToInteger(Self);
+end;
+
+function TOLBooleanHelper.ToString(UseBoolStrs: TUseBoolStrs =
+    TUseBoolStrs.False): string;
+begin
+  Result := BooleanHelperFunctions.Instance_ToString(Self, UseBoolStrs);
+end;
+
+class function TOLBooleanHelper.ToString(const Value: Boolean; UseBoolStrs:
+    TUseBoolStrs = TUseBoolStrs.False): string;
+begin
+  Result := BooleanHelperFunctions.Type_ToString(Value, UseBoolStrs)
+end;
+
+class function TOLBooleanHelper.TryToParse(const S: string; out Value:
+    Boolean): Boolean;
+begin
+  Result := BooleanHelperFunctions.Type_TryToParse(S, Value);
+end;
+
 {$IFEND}
 
 {$IF CompilerVersion >= 24.0}
@@ -3286,6 +3611,62 @@ begin
   ol := Self;
   Result := ol.Floor();
 end;
+
+function TOLCurrencyHelper.Frac: Currency;
+begin
+  Result := CurrencyHelperFunctions.Instance_Frac(Self);
+end;
+
+class function TOLCurrencyHelper.Parse(const S: string; const AFormatSettings:
+    TFormatSettings): Currency;
+begin
+  Result := CurrencyHelperFunctions.Type_Parse(s, AFormatSettings);
+end;
+
+class function TOLCurrencyHelper.Parse(const S: string): Currency;
+begin
+  Result := CurrencyHelperFunctions.Type_Parse(S);
+end;
+
+class function TOLCurrencyHelper.Size: Integer;
+begin
+  Result := CurrencyHelperFunctions.Type_Size();
+end;
+
+function TOLCurrencyHelper.ToString(const AFormatSettings: TFormatSettings):
+    string;
+begin
+  Result := CurrencyHelperFunctions.Type_ToString(Self, AFormatSettings);
+end;
+
+class function TOLCurrencyHelper.ToString(const Value: Currency; const
+    AFormatSettings: TFormatSettings): string;
+begin
+  Result := CurrencyHelperFunctions.Type_ToString(Value, AFormatSettings);
+end;
+
+class function TOLCurrencyHelper.ToString(const Value: Currency): string;
+begin
+  Result := CurrencyHelperFunctions.Type_ToString(Value);
+end;
+
+function TOLCurrencyHelper.Trunc: Int64;
+begin
+  Result := CurrencyHelperFunctions.Instance_Trunc(Self);
+end;
+
+class function TOLCurrencyHelper.TryParse(const S: string; out Value: Currency;
+    const AFormatSettings: TFormatSettings): Boolean;
+begin
+  Result := CurrencyHelperFunctions.Type_TryParse(S, Value, AFormatSettings);
+end;
+
+class function TOLCurrencyHelper.TryParse(const S: string; out Value:
+    Currency): Boolean;
+begin
+  Result := CurrencyHelperFunctions.Type_TryParse(s, Value);
+end;
+
 {$IFEND}
 
 {$IF CompilerVersion >= 24.0}
@@ -5740,6 +6121,124 @@ begin
   Result := ol.AlphanumericsOnly();
 end;
 
+class function TOLStringHelper.Compare(const StrA: string; const StrB: string):
+    Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; const StrB: string;
+    LocaleID: TLocaleID): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB, LocaleID);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; const StrB: string;
+    IgnoreCase: Boolean): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB, IgnoreCase);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; const StrB: string;
+    IgnoreCase: Boolean; LocaleID: TLocaleID): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB, IgnoreCase, LocaleID);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; const StrB: string;
+    Options: TCompareOptions): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB, Options);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; const StrB: string;
+    Options: TCompareOptions; LocaleID: TLocaleID): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB, Options, LocaleID);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; IndexA: Integer;
+    const StrB: string; IndexB: Integer; Length: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, IndexA, StrB, IndexB, Length);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; IndexA: Integer;
+    const StrB: string; IndexB: Integer; Length: Integer; LocaleID: TLocaleID):
+    Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, IndexA, StrB, IndexB, Length, LocaleID);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; IndexA: Integer;
+    const StrB: string; IndexB: Integer; Length: Integer; IgnoreCase: Boolean):
+    Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, IndexA, StrB, IndexB, Length, IgnoreCase);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; IndexA: Integer;
+    const StrB: string; IndexB: Integer; Length: Integer; IgnoreCase: Boolean;
+    LocaleID: TLocaleID): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, IndexA, StrB, IndexB, Length,
+    IgnoreCase, LocaleID);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; IndexA: Integer;
+    const StrB: string; IndexB: Integer; Length: Integer; Options:
+    TCompareOptions): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, IndexA, StrB, IndexB, Length, Options);
+end;
+
+class function TOLStringHelper.Compare(const StrA: string; IndexA: Integer;
+    const StrB: string; IndexB: Integer; Length: Integer; Options:
+    TCompareOptions; LocaleID: TLocaleID): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, IndexA, StrB, IndexB, Length,
+    Options, LocaleID);
+end;
+
+class function TOLStringHelper.CompareOrdinal(const StrA: string; const StrB:
+    string): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB);
+end;
+
+class function TOLStringHelper.CompareOrdinal(const StrA: string; IndexA:
+    Integer; const StrB: string; IndexB: Integer; Length: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, IndexA, StrB, IndexB, Length);
+end;
+
+class function TOLStringHelper.CompareText(const StrA: string; const StrB:
+    string): Integer;
+begin
+  Result := StringHelperFunctions.Type_Compare(StrA, StrB);
+end;
+
+function TOLStringHelper.CompareTo(const strB: string): Integer;
+begin
+  Result := StringHelperFunctions.Instance_CompareTo(Self,  strB);
+end;
+
+function TOLStringHelper.Contains(const Value: string): Boolean;
+begin
+  Result := StringHelperFunctions.Instance_Contains(self, Value);
+end;
+
+class function TOLStringHelper.Copy(const Str: string): string;
+begin
+  Result := StringHelperFunctions.Type_Copy(Str);
+end;
+
+procedure TOLStringHelper.CopyTo(SourceIndex: Integer; var destination: array
+    of Char; DestinationIndex: Integer; Count: Integer);
+begin
+  StringHelperFunctions.Instance_CopyTo(Self, SourceIndex, destination, DestinationIndex, Count);
+end;
+
 function TOLStringHelper.RepeatedString(const ACount: Integer): string;
 var
   ol: OLString;
@@ -5810,15 +6309,15 @@ begin
 
   while i <= System.Length(NewValue) - L + 1 do
   begin
-    if Copy(NewValue, i, L) = ParamString then
+    if System.Copy(NewValue, i, L) = ParamString then
     begin
       if (i + L > System.Length(NewValue)) or
          (not TCharacter.IsLetterOrDigit(NewValue[i + L])) then
       begin
         NewValue :=
-          Copy(NewValue, 1, i - 1) +
+          System.Copy(NewValue, 1, i - 1) +
           Value +
-          Copy(NewValue, i + L, MaxInt);
+          System.Copy(NewValue, i + L, MaxInt);
 
         Inc(i, InsertLen);
         Continue;
@@ -6214,6 +6713,70 @@ begin
   ol.CopyToClipboard();
 end;
 
+function TOLStringHelper.CountChar(const C: Char): Integer;
+begin
+  Result := StringHelperFunctions.Instance_CountChar(Self, c);
+end;
+
+class function TOLStringHelper.Create(C: Char; Count: Integer): string;
+begin
+  Result := StringHelperFunctions.Type_Create(c, Count);
+end;
+
+class function TOLStringHelper.Create(const Value: array of Char; StartIndex:
+    Integer; Length: Integer): string;
+begin
+  Result := StringHelperFunctions.Type_Create(Value, StartIndex, Length);
+end;
+
+class function TOLStringHelper.Create(const Value: array of Char): string;
+begin
+  Result := Create(Value);
+end;
+
+function TOLStringHelper.DeQuotedString: string;
+begin
+  Result := StringHelperFunctions.Instance_DeQuotedString(Self);
+end;
+
+function TOLStringHelper.DeQuotedString(const QuoteChar: Char): string;
+begin
+  Result := StringHelperFunctions.Instance_DeQuotedString(Self, QuoteChar);
+end;
+
+class function TOLStringHelper.EndsText(const ASubText, AText: string): Boolean;
+begin
+  Result := StringHelperFunctions.Type_EndsText(ASubText, AText);
+end;
+
+function TOLStringHelper.EndsWith(const Value: string): Boolean;
+begin
+  Result := StringHelperFunctions.Instance_EndsWith(Self, Value);
+end;
+
+function TOLStringHelper.EndsWith(const Value: string; IgnoreCase: Boolean):
+    Boolean;
+begin
+  Result := StringHelperFunctions.Instance_EndsWith(Self, Value, IgnoreCase);
+end;
+
+function TOLStringHelper.Equals(const Value: string): Boolean;
+begin
+  Result := StringHelperFunctions.Instance_Equals(Self, Value);
+end;
+
+class function TOLStringHelper.Equals(const a: string; const b: string):
+    Boolean;
+begin
+  Result := StringHelperFunctions.Type_Equals(a, b);
+end;
+
+class function TOLStringHelper.Format(const Format: string; const args: array
+    of const): string;
+begin
+  Result := StringHelperFunctions.Type_Format(Format, args);
+end;
+
 procedure TOLStringHelper.PasteFromClipboard();
 var
   ol: OLString;
@@ -6230,6 +6793,11 @@ begin
   ol := Self;
   ol.GetFromUrl(URL, Timeout);
   Self := ol;
+end;
+
+function TOLStringHelper.GetHashCode: Integer;
+begin
+  Result := StringHelperFunctions.Instance_GetHashCode(Self);
 end;
 
 class function TOLStringHelper.RandomFrom(const AValues: array of string): string;
@@ -6251,6 +6819,283 @@ begin
   Result := ol.JSON[JsonFieldName];
 end;
 
+function TOLStringHelper.IndexOf(Value: Char): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOf(Self, Value);
+end;
+
+function TOLStringHelper.IndexOf(const Value: string): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOf(Self, Value);
+end;
+
+function TOLStringHelper.IndexOf(Value: Char; StartIndex: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOf(Self, Value, StartIndex);
+end;
+
+function TOLStringHelper.IndexOf(const Value: string; StartIndex: Integer):
+    Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOf(Self, Value, StartIndex);
+end;
+
+function TOLStringHelper.IndexOf(Value: Char; StartIndex: Integer; Count:
+    Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOf(Self, Value, StartIndex, Count);
+end;
+
+function TOLStringHelper.IndexOf(const Value: string; StartIndex: Integer;
+    Count: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOf(Self, Value, StartIndex, Count);
+end;
+
+function TOLStringHelper.IndexOfAny(const AnyOf: array of Char): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOfAny(Self, AnyOf);
+end;
+
+function TOLStringHelper.IndexOfAny(const AnyOf: array of Char; StartIndex:
+    Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOfAny(Self, AnyOf, StartIndex);
+end;
+
+function TOLStringHelper.IndexOfAny(const AnyOf: array of Char; StartIndex:
+    Integer; Count: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOfAny(Self, AnyOf, StartIndex);
+end;
+
+function TOLStringHelper.IndexOfAnyUnquoted(const AnyOf: array of Char;
+    StartQuote, EndQuote: Char): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOfAnyUnquoted(Self, AnyOf, StartQuote, EndQuote);
+end;
+
+function TOLStringHelper.IndexOfAnyUnquoted(const AnyOf: array of Char;
+    StartQuote, EndQuote: Char; StartIndex: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOfAnyUnquoted(Self, AnyOf, StartQuote,
+    EndQuote, StartIndex);
+end;
+
+function TOLStringHelper.IndexOfAnyUnquoted(const AnyOf: array of Char;
+    StartQuote, EndQuote: Char; StartIndex: Integer; Count: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_IndexOfAnyUnquoted(Self, AnyOf, StartQuote,
+    EndQuote, StartIndex, Count);
+end;
+
+function TOLStringHelper.Insert(StartIndex: Integer; const Value: string):
+    string;
+begin
+  Result := StringHelperFunctions.Instance_Insert(Self, StartIndex, Value);
+end;
+
+function TOLStringHelper.IsDelimiter(const Delimiters: string; Index: Integer):
+    Boolean;
+begin
+  Result := StringHelperFunctions.Instance_IsDelimiter(self, Delimiters, Index);
+end;
+
+function TOLStringHelper.IsEmpty: Boolean;
+begin
+  Result := StringHelperFunctions.Instance_IsEmpty(Self);
+end;
+
+class function TOLStringHelper.IsNullOrEmpty(const Value: string): Boolean;
+begin
+  Result := StringHelperFunctions.Type_IsNullOrEmpty(Value);
+end;
+
+class function TOLStringHelper.IsNullOrWhiteSpace(const Value: string): Boolean;
+begin
+  Result := StringHelperFunctions.Type_IsNullOrWhiteSpace(Value);
+end;
+
+class function TOLStringHelper.Join(const Separator: string; const Values:
+    array of const): string;
+begin
+  Result := StringHelperFunctions.Type_Join(Separator, Values);
+end;
+
+class function TOLStringHelper.Join(const Separator: string; const Values:
+    array of string): string;
+begin
+  Result := StringHelperFunctions.Type_Join(Separator, Values);
+end;
+
+class function TOLStringHelper.Join(const Separator: string; const Values:
+    IEnumerator<string>): string;
+begin
+  Result := StringHelperFunctions.Type_Join(Separator, Values);
+end;
+
+class function TOLStringHelper.Join(const Separator: string; const Values:
+    IEnumerable<string>): string;
+begin
+  Result := StringHelperFunctions.Type_Join(Separator, Values);
+end;
+
+class function TOLStringHelper.Join(const Separator: string; const Values:
+    array of string; StartIndex: Integer; Count: Integer): string;
+begin
+  Result := StringHelperFunctions.Type_Join(Separator, Values, StartIndex, Count);
+end;
+
+function TOLStringHelper.LastDelimiter(const Delims: string): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastDelimiter(Self, Delims);
+end;
+
+function TOLStringHelper.LastDelimiter(const Delims: TSysCharSet): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastDelimiter(Self, Delims);
+end;
+
+function TOLStringHelper.LastIndexOf(Value: Char): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOf(Self, Value);
+end;
+
+function TOLStringHelper.LastIndexOf(const Value: string): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOf(Self, Value);
+end;
+
+function TOLStringHelper.LastIndexOf(Value: Char; StartIndex: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOf(Self, Value, StartIndex);
+end;
+
+function TOLStringHelper.LastIndexOf(const Value: string; StartIndex: Integer):
+    Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOf(Self, Value, StartIndex);
+end;
+
+function TOLStringHelper.LastIndexOf(Value: Char; StartIndex: Integer; Count:
+    Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOf(Self, Value, StartIndex, Count);
+end;
+
+function TOLStringHelper.LastIndexOf(const Value: string; StartIndex: Integer;
+    Count: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOf(Self, Value, StartIndex, Count);
+end;
+
+function TOLStringHelper.LastIndexOfAny(const AnyOf: array of Char): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOfAny(Self, AnyOf);
+end;
+
+function TOLStringHelper.LastIndexOfAny(const AnyOf: array of Char; StartIndex:
+    Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOfAny(Self, AnyOf, StartIndex);
+end;
+
+function TOLStringHelper.LastIndexOfAny(const AnyOf: array of Char; StartIndex:
+    Integer; Count: Integer): Integer;
+begin
+  Result := StringHelperFunctions.Instance_LastIndexOfAny(Self, AnyOf, StartIndex, Count);
+end;
+
+class function TOLStringHelper.LowerCase(const S: string): string;
+begin
+  Result := StringHelperFunctions.Type_LowerCase(s);
+end;
+
+class function TOLStringHelper.LowerCase(const S: string; LocaleOptions:
+    TLocaleOptions): string;
+begin
+  Result := StringHelperFunctions.Type_LowerCase(s, LocaleOptions);
+end;
+
+function TOLStringHelper.PadLeft(TotalWidth: Integer): string;
+begin
+  Result := StringHelperFunctions.Instance_PadLeft(Self, TotalWidth);
+end;
+
+function TOLStringHelper.PadLeft(TotalWidth: Integer; PaddingChar: Char):
+    string;
+begin
+  Result := StringHelperFunctions.Instance_PadLeft(Self, TotalWidth);
+end;
+
+function TOLStringHelper.PadRight(TotalWidth: Integer): string;
+begin
+  Result := StringHelperFunctions.Instance_PadRight(Self, TotalWidth);
+end;
+
+function TOLStringHelper.PadRight(TotalWidth: Integer; PaddingChar: Char):
+    string;
+begin
+  Result := StringHelperFunctions.Instance_PadRight(Self, TotalWidth, PaddingChar);
+end;
+
+class function TOLStringHelper.Parse(const Value: Integer): string;
+begin
+  Result := StringHelperFunctions.Type_Parse(Value);
+end;
+
+class function TOLStringHelper.Parse(const Value: Int64): string;
+begin
+  Result := StringHelperFunctions.Type_Parse(Value);
+end;
+
+class function TOLStringHelper.Parse(const Value: Boolean): string;
+begin
+  Result := StringHelperFunctions.Type_Parse(Value);
+end;
+
+class function TOLStringHelper.Parse(const Value: Extended): string;
+begin
+  Result := StringHelperFunctions.Type_Parse(Value);
+end;
+
+function TOLStringHelper.QuotedString: string;
+begin
+  Result := StringHelperFunctions.Instance_QuotedString(Self);
+end;
+
+function TOLStringHelper.QuotedString(const QuoteChar: Char): string;
+begin
+  Result := StringHelperFunctions.Instance_QuotedString(Self, QuoteChar);
+end;
+
+function TOLStringHelper.Remove(StartIndex: Integer): string;
+begin
+  Result := StringHelperFunctions.Instance_Remove(Self, StartIndex);
+end;
+
+function TOLStringHelper.Remove(StartIndex: Integer; Count: Integer): string;
+begin
+  Result := StringHelperFunctions.Instance_Remove(Self, StartIndex, Count);
+end;
+
+function TOLStringHelper.Replace(OldChar: Char; NewChar: Char): string;
+begin
+  Result := StringHelperFunctions.Instance_Replace(Self, OldChar, NewChar);
+end;
+
+function TOLStringHelper.Replace(OldChar: Char; NewChar: Char; ReplaceFlags:
+    TReplaceFlags): string;
+begin
+  Result := StringHelperFunctions.Instance_Replace(Self, OldChar, NewChar, ReplaceFlags);
+end;
+
+function TOLStringHelper.Replace(const OldValue: string; const NewValue:
+    string; ReplaceFlags: TReplaceFlags): string;
+begin
+  Result := StringHelperFunctions.Instance_Replace(Self, OldValue, NewValue, ReplaceFlags);
+end;
+
 procedure TOLStringHelper.SetJSON(const JsonFieldName: string; const Value: OLString);
 var
   ol: OLString;
@@ -6259,6 +7104,263 @@ begin
   ol.JSON[JsonFieldName] := Value;
   Self := ol;
 end;
+
+function TOLStringHelper.Split(const Separator: array of Char): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; Count: Integer):
+    TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Count);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; Options:
+    TStringSplitOptions): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Options);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; Count: Integer;
+    Options: TStringSplitOptions): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Count, Options);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string):
+    TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; Count:
+    Integer): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Count);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; Options:
+    TStringSplitOptions): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Options);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; Count:
+    Integer; Options: TStringSplitOptions): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Count, Options);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; Quote: Char):
+    TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Quote);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; QuoteStart,
+    QuoteEnd: Char): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart, QuoteEnd);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; QuoteStart,
+    QuoteEnd: Char; Options: TStringSplitOptions): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart, QuoteEnd, Options);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; QuoteStart,
+    QuoteEnd: Char; Count: Integer): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart, QuoteEnd, Count);
+end;
+
+function TOLStringHelper.Split(const Separator: array of Char; QuoteStart,
+    QuoteEnd: Char; Count: Integer; Options: TStringSplitOptions):
+    TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart, QuoteEnd,
+    Count, Options);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; Quote: Char):
+    TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, Quote);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; QuoteStart,
+    QuoteEnd: Char): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart, QuoteEnd);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; QuoteStart,
+    QuoteEnd: Char; Options: TStringSplitOptions): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart,
+    QuoteEnd, Options);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; QuoteStart,
+    QuoteEnd: Char; Count: Integer): TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart, QuoteEnd, Count);
+end;
+
+function TOLStringHelper.Split(const Separator: array of string; QuoteStart,
+    QuoteEnd: Char; Count: Integer; Options: TStringSplitOptions):
+    TArray<string>;
+begin
+  Result := StringHelperFunctions.Instance_Split(self, Separator, QuoteStart,
+    QuoteEnd, Count, Options);
+end;
+
+class function TOLStringHelper.StartsText(const ASubText, AText: string):
+    Boolean;
+begin
+  Result := StringHelperFunctions.Type_StartsText(ASubText, AText);
+end;
+
+function TOLStringHelper.StartsWith(const Value: string): Boolean;
+begin
+  Result := StringHelperFunctions.Instance_StartsWith(Self, Value);
+end;
+
+function TOLStringHelper.StartsWith(const Value: string; IgnoreCase: Boolean):
+    Boolean;
+begin
+  Result := StringHelperFunctions.Instance_StartsWith(Self, Value, IgnoreCase);
+end;
+
+class function TOLStringHelper.ToBoolean(const S: string): Boolean;
+begin
+  Result := StringHelperFunctions.Instance_ToBoolean(s);
+end;
+
+function TOLStringHelper.ToBoolean: Boolean;
+begin
+  Result := StringHelperFunctions.Instance_ToBoolean(Self);
+end;
+
+function TOLStringHelper.ToCharArray: TArray<Char>;
+begin
+  Result := StringHelperFunctions.Instance_ToCharArray(Self);
+end;
+
+function TOLStringHelper.ToCharArray(StartIndex: Integer; Length: Integer):
+    TArray<Char>;
+begin
+  Result := StringHelperFunctions.Instance_ToCharArray(Self, StartIndex, Length);
+end;
+
+class function TOLStringHelper.ToDouble(const S: string): Double;
+begin
+  Result := StringHelperFunctions.Type_ToDouble(s);
+end;
+
+function TOLStringHelper.ToDouble: Double;
+begin
+  Result := StringHelperFunctions.Instance_ToDouble(self);
+end;
+
+class function TOLStringHelper.ToExtended(const S: string): Extended;
+begin
+  Result := StringHelperFunctions.Instance_ToExtended(s);
+end;
+
+function TOLStringHelper.ToExtended: Extended;
+begin
+  Result := StringHelperFunctions.Instance_ToExtended(Self);
+end;
+
+class function TOLStringHelper.ToInteger(const S: string): Integer;
+begin
+  Result := StringHelperFunctions.Type_ToInteger(s);
+end;
+
+function TOLStringHelper.ToInteger: Integer;
+begin
+  Result := StringHelperFunctions.Instance_ToInteger(Self);
+end;
+
+function TOLStringHelper.ToLower: string;
+begin
+  Result := StringHelperFunctions.Instance_ToLower(Self);
+end;
+
+function TOLStringHelper.ToLower(LocaleID: TLocaleID): string;
+begin
+  Result := StringHelperFunctions.Instance_ToLower(Self, LocaleID);
+end;
+
+function TOLStringHelper.ToLowerInvariant: string;
+begin
+  Result := StringHelperFunctions.Instance_ToLowerInvariant(Self);
+end;
+
+class function TOLStringHelper.ToSingle(const S: string): Single;
+begin
+  Result := StringHelperFunctions.Type_ToSingle(s);
+end;
+
+function TOLStringHelper.ToSingle: Single;
+begin
+  Result := StringHelperFunctions.Instance_ToSingle(Self);
+end;
+
+function TOLStringHelper.ToUpper: string;
+begin
+  Result := StringHelperFunctions.Instance_ToUpper(Self);
+end;
+
+function TOLStringHelper.ToUpper(LocaleID: TLocaleID): string;
+begin
+  Result := StringHelperFunctions.Instance_ToUpper(Self, LocaleID);
+end;
+
+function TOLStringHelper.ToUpperInvariant: string;
+begin
+  Result := StringHelperFunctions.Instance_ToUpperInvariant(Self);
+end;
+
+function TOLStringHelper.Trim(const TrimChars: array of Char): string;
+begin
+  Result := StringHelperFunctions.Instance_TrimLeft(Self, TrimChars);
+end;
+
+function TOLStringHelper.TrimEnd(const TrimChars: array of Char): string;
+begin
+  Result := TrimRight(TrimChars);
+end;
+
+function TOLStringHelper.TrimLeft(const TrimChars: array of Char): string;
+begin
+  Result := StringHelperFunctions.Instance_TrimLeft(Self, TrimChars);
+end;
+
+function TOLStringHelper.TrimRight(const TrimChars: array of Char): string;
+begin
+  Result := StringHelperFunctions.Instance_TrimRight(self, TrimChars);
+end;
+
+function TOLStringHelper.TrimStart(const TrimChars: array of Char): string;
+begin
+  Result := TrimLeft(TrimChars);
+end;
+
+class function TOLStringHelper.UpperCase(const S: string): string;
+begin
+  Result := StringHelperFunctions.Type_UpperCase(s);
+end;
+
+class function TOLStringHelper.UpperCase(const S: string; LocaleOptions:
+    TLocaleOptions): string;
+begin
+  Result := StringHelperFunctions.Type_UpperCase(s, LocaleOptions);
+end;
+
 {$IFEND}  //CompilerVersion >= 27.0
 
 {$IFEND}
