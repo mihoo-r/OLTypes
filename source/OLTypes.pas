@@ -66,7 +66,12 @@ type
 
   OLBooleanArray = OLArrays.OLBooleanArray;
   OLCurrencyArray = OLArrays.OLCurrencyArray;
+  OLDateArray = OLArrays.OLDateArray;
   OLDateTimeArray = OLArrays.OLDateTimeArray;
+  OLDoubleArray = OLArrays.OLDoubleArray;
+  OLInt64Array = OLArrays.OLInt64Array;
+  OLIntegerArray = OLArrays.OLIntegerArray;
+  OLStringArray = OLArrays.OLStringArray;
 
   {$IF CompilerVersion >= 34.0}
   OLIntIntDictionary = OLDictionaries.OLIntIntDictionary;
