@@ -336,6 +336,11 @@ type
     /// </summary>
     function Ceil(): Integer;
     /// <summary>
+    ///   Rounds the double using symmetric arithmetic rounding to the specified power of ten.
+    ///   Unlike Round, SimpleRoundTo always rounds 0.5 away from zero.
+    /// </summary>
+    function SimpleRoundTo(const PowerOfTen: Integer = -2): Double;
+    /// <summary>
     ///   Checks if the double is NaN (Not a Number).
     /// </summary>
     function IsNan(): Boolean; overload;
@@ -473,6 +478,11 @@ type
     ///   Returns the largest integer less than or equal to the currency.
     /// </summary>
     function Floor(): Integer;
+    /// <summary>
+    ///   Rounds the currency using symmetric arithmetic rounding to the specified power of ten.
+    ///   Unlike Round, SimpleRoundTo always rounds 0.5 away from zero.
+    /// </summary>
+    function SimpleRoundTo(const PowerOfTen: Integer = -2): Currency;
 
     const
        MaxValue: Currency =  922337203685477.5807;
@@ -2322,7 +2332,7 @@ type
 
 implementation
 
-uses OLTypesToEdits, TypInfo,
+uses OLTypesToEdits, TypInfo, Math,
     {$IF CompilerVersion >= 23.0}
         System.Character, IntegerHelperFunctions, StringHelperFunctions,
         BooleanHelperFunctions, CurrencyHelperFunctions, DoubleHelperFunctions, Int64HelperFunctions;
@@ -3487,6 +3497,11 @@ begin
   Result := ol.Ceil();
 end;
 
+function TOLDoubleHelper.SimpleRoundTo(const PowerOfTen: Integer = -2): Double;
+begin
+  Result := Math.SimpleRoundTo(Self, PowerOfTen);
+end;
+
 function TOLDoubleHelper.IsNan(): Boolean;
 var
   ol: OLDouble;
@@ -3856,6 +3871,11 @@ var
 begin
   ol := Self;
   Result := ol.Floor();
+end;
+
+function TOLCurrencyHelper.SimpleRoundTo(const PowerOfTen: Integer = -2): Currency;
+begin
+  Result := Math.SimpleRoundTo(Self, PowerOfTen);
 end;
 
 function TOLCurrencyHelper.Frac: Currency;

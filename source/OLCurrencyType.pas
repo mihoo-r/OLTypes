@@ -106,6 +106,11 @@ type
     ///   Returns the largest integer less than or equal to the currency.
     /// </summary>
     function Floor(): OLInteger;
+    /// <summary>
+    ///   Rounds the currency using symmetric arithmetic rounding to the specified power of ten.
+    ///   Unlike Round, SimpleRoundTo always rounds 0.5 away from zero.
+    /// </summary>
+    function SimpleRoundTo(const PowerOfTen: Integer = -2): OLCurrency;
 
     class operator Add(const a, b: OLCurrency): OLCurrency;
     class operator Subtract(const a, b: OLCurrency): OLCurrency;
@@ -618,6 +623,18 @@ var
 begin
   if HasValue then
     OutPut := Math.RoundTo(Self, PowerOfTen)
+  else
+    OutPut := null;
+
+  Result := OutPut;
+end;
+
+function OLCurrency.SimpleRoundTo(const PowerOfTen: Integer = -2): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if HasValue then
+    OutPut := Math.SimpleRoundTo(Self, PowerOfTen)
   else
     OutPut := null;
 

@@ -107,6 +107,11 @@ type
     ///   Returns the smallest integer greater than or equal to the double.
     /// </summary>
     function Ceil(): Integer;
+    /// <summary>
+    ///   Rounds the double using symmetric arithmetic rounding to the specified power of ten.
+    ///   Unlike Round, SimpleRoundTo always rounds 0.5 away from zero.
+    /// </summary>
+    function SimpleRoundTo(const PowerOfTen: Integer = -2): OLDouble;
 
     /// <summary>
     ///   Returns the double raised to the specified extended exponent.
@@ -586,6 +591,18 @@ var
 begin
   if HasValue then
     OutPut := Math.RoundTo(Self, PowerOfTen)
+  else
+    OutPut := null;
+
+  Result := OutPut;
+end;
+
+function OLDouble.SimpleRoundTo(const PowerOfTen: Integer = -2): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if HasValue then
+    OutPut := Math.SimpleRoundTo(Self, PowerOfTen)
   else
     OutPut := null;
 
