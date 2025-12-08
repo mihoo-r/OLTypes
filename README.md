@@ -18,12 +18,12 @@ The library provides a comprehensive set of features, including:
 ### Compatibility ###
 
 | Delphi Version | OLTypes | Primitive Type Helpers | DataBinding | OLArrays | OLDictionaries |
-|----------------|---------|---------|-------------|----------|----------------|
-| 2010           | ✅      | ❌      | ❌          | ❌       | ❌             |
-| XE             | ✅      | ❌      | ❌          | ✅       | ❌             |
-| XE2            | ✅      | ❌      | ✅          | ✅       | ❌             |
-| XE3+           | ✅      | ✅      | ✅          | ✅       | ❌             |
-| 10.4+          | ✅      | ✅      | ✅          | ✅       | ✅             |
+|----------------|---------|------------------------|-------------|----------|----------------|
+| 2010           | **✓**   | **✕**                  | **✕**       | **✕**    | **✕**          |
+| XE             | **✓**   | **✕**                  | **✕**       | **✓**    | **✕**          |
+| XE2            | **✓**   | **✕**                  | **✓**       | **✓**    | **✕**          |
+| XE3+           | **✓**   | **✓**                  | **✓**       | **✓**    | **✕**          |
+| 10.4+          | **✓**   | **✓**                  | **✓**       | **✓**    | **✓**          |
 
 ### Licence ###
 OLTypes library is distributed under **[the MIT License](https://www.wikiwand.com/en/MIT_License)**.
