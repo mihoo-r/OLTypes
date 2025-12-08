@@ -130,81 +130,246 @@ type
   // Helper for Integer type - provides OLInteger methods without null handling
   {$IF CompilerVersion >= 24.0}
   TOLIntegerHelper = record  helper for Integer
-
+   public
     // Predicates
+    /// <summary>
+    ///   Checks if the integer is divisible by the specified value.
+    /// </summary>
     function IsDividableBy(const i: Integer): Boolean;
+    /// <summary>
+    ///   Checks if the integer is an odd number.
+    /// </summary>
     function IsOdd(): Boolean;
+    /// <summary>
+    ///   Checks if the integer is an even number.
+    /// </summary>
     function IsEven(): Boolean;
+    /// <summary>
+    ///   Checks if the integer is positive (> 0).
+    /// </summary>
     function IsPositive(): Boolean;
+    /// <summary>
+    ///   Checks if the integer is negative (< 0).
+    /// </summary>
     function IsNegative(): Boolean;
+    /// <summary>
+    ///   Checks if the integer is non-negative (>= 0).
+    /// </summary>
     function IsNonNegative(): Boolean;
+    /// <summary>
+    ///   Checks if the integer is a prime number.
+    /// </summary>
     function IsPrime(): Boolean;
 
     // Mathematical operations
+    /// <summary>
+    ///   Returns the square of the integer.
+    /// </summary>
     function Sqr(): Integer;
+    /// <summary>
+    ///   Returns the integer raised to the specified power.
+    /// </summary>
     function Power(const Exponent: LongWord): Integer; overload;
+    /// <summary>
+    ///   Returns the integer raised to the specified power as a double.
+    /// </summary>
     function Power(const Exponent: Integer): Double; overload;
+    /// <summary>
+    ///   Returns the absolute value of the integer.
+    /// </summary>
     function Abs(): Integer;
+    /// <summary>
+    ///   Returns the larger of the integer and the specified value.
+    /// </summary>
     function Max(const i: Integer): Integer;
+    /// <summary>
+    ///   Returns the smaller of the integer and the specified value.
+    /// </summary>
     function Min(const i: Integer): Integer;
+    /// <summary>
+    ///   Rounds the integer to the specified number of digits.
+    /// </summary>
     function Round(const Digits: Integer): Integer;
 
     // Range operations
+    /// <summary>
+    ///   Checks if the integer is between the specified bounds (inclusive).
+    /// </summary>
     function Between(const BottomIncluded, TopIncluded: Integer): Boolean;
+    /// <summary>
+    ///   Returns the integer increased by the specified amount.
+    /// </summary>
     function Increased(const IncreasedBy: Integer = 1): Integer;
+    /// <summary>
+    ///   Returns the integer decreased by the specified amount.
+    /// </summary>
     function Decreased(const DecreasedBy: Integer = 1): Integer;
+    /// <summary>
+    ///   Replaces the integer with ToValue if it equals FromValue.
+    /// </summary>
     function Replaced(const FromValue: Integer; const ToValue: Integer): Integer;
 
     // String conversion
+    /// <summary>
+    ///   Converts the integer to a string representation.
+    /// </summary>
     function ToString(): string; overload;
+    /// <summary>
+    ///   Converts the integer to a SQL-compatible string representation.
+    /// </summary>
     function ToSQLString(): string;
+    /// <summary>
+    ///   Converts the integer to a string in the specified numeral system.
+    /// </summary>
     function ToNumeralSystem(const Base: Integer): string;
 
     // Number system properties
+    /// <summary>
+    ///   Returns the binary representation of the integer.
+    /// </summary>
     function GetBinary: string;
+    /// <summary>
+    ///   Returns the octal representation of the integer.
+    /// </summary>
     function GetOctal: string;
+    /// <summary>
+    ///   Returns the hexadecimal representation of the integer.
+    /// </summary>
     function GetHexidecimal: string;
+    /// <summary>
+    ///   Returns the base-32 numeral system representation of the integer.
+    /// </summary>
     function GetNumeralSystem32: string;
+    /// <summary>
+    ///   Returns the base-64 numeral system representation of the integer.
+    /// </summary>
     function GetNumeralSystem64: string;
+    /// <summary>
+    ///   Sets the integer from a binary string.
+    /// </summary>
     procedure SetBinary(const Value: string);
+    /// <summary>
+    ///   Sets the integer from an octal string.
+    /// </summary>
     procedure SetOctal(const Value: string);
+    /// <summary>
+    ///   Sets the integer from a hexadecimal string.
+    /// </summary>
     procedure SetHexidecimal(const Value: string);
+    /// <summary>
+    ///   Sets the integer from a base-32 numeral system string.
+    /// </summary>
     procedure SetNumeralSystem32(const Value: string);
+    /// <summary>
+    ///   Sets the integer from a base-64 numeral system string.
+    /// </summary>
     procedure SetNumeralSystem64(const Value: string);
 
+    /// <summary>
+    ///   Gets or sets the binary representation of the integer.
+    /// </summary>
     property Binary: string read GetBinary write SetBinary;
+    /// <summary>
+    ///   Gets or sets the octal representation of the integer.
+    /// </summary>
     property Octal: string read GetOctal write SetOctal;
+    /// <summary>
+    ///   Gets or sets the hexadecimal representation of the integer.
+    /// </summary>
     property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
+    /// <summary>
+    ///   Gets or sets the base-32 numeral system representation of the integer.
+    /// </summary>
     property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
+    /// <summary>
+    ///   Gets or sets the base-64 numeral system representation of the integer.
+    /// </summary>
     property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
 
     // Loop utility
+    /// <summary>
+    ///   Executes a procedure for each value in the specified range.
+    /// </summary>
     procedure ForLoop(const InitialValue: Integer; const ToValue: Integer; const Proc: TProc);
 
     // Random generation
+    /// <summary>
+    ///   Returns a random integer between the specified minimum and maximum values.
+    /// </summary>
     class function Random(const MinValue: Integer; const MaxValue: Integer): Integer; overload; static;
+    /// <summary>
+    ///   Returns a random prime integer between the specified minimum and maximum values.
+    /// </summary>
     class function RandomPrime(const MinValue: Integer; const MaxValue: Integer): Integer; overload; static;
+    /// <summary>
+    ///   Returns a random integer up to the specified maximum value.
+    /// </summary>
     class function Random(const MaxValue: Integer = MaxInt): Integer; overload; static;
+    /// <summary>
+    ///   Returns a random prime integer up to the specified maximum value.
+    /// </summary>
     class function RandomPrime(const MaxValue: Integer = MaxInt): Integer; overload; static;
+    /// <summary>
+    ///   Sets the integer to a random value between the specified minimum and maximum values.
+    /// </summary>
     procedure SetRandom(const MinValue: Integer; const MaxValue: Integer); overload;
+    /// <summary>
+    ///   Sets the integer to a random value up to the specified maximum value.
+    /// </summary>
     procedure SetRandom(const MaxValue: Integer = MaxInt); overload;
+    /// <summary>
+    ///   Sets the integer to a random prime value between the specified minimum and maximum values.
+    /// </summary>
     procedure SetRandomPrime(const MinValue: Integer; const MaxValue: Integer); overload;
+    /// <summary>
+    ///   Sets the integer to a random prime value up to the specified maximum value.
+    /// </summary>
     procedure SetRandomPrime(const MaxValue: Integer = MaxInt); overload;
 
     const
       MaxValue = 2147483647;
       MinValue = -2147483648;
 
+    /// <summary>
+    ///   Converts the integer to a boolean value.
+    /// </summary>
     function ToBoolean: Boolean; inline;
+    /// <summary>
+    ///   Converts the integer to a hexadecimal string.
+    /// </summary>
     function ToHexString: string; overload; inline;
+    /// <summary>
+    ///   Converts the integer to a hexadecimal string with the specified minimum digits.
+    /// </summary>
     function ToHexString(const MinDigits: Integer): string; overload; inline;
+    /// <summary>
+    ///   Converts the integer to a single-precision floating-point value.
+    /// </summary>
     function ToSingle: Single; inline;
+    /// <summary>
+    ///   Converts the integer to a double-precision floating-point value.
+    /// </summary>
     function ToDouble: Double; inline;
+    /// <summary>
+    ///   Converts the integer to an extended-precision floating-point value.
+    /// </summary>
     function ToExtended: Extended; inline;
 
+    /// <summary>
+    ///   Returns the size of the Integer type in bytes.
+    /// </summary>
     class function Size: Integer; static; inline;
+    /// <summary>
+    ///   Converts the specified integer value to a string.
+    /// </summary>
     class function ToString(const Value: Integer): string; overload; static; inline;
+    /// <summary>
+    ///   Parses the string and returns the integer value.
+    /// </summary>
     class function Parse(const S: string): Integer; static;
+    /// <summary>
+    ///   Tries to parse the string and returns true if successful.
+    /// </summary>
     class function TryParse(const S: string; out Value: Integer): Boolean; static;
         inline;
 
@@ -243,13 +408,31 @@ type
     /// </summary>
     function IfThen(const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 
+    /// <summary>
+    ///   Converts the boolean to an integer value (0 or 1).
+    /// </summary>
     function ToInteger: Integer; inline;
+    /// <summary>
+    ///   Converts the boolean to a string representation.
+    /// </summary>
     function ToString(UseBoolStrs: TUseBoolStrs = TUseBoolStrs.False): string;
         overload; inline;
+    /// <summary>
+    ///   Returns the size of the Boolean type in bytes.
+    /// </summary>
     class function Size: Integer; static; inline;
+    /// <summary>
+    ///   Converts the specified boolean value to a string.
+    /// </summary>
     class function ToString(const Value: Boolean; UseBoolStrs: TUseBoolStrs =
         TUseBoolStrs.False): string; overload; static; inline;
+    /// <summary>
+    ///   Parses the string and returns the boolean value.
+    /// </summary>
     class function Parse(const S: string): Boolean; static; inline;
+    /// <summary>
+    ///   Tries to parse the string and returns true if successful.
+    /// </summary>
     class function TryToParse(const S: string; out Value: Boolean): Boolean;
         static; inline;
   end;
@@ -293,6 +476,9 @@ type
     ///   Checks if the double is negative (< 0).
     /// </summary>
     function IsNegative(): Boolean;
+    /// <summary>
+    ///   Checks if the double is non-negative (>= 0).
+    /// </summary>
     function IsNonNegative(): Boolean;
     /// <summary>
     ///   Returns the larger of the two doubles.
@@ -318,6 +504,9 @@ type
     ///   Converts the double to a string with custom separators.
     /// </summary>
     function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    /// <summary>
+    ///   Converts the double to a SQL-compatible string representation.
+    /// </summary>
     function ToSQLString(): string;
     /// <summary>
     ///   Rounds the double to the specified power of ten.
@@ -381,42 +570,126 @@ type
       NegativeInfinity:Double = -1.0 / 0.0;
       NaN:Double = 0.0 / 0.0;
 
+    /// <summary>
+    ///   Returns the exponent of the floating-point representation.
+    /// </summary>
     function Exponent: Integer;
+    /// <summary>
+    ///   Returns the fractional part of the floating-point number.
+    /// </summary>
     function Fraction: Extended;
+    /// <summary>
+    ///   Returns the mantissa (significand) of the floating-point representation.
+    /// </summary>
     function Mantissa: UInt64;
 
+    /// <summary>
+    ///   Gets or sets the sign bit of the floating-point number.
+    /// </summary>
     property Sign: Boolean read GetSign write SetSign;
+    /// <summary>
+    ///   Gets or sets the exponent bits of the floating-point number.
+    /// </summary>
     property Exp: UInt64 read GetExp write SetExp;
+    /// <summary>
+    ///   Gets or sets the fraction bits of the floating-point number.
+    /// </summary>
     property Frac: UInt64 read GetFrac write SetFrac;
 
+    /// <summary>
+    ///   Returns the special type classification of the floating-point number.
+    /// </summary>
     function SpecialType: TFloatSpecial;
+    /// <summary>
+    ///   Builds a floating-point number from its components.
+    /// </summary>
     procedure BuildUp(const SignFlag: Boolean; const Mantissa: UInt64; const Exponent: Integer);
+    /// <summary>
+    ///   Converts the double to a string using the specified format settings.
+    /// </summary>
     function ToString(const AFormatSettings: TFormatSettings): string; overload; inline;
+    /// <summary>
+    ///   Converts the double to a formatted string with the specified format, precision, and digits.
+    /// </summary>
     function ToString(const Format: TFloatFormat; const Precision, Digits:
         Integer): string; overload; inline;
+    /// <summary>
+    ///   Converts the double to a formatted string with the specified format settings.
+    /// </summary>
     function ToString(const Format: TFloatFormat; const Precision, Digits: Integer;
                          const AFormatSettings: TFormatSettings): string; overload; inline;
+    /// <summary>
+    ///   Checks if the double is positive or negative infinity.
+    /// </summary>
     function IsInfinity: Boolean; overload; inline;
+    /// <summary>
+    ///   Checks if the double is negative infinity.
+    /// </summary>
     function IsNegativeInfinity: Boolean; overload; inline;
+    /// <summary>
+    ///   Checks if the double is positive infinity.
+    /// </summary>
     function IsPositiveInfinity: Boolean; overload; inline;
 
+    /// <summary>
+    ///   Gets or sets the bytes of the floating-point representation.
+    /// </summary>
     property Bytes[Index: Cardinal]: UInt8 read GetBytes write SetBytes;  // 0..7
     property Words[Index: Cardinal]: UInt16 read GetWords write SetWords; // 0..3
 
+    /// <summary>
+    ///   Converts the specified double value to a string.
+    /// </summary>
     class function ToString(const Value: Double): string; overload; inline; static;
+    /// <summary>
+    ///   Converts the specified double value to a string using the specified format settings.
+    /// </summary>
     class function ToString(const Value: Double; const AFormatSettings: TFormatSettings): string; overload; inline; static;
+    /// <summary>
+    ///   Converts the specified double value to a formatted string.
+    /// </summary>
     class function ToString(const Value: Double; const Format: TFloatFormat; const Precision, Digits: Integer): string; overload; inline; static;
+    /// <summary>
+    ///   Converts the specified double value to a formatted string using the specified format settings.
+    /// </summary>
     class function ToString(const Value: Double; const Format: TFloatFormat; const Precision, Digits: Integer;
                                const AFormatSettings: TFormatSettings): string; overload; inline; static;
+    /// <summary>
+    ///   Parses the string and returns the double value using the specified format settings.
+    /// </summary>
     class function Parse(const S: string; const AFormatSettings: TFormatSettings): Double; overload; static;
+    /// <summary>
+    ///   Parses the string and returns the double value.
+    /// </summary>
     class function Parse(const S: string): Double; overload; inline; static;
+    /// <summary>
+    ///   Tries to parse the string and returns true if successful, using the specified format settings.
+    /// </summary>
     class function TryParse(const S: string; out Value: Double; const AFormatSettings: TFormatSettings): Boolean; overload;
       {$IFNDEF EXTENDEDHAS10BYTES}inline;{$ENDIF}static;
+    /// <summary>
+    ///   Tries to parse the string and returns true if successful.
+    /// </summary>
     class function TryParse(const S: string; out Value: Double): Boolean; overload; inline; static;
+    /// <summary>
+    ///   Checks if the specified double value is NaN.
+    /// </summary>
     class function IsNan(const Value: Double): Boolean; overload; inline; static;
+    /// <summary>
+    ///   Checks if the specified double value is positive or negative infinity.
+    /// </summary>
     class function IsInfinity(const Value: Double): Boolean; overload; inline; static;
+    /// <summary>
+    ///   Checks if the specified double value is negative infinity.
+    /// </summary>
     class function IsNegativeInfinity(const Value: Double): Boolean; overload; inline; static;
+    /// <summary>
+    ///   Checks if the specified double value is positive infinity.
+    /// </summary>
     class function IsPositiveInfinity(const Value: Double): Boolean; overload; inline; static;
+    /// <summary>
+    ///   Returns the size of the Double type in bytes.
+    /// </summary>
     class function Size: Integer; inline; static;
 
   end;
@@ -441,6 +714,9 @@ type
     ///   Checks if the currency is negative (< 0).
     /// </summary>
     function IsNegative(): Boolean;
+    /// <summary>
+    ///   Checks if the currency is non-negative (>= 0).
+    /// </summary>
     function IsNonNegative(): Boolean;
     /// <summary>
     ///   Checks if the currency is between the specified values (inclusive).
@@ -458,21 +734,33 @@ type
     ///   Returns the absolute value of the currency.
     /// </summary>
     function Abs(): Currency;
+    /// <summary>
+    ///   Converts the currency to a string representation.
+    /// </summary>
     function ToString(): string; overload;
     /// <summary>
     ///   Converts the currency to a string with custom separators.
     /// </summary>
     function ToString(ThousandSeparator: Char; DecimalSeparator: Char = '.'; Format: string = '###,###,###,##0.##'): string; overload;
+    /// <summary>
+    ///   Converts the currency to a SQL-compatible string representation.
+    /// </summary>
     function ToSQLString(): string;
     /// <summary>
     ///   Converts the currency to a formatted string.
     /// </summary>
     function ToStrF(Format: TFloatFormat; Digits: Integer): string;
+    /// <summary>
+    ///   Rounds the currency to the nearest integer.
+    /// </summary>
     function Round(): Integer; overload;
     /// <summary>
     ///   Rounds the currency to the specified power of ten.
     /// </summary>
     function Round(const PowerOfTen: Integer): Currency; overload;
+    /// <summary>
+    ///   Returns the smallest integer greater than or equal to the currency.
+    /// </summary>
     function Ceil(): Integer;
     /// <summary>
     ///   Returns the largest integer less than or equal to the currency.
@@ -488,22 +776,52 @@ type
        MaxValue: Currency =  922337203685477.5807;
        MinValue: Currency = -922337203685477.5807;
 
+    /// <summary>
+    ///   Converts the currency to a string using the specified format settings.
+    /// </summary>
     function ToString(const AFormatSettings: TFormatSettings): string; overload;
         inline;
 
+    /// <summary>
+    ///   Returns the fractional part of the currency value.
+    /// </summary>
     function Frac: Currency; inline;
+    /// <summary>
+    ///   Returns the integer part of the currency value.
+    /// </summary>
     function Trunc: Int64; inline;
 
+    /// <summary>
+    ///   Returns the size of the Currency type in bytes.
+    /// </summary>
     class function Size: Integer; static; inline;
+    /// <summary>
+    ///   Converts the specified currency value to a string using the specified format settings.
+    /// </summary>
     class function ToString(const Value: Currency; const AFormatSettings:
         TFormatSettings): string; overload; static; inline;
+    /// <summary>
+    ///   Converts the specified currency value to a string.
+    /// </summary>
     class function ToString(const Value: Currency): string; overload; static;
         inline;
+    /// <summary>
+    ///   Parses the string and returns the currency value using the specified format settings.
+    /// </summary>
     class function Parse(const S: string; const AFormatSettings: TFormatSettings):
         Currency; overload; static;
+    /// <summary>
+    ///   Parses the string and returns the currency value.
+    /// </summary>
     class function Parse(const S: string): Currency; overload; static; inline;
+    /// <summary>
+    ///   Tries to parse the string and returns true if successful, using the specified format settings.
+    /// </summary>
     class function TryParse(const S: string; out Value: Currency; const
         AFormatSettings: TFormatSettings): Boolean; overload; static; inline;
+    /// <summary>
+    ///   Tries to parse the string and returns true if successful.
+    /// </summary>
     class function TryParse(const S: string; out Value: Currency): Boolean;
         overload; static; inline;
   end;
@@ -1424,16 +1742,46 @@ type
       MaxValue = 9223372036854775807;
       MinValue = -9223372036854775808;
 
+    /// <summary>
+    ///   Converts the Int64 value to a boolean.
+    /// </summary>
     function ToBoolean: Boolean; inline;
+    /// <summary>
+    ///   Converts the Int64 value to a hexadecimal string.
+    /// </summary>
     function ToHexString: string; overload; inline;
+    /// <summary>
+    ///   Converts the Int64 value to a hexadecimal string with the specified minimum digits.
+    /// </summary>
     function ToHexString(const MinDigits: Integer): string; overload; inline;
+    /// <summary>
+    ///   Converts the Int64 value to a single-precision floating-point value.
+    /// </summary>
     function ToSingle: Single; inline;
+    /// <summary>
+    ///   Converts the Int64 value to a double-precision floating-point value.
+    /// </summary>
     function ToDouble: Double; inline;
+    /// <summary>
+    ///   Converts the Int64 value to an extended-precision floating-point value.
+    /// </summary>
     function ToExtended: Extended; inline;
 
+    /// <summary>
+    ///   Returns the size of the Int64 type in bytes.
+    /// </summary>
     class function Size: Integer; inline; static;
+    /// <summary>
+    ///   Converts the specified Int64 value to a string.
+    /// </summary>
     class function ToString(const Value: Int64): string; overload; inline; static;
+    /// <summary>
+    ///   Parses the string and returns the Int64 value.
+    /// </summary>
     class function Parse(const S: string): Int64; static;
+    /// <summary>
+    ///   Tries to parse the string and returns true if successful.
+    /// </summary>
     class function TryParse(const S: string; out Value: Int64): Boolean; inline; static;
   end;
   {$IFEND}
@@ -2276,57 +2624,156 @@ type
   end;
   {$IFEND}
 
+   /// <summary>
+   ///   Helper class for TEdit to enable data binding with OL types.
+   /// </summary>
    TOLEditHelper = class helper for TEdit
+     /// <summary>
+     ///   Links the edit control to an OLInteger variable for two-way data binding.
+     /// </summary>
      procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
+     /// <summary>
+     ///   Links the edit control to an OLDouble variable for two-way data binding.
+     /// </summary>
      procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+     /// <summary>
+     ///   Links the edit control to an OLCurrency variable for two-way data binding.
+     /// </summary>
      procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+     /// <summary>
+     ///   Links the edit control to an OLString variable for two-way data binding.
+     /// </summary>
      procedure Link(var s: OLString); overload;
    end;
 
+   /// <summary>
+   ///   Helper class for TSpinEdit to enable data binding with OL types.
+   /// </summary>
    TOLSpinEditHelper = class helper for TSpinEdit
+     /// <summary>
+     ///   Links the spin edit control to an OLInteger variable for two-way data binding.
+     /// </summary>
      procedure Link(var i: OLInteger);
    end;
 
+   /// <summary>
+   ///   Helper class for TTrackBar to enable data binding with OL types.
+   /// </summary>
    TOLTrackBarHelper = class helper for TTrackBar
+     /// <summary>
+     ///   Links the track bar control to an OLInteger variable for two-way data binding.
+     /// </summary>
      procedure Link(var i: OLInteger);
    end;
 
+   /// <summary>
+   ///   Helper class for TScrollBar to enable data binding with OL types.
+   /// </summary>
    TOLScrollBarHelper = class helper for TScrollBar
+     /// <summary>
+     ///   Links the scroll bar control to an OLInteger variable for two-way data binding.
+     /// </summary>
      procedure Link(var i: OLInteger);
    end;
 
+   /// <summary>
+   ///   Helper class for TMemo to enable data binding with OL types.
+   /// </summary>
    TOLMemoHelper = class helper for TMemo
+     /// <summary>
+     ///   Links the memo control to an OLString variable for two-way data binding.
+     /// </summary>
      procedure Link(var s: OLString);
    end;
 
+   /// <summary>
+   ///   Helper class for TDateTimePicker to enable data binding with OL types.
+   /// </summary>
    TOLDateTimePickerHelper = class helper for TDateTimePicker
+     /// <summary>
+     ///   Links the date/time picker control to an OLDate variable for two-way data binding.
+     /// </summary>
      procedure Link(var d: OLDate); overload;
+     /// <summary>
+     ///   Links the date/time picker control to an OLDateTime variable for two-way data binding.
+     /// </summary>
      procedure Link(var d: OLDateTime); overload;
    end;
 
+   /// <summary>
+   ///   Helper class for TCheckBox to enable data binding with OL types.
+   /// </summary>
    TOLCheckBoxHelper = class helper for TCheckBox
+     /// <summary>
+     ///   Links the checkbox control to an OLBoolean variable for two-way data binding.
+     /// </summary>
      procedure Link(var b: OLBoolean);
    end;
 
+   /// <summary>
+   ///   Helper class for TLabel to enable data binding with OL types.
+   /// </summary>
    TOLLabelHelper = class helper for TLabel
+     /// <summary>
+     ///   Links the label control to an OLInteger variable for one-way data binding (display only).
+     /// </summary>
      procedure Link(var i: OLInteger); overload;
+     /// <summary>
+     ///   Links the label control to a function that returns OLInteger for computed display.
+     /// </summary>
      procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+     /// <summary>
+     ///   Links the label control to an OLString variable for one-way data binding (display only).
+     /// </summary>
      procedure Link(var s: OLString); overload;
+     /// <summary>
+     ///   Links the label control to a function that returns OLString for computed display.
+     /// </summary>
      procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+     /// <summary>
+     ///   Links the label control to an OLDouble variable for one-way data binding (display only).
+     /// </summary>
      procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+     /// <summary>
+     ///   Links the label control to a function that returns OLDouble for computed display.
+     /// </summary>
      procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+     /// <summary>
+     ///   Links the label control to an OLCurrency variable for one-way data binding (display only).
+     /// </summary>
      procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+     /// <summary>
+     ///   Links the label control to a function that returns OLCurrency for computed display.
+     /// </summary>
      procedure Link(const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+     /// <summary>
+     ///   Links the label control to an OLDate variable for one-way data binding (display only).
+     /// </summary>
      procedure Link(var d: OLDate); overload;
+     /// <summary>
+     ///   Links the label control to a function that returns OLDate for computed display.
+     /// </summary>
      procedure Link(const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+     /// <summary>
+     ///   Links the label control to an OLDateTime variable for one-way data binding (display only).
+     /// </summary>
      procedure Link(var d: OLDateTime); overload;
+     /// <summary>
+     ///   Links the label control to a function that returns OLDateTime for computed display.
+     /// </summary>
      procedure Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
    end;
 
+   /// <summary>
+   ///   Helper class for TForm to check if variables are form fields.
+   /// </summary>
    TFormFieldsHelper = class helper for TForm
    private
      function IsFieldOfRecord(const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
    public
+     /// <summary>
+     ///   Checks if the specified variable is a field of this form.
+     /// </summary>
      function IsMyField(var X): Boolean;
    end;
 
