@@ -305,7 +305,7 @@ end;
 procedure TTestOLIntegerArray.TestImplicit;
 var
   Arr: OLIntegerArray;
-  DynArr: TIntegerDynArray;
+  DynArr: TOLIntegerDynArray;
 begin
   // Array of Integer -> OLIntegerArray
   {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
@@ -472,7 +472,7 @@ end;
 procedure TTestOLStringArray.TestImplicit;
 var
   Arr: OLStringArray;
-  DynArr: TStringDynArray;
+  DynArr: TOLStringDynArray;
 begin
   {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
     Arr := ['A', 'B', 'C'];
@@ -629,7 +629,7 @@ end;
 procedure TTestOLBooleanArray.TestImplicit;
 var
   Arr: OLBooleanArray;
-  DynArr: TBooleanDynArray;
+  DynArr: TOLBooleanDynArray;
 begin
   {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
     Arr := [True, False];
@@ -794,7 +794,7 @@ end;
 procedure TTestOLCurrencyArray.TestImplicit;
 var
   Arr: OLCurrencyArray;
-  DynArr: TCurrencyDynArray;
+  DynArr: TOLCurrencyDynArray;
 begin
   {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
     Arr := [10.5, 20.5, 30.5];
@@ -990,7 +990,7 @@ end;
 procedure TTestOLDateTimeArray.TestImplicit;
 var
   Arr: OLDateTimeArray;
-  DynArr: TDateTimeDynArray;
+  DynArr: TOLDateTimeDynArray;
   D1, D2: TDateTime;
 begin
   D1 := EncodeDate(2023, 1, 1);
@@ -1189,7 +1189,7 @@ end;
 procedure TTestOLDateArray.TestImplicit;
 var
   Arr: OLDateArray;
-  DynArr: TDateDynArray;
+  DynArr: TOLDateDynArray;
   D1, D2: TDate;
 begin
   D1 := EncodeDate(2023, 1, 1);
@@ -1357,7 +1357,7 @@ end;
 procedure TTestOLDoubleArray.TestImplicit;
 var
   Arr: OLDoubleArray;
-  DynArr: TDoubleDynArray;
+  DynArr: TOLDoubleDynArray;
 begin
   {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
     Arr := [1.1, 2.2, 3.3];
@@ -1522,7 +1522,7 @@ end;
 procedure TTestOLInt64Array.TestImplicit;
 var
   Arr: OLInt64Array;
-  DynArr: TInt64DynArray;
+  DynArr: TOLInt64DynArray;
 begin
   {$IF CompilerVersion >= 34.0} // XE8+ supports array literal
     Arr := [10, 20, 30];

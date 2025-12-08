@@ -139,15 +139,15 @@ type
   end;
 
   // Dynamic array definitions (as per original)
-  TBooleanDynArray  = array of Boolean;
-  TCurrencyDynArray = array of Currency;
-  TDateTimeDynArray = array of TDateTime;
-  TDateDynArray     = array of TDate;
-  TDoubleDynArray   = array of Double;
-  TIntegerDynArray  = array of Integer;
-  TInt64DynArray    = array of Int64;
-  TByteDynArray     = array of Byte;
-  TStringDynArray   = array of string;
+  TOLBooleanDynArray  = array of Boolean;
+  TOLCurrencyDynArray = array of Currency;
+  TOLDateTimeDynArray = array of TDateTime;
+  TOLDateDynArray     = array of TDate;
+  TOLDoubleDynArray   = array of Double;
+  TOLIntegerDynArray  = array of Integer;
+  TOLInt64DynArray    = array of Int64;
+  TOLByteDynArray     = array of Byte;
+  TOLStringDynArray   = array of string;
 
   // ===========================================================================
   // 2. WRAPPERS (Concrete types)
@@ -225,9 +225,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of Integer): OLIntegerArray; overload;
     /// <summary>
-    ///   Implicit conversion from OLIntegerArray to TIntegerDynArray.
+    ///   Implicit conversion from OLIntegerArray to TOLIntegerDynArray.
     /// </summary>
-    class operator Implicit(const A: OLIntegerArray): TIntegerDynArray; overload;
+    class operator Implicit(const A: OLIntegerArray): TOLIntegerDynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<Integer> to OLIntegerArray.
     /// </summary>
@@ -309,9 +309,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of string): OLStringArray; overload;
     /// <summary>
-    ///   Implicit conversion from OLStringArray to TStringDynArray.
+    ///   Implicit conversion from OLStringArray to TOLStringDynArray.
     /// </summary>
-    class operator Implicit(const A: OLStringArray): TStringDynArray; overload;
+    class operator Implicit(const A: OLStringArray): TOLStringDynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<string> to OLStringArray.
     /// </summary>
@@ -393,9 +393,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of Boolean): OLBooleanArray; overload;
     /// <summary>
-    ///   Implicit conversion from OLBooleanArray to TBooleanDynArray.
+    ///   Implicit conversion from OLBooleanArray to TOLBooleanDynArray.
     /// </summary>
-    class operator Implicit(const A: OLBooleanArray): TBooleanDynArray; overload;
+    class operator Implicit(const A: OLBooleanArray): TOLBooleanDynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<Boolean> to OLBooleanArray.
     /// </summary>
@@ -477,9 +477,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of Currency): OLCurrencyArray; overload;
     /// <summary>
-    ///   Implicit conversion from OLCurrencyArray to TCurrencyDynArray.
+    ///   Implicit conversion from OLCurrencyArray to TOLCurrencyDynArray.
     /// </summary>
-    class operator Implicit(const A: OLCurrencyArray): TCurrencyDynArray; overload;
+    class operator Implicit(const A: OLCurrencyArray): TOLCurrencyDynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<Currency> to OLCurrencyArray.
     /// </summary>
@@ -561,9 +561,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of TDateTime): OLDateTimeArray; overload;
     /// <summary>
-    ///   Implicit conversion from OLDateTimeArray to TDateTimeDynArray.
+    ///   Implicit conversion from OLDateTimeArray to TOLDateTimeDynArray.
     /// </summary>
-    class operator Implicit(const A: OLDateTimeArray): TDateTimeDynArray; overload;
+    class operator Implicit(const A: OLDateTimeArray): TOLDateTimeDynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<TDateTime> to OLDateTimeArray.
     /// </summary>
@@ -645,9 +645,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of TDate): OLDateArray; overload;
     /// <summary>
-    ///   Implicit conversion from OLDateArray to TDateDynArray.
+    ///   Implicit conversion from OLDateArray to TOLDateDynArray.
     /// </summary>
-    class operator Implicit(const A: OLDateArray): TDateDynArray; overload;
+    class operator Implicit(const A: OLDateArray): TOLDateDynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<TDate> to OLDateArray.
     /// </summary>
@@ -729,9 +729,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of Double): OLDoubleArray; overload;
     /// <summary>
-    ///   Implicit conversion from OLDoubleArray to TDoubleDynArray.
+    ///   Implicit conversion from OLDoubleArray to TOLDoubleDynArray.
     /// </summary>
-    class operator Implicit(const A: OLDoubleArray): TDoubleDynArray; overload;
+    class operator Implicit(const A: OLDoubleArray): TOLDoubleDynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<Double> to OLDoubleArray.
     /// </summary>
@@ -813,9 +813,9 @@ type
     /// </summary>
     class operator Implicit(const A: array of Int64): OLInt64Array; overload;
     /// <summary>
-    ///   Implicit conversion from OLInt64Array to TInt64DynArray.
+    ///   Implicit conversion from OLInt64Array to TOLInt64DynArray.
     /// </summary>
-    class operator Implicit(const A: OLInt64Array): TInt64DynArray; overload;
+    class operator Implicit(const A: OLInt64Array): TOLInt64DynArray; overload;
     /// <summary>
     ///   Implicit conversion from TArray<Int64> to OLInt64Array.
     /// </summary>
@@ -1139,7 +1139,7 @@ end;
 
 class operator OLIntegerArray.Implicit(const A: array of Integer): OLIntegerArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLIntegerArray.Implicit(const A: OLIntegerArray): TIntegerDynArray;
+class operator OLIntegerArray.Implicit(const A: OLIntegerArray): TOLIntegerDynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLIntegerArray.Implicit(const A: TArray<Integer>): OLIntegerArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
@@ -1222,7 +1222,7 @@ end;
 
 class operator OLStringArray.Implicit(const A: array of string): OLStringArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLStringArray.Implicit(const A: OLStringArray): TStringDynArray;
+class operator OLStringArray.Implicit(const A: OLStringArray): TOLStringDynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLStringArray.Implicit(const A: TArray<string>): OLStringArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
@@ -1305,7 +1305,7 @@ end;
 
 class operator OLBooleanArray.Implicit(const A: array of Boolean): OLBooleanArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLBooleanArray.Implicit(const A: OLBooleanArray): TBooleanDynArray;
+class operator OLBooleanArray.Implicit(const A: OLBooleanArray): TOLBooleanDynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLBooleanArray.Implicit(const A: TArray<Boolean>): OLBooleanArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
@@ -1389,7 +1389,7 @@ end;
 
 class operator OLCurrencyArray.Implicit(const A: array of Currency): OLCurrencyArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLCurrencyArray.Implicit(const A: OLCurrencyArray): TCurrencyDynArray;
+class operator OLCurrencyArray.Implicit(const A: OLCurrencyArray): TOLCurrencyDynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLCurrencyArray.Implicit(const A: TArray<Currency>): OLCurrencyArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
@@ -1472,7 +1472,7 @@ end;
 
 class operator OLDateTimeArray.Implicit(const A: array of TDateTime): OLDateTimeArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLDateTimeArray.Implicit(const A: OLDateTimeArray): TDateTimeDynArray;
+class operator OLDateTimeArray.Implicit(const A: OLDateTimeArray): TOLDateTimeDynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLDateTimeArray.Implicit(const A: TArray<TDateTime>): OLDateTimeArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
@@ -1555,7 +1555,7 @@ end;
 
 class operator OLDateArray.Implicit(const A: array of TDate): OLDateArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLDateArray.Implicit(const A: OLDateArray): TDateDynArray;
+class operator OLDateArray.Implicit(const A: OLDateArray): TOLDateDynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLDateArray.Implicit(const A: TArray<TDate>): OLDateArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
@@ -1638,7 +1638,7 @@ end;
 
 class operator OLDoubleArray.Implicit(const A: array of Double): OLDoubleArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLDoubleArray.Implicit(const A: OLDoubleArray): TDoubleDynArray;
+class operator OLDoubleArray.Implicit(const A: OLDoubleArray): TOLDoubleDynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLDoubleArray.Implicit(const A: TArray<Double>): OLDoubleArray;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
@@ -1721,7 +1721,7 @@ end;
 
 class operator OLInt64Array.Implicit(const A: array of Int64): OLInt64Array;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;
-class operator OLInt64Array.Implicit(const A: OLInt64Array): TInt64DynArray;
+class operator OLInt64Array.Implicit(const A: OLInt64Array): TOLInt64DynArray;
 var i: Integer; begin System.SetLength(Result, A.Length); for i := 0 to A.LastItemIndex do Result[i] := A.Items[i]; end;
 class operator OLInt64Array.Implicit(const A: TArray<Int64>): OLInt64Array;
 var i: Integer; begin Result.Length := System.Length(A); for i := 0 to High(A) do Result.Items[i] := A[i]; end;

@@ -54,15 +54,15 @@ type
   POLInt64 = OLInt64Type.POLInt64;
   POLString = OLStringType.POLString;
 
-  TBooleanDynArray = OLArrays.TBooleanDynArray;
-  TCurrencyDynArray = OLArrays.TCurrencyDynArray;
-  TDateTimeDynArray = OLArrays.TDateTimeDynArray;
-  TDateDynArray = OLArrays.TDateDynArray;
-  TDoubleDynArray = OLArrays.TDoubleDynArray;
-  TIntegerDynArray = OLArrays.TIntegerDynArray;
-  TInt64DynArray = OLArrays.TInt64DynArray;
-  TByteDynArray = OLArrays.TByteDynArray;
-  TStringDynArray = OLArrays.TStringDynArray;
+  TOLBooleanDynArray = OLArrays.TOLBooleanDynArray;
+  TOLCurrencyDynArray = OLArrays.TOLCurrencyDynArray;
+  TOLDateTimeDynArray = OLArrays.TOLDateTimeDynArray;
+  TOLDateDynArray = OLArrays.TOLDateDynArray;
+  TOLDoubleDynArray = OLArrays.TOLDoubleDynArray;
+  TOLIntegerDynArray = OLArrays.TOLIntegerDynArray;
+  TOLInt64DynArray = OLArrays.TOLInt64DynArray;
+  TOLByteDynArray = OLArrays.TOLByteDynArray;
+  TOLStringDynArray = OLArrays.TOLStringDynArray;
 
   OLBooleanArray = OLArrays.OLBooleanArray;
   OLCurrencyArray = OLArrays.OLCurrencyArray;
@@ -2067,7 +2067,7 @@ type
      /// <summary>
      ///   Splits the string into an array using the specified delimiters.
      /// </summary>
-     function SplitString(const Delimiters: string = ';'): TStringDynArray;
+     function SplitString(const Delimiters: string = ';'): TOLStringDynArray;
      /// <summary>
      ///   Returns a substring from the start to the end position.
      /// </summary>
@@ -6657,12 +6657,13 @@ begin
   Result := ol.MidStr(AStart, ACount);
 end;
 
-function TOLStringHelper.SplitString(const Delimiters: string): TStringDynArray;
+function TOLStringHelper.SplitString(const Delimiters: string = ';'):
+    TOLStringDynArray;
 var
   ol: OLString;
 begin
   ol := Self;
-  Result := TStringDynArray(ol.SplitString(Delimiters));
+  Result := TOLStringDynArray(ol.SplitString(Delimiters));
 end;
 
 function TOLStringHelper.MidStrEx(const AStart, AEnd: Integer): string;

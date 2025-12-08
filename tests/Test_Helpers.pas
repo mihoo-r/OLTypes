@@ -2525,7 +2525,7 @@ end;
 procedure TestStringHelper.TestTextManipulation;
 var
   s: string;
-  arr: TStringDynArray;
+  arr: TOLStringDynArray;
 begin
   s := 'A;B;C';
   arr := s.SplitString(';');
