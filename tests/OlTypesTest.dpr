@@ -20,6 +20,7 @@ uses
   GUITestRunner,
   TextTestRunner,
   Test_OlTypes in 'Test_OlTypes.pas',
+  Test_Helpers in 'Test_Helpers.pas',
   Test_NullPropagation in 'Test_NullPropagation.pas',
   TestOLArrays in 'TestOLArrays.pas',
   Test_OLTypesToEdits in 'Test_OLTypesToEdits.pas',

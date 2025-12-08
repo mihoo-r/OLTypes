@@ -403,9 +403,14 @@ var
   b: Boolean;
 begin
   b := True;
-  CheckEquals('True', b.ToString());
+  CheckEquals('-1', b.ToString());
   b := False;
-  CheckEquals('False', b.ToString());
+  CheckEquals('0', b.ToString());
+
+  b := True;
+  CheckEquals('True', b.ToString(TUseBoolStrs.True));
+  b := False;
+  CheckEquals('False', b.ToString(TUseBoolStrs.True));
 end;
 
 procedure TestBooleanHelper.TestToSQLString;
@@ -510,6 +515,26 @@ type
     procedure TestEnsureRange;
     procedure TestSameValue;
     procedure TestRandom;
+    procedure TestExponent;
+    procedure TestFraction;
+    procedure TestMantissa;
+    procedure TestSign;
+    procedure TestExp;
+    procedure TestFrac;
+    procedure TestSpecialType;
+    procedure TestBuildUp;
+    procedure TestToStringOverloads;
+    procedure TestIsNegativeInfinity;
+    procedure TestIsPositiveInfinity;
+    procedure TestBytes;
+    procedure TestWords;
+    procedure TestParse;
+    procedure TestTryParse;
+    procedure TestStaticIsNan;
+    procedure TestStaticIsInfinity;
+    procedure TestStaticIsNegativeInfinity;
+    procedure TestStaticIsPositiveInfinity;
+    procedure TestSize;
   end;
 
 procedure TestDoubleHelper.TestSqr;
@@ -698,6 +723,198 @@ begin
   CheckTrue((d >= 1.0) and (d <= 10.0));
   d := Double.Random(10.0);
   CheckTrue((d >= 0.0) and (d <= 10.0));
+end;
+
+procedure TestDoubleHelper.TestExponent;
+var
+  d: Double;
+begin
+  d := 8.0;
+  CheckEquals(3, d.Exponent);
+end;
+
+procedure TestDoubleHelper.TestFraction;
+var
+  d: Double;
+begin
+  d := 1.5;
+  CheckEquals(1.5, d.Fraction, 0.0001); 
+end;
+
+procedure TestDoubleHelper.TestMantissa;
+var
+  d: Double;
+begin
+  d := 1.0;
+  CheckEquals(4503599627370496, d.Mantissa);
+end;
+
+procedure TestDoubleHelper.TestSign;
+var
+  d: Double;
+begin
+  d := -5.0;
+  CheckTrue(d.Sign); // True for negative
+  d := 5.0;
+  CheckFalse(d.Sign); // False for positive
+
+  d.Sign := True;
+  CheckEquals(-5.0, d, 0.001);
+end;
+
+procedure TestDoubleHelper.TestExp;
+var
+  d: Double;
+begin
+  d := 8.0;
+  CheckEquals(1026, d.Exp);
+  d.Exp := 1027; // 16.0
+  CheckEquals(16.0, d, 0.001);
+end;
+
+procedure TestDoubleHelper.TestFrac;
+var
+  d: Double;
+begin
+  d := 1.5;
+  CheckEquals(2251799813685248, d.Frac);
+end;
+
+procedure TestDoubleHelper.TestSpecialType;
+var
+  d: Double;
+begin
+  d := 0.0 / 0.0;
+  CheckTrue(d.SpecialType = fsNaN);
+  d := 1.0 / 0.0;
+  CheckTrue(d.SpecialType = fsInf);
+  d := -1.0 / 0.0;
+  CheckTrue(d.SpecialType = fsNInf);
+  d := 0.0;
+  CheckTrue(d.SpecialType = fsZero);
+end;
+
+procedure TestDoubleHelper.TestBuildUp;
+var
+  d: Double;
+begin
+  d.BuildUp(True, 0, 3); // Sign=Neg, Mantissa=0, Exp=3 (2^3=8)
+  CheckEquals(-8.0, d, 0.001);
+end;
+
+procedure TestDoubleHelper.TestToStringOverloads;
+var
+  d: Double;
+  fs: TFormatSettings;
+begin
+  d := 123.456;
+  fs := TFormatSettings.Create;
+  fs.DecimalSeparator := ',';
+  CheckEquals('123,456', d.ToString(fs));
+  
+  CheckEquals('123,46', d.ToString(ffFixed, 15, 2, fs));
+end;
+
+procedure TestDoubleHelper.TestIsNegativeInfinity;
+var
+  d: Double;
+begin
+  d := -1.0 / 0.0;
+  CheckTrue(d.IsNegativeInfinity);
+  d := 1.0 / 0.0;
+  CheckFalse(d.IsNegativeInfinity);
+end;
+
+procedure TestDoubleHelper.TestIsPositiveInfinity;
+var
+  d: Double;
+begin
+  d := 1.0 / 0.0;
+  CheckTrue(d.IsPositiveInfinity);
+  d := -1.0 / 0.0;
+  CheckFalse(d.IsPositiveInfinity);
+end;
+
+procedure TestDoubleHelper.TestBytes;
+var
+  d: Double;
+begin
+  d := 1.0;
+  CheckEquals($00, d.Bytes[0]);
+  CheckEquals($F0, d.Bytes[6]);
+  CheckEquals($3F, d.Bytes[7]);
+  
+  d.Bytes[7] := $40;
+  CheckEquals(65536.0, d, 0.001);
+end;
+
+procedure TestDoubleHelper.TestWords;
+var
+  d: Double;
+begin
+  d := 1.0;
+  CheckEquals($0000, d.Words[0]);
+  CheckEquals($3FF0, d.Words[3]);
+  
+  d.Words[3] := $4000;
+  CheckEquals(2.0, d, 0.001);
+end;
+
+procedure TestDoubleHelper.TestParse;
+var
+  fs: TFormatSettings;
+begin
+  CheckEquals(123.45, Double.Parse('123.45', TFormatSettings.Invariant), 0.001);
+  
+  fs := TFormatSettings.Create;
+  fs.DecimalSeparator := ',';
+  CheckEquals(123.45, Double.Parse('123,45', fs), 0.001);
+end;
+
+procedure TestDoubleHelper.TestTryParse;
+var
+  d: Double;
+  fs: TFormatSettings;
+begin
+  CheckTrue(Double.TryParse('123.45', d, TFormatSettings.Invariant));
+  CheckEquals(123.45, d, 0.001);
+  
+  fs := TFormatSettings.Create;
+  fs.DecimalSeparator := ',';
+  CheckTrue(Double.TryParse('123,45', d, fs));
+  CheckEquals(123.45, d, 0.001);
+  
+  CheckFalse(Double.TryParse('invalid', d));
+end;
+
+procedure TestDoubleHelper.TestStaticIsNan;
+begin
+  CheckTrue(Double.IsNan(0.0 / 0.0));
+  CheckFalse(Double.IsNan(1.0));
+end;
+
+procedure TestDoubleHelper.TestStaticIsInfinity;
+begin
+  CheckTrue(Double.IsInfinity(1.0 / 0.0));
+  CheckTrue(Double.IsInfinity(-1.0 / 0.0));
+  CheckFalse(Double.IsInfinity(1.0));
+end;
+
+procedure TestDoubleHelper.TestStaticIsNegativeInfinity;
+begin
+  CheckTrue(Double.IsNegativeInfinity(-1.0 / 0.0));
+  CheckFalse(Double.IsNegativeInfinity(1.0 / 0.0));
+end;
+
+procedure TestDoubleHelper.TestStaticIsPositiveInfinity;
+begin
+  CheckTrue(Double.IsPositiveInfinity(1.0 / 0.0));
+  CheckFalse(Double.IsPositiveInfinity(-1.0 / 0.0));
+end;
+
+procedure TestDoubleHelper.TestSize;
+begin
+  CheckEquals(8, Double.Size);
 end;
 
 
