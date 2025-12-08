@@ -102,6 +102,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Test_OlTypes.pas"/>
+        <DCCReference Include="Test_Helpers.pas"/>
         <DCCReference Include="Test_NullPropagation.pas"/>
         <DCCReference Include="TestOLArrays.pas"/>
         <DCCReference Include="Test_OLTypesToEdits.pas"/>
