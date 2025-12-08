@@ -1295,7 +1295,7 @@ type
      /// <summary>
      ///   Converts the value to a string representation.
      /// </summary>
-     function ToString(): string;
+     function ToString(): string; overload;
      /// <summary>
      ///   Converts the value to a SQL-compatible string representation.
      /// </summary>
@@ -1409,6 +1409,22 @@ type
      ///   Sets the value to a random prime integer up to the specified maximum value.
      /// </summary>
      procedure SetRandomPrime(MaxValue: Int64 = MaxInt); overload;
+
+    const
+      MaxValue = 9223372036854775807;
+      MinValue = -9223372036854775808;
+
+    function ToBoolean: Boolean; inline;
+    function ToHexString: string; overload; inline;
+    function ToHexString(const MinDigits: Integer): string; overload; inline;
+    function ToSingle: Single; inline;
+    function ToDouble: Double; inline;
+    function ToExtended: Extended; inline;
+
+    class function Size: Integer; inline; static;
+    class function ToString(const Value: Int64): string; overload; inline; static;
+    class function Parse(const S: string): Int64; static;
+    class function TryParse(const S: string; out Value: Int64): Boolean; inline; static;
   end;
   {$IFEND}
 
@@ -2309,7 +2325,7 @@ implementation
 uses OLTypesToEdits, TypInfo,
     {$IF CompilerVersion >= 23.0}
         System.Character, IntegerHelperFunctions, StringHelperFunctions,
-        BooleanHelperFunctions, CurrencyHelperFunctions, DoubleHelperFunctions;
+        BooleanHelperFunctions, CurrencyHelperFunctions, DoubleHelperFunctions, Int64HelperFunctions;
     {$ELSE}
         Character;
     {$IFEND}
@@ -5611,6 +5627,56 @@ begin
   ol := Self;
   ol.SetRandomPrime(MaxValue);
   Self := ol;
+end;
+
+function TOLInt64Helper.ToBoolean: Boolean;
+begin
+  Result := Int64HelperFunctions.Instance_ToBoolean(Self);
+end;
+
+function TOLInt64Helper.ToHexString: string;
+begin
+  Result := Int64HelperFunctions.Instance_ToHexString(Self);
+end;
+
+function TOLInt64Helper.ToHexString(const MinDigits: Integer): string;
+begin
+  Result := Int64HelperFunctions.Instance_ToHexString(Self, MinDigits);
+end;
+
+function TOLInt64Helper.ToSingle: Single;
+begin
+  Result := Int64HelperFunctions.Instance_ToSingle(Self);
+end;
+
+function TOLInt64Helper.ToDouble: Double;
+begin
+  Result := Int64HelperFunctions.Instance_ToDouble(Self);
+end;
+
+function TOLInt64Helper.ToExtended: Extended;
+begin
+  Result := Int64HelperFunctions.Instance_ToExtended(Self);
+end;
+
+class function TOLInt64Helper.Size: Integer;
+begin
+  Result := Int64HelperFunctions.Type_Size;
+end;
+
+class function TOLInt64Helper.ToString(const Value: Int64): string;
+begin
+  Result := Int64HelperFunctions.Type_ToString(Value);
+end;
+
+class function TOLInt64Helper.Parse(const S: string): Int64;
+begin
+  Result := Int64HelperFunctions.Type_Parse(S);
+end;
+
+class function TOLInt64Helper.TryParse(const S: string; out Value: Int64): Boolean;
+begin
+  Result := Int64HelperFunctions.Type_TryParse(S, Value);
 end;
 {$IFEND}
 
