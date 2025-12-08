@@ -257,6 +257,17 @@ type
 
   {$IF CompilerVersion >= 24.0}
   TOLDoubleHelper = record helper for Double
+   private
+    function GetBytes(Index: Cardinal): UInt8;
+    function GetExp: UInt64;
+    function GetFrac: UInt64;
+    function GetSign: Boolean;
+    function GetWords(Index: Cardinal): UInt16;
+    procedure SetBytes(Index: Cardinal; const Value: UInt8);
+    procedure SetExp(const Value: UInt64);
+    procedure SetFrac(const Value: UInt64);
+    procedure SetSign(const Value: Boolean);
+    procedure SetWords(Index: Cardinal; const Value: UInt16);
    public
     /// <summary>
     ///   Returns the square of the double.
@@ -327,11 +338,11 @@ type
     /// <summary>
     ///   Checks if the double is NaN (Not a Number).
     /// </summary>
-    function IsNan(): Boolean;
+    function IsNan(): Boolean; overload;
     /// <summary>
     ///   Checks if the double is infinite.
     /// </summary>
-    function IsInfinite(): Boolean;
+    function IsInfinite(): Boolean; overload;
     /// <summary>
     ///   Checks if the double is zero within the specified epsilon.
     /// </summary>
@@ -356,6 +367,53 @@ type
     ///   Generates a random double up to MaxValue.
     /// </summary>
     class function Random(const MaxValue: Double = MaxInt): Double; overload; static;
+
+    const
+      Epsilon:Double = 4.9406564584124654418e-324;
+      MaxValue:Double =  1.7976931348623157081e+308;
+      MinValue:Double = -1.7976931348623157081e+308;
+      PositiveInfinity:Double =  1.0 / 0.0;
+      NegativeInfinity:Double = -1.0 / 0.0;
+      NaN:Double = 0.0 / 0.0;
+
+    function Exponent: Integer;
+    function Fraction: Extended;
+    function Mantissa: UInt64;
+
+    property Sign: Boolean read GetSign write SetSign;
+    property Exp: UInt64 read GetExp write SetExp;
+    property Frac: UInt64 read GetFrac write SetFrac;
+
+    function SpecialType: TFloatSpecial;
+    procedure BuildUp(const SignFlag: Boolean; const Mantissa: UInt64; const Exponent: Integer);
+    function ToString(const AFormatSettings: TFormatSettings): string; overload; inline;
+    function ToString(const Format: TFloatFormat; const Precision, Digits:
+        Integer): string; overload; inline;
+    function ToString(const Format: TFloatFormat; const Precision, Digits: Integer;
+                         const AFormatSettings: TFormatSettings): string; overload; inline;
+    function IsInfinity: Boolean; overload; inline;
+    function IsNegativeInfinity: Boolean; overload; inline;
+    function IsPositiveInfinity: Boolean; overload; inline;
+
+    property Bytes[Index: Cardinal]: UInt8 read GetBytes write SetBytes;  // 0..7
+    property Words[Index: Cardinal]: UInt16 read GetWords write SetWords; // 0..3
+
+    class function ToString(const Value: Double): string; overload; inline; static;
+    class function ToString(const Value: Double; const AFormatSettings: TFormatSettings): string; overload; inline; static;
+    class function ToString(const Value: Double; const Format: TFloatFormat; const Precision, Digits: Integer): string; overload; inline; static;
+    class function ToString(const Value: Double; const Format: TFloatFormat; const Precision, Digits: Integer;
+                               const AFormatSettings: TFormatSettings): string; overload; inline; static;
+    class function Parse(const S: string; const AFormatSettings: TFormatSettings): Double; overload; static;
+    class function Parse(const S: string): Double; overload; inline; static;
+    class function TryParse(const S: string; out Value: Double; const AFormatSettings: TFormatSettings): Boolean; overload;
+      {$IFNDEF EXTENDEDHAS10BYTES}inline;{$ENDIF}static;
+    class function TryParse(const S: string; out Value: Double): Boolean; overload; inline; static;
+    class function IsNan(const Value: Double): Boolean; overload; inline; static;
+    class function IsInfinity(const Value: Double): Boolean; overload; inline; static;
+    class function IsNegativeInfinity(const Value: Double): Boolean; overload; inline; static;
+    class function IsPositiveInfinity(const Value: Double): Boolean; overload; inline; static;
+    class function Size: Integer; inline; static;
+
   end;
   {$IFEND}
 
@@ -2251,7 +2309,7 @@ implementation
 uses OLTypesToEdits, TypInfo,
     {$IF CompilerVersion >= 23.0}
         System.Character, IntegerHelperFunctions, StringHelperFunctions,
-        BooleanHelperFunctions, CurrencyHelperFunctions;
+        BooleanHelperFunctions, CurrencyHelperFunctions, DoubleHelperFunctions;
     {$ELSE}
         Character;
     {$IFEND}
@@ -3470,6 +3528,178 @@ class function TOLDoubleHelper.Random(const MaxValue: Double): Double;
 begin
   Result := OLDouble.Random(MaxValue);
 end;
+
+function TOLDoubleHelper.Exponent: Integer;
+begin
+  Result := DoubleHelperFunctions.Instance_Exponent(Self);
+end;
+
+function TOLDoubleHelper.Fraction: Extended;
+begin
+  Result := DoubleHelperFunctions.Instance_Fraction(Self);
+end;
+
+function TOLDoubleHelper.Mantissa: UInt64;
+begin
+  Result := DoubleHelperFunctions.Instance_Mantissa(Self);
+end;
+
+function TOLDoubleHelper.GetSign: Boolean;
+begin
+  Result := DoubleHelperFunctions.Instance_GetSign(Self);
+end;
+
+procedure TOLDoubleHelper.SetSign(const Value: Boolean);
+begin
+  DoubleHelperFunctions.Instance_SetSign(Self, Value);
+end;
+
+function TOLDoubleHelper.GetExp: UInt64;
+begin
+  Result := DoubleHelperFunctions.Instance_GetExp(Self);
+end;
+
+procedure TOLDoubleHelper.SetExp(const Value: UInt64);
+begin
+  DoubleHelperFunctions.Instance_SetExp(Self, Value);
+end;
+
+function TOLDoubleHelper.GetFrac: UInt64;
+begin
+  Result := DoubleHelperFunctions.Instance_GetFrac(Self);
+end;
+
+procedure TOLDoubleHelper.SetFrac(const Value: UInt64);
+begin
+  DoubleHelperFunctions.Instance_SetFrac(Self, Value);
+end;
+
+function TOLDoubleHelper.SpecialType: TFloatSpecial;
+begin
+  Result := DoubleHelperFunctions.Instance_SpecialType(Self);
+end;
+
+procedure TOLDoubleHelper.BuildUp(const SignFlag: Boolean; const Mantissa: UInt64; const Exponent: Integer);
+begin
+  DoubleHelperFunctions.Instance_BuildUp(Self, SignFlag, Mantissa, Exponent);
+end;
+
+function TOLDoubleHelper.ToString(const AFormatSettings: TFormatSettings): string;
+begin
+  Result := DoubleHelperFunctions.Instance_ToString(Self, AFormatSettings);
+end;
+
+function TOLDoubleHelper.ToString(const Format: TFloatFormat; const Precision, Digits: Integer; const AFormatSettings: TFormatSettings): string;
+begin
+  Result := DoubleHelperFunctions.Instance_ToString(Self, Format, Precision, Digits, AFormatSettings);
+end;
+
+function TOLDoubleHelper.IsNegativeInfinity: Boolean;
+begin
+  Result := DoubleHelperFunctions.Instance_IsNegativeInfinity(Self);
+end;
+
+function TOLDoubleHelper.IsPositiveInfinity: Boolean;
+begin
+  Result := DoubleHelperFunctions.Instance_IsPositiveInfinity(Self);
+end;
+
+function TOLDoubleHelper.GetBytes(Index: Cardinal): UInt8;
+begin
+  Result := DoubleHelperFunctions.Instance_GetBytes(Self, Index);
+end;
+
+procedure TOLDoubleHelper.SetBytes(Index: Cardinal; const Value: UInt8);
+begin
+  DoubleHelperFunctions.Instance_SetBytes(Self, Index, Value);
+end;
+
+function TOLDoubleHelper.GetWords(Index: Cardinal): UInt16;
+begin
+  Result := DoubleHelperFunctions.Instance_GetWords(Self, Index);
+end;
+
+procedure TOLDoubleHelper.SetWords(Index: Cardinal; const Value: UInt16);
+begin
+  DoubleHelperFunctions.Instance_SetWords(Self, Index, Value);
+end;
+
+class function TOLDoubleHelper.ToString(const Value: Double): string;
+begin
+  Result := DoubleHelperFunctions.Type_ToString(Value);
+end;
+
+class function TOLDoubleHelper.ToString(const Value: Double; const AFormatSettings: TFormatSettings): string;
+begin
+  Result := DoubleHelperFunctions.Type_ToString(Value, AFormatSettings);
+end;
+
+class function TOLDoubleHelper.ToString(const Value: Double; const Format: TFloatFormat; const Precision, Digits: Integer): string;
+begin
+  Result := DoubleHelperFunctions.Type_ToString(Value, Format, Precision, Digits);
+end;
+
+class function TOLDoubleHelper.ToString(const Value: Double; const Format: TFloatFormat; const Precision, Digits: Integer; const AFormatSettings: TFormatSettings): string;
+begin
+  Result := DoubleHelperFunctions.Type_ToString(Value, Format, Precision, Digits, AFormatSettings);
+end;
+
+class function TOLDoubleHelper.Parse(const S: string): Double;
+begin
+  Result := DoubleHelperFunctions.Type_Parse(S);
+end;
+
+class function TOLDoubleHelper.Parse(const S: string; const AFormatSettings: TFormatSettings): Double;
+begin
+  Result := DoubleHelperFunctions.Type_Parse(S, AFormatSettings);
+end;
+
+class function TOLDoubleHelper.TryParse(const S: string; out Value: Double): Boolean;
+begin
+  Result := DoubleHelperFunctions.Type_TryParse(S, Value);
+end;
+
+class function TOLDoubleHelper.TryParse(const S: string; out Value: Double; const AFormatSettings: TFormatSettings): Boolean;
+begin
+  Result := DoubleHelperFunctions.Type_TryParse(S, Value, AFormatSettings);
+end;
+
+class function TOLDoubleHelper.IsNan(const Value: Double): Boolean;
+begin
+  Result := DoubleHelperFunctions.Type_IsNan(Value);
+end;
+
+class function TOLDoubleHelper.IsInfinity(const Value: Double): Boolean;
+begin
+  Result := DoubleHelperFunctions.Type_IsInfinity(Value);
+end;
+
+function TOLDoubleHelper.IsInfinity: Boolean;
+begin
+  Result := DoubleHelperFunctions.Type_IsInfinity(Self);
+end;
+
+class function TOLDoubleHelper.IsNegativeInfinity(const Value: Double): Boolean;
+begin
+  Result := DoubleHelperFunctions.Type_IsNegativeInfinity(Value);
+end;
+
+class function TOLDoubleHelper.IsPositiveInfinity(const Value: Double): Boolean;
+begin
+  Result := DoubleHelperFunctions.Type_IsPositiveInfinity(Value);
+end;
+
+class function TOLDoubleHelper.Size: Integer;
+begin
+  Result := DoubleHelperFunctions.Type_Size;
+end;
+
+function TOLDoubleHelper.ToString(const Format: TFloatFormat; const Precision,
+    Digits: Integer): string;
+begin
+  Result := DoubleHelperFunctions.Instance_ToString(self, Format, Precision, Digits);
+end;
+
 {$IFEND}
 
 {$IF CompilerVersion >= 24.0}
