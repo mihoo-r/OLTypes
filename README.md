@@ -15,6 +15,16 @@ The library provides a comprehensive set of features, including:
 * **OLRegistry**: Helper functions for Windows Registry operations (Available from Delphi 2006+).
 * **OLThreadRunner**: A tool for running tasks in separate threads (Available from Delphi 2009+).
 
+### Compatibility ###
+
+| Delphi Version | OLTypes | Primitive Type Helpers | DataBinding | OLArrays | OLDictionaries |
+|----------------|---------|---------|-------------|----------|----------------|
+| 2010           | ✅      | ❌      | ❌          | ❌       | ❌             |
+| XE             | ✅      | ❌      | ❌          | ✅       | ❌             |
+| XE2            | ✅      | ❌      | ✅          | ✅       | ❌             |
+| XE3+           | ✅      | ✅      | ✅          | ✅       | ❌             |
+| 10.4+          | ✅      | ✅      | ✅          | ✅       | ✅             |
+
 ### Licence ###
 OLTypes library is distributed under **[the MIT License](https://www.wikiwand.com/en/MIT_License)**.
 
