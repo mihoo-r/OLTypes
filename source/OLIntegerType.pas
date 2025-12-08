@@ -984,7 +984,6 @@ end;
 
 function OLInteger.Round(const Digits: OLInteger): OLInteger;
 begin
-  
   Result := Math.RoundTo(Self, Digits);
 end;
 

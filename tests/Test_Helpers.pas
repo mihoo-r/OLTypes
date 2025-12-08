@@ -173,8 +173,11 @@ procedure TestIntegerHelper.TestRound;
 var
   i: Integer;
 begin
-  i := 10;
-  CheckEquals(10, i.Round(1));
+  i := 15;
+  CheckEquals(20, i.Round(1));
+
+  i := 25;
+  CheckEquals(20, i.Round(1)); //banker's round
 end;
 
 procedure TestIntegerHelper.TestBetween;
@@ -642,6 +645,9 @@ begin
   CheckEquals(123.46, d.Round(-2), 0.01);
   i := d.Round;
   CheckEquals(123, i);
+
+  d := 12345;
+  CheckEquals(12340, d.Round(1));
 end;
 
 procedure TestDoubleHelper.TestFloorCeil;
@@ -1050,6 +1056,9 @@ begin
   CheckEquals(123.46, c.Round(-2), 0.01);
   i := c.Round;
   CheckEquals(123, i);
+
+  i := 12345;
+  CheckEquals(12340, i.Round(1));
 end;
 
 procedure TestCurrencyHelper.TestFloorCeil;
@@ -1411,12 +1420,33 @@ type
     procedure TestMaxMin;
     procedure TestAbs;
     procedure TestToString;
+    procedure TestToSQLString;
+    procedure TestRound;
     procedure TestBetween;
     procedure TestIncreaseDecrease;
     procedure TestReplaced;
+    procedure TestToNumeralSystem;
     procedure TestNumeralSystems;
+    procedure TestSetBinary;
+    procedure TestSetOctal;
+    procedure TestSetHexidecimal;
+    procedure TestSetNumeralSystem32;
+    procedure TestSetNumeralSystem64;
+    procedure TestForLoop;
     procedure TestIsPrime;
     procedure TestRandom;
+    procedure TestRandomPrime;
+    procedure TestSetRandom;
+    procedure TestSetRandomPrime;
+    procedure TestToBoolean;
+    procedure TestToHexString;
+    procedure TestToSingle;
+    procedure TestToDouble;
+    procedure TestToExtended;
+    procedure TestSize;
+    procedure TestParse;
+    procedure TestTryParse;
+    procedure TestConstants;
   end;
 
 procedure TestInt64Helper.TestIsDividableBy;
@@ -1609,6 +1639,238 @@ begin
   CheckTrue(i <= 20);
 end;
 
+procedure TestInt64Helper.TestToSQLString;
+var
+  i: Int64;
+begin
+  i := 123456789012345;
+  CheckEquals('123456789012345', i.ToSQLString);
+  i := -999;
+  CheckEquals('-999', i.ToSQLString);
+end;
+
+procedure TestInt64Helper.TestRound;
+var
+  i: Int64;
+begin
+  i := 12355;
+  CheckEquals(12360, i.Round(1));
+
+  i := 12345;
+  CheckEquals(12340, i.Round(1)); //Banker's round
+  CheckEquals(12300, i.Round(2));
+  CheckEquals(12000, i.Round(3));
+end;
+
+procedure TestInt64Helper.TestToNumeralSystem;
+var
+  i: Int64;
+begin
+  i := 10;
+  CheckEquals('1010', i.ToNumeralSystem(2));
+  CheckEquals('12', i.ToNumeralSystem(8));
+  CheckEquals('A', i.ToNumeralSystem(16));
+end;
+
+procedure TestInt64Helper.TestSetBinary;
+var
+  i: Int64;
+begin
+  i := 0;
+  i.SetBinary('1010');
+  CheckEquals(10, i);
+  i.SetBinary('11111111');
+  CheckEquals(255, i);
+end;
+
+procedure TestInt64Helper.TestSetOctal;
+var
+  i: Int64;
+begin
+  i := 0;
+  i.SetOctal('12');
+  CheckEquals(10, i);
+  i.SetOctal('377');
+  CheckEquals(255, i);
+end;
+
+procedure TestInt64Helper.TestSetHexidecimal;
+var
+  i: Int64;
+begin
+  i := 0;
+  i.SetHexidecimal('A');
+  CheckEquals(10, i);
+  i.SetHexidecimal('FF');
+  CheckEquals(255, i);
+end;
+
+procedure TestInt64Helper.TestSetNumeralSystem32;
+var
+  i: Int64;
+begin
+  i := 0;
+  i.SetNumeralSystem32('10');
+  CheckEquals(32, i);
+end;
+
+procedure TestInt64Helper.TestSetNumeralSystem64;
+var
+  i: Int64;
+begin
+  i := 0;
+  i.SetNumeralSystem64('10');
+  CheckEquals(64, i);
+end;
+
+procedure TestInt64Helper.TestForLoop;
+var
+  i: Int64;
+  Sum: Int64;
+begin
+  i := 0;
+  Sum := 0;
+  i.ForLoop(1, 5, procedure begin Inc(Sum); end);
+  CheckEquals(5, Sum);
+
+  Sum := 0;
+  i.ForLoop(1, 10, procedure begin Inc(Sum); end);
+  CheckEquals(10, Sum);
+end;
+
+procedure TestInt64Helper.TestRandomPrime;
+var
+  i: Int64;
+begin
+  i := Int64.RandomPrime(100);
+  CheckTrue(i.IsPrime);
+  CheckTrue(i <= 100);
+
+  i := Int64.RandomPrime(10, 50);
+  CheckTrue(i.IsPrime);
+  CheckTrue(i >= 10);
+  CheckTrue(i <= 50);
+end;
+
+procedure TestInt64Helper.TestSetRandom;
+var
+  i: Int64;
+begin
+  i := 0;
+  i.SetRandom(100);
+  CheckTrue(i <= 100);
+
+  i := 0;
+  i.SetRandom(50, 100);
+  CheckTrue(i >= 50);
+  CheckTrue(i <= 100);
+end;
+
+procedure TestInt64Helper.TestSetRandomPrime;
+var
+  i: Int64;
+begin
+  i := 0;
+  i.SetRandomPrime(100);
+  CheckTrue(i.IsPrime);
+  CheckTrue(i <= 100);
+
+  i := 0;
+  i.SetRandomPrime(10, 50);
+  CheckTrue(i.IsPrime);
+  CheckTrue(i >= 10);
+  CheckTrue(i <= 50);
+end;
+
+procedure TestInt64Helper.TestToBoolean;
+var
+  i: Int64;
+begin
+  i := 0;
+  CheckFalse(i.ToBoolean);
+  i := 1;
+  CheckTrue(i.ToBoolean);
+  i := -1;
+  CheckTrue(i.ToBoolean);
+  i := 100;
+  CheckTrue(i.ToBoolean);
+end;
+
+procedure TestInt64Helper.TestToHexString;
+var
+  i: Int64;
+begin
+  i := 255;
+  CheckEquals('00000000000000FF', i.ToHexString);
+  i := 16;
+  CheckEquals('0000000000000010', i.ToHexString);
+  i := 255;
+  CheckEquals('00FF', i.ToHexString(4));
+end;
+
+procedure TestInt64Helper.TestToSingle;
+var
+  i: Int64;
+  s: Single;
+begin
+  i := 123;
+  s := i.ToSingle;
+  CheckEquals(123.0, s, 0.01);
+end;
+
+procedure TestInt64Helper.TestToDouble;
+var
+  i: Int64;
+  d: Double;
+begin
+  i := 123456789;
+  d := i.ToDouble;
+  CheckEquals(123456789.0, d, 0.01);
+end;
+
+procedure TestInt64Helper.TestToExtended;
+var
+  i: Int64;
+  e: Extended;
+begin
+  i := 123456789012;
+  e := i.ToExtended;
+  CheckEquals(123456789012.0, e, 0.01);
+end;
+
+procedure TestInt64Helper.TestSize;
+begin
+  CheckEquals(8, Int64.Size);
+end;
+
+procedure TestInt64Helper.TestParse;
+var
+  i: Int64;
+begin
+  i := Int64.Parse('12345678901234');
+  CheckEquals(12345678901234, i);
+  i := Int64.Parse('-999');
+  CheckEquals(-999, i);
+end;
+
+procedure TestInt64Helper.TestTryParse;
+var
+  i: Int64;
+  success: Boolean;
+begin
+  success := Int64.TryParse('12345678901234', i);
+  CheckTrue(success);
+  CheckEquals(12345678901234, i);
+
+  success := Int64.TryParse('invalid', i);
+  CheckFalse(success);
+end;
+
+procedure TestInt64Helper.TestConstants;
+begin
+  CheckEquals(9223372036854775807, Int64.MaxValue);
+  CheckTrue(Int64.MinValue < 0);
+end;
 
 type
   TestStringHelper = class(TTestCase)
