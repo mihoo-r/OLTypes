@@ -469,8 +469,10 @@ type
   end;
 
   TOLFormCleanupHook = class(TComponent)
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
-    destructor Destroy; override;
+    constructor Create(AOwner: TComponent); override;
   end;
 
   { Multicaster class to multicast OnChange events to multiple links }
@@ -517,7 +519,7 @@ begin
     Enabled := False;
     if Assigned(Links.FRefreshTimers) then
        Links.FRefreshTimers.Remove(AComponent as TForm);
-    
+
     // Ensure we free ourselves since we are owned by nil
     Self.Free;
   end;
@@ -529,11 +531,11 @@ begin
     Links.RefreshControls(FForm);
 end;
 
-destructor TOLFormCleanupHook.Destroy;
+constructor TOLFormCleanupHook.Create(AOwner: TComponent);
 begin
-  if Owner is TForm then
-    Links.RemoveLinks(Owner as TForm);
   inherited;
+  if Assigned(AOwner) then
+      AOwner.FreeNotification(Self);
 end;
 
 { TOLValueMulticaster }
@@ -876,7 +878,7 @@ begin
         Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, FFormat)
       else
         Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
-      
+
       // Restore cursor logic is complex with formatting changes, but simple revert is safer
       // Ideally we should try to keep cursor, but if text changed significantly it's hard.
       // For now, simple revert.
@@ -1017,7 +1019,7 @@ begin
         Edit.Text := (OLPointer^).ToString(#0, fs.DecimalSeparator, CURRENCY_FORMAT)
       else
         Edit.Text := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, CURRENCY_FORMAT);
-      
+
       if j > 0 then Edit.SelStart := j - 1;
     finally
       FUpdatingFromControl := False;
@@ -2453,7 +2455,7 @@ begin
   ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
-  
+
   Edit.Alignment := Alignment;
 
   Link.RefreshControl();
@@ -2541,7 +2543,7 @@ begin
   ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
-  
+
   Edit.Alignment := Alignment;
 
   Link.RefreshControl();
@@ -2609,7 +2611,7 @@ begin
   begin
     Edit.Format := DelphiDateTimeFormatToWindowsFormat(FormatSettings.ShortDateFormat);
   end;
-  
+
   Link := TDateTimePickerToOLDate.Create;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
@@ -2679,7 +2681,7 @@ begin
       Edit.Format := DelphiDateTimeFormatToWindowsFormat(
         FormatSettings.ShortDateFormat + ' ' + FormatSettings.LongTimeFormat);
   end;
-  
+
   Link := TDateTimePickerToOLDateTime.Create;
   Link.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
@@ -3050,14 +3052,14 @@ begin
           begin
             var Multicaster := FValueMulticasters[OLPointer];
             FValueMulticasters.Remove(OLPointer);
-            
+
             // Set OnChange := nil on the OLInteger variable before freeing multicaster
             // This prevents Access Violations when the variable is reused later
             // All OL types have OnChange at the same offset, so we can use POLInteger
             var OLIntPtr := POLInteger(OLPointer);
             if Assigned(OLIntPtr) then
               OLIntPtr^.OnChange := nil;
-            
+
             Multicaster.Free;
           end;
         finally
@@ -3102,12 +3104,25 @@ begin
   Result := Assigned(FCalculation);
 end;
 
+procedure TOLFormCleanupHook.Notification(AComponent: TComponent;
+  Operation: TOperation);
+begin
+  if (Operation = opRemove) and (AComponent = Owner) then
+  begin
+    if Owner is TForm then
+    begin
+      if Owner is TForm then
+        Links.RemoveLinks(Owner as TForm);
+    end;
+  end;
+  
+  inherited Notification(AComponent, Operation);
+end;
+
 initialization
   OLLinkManager := TOLLinkManager.Create;
 
 finalization
   OLLinkManager.Free;
-
-
 
 end.
