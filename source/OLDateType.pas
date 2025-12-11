@@ -222,6 +222,10 @@ type
     ///   Returns the number of complete days between this date and the specified date.
     /// </summary>
     function DaysBetween(const AThen: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete days between this date and the begining of 1900.
+    /// </summary>
+    function DaysSince1900: OLInteger;
 
     /// <summary>
     ///   Checks if the date is within the specified range.
@@ -568,6 +572,22 @@ end;
 class function OLDate.IsValidDate(const Year, Month, Day: OLInteger): OLBoolean;
 begin
   Result := (Month > 0) and (Day > 0) and (DaysInAMonth(Year, Month) >= Day);
+end;
+
+function OLDate.DaysSince1900: OLInteger;
+var
+  OutPut: OLInteger;
+  var d, td: TDate;
+begin
+  if HasValue() then
+  begin
+    d := self.FValue;
+    td := SysUtils.EncodeDate(1900, 1, 1);
+
+    OutPut := Round(d - td);
+  end;
+
+  Result := OutPut;
 end;
 
 class operator OLDate.LessThan(const a, b: OLDate): Boolean;
