@@ -1102,6 +1102,24 @@ begin
   if Assigned(FOLPointer) then
   begin
     {$IF CompilerVersion >= 34.0}
+    if Assigned(Links.FValueMulticasters) then
+    begin
+      var Observer: TObject;
+      if Links.FValueMulticasters.TryGetValue(FOLPointer, Observer) then
+      begin
+        var Multicaster := Observer as TOLValueMulticaster;
+        Multicaster.RemoveLink(Self);
+        if Multicaster.IsEmpty then
+        begin
+          Links.FValueMulticasters.Remove(FOLPointer);
+          FOLPointer^.OnChange := nil;
+          Multicaster.Free;
+        end;
+      end;
+    end
+    else
+      FOLPointer^.OnChange := nil;
+    {$ELSE}
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
@@ -2218,6 +2236,24 @@ begin
   if Assigned(FOLPointer) then
   begin
     {$IF CompilerVersion >= 34.0}
+    if Assigned(Links.FValueMulticasters) then
+    begin
+      var Observer: TObject;
+      if Links.FValueMulticasters.TryGetValue(FOLPointer, Observer) then
+      begin
+        var Multicaster := Observer as TOLValueMulticaster;
+        Multicaster.RemoveLink(Self);
+        if Multicaster.IsEmpty then
+        begin
+          Links.FValueMulticasters.Remove(FOLPointer);
+          FOLPointer^.OnChange := nil;
+          Multicaster.Free;
+        end;
+      end;
+    end
+    else
+      FOLPointer^.OnChange := nil;
+    {$ELSE}
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
@@ -2275,6 +2311,24 @@ begin
   if Assigned(FOLPointer) then
   begin
     {$IF CompilerVersion >= 34.0}
+    if Assigned(Links.FValueMulticasters) then
+    begin
+      var Observer: TObject;
+      if Links.FValueMulticasters.TryGetValue(FOLPointer, Observer) then
+      begin
+        var Multicaster := Observer as TOLValueMulticaster;
+        Multicaster.RemoveLink(Self);
+        if Multicaster.IsEmpty then
+        begin
+          Links.FValueMulticasters.Remove(FOLPointer);
+          FOLPointer^.OnChange := nil;
+          Multicaster.Free;
+        end;
+      end;
+    end
+    else
+      FOLPointer^.OnChange := nil;
+    {$ELSE}
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
@@ -2420,12 +2474,23 @@ end;
 procedure TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger);
 var
   Link: TSpinEditToOLInteger;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TSpinEditToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  i.OnChange := Link.OnOLChange;
+  // Get or create multicaster for this OLInteger
+  if not FValueMulticasters.TryGetValue(@i, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@i, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
 
@@ -2464,12 +2529,23 @@ end;
 procedure TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger);
 var
   Link: TTrackBarToOLInteger;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TTrackBarToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  i.OnChange := Link.OnOLChange;
+  // Get or create multicaster for this OLInteger
+  if not FValueMulticasters.TryGetValue(@i, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@i, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
 
@@ -2479,12 +2555,23 @@ end;
 procedure TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger);
 var
   Link: TScrollBarToOLInteger;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
 begin
   Link := TScrollBarToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  i.OnChange := Link.OnOLChange;
+  // Get or create multicaster for this OLInteger
+  if not FValueMulticasters.TryGetValue(@i, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@i, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
 
