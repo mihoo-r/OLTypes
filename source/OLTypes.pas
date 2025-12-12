@@ -15,7 +15,7 @@ uses
     Vcl.Forms, Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Controls
   {$ELSE} SysUtils, Classes, Generics.Collections, Rtti,
     Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls
-  {$IFEND};
+  {$IFEND}, OLValidation;
 
 type
   TRttiFieldHack = class(TRttiField);
@@ -32,6 +32,10 @@ type
   TFunctionReturningOLCurrency = reference to function(): OLCurrency;
   TFunctionReturningOLDate = reference to function(): OLDate;
   TFunctionReturningOLDateTime= reference to function(): OLDateTime;
+
+  TOLValidationResult = OLValidation.TOLValidationResult;
+
+  TOLIntegerValidationFunction = reference to function(i: OLInteger): TOLValidationResult;
 
 
   OLBoolean = OLBooleanType.OLBoolean;
@@ -2636,7 +2640,7 @@ type
      /// <summary>
      ///   Links the edit control to an OLInteger variable for two-way data binding.
      /// </summary>
-     procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
+     procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil;  const Alignment: TAlignment=taRightJustify); overload;
      /// <summary>
      ///   Links the edit control to an OLDouble variable for two-way data binding.
      /// </summary>
@@ -2932,7 +2936,9 @@ end;
 
 { TOLEditHelper }
 
-procedure TOLEditHelper.Link(var i: OLInteger; const Alignment: TAlignment);
+procedure TOLEditHelper.Link(var i: OLInteger; ValidationFunction:
+    TOLIntegerValidationFunction = nil; const Alignment:
+    TAlignment=taRightJustify);
 var
   Form: TForm;
 begin
@@ -2946,7 +2952,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, i, Alignment);
+     Links.Link(Self, i, ValidationFunction, Alignment);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
