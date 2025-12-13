@@ -39,6 +39,7 @@ type
   TOLDoubleValidationFunction = reference to function(d: OLDouble): TOLValidationResult;
   TOLCurrencyValidationFunction = reference to function(c: OLCurrency): TOLValidationResult;
   TOLStringValidationFunction = reference to function(s: OLString): TOLValidationResult;
+  TOLBooleanValidationFunction = reference to function(b: OLBoolean): TOLValidationResult;
 
 
   OLBoolean = OLBooleanType.OLBoolean;
@@ -2723,7 +2724,8 @@ type
      /// <summary>
      ///   Links the checkbox control to an OLBoolean variable for two-way data binding.
      /// </summary>
-     procedure Link(var b: OLBoolean);
+     procedure Link(var b: OLBoolean; const ValidationFunction:
+         TOLBooleanValidationFunction = nil);
    end;
 
    /// <summary>
@@ -3195,8 +3197,8 @@ begin
 end;
 
 { TOLCheckBoxHelper }
-
-procedure TOLCheckBoxHelper.Link(var b: OLBoolean);
+procedure TOLCheckBoxHelper.Link(var b: OLBoolean; const
+        ValidationFunction: TOLBooleanValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3210,7 +3212,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, b);
+     Links.Link(Self, b, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TCheckBox: ' + E.Message);

@@ -8,7 +8,7 @@ uses OLTypes, OLValidation, {$IF CompilerVersion >= 23.0} System.Generics.Collec
   {$IF CompilerVersion >= 23.0}
   Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms,
   System.Classes, Vcl.Controls, Messages, Winapi.Windows, Vcl.ExtCtrls,
-  Vcl.Graphics;
+  Vcl.Graphics, OLBooleanType;
   {$ELSE}
   StdCtrls, SysUtils, Spin, ComCtrls, Forms, Classes, Controls, Messages, Windows, ExtCtrls, Graphics;
   {$IFEND}
@@ -325,8 +325,17 @@ type
     FEdit: TCheckBox;
     FEditOnClick: TEditOnClick;
     FOLPointer: POLBoolean;
+    FValidationFunction: TOLBooleanValidationFunction;
+    FOriginalFontColor: TColor;
+    FOriginalHint: string;
+    FOriginalShowHint: Boolean;
+    FWarningLabel: TLabel;
     procedure SetEdit(const Value: TCheckBox);
     procedure SetOLPointer(const Value: POLBoolean);
+    procedure SetValidationFunction(const Value: TOLBooleanValidationFunction);
+    function ValueIsValid(b: OLBoolean): TOLValidationResult;
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure SetValueAfterValidation(b: OLBoolean);
   public
     constructor Create;
     destructor Destroy; override;
@@ -335,6 +344,7 @@ type
     procedure RefreshControl; override;
     property Edit: TCheckBox read FEdit write SetEdit;
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLBooleanValidationFunction read FValidationFunction write SetValidationFunction;
   end;
 
   TOLIntegerToLabel = class(TOLControlLink)
@@ -522,7 +532,8 @@ type
     procedure Link(const Edit: TMemo; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
     procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
     procedure Link(const Edit: TDateTimePicker; var d: OLDateTime); overload;
-    procedure Link(const Edit: TCheckBox; var b: OLBoolean); overload;
+    procedure Link(const Edit: TCheckBox; var b: OLBoolean; const
+        ValidationFunction: TOLBooleanValidationFunction = nil); overload;
 
     procedure Link(const Lbl: TLabel; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
@@ -2153,6 +2164,9 @@ begin
   FEdit := nil;
   FEditOnClick := nil;
   FOLPointer := nil;
+  FValidationFunction := nil;
+  FOriginalHint := '';
+  FOriginalShowHint := False;
 end;
 
 destructor TCheckBoxToOLBoolean.Destroy;
@@ -2166,8 +2180,73 @@ begin
     if Assigned(FEditOnClick) then
       FEdit.OnClick := FEditOnClick;
   end;
+  if Assigned(FWarningLabel) then
+    FWarningLabel.Free;
   inherited;
 end;
+
+procedure TCheckBoxToOLBoolean.SetValidationFunction(const Value: TOLBooleanValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TCheckBoxToOLBoolean.ValueIsValid(b: OLBoolean): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(b)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TCheckBoxToOLBoolean.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    Edit.Hint := FOriginalHint;
+    Edit.ShowHint := FOriginalShowHint;
+    if Assigned(FWarningLabel) then
+    begin
+      FWarningLabel.Visible := False;
+      FWarningLabel.Free;
+      FWarningLabel := nil;
+    end;
+  end
+  else
+  begin
+    if not Assigned(FWarningLabel) then
+    begin
+      FWarningLabel := TLabel.Create(Edit.Owner);
+      FWarningLabel.Parent := Edit.Parent;
+      FWarningLabel.Caption := '⚠';
+      FWarningLabel.Font.Color := clRed;
+      FWarningLabel.Font.Size := 12;
+      FWarningLabel.AutoSize := True;
+      FWarningLabel.Left := Edit.Left + Edit.Width + 5;
+      FWarningLabel.Top := Edit.Top + (Edit.Height - FWarningLabel.Height) div 2;
+    end;
+    FWarningLabel.Hint := vr.Message;
+    FWarningLabel.ShowHint := True;
+    FWarningLabel.Visible := True;
+    Edit.Hint := vr.Message;
+    Edit.ShowHint := true;
+  end;
+end;
+
+procedure TCheckBoxToOLBoolean.SetValueAfterValidation(b: OLBoolean);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(b);
+  ApplyValidationStateToEdit(vr);
+
+  if vr.Valid then
+    OLPointer^ := b;
+end;
+
 
 procedure TCheckBoxToOLBoolean.OnOLChange(Sender: TObject);
 begin
@@ -2176,16 +2255,21 @@ end;
 
 procedure TCheckBoxToOLBoolean.NewOnClick(Sender: TObject);
 begin
-  OLPointer^ := Edit.Checked;
+  SetValueAfterValidation(Edit.Checked);
 
   if Assigned(FEditOnClick) then
     FEditOnClick(Edit);
 end;
 
 procedure TCheckBoxToOLBoolean.RefreshControl;
+var
+  vr: TOLValidationResult;
 begin
   if Edit.Checked <> (OLPointer^).IfNull(False) then
     Edit.Checked := (OLPointer^).IfNull(False);
+
+  vr := ValueIsValid(OLPointer^);
+  ApplyValidationStateToEdit(vr);
 end;
 
 procedure TCheckBoxToOLBoolean.SetEdit(const Value: TCheckBox);
@@ -2195,6 +2279,9 @@ begin
   begin
     FEditOnClick := Value.OnClick;
     Value.OnClick := NewOnClick;
+    FOriginalFontColor := Value.Font.Color;
+    FOriginalHint := Value.Hint;
+    FOriginalShowHint := Value.ShowHint;
   end;
 end;
 
@@ -3560,7 +3647,8 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Edit: TCheckBox; var b: OLBoolean);
+procedure TOLLinkManager.Link(const Edit: TCheckBox; var b: OLBoolean; const
+    ValidationFunction: TOLBooleanValidationFunction = nil);
 var
   Link: TCheckBoxToOLBoolean;
   Observer: TObject;
@@ -3569,6 +3657,7 @@ begin
   Link := TCheckBoxToOLBoolean.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @b;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLBoolean
   if not FValueMulticasters.TryGetValue(@b, Observer) then
@@ -3585,6 +3674,7 @@ begin
 
   Link.RefreshControl();
 end;
+
 
 procedure TOLLinkManager.Link(const Lbl: TLabel; const f:
     TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string =
