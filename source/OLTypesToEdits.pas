@@ -26,10 +26,15 @@ type
   TEditOnKeyPress = procedure (Sender: TObject; var Key: Char) of object;
 
   TOLControlLink = class(TComponent)
+  private
+    FControl: TControl;
   public
     constructor Create; reintroduce;
     procedure RefreshControl; virtual; abstract;
     function NeedsTimer: Boolean; virtual;
+    function GetCurrentValidationResult: TOLValidationResult; virtual;
+    procedure ShowValidationState(vr: TOLValidationResult); virtual;
+    property Control: TControl read FControl write FControl;
   end;
 
   TEditToOLInteger = class(TOLControlLink)
@@ -47,8 +52,6 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -56,6 +59,9 @@ type
     procedure NewOnExit(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLIntegerValidationFunction read
@@ -78,14 +84,15 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     property Edit: TSpinEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLIntegerValidationFunction read
@@ -103,14 +110,15 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     property Edit: TScrollBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLIntegerValidationFunction read
@@ -128,14 +136,15 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     property Edit: TTrackBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLIntegerValidationFunction read
@@ -158,8 +167,6 @@ type
     procedure SetOLPointer(const Value: POLDouble);
     procedure SetValidationFunction(const Value: TOLDoubleValidationFunction);
     procedure SetValueAfterValidation(d: OLDouble);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(d: OLDouble): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -167,6 +174,8 @@ type
     procedure NewOnExit(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(d: OLDouble): TOLValidationResult;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLDoubleValidationFunction read
@@ -189,8 +198,6 @@ type
     procedure SetOLPointer(const Value: POLCurrency);
     procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
     procedure SetValueAfterValidation(c: OLCurrency);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(c: OLCurrency): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -198,6 +205,8 @@ type
     procedure NewOnExit(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(c: OLCurrency): TOLValidationResult;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLCurrencyValidationFunction read
@@ -217,14 +226,14 @@ type
     procedure SetOLPointer(const Value: POLString);
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
     procedure SetValueAfterValidation(s: OLString);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(s: OLString): TOLValidationResult;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLStringValidationFunction read
@@ -244,14 +253,14 @@ type
     procedure SetOLPointer(const Value: POLString);
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
     procedure SetValueAfterValidation(s: OLString);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure NewOnChange(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(s: OLString): TOLValidationResult;
     property Edit: TMemo read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLStringValidationFunction read
@@ -331,8 +340,6 @@ type
     procedure SetEdit(const Value: TCheckBox);
     procedure SetOLPointer(const Value: POLBoolean);
     procedure SetValidationFunction(const Value: TOLBooleanValidationFunction);
-    function ValueIsValid(b: OLBoolean): TOLValidationResult;
-    procedure ShowValidationState(vr: TOLValidationResult);
     procedure SetValueAfterValidation(b: OLBoolean);
   public
     constructor Create;
@@ -340,6 +347,8 @@ type
     procedure NewOnClick(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    function ValueIsValid(b: OLBoolean): TOLValidationResult;
+    procedure ShowValidationState(vr: TOLValidationResult);
     property Edit: TCheckBox read FEdit write SetEdit;
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
     property ValidationFunction: TOLBooleanValidationFunction read FValidationFunction write SetValidationFunction;
@@ -359,13 +368,13 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLInteger);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLInteger read FCalculation write SetCalculation;
@@ -387,12 +396,12 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLString);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
     procedure RefreshControl; override;
     function NeedsTimer: Boolean; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(s: OLString): TOLValidationResult;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLString read FCalculation write SetCalculation;
@@ -415,14 +424,14 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLDouble);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLDoubleValidationFunction);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(d: OLDouble): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     function NeedsTimer: Boolean; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(d: OLDouble): TOLValidationResult;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDouble read FCalculation write SetCalculation;
@@ -445,14 +454,14 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLCurrency);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(c: OLCurrency): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     function NeedsTimer: Boolean; override;
+    procedure ShowValidationState(vr: TOLValidationResult);
+    function ValueIsValid(c: OLCurrency): TOLValidationResult;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLCurrency read FCalculation write SetCalculation;
@@ -550,6 +559,7 @@ type
 
     procedure RefreshControls(FormToRefresh: TForm = nil);
     procedure RemoveLinks(DestroyedForm: TForm = nil);
+    function GetLinkForControl(AControl: TControl): TOLControlLink;
   end;
 
    function Links(): TOLLinkManager;
@@ -733,6 +743,11 @@ begin
   Result := vr;
 end;
 
+function TEditToOLInteger.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := ValueIsValid(OLPointer^);
+end;
+
 procedure TEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -849,6 +864,7 @@ end;
 procedure TEditToOLInteger.SetEdit(const Value: TEdit);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -922,6 +938,7 @@ end;
 procedure TEditToOLString.SetEdit(const Value: TEdit);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -1041,6 +1058,7 @@ end;
 procedure TMemoToOLString.SetEdit(const Value: TMemo);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -1229,6 +1247,7 @@ end;
 procedure TEditToOLDouble.SetEdit(const Value: TEdit);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -1423,6 +1442,7 @@ end;
 procedure TEditToOLCurrency.SetEdit(const Value: TEdit);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -1624,6 +1644,7 @@ end;
 procedure TSpinEditToOLInteger.SetEdit(const Value: TSpinEdit);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -1658,6 +1679,11 @@ begin
     vr := TOLValidationResult.Ok();
 
   Result := vr;
+end;
+
+function TSpinEditToOLInteger.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := ValueIsValid(OLPointer^);
 end;
 
 procedure TSpinEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
@@ -1701,6 +1727,16 @@ end;
 function TOLControlLink.NeedsTimer: Boolean;
 begin
   Result := false;
+end;
+
+function TOLControlLink.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := TOLValidationResult.Ok;
+end;
+
+procedure TOLControlLink.ShowValidationState(vr: TOLValidationResult);
+begin
+  // Do nothing by default
 end;
 
 { TDateTimePickerToOLDate }
@@ -1896,6 +1932,7 @@ end;
 procedure TDateTimePickerToOLDate.SetEdit(const Value: TDateTimePicker);
 begin
   FEdit := Value;
+  Control := Value;
 
   if Assigned(Value) then
   begin
@@ -2123,6 +2160,7 @@ end;
 procedure TDateTimePickerToOLDateTime.SetEdit(const Value: TDateTimePicker);
 begin
   FEdit := Value;
+  Control := Value;
 
   if Assigned(Value) then
   begin
@@ -2273,6 +2311,7 @@ end;
 procedure TCheckBoxToOLBoolean.SetEdit(const Value: TCheckBox);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnClick := Value.OnClick;
@@ -2356,6 +2395,7 @@ end;
 procedure TOLIntegerToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  Control := Value;
   if Assigned(Value) then
     FOriginalFontColor := Value.Font.Color;
 end;
@@ -2452,6 +2492,7 @@ end;
 procedure TOLStringToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  Control := Value;
   if Assigned(Value) then
     FOriginalFontColor := Value.Font.Color;
 end;
@@ -2575,6 +2616,7 @@ end;
 procedure TOLDoubleToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  Control := Value;
   if Assigned(Value) then
     FOriginalFontColor := Value.Font.Color;
 end;
@@ -2698,6 +2740,7 @@ end;
 procedure TOLCurrencyToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  Control := Value;
   if Assigned(Value) then
     FOriginalFontColor := Value.Font.Color;
 end;
@@ -2808,6 +2851,7 @@ end;
 procedure TOLDateToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  Control := Value;
 end;
 
 procedure TOLDateToLabel.SetOLPointer(const Value: POLDate);
@@ -2886,6 +2930,7 @@ end;
 procedure TOLDateTimeToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  Control := Value;
 end;
 
 procedure TOLDateTimeToLabel.SetOLPointer(const Value: POLDateTime);
@@ -2973,6 +3018,7 @@ end;
 procedure TScrollBarToOLInteger.SetEdit(const Value: TScrollBar);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -3002,6 +3048,11 @@ begin
     vr := TOLValidationResult.Ok();
 
   Result := vr;
+end;
+
+function TScrollBarToOLInteger.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := ValueIsValid(OLPointer^);
 end;
 
 procedure TScrollBarToOLInteger.ShowValidationState(vr: TOLValidationResult);
@@ -3086,6 +3137,11 @@ begin
   inherited;
 end;
 
+function TTrackBarToOLInteger.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := inherited GetCurrentValidationResult;
+end;
+
 procedure TTrackBarToOLInteger.NewOnChange(Sender: TObject);
 begin
   SetValueAfterValidation(Edit.Position);
@@ -3115,6 +3171,7 @@ end;
 procedure TTrackBarToOLInteger.SetEdit(const Value: TTrackBar);
 begin
   FEdit := Value;
+  Control := Value;
   if Assigned(Value) then
   begin
     FEditOnChange := Value.OnChange;
@@ -4104,6 +4161,35 @@ begin
     end;
   end;
 end;
+
+function TOLLinkManager.GetLinkForControl(AControl: TControl): TOLControlLink;
+var
+  Form: TCustomForm;
+  List: TObjectList<TOLControlLink>;
+  Link: TOLControlLink;
+begin
+  Result := nil;
+  Form := GetParentForm(AControl);
+
+  if not Assigned(Form) then
+    exit;
+
+  if not (Form is TForm) then
+    exit;
+
+  if FControlLinks.TryGetValue(Form as TForm, List) then
+  begin
+    for Link in List do
+    begin
+      if Link.Control = AControl then
+      begin
+        Result := Link;
+        Exit;
+      end;
+    end;
+  end;
+end;
+
 
 function TOLIntegerToLabel.NeedsTimer: Boolean;
 begin
