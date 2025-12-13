@@ -211,8 +211,16 @@ type
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
     FOLPointer: POLString;
+    FValidationFunction: TOLStringValidationFunction;
+    FOriginalColor: TColor;
+    FOriginalHint: string;
+    FOriginalShowHint: Boolean;
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLString);
+    procedure SetValidationFunction(const Value: TOLStringValidationFunction);
+    procedure SetValueAfterValidation(s: OLString);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -221,6 +229,8 @@ type
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLStringValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TMemoToOLString = class(TOLControlLink)
@@ -228,8 +238,16 @@ type
     FEdit: TMemo;
     FEditOnChange: TEditOnChange;
     FOLPointer: POLString;
+    FValidationFunction: TOLStringValidationFunction;
+    FOriginalColor: TColor;
+    FOriginalHint: string;
+    FOriginalShowHint: Boolean;
     procedure SetEdit(const Value: TMemo);
     procedure SetOLPointer(const Value: POLString);
+    procedure SetValidationFunction(const Value: TOLStringValidationFunction);
+    procedure SetValueAfterValidation(s: OLString);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -238,6 +256,8 @@ type
     procedure RefreshControl; override;
     property Edit: TMemo read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLStringValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TDateTimePickerToOLDate = class(TOLControlLink)
@@ -352,10 +372,15 @@ type
     FOLPointer: POLString;
     FCalculation: TFunctionReturningOLString;
     FValueOnErrorInCalculation: OLString;
+    FValidationFunction: TOLStringValidationFunction;
+    FOriginalFontColor: TColor;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLString);
     procedure SetCalculation(const Value: TFunctionReturningOLString);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
+    procedure SetValidationFunction(const Value: TOLStringValidationFunction);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
     procedure RefreshControl; override;
@@ -364,6 +389,8 @@ type
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLString read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    property ValidationFunction: TOLStringValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TOLDoubleToLabel = class(TOLControlLink)
@@ -491,15 +518,15 @@ type
     procedure Link(const Edit: TEdit; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-    procedure Link(const Edit: TEdit; var s: OLString); overload;
-    procedure Link(const Edit: TMemo; var s: OLString); overload;
+    procedure Link(const Edit: TEdit; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
+    procedure Link(const Edit: TMemo; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
     procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
     procedure Link(const Edit: TDateTimePicker; var d: OLDateTime); overload;
     procedure Link(const Edit: TCheckBox; var b: OLBoolean); overload;
 
     procedure Link(const Lbl: TLabel; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-    procedure Link(const Lbl: TLabel; var s: OLString); overload;
+    procedure Link(const Lbl: TLabel; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
     procedure Link(const Lbl: TLabel; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT); overload;
@@ -846,6 +873,7 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+  FValidationFunction := nil;
 end;
 
 destructor TEditToOLString.Destroy;
@@ -858,7 +886,7 @@ end;
 
 procedure TEditToOLString.NewOnChange(Sender: TObject);
 begin
-  OLPointer^ := Edit.Text;
+  SetValueAfterValidation(Edit.Text);
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -870,9 +898,16 @@ begin
 end;
 
 procedure TEditToOLString.RefreshControl;
+var
+  vr: TOLValidationResult;
 begin
   if Edit.Text <> (OLPointer^).ToString() then
+  begin
     Edit.Text := (OLPointer^).ToString();
+
+    vr := ValueIsValid(OLPointer^);
+    ApplyValidationStateToEdit(vr);
+  end;
 end;
 
 procedure TEditToOLString.SetEdit(const Value: TEdit);
@@ -882,6 +917,9 @@ begin
   begin
     FEditOnChange := Value.OnChange;
     Value.OnChange := NewOnChange;
+    FOriginalColor := Value.Color;
+    FOriginalHint := Value.Hint;
+    FOriginalShowHint := Value.ShowHint;
   end;
 end;
 
@@ -892,6 +930,54 @@ begin
   FOLPointer := Value;
 end;
 
+procedure TEditToOLString.SetValidationFunction(const Value: TOLStringValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TEditToOLString.ValueIsValid(s: OLString): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(s)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TEditToOLString.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    Edit.Color := FOriginalColor;
+    Edit.Hint := FOriginalHint;
+    Edit.ShowHint := FOriginalShowHint;
+  end
+  else
+  begin
+    if vr.Color = clDefault then
+      Edit.Color := $CBC0FF
+    else
+      Edit.Color := vr.Color;
+
+    Edit.Hint := vr.Message;
+    Edit.ShowHint := true;
+  end;
+end;
+
+procedure TEditToOLString.SetValueAfterValidation(s: OLString);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(s);
+  ApplyValidationStateToEdit(vr);
+
+  if vr.Valid then
+    OLPointer^ := s;
+end;
+
 { TMemoToOLString }
 
 constructor TMemoToOLString.Create;
@@ -900,6 +986,7 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+  FValidationFunction := nil;
 end;
 
 destructor TMemoToOLString.Destroy;
@@ -918,7 +1005,7 @@ end;
 
 procedure TMemoToOLString.NewOnChange(Sender: TObject);
 begin
-  OLPointer^ := Edit.Text;
+  SetValueAfterValidation(Edit.Text);
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -930,9 +1017,16 @@ begin
 end;
 
 procedure TMemoToOLString.RefreshControl;
+var
+  vr: TOLValidationResult;
 begin
   if Edit.Text <> (OLPointer^).ToString() then
+  begin
     Edit.Text := (OLPointer^).ToString();
+
+    vr := ValueIsValid(OLPointer^);
+    ApplyValidationStateToEdit(vr);
+  end;
 end;
 
 procedure TMemoToOLString.SetEdit(const Value: TMemo);
@@ -942,6 +1036,9 @@ begin
   begin
     FEditOnChange := Value.OnChange;
     Value.OnChange := NewOnChange;
+    FOriginalColor := Value.Color;
+    FOriginalHint := Value.Hint;
+    FOriginalShowHint := Value.ShowHint;
   end;
 end;
 
@@ -950,6 +1047,54 @@ begin
   if not Assigned(Value) then
     raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
+end;
+
+procedure TMemoToOLString.SetValidationFunction(const Value: TOLStringValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TMemoToOLString.ValueIsValid(s: OLString): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(s)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TMemoToOLString.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    Edit.Color := FOriginalColor;
+    Edit.Hint := FOriginalHint;
+    Edit.ShowHint := FOriginalShowHint;
+  end
+  else
+  begin
+    if vr.Color = clDefault then
+      Edit.Color := $CBC0FF
+    else
+      Edit.Color := vr.Color;
+
+    Edit.Hint := vr.Message;
+    Edit.ShowHint := true;
+  end;
+end;
+
+procedure TMemoToOLString.SetValueAfterValidation(s: OLString);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(s);
+  ApplyValidationStateToEdit(vr);
+
+  if vr.Valid then
+    OLPointer^ := s;
 end;
 
 { TEditToOLDouble }
@@ -2184,11 +2329,13 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+  FValidationFunction := nil;
 end;
 
 procedure TOLStringToLabel.RefreshControl;
 var
   s: string;
+  vr: TOLValidationResult;
 begin
   if OLPointer <> nil then
   begin
@@ -2220,6 +2367,8 @@ end;
 procedure TOLStringToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  if Assigned(Value) then
+    FOriginalFontColor := Value.Font.Color;
 end;
 
 procedure TOLStringToLabel.SetOLPointer(const Value: POLString);
@@ -2235,6 +2384,36 @@ end;
 procedure TOLStringToLabel.SetValueOnErrorInCalculation(const Value: OLString);
 begin
   FValueOnErrorInCalculation := Value;
+end;
+
+procedure TOLStringToLabel.SetValidationFunction(const Value: TOLStringValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TOLStringToLabel.ValueIsValid(s: OLString): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(s)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TOLStringToLabel.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+    Lbl.Font.Color := FOriginalFontColor
+  else
+  begin
+    if vr.Color = clDefault then
+      Lbl.Font.Color := clRed
+    else
+       Lbl.Font.Color := vr.Color;
+  end;
 end;
 
 { TOLDoubleToLabel }
@@ -3226,7 +3405,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Edit: TEdit; var s: OLString);
+procedure TOLLinkManager.Link(const Edit: TEdit; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil);
 var
   Link: TEditToOLString;
   Observer: TObject;
@@ -3235,6 +3414,7 @@ begin
   Link := TEditToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLString
   if not FValueMulticasters.TryGetValue(@s, Observer) then
@@ -3252,7 +3432,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Edit: TMemo; var s: OLString);
+procedure TOLLinkManager.Link(const Edit: TMemo; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil);
 var
   Link: TMemoToOLString;
   Observer: TObject;
@@ -3261,6 +3441,7 @@ begin
   Link := TMemoToOLString.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @s;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLString
   if not FValueMulticasters.TryGetValue(@s, Observer) then
@@ -3435,7 +3616,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; var s: OLString);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil);
 var
   Link: TOLStringToLabel;
   Observer: TObject;
@@ -3444,6 +3625,7 @@ begin
   Link := TOLStringToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @s;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLString
   if not FValueMulticasters.TryGetValue(@s, Observer) then

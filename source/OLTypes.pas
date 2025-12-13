@@ -38,6 +38,7 @@ type
   TOLIntegerValidationFunction = reference to function(i: OLInteger): TOLValidationResult;
   TOLDoubleValidationFunction = reference to function(d: OLDouble): TOLValidationResult;
   TOLCurrencyValidationFunction = reference to function(c: OLCurrency): TOLValidationResult;
+  TOLStringValidationFunction = reference to function(s: OLString): TOLValidationResult;
 
 
   OLBoolean = OLBooleanType.OLBoolean;
@@ -2651,10 +2652,10 @@ type
       ///   Links the edit control to an OLCurrency variable for two-way data binding with validation.
       /// </summary>
       procedure Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-     /// <summary>
-     ///   Links the edit control to an OLString variable for two-way data binding.
-     /// </summary>
-     procedure Link(var s: OLString); overload;
+      /// <summary>
+      ///   Links the edit control to an OLString variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
    end;
 
    /// <summary>
@@ -2690,12 +2691,16 @@ type
    /// <summary>
    ///   Helper class for TMemo to enable data binding with OL types.
    /// </summary>
-   TOLMemoHelper = class helper for TMemo
-     /// <summary>
-     ///   Links the memo control to an OLString variable for two-way data binding.
-     /// </summary>
-     procedure Link(var s: OLString);
-   end;
+    TOLMemoHelper = class helper for TMemo
+      /// <summary>
+      ///   Links the memo control to an OLString variable for two-way data binding.
+      /// </summary>
+      procedure Link(var s: OLString); overload;
+      /// <summary>
+      ///   Links the memo control to an OLString variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
+    end;
 
    /// <summary>
    ///   Helper class for TDateTimePicker to enable data binding with OL types.
@@ -2737,10 +2742,14 @@ type
      ///   Links the label control to a function that returns OLInteger for computed display.
      /// </summary>
      procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-     /// <summary>
-     ///   Links the label control to an OLString variable for one-way data binding (display only).
-     /// </summary>
-     procedure Link(var s: OLString); overload;
+      /// <summary>
+      ///   Links the label control to an OLString variable for one-way data binding (display only).
+      /// </summary>
+      procedure Link(var s: OLString); overload;
+      /// <summary>
+      ///   Links the label control to an OLString variable for one-way data binding (display only) with validation.
+      /// </summary>
+      procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
      /// <summary>
      ///   Links the label control to a function that returns OLString for computed display.
      /// </summary>
@@ -3013,7 +3022,7 @@ begin
    end;
 end;
 
-procedure TOLEditHelper.Link(var s: OLString);
+procedure TOLEditHelper.Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3027,7 +3036,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, s);
+     Links.Link(Self, s, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
@@ -3114,6 +3123,27 @@ begin
 
    try
      Links.Link(Self, s);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TMemo: ' + E.Message);
+   end;
+end;
+
+procedure TOLMemoHelper.Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil);
+var
+  Form: TForm;
+begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+
+   if not Form.IsMyField(s) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, s, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TMemo: ' + E.Message);
@@ -3251,6 +3281,27 @@ begin
 
    try
      Links.Link(Self, s);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
+end;
+
+procedure TOLLabelHelper.Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil);
+var
+  Form: TForm;
+begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+
+   if not Form.IsMyField(s) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, s, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
