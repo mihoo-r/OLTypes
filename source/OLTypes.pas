@@ -2658,12 +2658,12 @@ type
    /// <summary>
    ///   Helper class for TSpinEdit to enable data binding with OL types.
    /// </summary>
-   TOLSpinEditHelper = class helper for TSpinEdit
-     /// <summary>
-     ///   Links the spin edit control to an OLInteger variable for two-way data binding.
-     /// </summary>
-     procedure Link(var i: OLInteger);
-   end;
+    TOLSpinEditHelper = class helper for TSpinEdit
+      /// <summary>
+      ///   Links the spin edit control to an OLInteger variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    end;
 
    /// <summary>
    ///   Helper class for TTrackBar to enable data binding with OL types.
@@ -2722,11 +2722,15 @@ type
    /// <summary>
    ///   Helper class for TLabel to enable data binding with OL types.
    /// </summary>
-   TOLLabelHelper = class helper for TLabel
-     /// <summary>
-     ///   Links the label control to an OLInteger variable for one-way data binding (display only).
-     /// </summary>
-     procedure Link(var i: OLInteger); overload;
+    TOLLabelHelper = class helper for TLabel
+      /// <summary>
+      ///   Links the label control to an OLInteger variable for one-way data binding (display only).
+      /// </summary>
+      procedure Link(var i: OLInteger); overload;
+      /// <summary>
+      ///   Links the label control to an OLInteger variable for one-way data binding (display only) with validation.
+      /// </summary>
+      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
      /// <summary>
      ///   Links the label control to a function that returns OLInteger for computed display.
      /// </summary>
@@ -3024,9 +3028,7 @@ begin
    end;
 end;
 
-{ TOLSpinEditHelper }
-
-procedure TOLSpinEditHelper.Link(var i: OLInteger);
+procedure TOLSpinEditHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3040,7 +3042,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, i);
+     Links.Link(Self, i, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TSpinEdit: ' + E.Message);
@@ -3200,6 +3202,27 @@ begin
 
    try
      Links.Link(Self, i);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
+end;
+
+procedure TOLLabelHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
+var
+  Form: TForm;
+begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+
+   if not Form.IsMyField(i) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, i, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);

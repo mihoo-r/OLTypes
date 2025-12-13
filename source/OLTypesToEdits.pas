@@ -71,9 +71,17 @@ type
     FEditOnExit: TNotifyEvent;
     FOLPointer: POLInteger;
     FUpdatingFromControl: Boolean;
+    FValidationFunction: TOLIntegerValidationFunction;
+    FOriginalColor: TColor;
+    FOriginalHint: string;
+    FOriginalShowHint: Boolean;
     procedure NewOnExit(Sender: TObject);
     procedure SetEdit(const Value: TSpinEdit);
     procedure SetOLPointer(const Value: POLInteger);
+    procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
+    procedure SetValueAfterValidation(i: OLInteger);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -82,6 +90,8 @@ type
     procedure RefreshControl; override;
     property Edit: TSpinEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLIntegerValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TScrollBarToOLInteger = class(TOLControlLink)
@@ -277,11 +287,16 @@ type
     FOLPointer: POLInteger;
     FCalculation: TFunctionReturningOLInteger;
     FValueOnErrorInCalculation: OLString;
+    FValidationFunction: TOLIntegerValidationFunction;
+    FOriginalFontColor: TColor;
     function NeedsTimer: Boolean;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetCalculation(const Value: TFunctionReturningOLInteger);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
+    procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -291,6 +306,8 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLInteger read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    property ValidationFunction: TOLIntegerValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TOLStringToLabel = class(TOLControlLink)
@@ -417,7 +434,7 @@ type
     procedure Link(const Edit: TEdit; var i: OLInteger; const ValidationFunction:
         TOLIntegerValidationFunction = nil; const Alignment: TAlignment=taRightJustify);
         overload;
-    procedure Link(const Edit: TSpinEdit; var i: OLInteger); overload;
+    procedure Link(const Edit: TSpinEdit; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
     procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
     procedure Link(const Edit: TScrollBar; var i: OLInteger); overload;
     procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
@@ -428,7 +445,7 @@ type
     procedure Link(const Edit: TDateTimePicker; var d: OLDateTime); overload;
     procedure Link(const Edit: TCheckBox; var b: OLBoolean); overload;
 
-    procedure Link(const Lbl: TLabel; var i: OLInteger); overload;
+    procedure Link(const Lbl: TLabel; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var s: OLString); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
@@ -636,7 +653,11 @@ begin
   end
   else
   begin
-    Edit.Color := vr.Color;
+    if vr.Color = clDefault then
+      Edit.Color := $CBC0FF
+    else
+      Edit.Color := vr.Color;
+
     Edit.Hint := vr.Message;
     Edit.ShowHint := true;
   end;
@@ -1159,6 +1180,7 @@ begin
   FEditOnExit := nil;
   FOLPointer := nil;
   FUpdatingFromControl := False;
+  FValidationFunction := nil;
 end;
 
 destructor TSpinEditToOLInteger.Destroy;
@@ -1210,7 +1232,7 @@ begin
     begin
       FUpdatingFromControl := True;
       try
-        OLPointer^ := Null;
+        SetValueAfterValidation(Null);
       finally
         FUpdatingFromControl := False;
       end;
@@ -1222,7 +1244,7 @@ begin
     begin
       FUpdatingFromControl := True;
       try
-        OLPointer^ := i;
+        SetValueAfterValidation(i);
       finally
         FUpdatingFromControl := False;
       end;
@@ -1258,6 +1280,8 @@ begin
 end;
 
 procedure TSpinEditToOLInteger.RefreshControl;
+var
+  vr: TOLValidationResult;
 begin
   if FUpdatingFromControl then Exit;
 
@@ -1269,6 +1293,9 @@ begin
     FUpdatingFromControl := True;
     try
       Edit.Text := (OLPointer^).ToString();
+
+      vr := ValueIsValid(OLPointer^);
+      ApplyValidationStateToEdit(vr);
     finally
       FUpdatingFromControl := False;
     end;
@@ -1284,6 +1311,9 @@ begin
     Value.OnChange := NewOnChange;
     FEditOnExit := Value.OnExit;
     Value.OnExit := NewOnExit;
+    FOriginalColor := Value.Color;
+    FOriginalHint := Value.Hint;
+    FOriginalShowHint := Value.ShowHint;
   end;
 end;
 
@@ -1292,6 +1322,54 @@ begin
   if not Assigned(Value) then
     raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
+end;
+
+procedure TSpinEditToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TSpinEditToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(i)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TSpinEditToOLInteger.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    Edit.Color := FOriginalColor;
+    Edit.Hint := FOriginalHint;
+    Edit.ShowHint := FOriginalShowHint;
+  end
+  else
+  begin
+    if vr.Color = clDefault then
+      Edit.Color := $CBC0FF
+    else
+      Edit.Color := vr.Color;
+
+    Edit.Hint := vr.Message;
+    Edit.ShowHint := true;
+  end;
+end;
+
+procedure TSpinEditToOLInteger.SetValueAfterValidation(i: OLInteger);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(i);
+  ApplyValidationStateToEdit(vr);
+
+  if vr.Valid then
+    OLPointer^ := i;
 end;
 
 { TOLControlLink }
@@ -1826,6 +1904,7 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+  FValidationFunction := nil;
 end;
 
 destructor TOLIntegerToLabel.Destroy;
@@ -1847,12 +1926,16 @@ end;
 procedure TOLIntegerToLabel.RefreshControl;
 var
   s: string;
+  vr: TOLValidationResult;
 begin
   if OLPointer <> nil then
   begin
     s := (OLPointer^).ToString();
     if Lbl.Caption <> s then
       Lbl.Caption := s;
+
+    vr := ValueIsValid(OLPointer^);
+    ApplyValidationStateToEdit(vr);
   end;
 
   if Assigned(Calculation) then
@@ -1878,6 +1961,8 @@ end;
 procedure TOLIntegerToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  if Assigned(Value) then
+    FOriginalFontColor := Value.Font.Color;
 end;
 
 procedure TOLIntegerToLabel.SetOLPointer(const Value: POLInteger);
@@ -1893,6 +1978,36 @@ end;
 procedure TOLIntegerToLabel.SetValueOnErrorInCalculation(const Value: OLString);
 begin
   FValueOnErrorInCalculation := Value;
+end;
+
+procedure TOLIntegerToLabel.SetValidationFunction(const Value: TOLIntegerValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TOLIntegerToLabel.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(i)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TOLIntegerToLabel.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+    Lbl.Font.Color := FOriginalFontColor
+  else
+  begin
+    if vr.Color = clDefault then
+      Lbl.Font.Color:= clRed
+    else
+      Lbl.Font.Color := vr.Color;
+  end;
 end;
 
 { TOLStringToLabel }
@@ -2535,32 +2650,6 @@ begin
 end;
 
 
-procedure TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger);
-var
-  Link: TSpinEditToOLInteger;
-  Observer: TObject;
-  ValueMulticaster: TOLValueMulticaster;
-begin
-  Link := TSpinEditToOLInteger.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @i;
-  {$IF CompilerVersion >= 34.0}
-  // Get or create multicaster for this OLInteger
-  if not FValueMulticasters.TryGetValue(@i, Observer) then
-  begin
-    ValueMulticaster := TOLValueMulticaster.Create;
-    FValueMulticasters.Add(@i, ValueMulticaster);
-  end
-  else
-    ValueMulticaster := Observer as TOLValueMulticaster;
-  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
-  {$IFEND}
-  AddLink(Edit, Link);
-
-  Link.RefreshControl();
-end;
-
 procedure TOLLinkManager.Link(const Edit: TEdit; var i: OLInteger; const
     ValidationFunction: TOLIntegerValidationFunction = nil; const Alignment:
     TAlignment=taRightJustify);
@@ -2881,32 +2970,6 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; var i: OLInteger);
-var
-  Link: TOLIntegerToLabel;
-  Observer: TObject;
-  ValueMulticaster: TOLValueMulticaster;
-begin
-  Link := TOLIntegerToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @i;
-  {$IF CompilerVersion >= 34.0}
-  // Get or create multicaster for this OLInteger
-  if not FValueMulticasters.TryGetValue(@i, Observer) then
-  begin
-    ValueMulticaster := TOLValueMulticaster.Create;
-    FValueMulticasters.Add(@i, ValueMulticaster);
-  end
-  else
-    ValueMulticaster := Observer as TOLValueMulticaster;
-  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
-  {$IFEND}
-  AddLink(Lbl, Link);
-
-  Link.RefreshControl();
-end;
-
 procedure TOLLinkManager.Link(const Lbl: TLabel; const f:
     TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string =
     ERROR_STRING);
@@ -3116,6 +3179,60 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDateTime
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  {$IFEND}
+  AddLink(Lbl, Link);
+
+  Link.RefreshControl();
+end;
+
+procedure TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
+var
+  Link: TSpinEditToOLInteger;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
+begin
+  Link := TSpinEditToOLInteger.Create;
+  Link.Edit := Edit;
+  Link.FOLPointer := @i;
+  Link.ValidationFunction := ValidationFunction;
+  {$IF CompilerVersion >= 34.0}
+  // Get or create multicaster for this OLInteger
+  if not FValueMulticasters.TryGetValue(@i, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@i, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  {$IFEND}
+  AddLink(Edit, Link);
+
+  Link.RefreshControl();
+end;
+
+procedure TOLLinkManager.Link(const Lbl: TLabel; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
+var
+  Link: TOLIntegerToLabel;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
+begin
+  Link := TOLIntegerToLabel.Create;
+  Link.Lbl := Lbl;
+  Link.FOLPointer := @i;
+  Link.ValidationFunction := ValidationFunction;
+  {$IF CompilerVersion >= 34.0}
+  // Get or create multicaster for this OLInteger
+  if not FValueMulticasters.TryGetValue(@i, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@i, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
   ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Lbl, Link);
