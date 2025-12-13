@@ -183,8 +183,16 @@ type
     FOLPointer: POLCurrency;
     FUpdatingFromControl: Boolean;
     FFormat: string;
+    FValidationFunction: TOLCurrencyValidationFunction;
+    FOriginalColor: TColor;
+    FOriginalHint: string;
+    FOriginalShowHint: Boolean;
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLCurrency);
+    procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
+    procedure SetValueAfterValidation(c: OLCurrency);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(c: OLCurrency): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -194,6 +202,8 @@ type
     procedure RefreshControl; override;
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLCurrencyValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TEditToOLString = class(TOLControlLink)
@@ -393,10 +403,15 @@ type
     FCalculation: TFunctionReturningOLCurrency;
     FValueOnErrorInCalculation: OLString;
     FFormat: string;
+    FValidationFunction: TOLCurrencyValidationFunction;
+    FOriginalFontColor: TColor;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLCurrency);
     procedure SetCalculation(const Value: TFunctionReturningOLCurrency);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
+    procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(c: OLCurrency): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -407,6 +422,8 @@ type
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLCurrency read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    property ValidationFunction: TOLCurrencyValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TOLDateToLabel = class(TOLControlLink)
@@ -473,6 +490,7 @@ type
     procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    procedure Link(const Edit: TEdit; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var s: OLString); overload;
     procedure Link(const Edit: TMemo; var s: OLString); overload;
     procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
@@ -487,6 +505,7 @@ type
     procedure Link(const Lbl: TLabel; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+    procedure Link(const Lbl: TLabel; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var d: OLDate); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
@@ -1134,6 +1153,7 @@ begin
   FOLPointer := nil;
   FUpdatingFromControl := False;
   FFormat := CURRENCY_FORMAT;
+  FValidationFunction := nil;
 end;
 
 destructor TEditToOLCurrency.Destroy;
@@ -1170,7 +1190,7 @@ begin
     begin
       FUpdatingFromControl := True;
       try
-        OLPointer^ := Null;
+        SetValueAfterValidation(Null);
       finally
         FUpdatingFromControl := False;
       end;
@@ -1180,7 +1200,7 @@ begin
   begin
     FUpdatingFromControl := True;
     try
-      OLPointer^ := curr;
+      SetValueAfterValidation(curr);
     finally
       FUpdatingFromControl := False;
     end;
@@ -1223,6 +1243,7 @@ procedure TEditToOLCurrency.RefreshControl;
 var
   fs: TFormatSettings;
   s: string;
+  vr: TOLValidationResult;
 begin
   if FUpdatingFromControl then Exit;
 
@@ -1235,6 +1256,9 @@ begin
       FUpdatingFromControl := True;
       try
         Edit.Text := s;
+
+        vr := ValueIsValid(OLPointer^);
+        ApplyValidationStateToEdit(vr);
       finally
         FUpdatingFromControl := False;
       end;
@@ -1251,6 +1275,9 @@ begin
     Value.OnChange := NewOnChange;
     FEditOnExit := Value.OnExit;
     Value.OnExit := NewOnExit;
+    FOriginalColor := Value.Color;
+    FOriginalHint := Value.Hint;
+    FOriginalShowHint := Value.ShowHint;
   end;
 end;
 
@@ -1259,6 +1286,54 @@ begin
   if not Assigned(Value) then
     raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
+end;
+
+procedure TEditToOLCurrency.SetValidationFunction(const Value: TOLCurrencyValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TEditToOLCurrency.ValueIsValid(c: OLCurrency): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(c)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TEditToOLCurrency.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    Edit.Color := FOriginalColor;
+    Edit.Hint := FOriginalHint;
+    Edit.ShowHint := FOriginalShowHint;
+  end
+  else
+  begin
+    if vr.Color = clDefault then
+      Edit.Color := $CBC0FF
+    else
+      Edit.Color := vr.Color;
+
+    Edit.Hint := vr.Message;
+    Edit.ShowHint := true;
+  end;
+end;
+
+procedure TEditToOLCurrency.SetValueAfterValidation(c: OLCurrency);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(c);
+  ApplyValidationStateToEdit(vr);
+
+  if vr.Valid then
+    OLPointer^ := c;
 end;
 
 { TSpinEditToOLInteger }
@@ -2295,6 +2370,7 @@ begin
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
   FFormat := CURRENCY_FORMAT;
+  FValidationFunction := nil;
 end;
 
 destructor TOLCurrencyToLabel.Destroy;
@@ -2317,6 +2393,7 @@ procedure TOLCurrencyToLabel.RefreshControl;
 var
   fs: TFormatSettings;
   s: string;
+  vr: TOLValidationResult;
 begin
   {$IF CompilerVersion >= 22.0}
   fs := TFormatSettings.Create();
@@ -2329,6 +2406,9 @@ begin
     s := (OLPointer^).ToString(fs.ThousandSeparator, fs.DecimalSeparator, FFormat);
     if Lbl.Caption <> s then
       Lbl.Caption := s;
+
+    vr := ValueIsValid(OLPointer^);
+    ApplyValidationStateToEdit(vr);
   end;
 
   if Assigned(Calculation) then
@@ -2354,6 +2434,8 @@ end;
 procedure TOLCurrencyToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
+  if Assigned(Value) then
+    FOriginalFontColor := Value.Font.Color;
 end;
 
 procedure TOLCurrencyToLabel.SetOLPointer(const Value: POLCurrency);
@@ -2369,6 +2451,36 @@ end;
 procedure TOLCurrencyToLabel.SetValueOnErrorInCalculation(const Value: OLString);
 begin
   FValueOnErrorInCalculation := Value;
+end;
+
+procedure TOLCurrencyToLabel.SetValidationFunction(const Value: TOLCurrencyValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TOLCurrencyToLabel.ValueIsValid(c: OLCurrency): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(c)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TOLCurrencyToLabel.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+    Lbl.Font.Color := FOriginalFontColor
+  else
+  begin
+    if vr.Color = clDefault then
+      Lbl.Font.Color := clRed
+    else
+       Lbl.Font.Color := vr.Color;
+  end;
 end;
 
 { TOLDateToLabel }
@@ -3084,6 +3196,36 @@ begin
   Link.RefreshControl();
 end;
 
+procedure TOLLinkManager.Link(const Edit: TEdit; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
+var
+  Link: TEditToOLCurrency;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
+begin
+  Link := TEditToOLCurrency.Create;
+  Link.FFormat := Format;
+  Link.Edit := Edit;
+  Link.FOLPointer := @curr;
+  Link.ValidationFunction := ValidationFunction;
+  {$IF CompilerVersion >= 34.0}
+  // Get or create multicaster for this OLCurrency
+  if not FValueMulticasters.TryGetValue(@curr, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@curr, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  {$IFEND}
+  AddLink(Edit, Link);
+
+  Edit.Alignment := Alignment;
+
+  Link.RefreshControl();
+end;
+
 procedure TOLLinkManager.Link(const Edit: TEdit; var s: OLString);
 var
   Link: TEditToOLString;
@@ -3412,6 +3554,34 @@ begin
   Link.FFormat := Format;
   Link.Lbl := Lbl;
   Link.FOLPointer := @curr;
+  {$IF CompilerVersion >= 34.0}
+  // Get or create multicaster for this OLCurrency
+  if not FValueMulticasters.TryGetValue(@curr, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@curr, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  {$IFEND}
+  AddLink(Lbl, Link);
+
+  Link.RefreshControl();
+end;
+
+procedure TOLLinkManager.Link(const Lbl: TLabel; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT);
+var
+  Link: TOLCurrencyToLabel;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
+begin
+  Link := TOLCurrencyToLabel.Create;
+  Link.FFormat := Format;
+  Link.Lbl := Lbl;
+  Link.FOLPointer := @curr;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLCurrency
   if not FValueMulticasters.TryGetValue(@curr, Observer) then

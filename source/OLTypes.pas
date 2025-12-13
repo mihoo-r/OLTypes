@@ -37,6 +37,7 @@ type
 
   TOLIntegerValidationFunction = reference to function(i: OLInteger): TOLValidationResult;
   TOLDoubleValidationFunction = reference to function(d: OLDouble): TOLValidationResult;
+  TOLCurrencyValidationFunction = reference to function(c: OLCurrency): TOLValidationResult;
 
 
   OLBoolean = OLBooleanType.OLBoolean;
@@ -2646,10 +2647,10 @@ type
       ///   Links the edit control to an OLDouble variable for two-way data binding with validation.
       /// </summary>
       procedure Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-     /// <summary>
-     ///   Links the edit control to an OLCurrency variable for two-way data binding.
-     /// </summary>
-     procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+      /// <summary>
+      ///   Links the edit control to an OLCurrency variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
      /// <summary>
      ///   Links the edit control to an OLString variable for two-way data binding.
      /// </summary>
@@ -2756,10 +2757,10 @@ type
      ///   Links the label control to a function that returns OLDouble for computed display.
      /// </summary>
      procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-     /// <summary>
-     ///   Links the label control to an OLCurrency variable for one-way data binding (display only).
-     /// </summary>
-     procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+      /// <summary>
+      ///   Links the label control to an OLCurrency variable for one-way data binding (display only) with validation.
+      /// </summary>
+      procedure Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT); overload;
      /// <summary>
      ///   Links the label control to a function that returns OLCurrency for computed display.
      /// </summary>
@@ -2991,7 +2992,7 @@ begin
 end;
 
 
-procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string; const Alignment: TAlignment);
+procedure TOLEditHelper.Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Form: TForm;
 begin
@@ -3005,7 +3006,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, curr, Format, Alignment);
+     Links.Link(Self, curr, ValidationFunction, Format, Alignment);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
@@ -3308,7 +3309,7 @@ begin
    Links.Link(Self, f, Format, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLabelHelper.Link(var curr: OLCurrency; const Format: string);
+procedure TOLLabelHelper.Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT);
 var
   Form: TForm;
 begin
@@ -3322,7 +3323,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, curr, Format);
+     Links.Link(Self, curr, ValidationFunction, Format);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
