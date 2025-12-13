@@ -1,4 +1,4 @@
-unit OLTypesToEdits;
+﻿unit OLTypesToEdits;
 
 
 
@@ -99,8 +99,14 @@ type
     FEdit: TScrollBar;
     FEditOnChange: TEditOnChange;
     FOLPointer: POLInteger;
+    FValidationFunction: TOLIntegerValidationFunction;
+    FWarningLabel: TLabel;
     procedure SetEdit(const Value: TScrollBar);
     procedure SetOLPointer(const Value: POLInteger);
+    procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
+    procedure SetValueAfterValidation(i: OLInteger);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -109,6 +115,8 @@ type
     procedure RefreshControl; override;
     property Edit: TScrollBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLIntegerValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TTrackBarToOLInteger = class(TOLControlLink)
@@ -116,8 +124,14 @@ type
     FEdit: TTrackBar;
     FEditOnChange: TEditOnChange;
     FOLPointer: POLInteger;
+    FValidationFunction: TOLIntegerValidationFunction;
+    FWarningLabel: TLabel;
     procedure SetEdit(const Value: TTrackBar);
     procedure SetOLPointer(const Value: POLInteger);
+    procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
+    procedure SetValueAfterValidation(i: OLInteger);
+    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
     destructor Destroy; override;
@@ -126,6 +140,8 @@ type
     procedure RefreshControl; override;
     property Edit: TTrackBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLIntegerValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TEditToOLDouble = class(TOLControlLink)
@@ -435,8 +451,8 @@ type
         TOLIntegerValidationFunction = nil; const Alignment: TAlignment=taRightJustify);
         overload;
     procedure Link(const Edit: TSpinEdit; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
-    procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
-    procedure Link(const Edit: TScrollBar; var i: OLInteger); overload;
+    procedure Link(const Edit: TTrackBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    procedure Link(const Edit: TScrollBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
     procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var s: OLString); overload;
@@ -1208,17 +1224,16 @@ begin
     {$ELSE}
     FOLPointer^.OnChange := nil;
     {$IFEND}
-  end;
+   end;
 
-  if Assigned(FEdit) then
-  begin
-    if Assigned(FEditOnChange) then
-      FEdit.OnChange := FEditOnChange;
-    if Assigned(FEditOnExit) then
-      FEdit.OnExit := FEditOnExit;
-  end;
-  inherited;
-end;
+   if Assigned(FEdit) then
+   begin
+     if Assigned(FEditOnChange) then
+       FEdit.OnChange := FEditOnChange;
+   end;
+
+   inherited;
+ end;
 
 procedure TSpinEditToOLInteger.NewOnChange(Sender: TObject);
 var
@@ -2408,6 +2423,8 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+  FValidationFunction := nil;
+  FWarningLabel := nil;
 end;
 
 destructor TScrollBarToOLInteger.Destroy;
@@ -2441,7 +2458,7 @@ end;
 
 procedure TScrollBarToOLInteger.NewOnChange(Sender: TObject);
 begin
-  OLPointer^ := Edit.Position;
+  SetValueAfterValidation(Edit.Position);
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -2453,9 +2470,16 @@ begin
 end;
 
 procedure TScrollBarToOLInteger.RefreshControl;
+var
+  vr: TOLValidationResult;
 begin
   if Edit.Position <> (OLPointer^).IfNull(0) then
+  begin
     Edit.Position := (OLPointer^).IfNull(0);
+
+    vr := ValueIsValid(OLPointer^);
+    ApplyValidationStateToEdit(vr);
+  end;
 end;
 
 procedure TScrollBarToOLInteger.SetEdit(const Value: TScrollBar);
@@ -2475,6 +2499,64 @@ begin
   FOLPointer := Value;
 end;
 
+procedure TScrollBarToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TScrollBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(i)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TScrollBarToOLInteger.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    if Assigned(FWarningLabel) then
+    begin
+      FWarningLabel.Visible := False;
+      FWarningLabel.Free;
+      FWarningLabel := nil;
+    end;
+  end
+  else
+  begin
+    if not Assigned(FWarningLabel) then
+    begin
+      FWarningLabel := TLabel.Create(Edit.Owner as TForm);
+      FWarningLabel.Parent := Edit.Owner as TForm;
+      FWarningLabel.Caption := '⚠';
+      FWarningLabel.Font.Color := clRed;
+      FWarningLabel.Font.Size := 12;
+      FWarningLabel.AutoSize := True;
+      FWarningLabel.Left := Edit.Left + Edit.Width + 5;
+      FWarningLabel.Top := Edit.Top;
+    end;
+    FWarningLabel.Hint := vr.Message;
+    FWarningLabel.ShowHint := True;
+    FWarningLabel.Visible := True;
+  end;
+end;
+
+procedure TScrollBarToOLInteger.SetValueAfterValidation(i: OLInteger);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(i);
+  ApplyValidationStateToEdit(vr);
+
+  if vr.Valid then
+    OLPointer^ := i;
+end;
+
 { TTrackBarToOLInteger }
 
 constructor TTrackBarToOLInteger.Create;
@@ -2483,6 +2565,8 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+  FValidationFunction := nil;
+  FWarningLabel := nil;
 end;
 
 destructor TTrackBarToOLInteger.Destroy;
@@ -2516,7 +2600,7 @@ end;
 
 procedure TTrackBarToOLInteger.NewOnChange(Sender: TObject);
 begin
-  OLPointer^ := Edit.Position;
+  SetValueAfterValidation(Edit.Position);
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -2528,9 +2612,16 @@ begin
 end;
 
 procedure TTrackBarToOLInteger.RefreshControl;
+var
+  vr: TOLValidationResult;
 begin
   if Edit.Position <> (OLPointer^).IfNull(0) then
+  begin
     Edit.Position := (OLPointer^).IfNull(0);
+
+    vr := ValueIsValid(OLPointer^);
+    ApplyValidationStateToEdit(vr);
+  end;
 end;
 
 procedure TTrackBarToOLInteger.SetEdit(const Value: TTrackBar);
@@ -2548,6 +2639,64 @@ begin
   if not Assigned(Value) then
     raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
+end;
+
+procedure TTrackBarToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TTrackBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(i)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+procedure TTrackBarToOLInteger.ApplyValidationStateToEdit(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    if Assigned(FWarningLabel) then
+    begin
+      FWarningLabel.Visible := False;
+      FWarningLabel.Free;
+      FWarningLabel := nil;
+    end;
+  end
+  else
+  begin
+    if not Assigned(FWarningLabel) then
+    begin
+      FWarningLabel := TLabel.Create(Edit.Owner as TForm);
+      FWarningLabel.Parent := Edit.Owner as TForm;
+      FWarningLabel.Caption := '⚠';
+      FWarningLabel.Font.Color := clRed;
+      FWarningLabel.Font.Size := 12;
+      FWarningLabel.AutoSize := True;
+      FWarningLabel.Left := Edit.Left + Edit.Width + 5;
+      FWarningLabel.Top := Edit.Top;
+    end;
+    FWarningLabel.Hint := vr.Message;
+    FWarningLabel.ShowHint := True;
+    FWarningLabel.Visible := True;
+  end;
+end;
+
+procedure TTrackBarToOLInteger.SetValueAfterValidation(i: OLInteger);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(i);
+  ApplyValidationStateToEdit(vr);
+
+  if vr.Valid then
+    OLPointer^ := i;
 end;
 
 { TOLLinkManager }
@@ -2681,7 +2830,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger);
+procedure TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
 var
   Link: TTrackBarToOLInteger;
   Observer: TObject;
@@ -2690,6 +2839,7 @@ begin
   Link := TTrackBarToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then
@@ -2707,7 +2857,7 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger);
+procedure TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
 var
   Link: TScrollBarToOLInteger;
   Observer: TObject;
@@ -2716,6 +2866,7 @@ begin
   Link := TScrollBarToOLInteger.Create;
   Link.Edit := Edit;
   Link.FOLPointer := @i;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then

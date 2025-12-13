@@ -2668,22 +2668,22 @@ type
    /// <summary>
    ///   Helper class for TTrackBar to enable data binding with OL types.
    /// </summary>
-   TOLTrackBarHelper = class helper for TTrackBar
-     /// <summary>
-     ///   Links the track bar control to an OLInteger variable for two-way data binding.
-     /// </summary>
-     procedure Link(var i: OLInteger);
-   end;
+    TOLTrackBarHelper = class helper for TTrackBar
+      /// <summary>
+      ///   Links the track bar control to an OLInteger variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    end;
 
    /// <summary>
    ///   Helper class for TScrollBar to enable data binding with OL types.
    /// </summary>
-   TOLScrollBarHelper = class helper for TScrollBar
-     /// <summary>
-     ///   Links the scroll bar control to an OLInteger variable for two-way data binding.
-     /// </summary>
-     procedure Link(var i: OLInteger);
-   end;
+    TOLScrollBarHelper = class helper for TScrollBar
+      /// <summary>
+      ///   Links the scroll bar control to an OLInteger variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    end;
 
    /// <summary>
    ///   Helper class for TMemo to enable data binding with OL types.
@@ -3049,9 +3049,7 @@ begin
    end;
 end;
 
-{ TOLTrackBarHelper }
-
-procedure TOLTrackBarHelper.Link(var i: OLInteger);
+procedure TOLTrackBarHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3065,16 +3063,14 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, i);
+     Links.Link(Self, i, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TTrackBar: ' + E.Message);
    end;
 end;
 
-{ TOLScrollBarHelper }
-
-procedure TOLScrollBarHelper.Link(var i: OLInteger);
+procedure TOLScrollBarHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3088,7 +3084,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, i);
+     Links.Link(Self, i, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TScrollBar: ' + E.Message);
