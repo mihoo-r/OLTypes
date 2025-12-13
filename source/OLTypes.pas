@@ -36,6 +36,7 @@ type
   TOLValidationResult = OLValidation.TOLValidationResult;
 
   TOLIntegerValidationFunction = reference to function(i: OLInteger): TOLValidationResult;
+  TOLDoubleValidationFunction = reference to function(d: OLDouble): TOLValidationResult;
 
 
   OLBoolean = OLBooleanType.OLBoolean;
@@ -2641,10 +2642,10 @@ type
      ///   Links the edit control to an OLInteger variable for two-way data binding.
      /// </summary>
      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil;  const Alignment: TAlignment=taRightJustify); overload;
-     /// <summary>
-     ///   Links the edit control to an OLDouble variable for two-way data binding.
-     /// </summary>
-     procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+      /// <summary>
+      ///   Links the edit control to an OLDouble variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
      /// <summary>
      ///   Links the edit control to an OLCurrency variable for two-way data binding.
      /// </summary>
@@ -2743,10 +2744,14 @@ type
      ///   Links the label control to a function that returns OLString for computed display.
      /// </summary>
      procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-     /// <summary>
-     ///   Links the label control to an OLDouble variable for one-way data binding (display only).
-     /// </summary>
-     procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+      /// <summary>
+      ///   Links the label control to an OLDouble variable for one-way data binding (display only).
+      /// </summary>
+      procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+      /// <summary>
+      ///   Links the label control to an OLDouble variable for one-way data binding (display only) with validation.
+      /// </summary>
+      procedure Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT); overload;
      /// <summary>
      ///   Links the label control to a function that returns OLDouble for computed display.
      /// </summary>
@@ -2964,7 +2969,7 @@ begin
 end;
 
 
-procedure TOLEditHelper.Link(var d: OLDouble; const Format: string; const Alignment: TAlignment);
+procedure TOLEditHelper.Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Form: TForm;
 begin
@@ -2978,7 +2983,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, d, Format, Alignment);
+     Links.Link(Self, d, ValidationFunction, Format, Alignment);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
@@ -3271,6 +3276,27 @@ begin
 
    try
      Links.Link(Self, d, Format);
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TLabel: ' + E.Message);
+   end;
+end;
+
+procedure TOLLabelHelper.Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT);
+var
+  Form: TForm;
+begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     Links.Link(Self, d, ValidationFunction, Format);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
