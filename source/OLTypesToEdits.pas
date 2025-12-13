@@ -1,7 +1,5 @@
 ﻿unit OLTypesToEdits;
 
-
-
 interface
 
 uses OLTypes, OLValidation, {$IF CompilerVersion >= 23.0} System.Generics.Collections, {$ELSE} Generics.Collections, {$IFEND}
@@ -49,7 +47,7 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
@@ -80,7 +78,7 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
@@ -105,7 +103,7 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
@@ -130,7 +128,7 @@ type
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
@@ -160,7 +158,7 @@ type
     procedure SetOLPointer(const Value: POLDouble);
     procedure SetValidationFunction(const Value: TOLDoubleValidationFunction);
     procedure SetValueAfterValidation(d: OLDouble);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(d: OLDouble): TOLValidationResult;
   public
     constructor Create;
@@ -191,7 +189,7 @@ type
     procedure SetOLPointer(const Value: POLCurrency);
     procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
     procedure SetValueAfterValidation(c: OLCurrency);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(c: OLCurrency): TOLValidationResult;
   public
     constructor Create;
@@ -219,7 +217,7 @@ type
     procedure SetOLPointer(const Value: POLString);
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
     procedure SetValueAfterValidation(s: OLString);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
@@ -246,7 +244,7 @@ type
     procedure SetOLPointer(const Value: POLString);
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
     procedure SetValueAfterValidation(s: OLString);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
@@ -334,7 +332,7 @@ type
     procedure SetOLPointer(const Value: POLBoolean);
     procedure SetValidationFunction(const Value: TOLBooleanValidationFunction);
     function ValueIsValid(b: OLBoolean): TOLValidationResult;
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     procedure SetValueAfterValidation(b: OLBoolean);
   public
     constructor Create;
@@ -361,7 +359,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLInteger);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(i: OLInteger): TOLValidationResult;
   public
     constructor Create;
@@ -389,7 +387,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLString);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(s: OLString): TOLValidationResult;
   public
     constructor Create;
@@ -417,7 +415,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLDouble);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLDoubleValidationFunction);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(d: OLDouble): TOLValidationResult;
   public
     constructor Create;
@@ -447,7 +445,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLCurrency);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
-    procedure ApplyValidationStateToEdit(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(c: OLCurrency): TOLValidationResult;
   public
     constructor Create;
@@ -735,7 +733,7 @@ begin
   Result := vr;
 end;
 
-procedure TEditToOLInteger.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -760,7 +758,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(i);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := i;
@@ -841,7 +839,7 @@ begin
       Edit.Text := (OLPointer^).ToString();
 
       vr := ValueIsValid(OLPointer^);
-      ApplyValidationStateToEdit(vr);
+      ShowValidationState(vr);
     finally
       FUpdatingFromControl := False;
     end;
@@ -917,7 +915,7 @@ begin
     Edit.Text := (OLPointer^).ToString();
 
     vr := ValueIsValid(OLPointer^);
-    ApplyValidationStateToEdit(vr);
+    ShowValidationState(vr);
   end;
 end;
 
@@ -958,7 +956,7 @@ begin
   Result := vr;
 end;
 
-procedure TEditToOLString.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TEditToOLString.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -983,7 +981,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(s);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := s;
@@ -1036,7 +1034,7 @@ begin
     Edit.Text := (OLPointer^).ToString();
 
     vr := ValueIsValid(OLPointer^);
-    ApplyValidationStateToEdit(vr);
+    ShowValidationState(vr);
   end;
 end;
 
@@ -1077,7 +1075,7 @@ begin
   Result := vr;
 end;
 
-procedure TMemoToOLString.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TMemoToOLString.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -1102,7 +1100,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(s);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := s;
@@ -1220,7 +1218,7 @@ begin
         Edit.Text := s;
 
         vr := ValueIsValid(OLPointer^);
-        ApplyValidationStateToEdit(vr);
+        ShowValidationState(vr);
       finally
         FUpdatingFromControl := False;
       end;
@@ -1267,7 +1265,7 @@ begin
   Result := vr;
 end;
 
-procedure TEditToOLDouble.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TEditToOLDouble.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -1292,7 +1290,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(d);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := d;
@@ -1414,7 +1412,7 @@ begin
         Edit.Text := s;
 
         vr := ValueIsValid(OLPointer^);
-        ApplyValidationStateToEdit(vr);
+        ShowValidationState(vr);
       finally
         FUpdatingFromControl := False;
       end;
@@ -1461,7 +1459,7 @@ begin
   Result := vr;
 end;
 
-procedure TEditToOLCurrency.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TEditToOLCurrency.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -1486,7 +1484,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(c);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := c;
@@ -1616,7 +1614,7 @@ begin
       Edit.Text := (OLPointer^).ToString();
 
       vr := ValueIsValid(OLPointer^);
-      ApplyValidationStateToEdit(vr);
+      ShowValidationState(vr);
     finally
       FUpdatingFromControl := False;
     end;
@@ -1662,7 +1660,7 @@ begin
   Result := vr;
 end;
 
-procedure TSpinEditToOLInteger.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TSpinEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -1687,7 +1685,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(i);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := i;
@@ -2202,7 +2200,7 @@ begin
   Result := vr;
 end;
 
-procedure TCheckBoxToOLBoolean.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TCheckBoxToOLBoolean.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -2241,7 +2239,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(b);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := b;
@@ -2269,7 +2267,7 @@ begin
     Edit.Checked := (OLPointer^).IfNull(False);
 
   vr := ValueIsValid(OLPointer^);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 end;
 
 procedure TCheckBoxToOLBoolean.SetEdit(const Value: TCheckBox);
@@ -2332,7 +2330,7 @@ begin
       Lbl.Caption := s;
 
     vr := ValueIsValid(OLPointer^);
-    ApplyValidationStateToEdit(vr);
+    ShowValidationState(vr);
   end;
 
   if Assigned(Calculation) then
@@ -2394,7 +2392,7 @@ begin
   Result := vr;
 end;
 
-procedure TOLIntegerToLabel.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TOLIntegerToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
     Lbl.Font.Color := FOriginalFontColor
@@ -2490,7 +2488,7 @@ begin
   Result := vr;
 end;
 
-procedure TOLStringToLabel.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TOLStringToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
     Lbl.Font.Color := FOriginalFontColor
@@ -2551,7 +2549,7 @@ begin
       Lbl.Caption := s;
 
     vr := ValueIsValid(OLPointer^);
-    ApplyValidationStateToEdit(vr);
+    ShowValidationState(vr);
   end;
 
   if Assigned(Calculation) then
@@ -2613,7 +2611,7 @@ begin
   Result := vr;
 end;
 
-procedure TOLDoubleToLabel.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TOLDoubleToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
     Lbl.Font.Color := FOriginalFontColor
@@ -2674,7 +2672,7 @@ begin
       Lbl.Caption := s;
 
     vr := ValueIsValid(OLPointer^);
-    ApplyValidationStateToEdit(vr);
+    ShowValidationState(vr);
   end;
 
   if Assigned(Calculation) then
@@ -2736,7 +2734,7 @@ begin
   Result := vr;
 end;
 
-procedure TOLCurrencyToLabel.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TOLCurrencyToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
     Lbl.Font.Color := FOriginalFontColor
@@ -2968,7 +2966,7 @@ begin
     Edit.Position := (OLPointer^).IfNull(0);
 
     vr := ValueIsValid(OLPointer^);
-    ApplyValidationStateToEdit(vr);
+    ShowValidationState(vr);
   end;
 end;
 
@@ -3006,7 +3004,7 @@ begin
   Result := vr;
 end;
 
-procedure TScrollBarToOLInteger.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TScrollBarToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -3041,7 +3039,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(i);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := i;
@@ -3110,7 +3108,7 @@ begin
     Edit.Position := (OLPointer^).IfNull(0);
 
     vr := ValueIsValid(OLPointer^);
-    ApplyValidationStateToEdit(vr);
+    ShowValidationState(vr);
   end;
 end;
 
@@ -3148,7 +3146,7 @@ begin
   Result := vr;
 end;
 
-procedure TTrackBarToOLInteger.ApplyValidationStateToEdit(vr: TOLValidationResult);
+procedure TTrackBarToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -3183,7 +3181,7 @@ var
   vr: TOLValidationResult;
 begin
   vr := ValueIsValid(i);
-  ApplyValidationStateToEdit(vr);
+  ShowValidationState(vr);
 
   if vr.Valid then
     OLPointer^ := i;
