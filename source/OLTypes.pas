@@ -3163,7 +3163,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, s, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, s);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
@@ -3186,7 +3190,7 @@ begin
 
     if not Form.IsMyField(i) then
       raise Exception.Create('OLType must be a field of the owning TForm.');
- 
+
     try
       {$IF CompilerVersion >= 34.0}
       Links.Link(Self, i, ValidationFunction);
@@ -3215,7 +3219,7 @@ begin
 
     if not Form.IsMyField(i) then
       raise Exception.Create('OLType must be a field of the owning TForm.');
- 
+
     try
       {$IF CompilerVersion >= 34.0}
       Links.Link(Self, i, ValidationFunction);
@@ -3275,7 +3279,7 @@ begin
 
     if not Form.IsMyField(s) then
       raise Exception.Create('OLType must be a field of the owning TForm.');
- 
+
     try
       {$IF CompilerVersion >= 34.0}
       Links.Link(Self, s, ValidationFunction);
@@ -3403,7 +3407,7 @@ begin
      {$IF CompilerVersion >= 34.0}
      Links.Link(Self, i, ValidationFunction);
      {$ELSE}
-     Links.Link(Self, i, ValidationFunction);
+     Links.Link(Self, i);
      {$IFEND}
    except
      on E: Exception do

@@ -147,8 +147,10 @@ type
     {$IFEND}
     property Edit: TScrollBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLIntegerValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TTrackBarToOLInteger = class(TOLControlLink)
@@ -179,8 +181,10 @@ type
     {$IFEND}
     property Edit: TTrackBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLIntegerValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TEditToOLDouble = class(TOLControlLink)
@@ -216,8 +220,10 @@ type
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDoubleValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TEditToOLCurrency = class(TOLControlLink)
@@ -253,8 +259,10 @@ type
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLCurrencyValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TEditToOLString = class(TOLControlLink)
@@ -286,8 +294,10 @@ type
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLStringValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TMemoToOLString = class(TOLControlLink)
@@ -319,8 +329,10 @@ type
     {$IFEND}
     property Edit: TMemo read FEdit write SetEdit;
     property OLPointer: POLString read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLStringValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TDateTimePickerToOLDate = class(TOLControlLink)
@@ -366,8 +378,10 @@ type
     {$IFEND}
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDateValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TDateTimePickerToOLDateTime = class(TOLControlLink)
@@ -413,8 +427,10 @@ type
     {$IFEND}
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDateTimeValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TCheckBoxToOLBoolean = class(TOLControlLink)
@@ -447,7 +463,10 @@ type
     {$IFEND}
     property Edit: TCheckBox read FEdit write SetEdit;
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
-    property ValidationFunction: TOLBooleanValidationFunction read FValidationFunction write SetValidationFunction;
+    {$IF CompilerVersion >= 34.0}
+    property ValidationFunction: TOLBooleanValidationFunction read
+        FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TOLIntegerToLabel = class(TOLControlLink)
@@ -481,8 +500,10 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLInteger read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLIntegerValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TOLStringToLabel = class(TOLControlLink)
@@ -514,8 +535,10 @@ type
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLString read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLStringValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TOLDoubleToLabel = class(TOLControlLink)
@@ -550,8 +573,10 @@ type
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLDouble read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDoubleValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TOLCurrencyToLabel = class(TOLControlLink)
@@ -586,8 +611,10 @@ type
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLCurrency read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLCurrencyValidationFunction read
         FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TOLDateToLabel = class(TOLControlLink)
@@ -620,10 +647,12 @@ type
     function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
-    property ValidationFunction: TOLDateValidationFunction read
-        FValidationFunction write SetValidationFunction;
     property Calculation: TFunctionReturningOLDate read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    {$IF CompilerVersion >= 34.0}
+    property ValidationFunction: TOLDateValidationFunction read
+        FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TOLDateTimeToLabel = class(TOLControlLink)
@@ -656,10 +685,12 @@ type
     function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
-    property ValidationFunction: TOLDateTimeValidationFunction read
-        FValidationFunction write SetValidationFunction;
     property Calculation: TFunctionReturningOLDateTime read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
+    {$IF CompilerVersion >= 34.0}
+    property ValidationFunction: TOLDateTimeValidationFunction read
+        FValidationFunction write SetValidationFunction;
+    {$IFEND}
   end;
 
   TOLLinkManager = class
@@ -943,6 +974,7 @@ begin
   inherited;
 end;
 
+{$IF CompilerVersion >= 34.0}
 function TEditToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -990,6 +1022,7 @@ begin
   if vr.Valid then
     OLPointer^ := i;
 end;
+{$IFEND}
 
 procedure TEditToOLInteger.NewOnChange(Sender: TObject);
 var
@@ -1003,7 +1036,11 @@ begin
     begin
       FUpdatingFromControl := True;
       try
+        {$IF CompilerVersion >= 34.0}
         SetValueAfterValidation(Null);
+        {$ELSE}
+        OLPointer^ := Null;
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1015,7 +1052,11 @@ begin
     begin
       FUpdatingFromControl := True;
       try
+        {$IF CompilerVersion >= 34.0}
         SetValueAfterValidation(i);
+        {$ELSE}
+        OLPointer^ := i;
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1065,8 +1106,10 @@ begin
     try
       Edit.Text := (OLPointer^).ToString();
 
+      {$IF CompilerVersion >= 34.0}
       vr := ValueIsValid(OLPointer^);
       ShowValidationState(vr);
+      {$IFEND}
     finally
       FUpdatingFromControl := False;
     end;
@@ -1096,11 +1139,13 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLInteger.SetValidationFunction(const Value:
     TOLIntegerValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
 { TEditToOLString }
 
@@ -1110,7 +1155,10 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TEditToOLString.Destroy;
@@ -1123,7 +1171,11 @@ end;
 
 procedure TEditToOLString.NewOnChange(Sender: TObject);
 begin
+  {$IF CompilerVersion >= 34.0}
   SetValueAfterValidation(Edit.Text);
+  {$ELSE}
+  OLPointer^ := Edit.Text;
+  {$IFEND}
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -1142,8 +1194,10 @@ begin
   begin
     Edit.Text := (OLPointer^).ToString();
 
+    {$IF CompilerVersion >= 34.0}
     vr := ValueIsValid(OLPointer^);
     ShowValidationState(vr);
+    {$IFEND}
   end;
 end;
 
@@ -1168,11 +1222,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLString.SetValidationFunction(const Value: TOLStringValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TEditToOLString.ValueIsValid(s: OLString): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -1184,7 +1241,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLString.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -1204,7 +1263,9 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLString.SetValueAfterValidation(s: OLString);
 var
   vr: TOLValidationResult;
@@ -1215,6 +1276,7 @@ begin
   if vr.Valid then
     OLPointer^ := s;
 end;
+{$IFEND}
 
 { TMemoToOLString }
 
@@ -1224,7 +1286,10 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TMemoToOLString.Destroy;
@@ -1243,7 +1308,11 @@ end;
 
 procedure TMemoToOLString.NewOnChange(Sender: TObject);
 begin
+  {$IF CompilerVersion >= 34.0}
   SetValueAfterValidation(Edit.Text);
+  {$ELSE}
+  OLPointer^ := Edit.Text;
+  {$IFEND}
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -1262,8 +1331,10 @@ begin
   begin
     Edit.Text := (OLPointer^).ToString();
 
+    {$IF CompilerVersion >= 34.0}
     vr := ValueIsValid(OLPointer^);
     ShowValidationState(vr);
+    {$IFEND}
   end;
 end;
 
@@ -1288,11 +1359,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TMemoToOLString.SetValidationFunction(const Value: TOLStringValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TMemoToOLString.ValueIsValid(s: OLString): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -1304,7 +1378,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TMemoToOLString.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -1324,7 +1400,9 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TMemoToOLString.SetValueAfterValidation(s: OLString);
 var
   vr: TOLValidationResult;
@@ -1335,6 +1413,7 @@ begin
   if vr.Valid then
     OLPointer^ := s;
 end;
+{$IFEND}
 
 { TEditToOLDouble }
 
@@ -1347,7 +1426,10 @@ begin
   FOLPointer := nil;
   FUpdatingFromControl := False;
   FFormat := DOUBLE_FORMAT;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TEditToOLDouble.Destroy;
@@ -1377,7 +1459,11 @@ begin
     begin
       FUpdatingFromControl := True;
       try
+        {$IF CompilerVersion >= 34.0}
+        SetValueAfterValidation(Null);
+        {$ELSE}
         OLPointer^ := Null;
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1387,7 +1473,11 @@ begin
   begin
      FUpdatingFromControl := True;
      try
-       SetValueAfterValidation(d);
+      {$IF CompilerVersion >= 34.0}
+      SetValueAfterValidation(d);
+      {$ELSE}
+      OLPointer^ := d;
+      {$IFEND}
      finally
        FUpdatingFromControl := False;
      end;
@@ -1447,8 +1537,10 @@ begin
       try
         Edit.Text := s;
 
+        {$IF CompilerVersion >= 34.0}
         vr := ValueIsValid(OLPointer^);
         ShowValidationState(vr);
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1479,11 +1571,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLDouble.SetValidationFunction(const Value: TOLDoubleValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TEditToOLDouble.ValueIsValid(d: OLDouble): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -1495,7 +1590,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLDouble.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -1515,7 +1612,9 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLDouble.SetValueAfterValidation(d: OLDouble);
 var
   vr: TOLValidationResult;
@@ -1526,6 +1625,7 @@ begin
   if vr.Valid then
     OLPointer^ := d;
 end;
+{$IFEND}
 
 { TEditToOLCurrency }
 
@@ -1538,7 +1638,10 @@ begin
   FOLPointer := nil;
   FUpdatingFromControl := False;
   FFormat := CURRENCY_FORMAT;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TEditToOLCurrency.Destroy;
@@ -1575,7 +1678,11 @@ begin
     begin
       FUpdatingFromControl := True;
       try
+        {$IF CompilerVersion >= 34.0}
         SetValueAfterValidation(Null);
+        {$ELSE}
+        OLPointer^ := Null;
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1585,7 +1692,11 @@ begin
   begin
     FUpdatingFromControl := True;
     try
+      {$IF CompilerVersion >= 34.0}
       SetValueAfterValidation(curr);
+      {$ELSE}
+      OLPointer^ := curr;
+      {$IFEND}
     finally
       FUpdatingFromControl := False;
     end;
@@ -1642,8 +1753,10 @@ begin
       try
         Edit.Text := s;
 
+        {$IF CompilerVersion >= 34.0}
         vr := ValueIsValid(OLPointer^);
         ShowValidationState(vr);
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1674,11 +1787,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLCurrency.SetValidationFunction(const Value: TOLCurrencyValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TEditToOLCurrency.ValueIsValid(c: OLCurrency): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -1690,7 +1806,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLCurrency.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -1710,7 +1828,9 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TEditToOLCurrency.SetValueAfterValidation(c: OLCurrency);
 var
   vr: TOLValidationResult;
@@ -1721,6 +1841,7 @@ begin
   if vr.Valid then
     OLPointer^ := c;
 end;
+{$IFEND}
 
 { TSpinEditToOLInteger }
 
@@ -1732,7 +1853,10 @@ begin
   FEditOnExit := nil;
   FOLPointer := nil;
   FUpdatingFromControl := False;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TSpinEditToOLInteger.Destroy;
@@ -1757,8 +1881,6 @@ begin
     end
     else
       FOLPointer^.OnChange := nil;
-    {$ELSE}
-    FOLPointer^.OnChange := nil;
     {$IFEND}
    end;
 
@@ -1783,7 +1905,11 @@ begin
     begin
       FUpdatingFromControl := True;
       try
+        {$IF CompilerVersion >= 34.0}
         SetValueAfterValidation(Null);
+        {$ELSE}
+        OLPointer^ := Null;
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1795,7 +1921,11 @@ begin
     begin
       FUpdatingFromControl := True;
       try
+        {$IF CompilerVersion >= 34.0}
         SetValueAfterValidation(i);
+        {$ELSE}
+        OLPointer^ := i;
+        {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
@@ -1845,8 +1975,10 @@ begin
     try
       Edit.Text := (OLPointer^).ToString();
 
+      {$IF CompilerVersion >= 34.0}
       vr := ValueIsValid(OLPointer^);
       ShowValidationState(vr);
+      {$IFEND}
     finally
       FUpdatingFromControl := False;
     end;
@@ -1876,11 +2008,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TSpinEditToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TSpinEditToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -1892,12 +2027,16 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TSpinEditToOLInteger.GetCurrentValidationResult: TOLValidationResult;
 begin
   Result := ValueIsValid(OLPointer^);
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TSpinEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -1917,7 +2056,9 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TSpinEditToOLInteger.SetValueAfterValidation(i: OLInteger);
 var
   vr: TOLValidationResult;
@@ -1928,6 +2069,7 @@ begin
   if vr.Valid then
     OLPointer^ := i;
 end;
+{$IFEND}
 
 { TOLControlLink }
 
@@ -1961,7 +2103,11 @@ begin
   FEditOnEnter := nil;
   FEditOnKeyPress := nil;
   FOLPointer := nil;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
+
   FWarningLabel := nil;
   NotNullFormat := '';
   LastTwoKeys := '';
@@ -2004,7 +2150,11 @@ procedure TDateTimePickerToOLDate.NewOnChange(Sender: TObject);
 begin
   FUpdatingFromControl := True;
   try
+    {$IF CompilerVersion >= 34.0}
     SetValueAfterValidation(Edit.DateTime);
+    {$ELSE}
+    OLPointer^ := Edit.DateTime;
+    {$IFEND}
 
     if Assigned(FEditOnChange) then
       FEditOnChange(Edit);
@@ -2033,7 +2183,11 @@ begin
       begin
         SysTime := PSystemTime(Message.LParam);
         NewDate := SystemTimeToDateTime(SysTime^);
+        {$IF CompilerVersion >= 34.0}
         SetValueAfterValidation(NewDate);
+        {$ELSE}
+        OLPointer^ := NewDate;
+        {$IFEND}
       end
       else
         OLPointer^ := Null;
@@ -2183,11 +2337,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TDateTimePickerToOLDate.SetValidationFunction(const Value: TOLDateValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TDateTimePickerToOLDate.SetValueAfterValidation(d: OLDate);
 var
   vr: TOLValidationResult;
@@ -2198,7 +2355,9 @@ begin
   if vr.Valid then
     OLPointer^ := d;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TDateTimePickerToOLDate.ValueIsValid(d: OLDate): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -2210,12 +2369,16 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TDateTimePickerToOLDate.GetCurrentValidationResult: TOLValidationResult;
 begin
   Result := ValueIsValid(OLPointer^);
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TDateTimePickerToOLDate.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -2251,6 +2414,7 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
 { TDateTimePickerToOLDateTime }
 
@@ -2262,7 +2426,11 @@ begin
   FEditOnEnter := nil;
   FEditOnKeyPress := nil;
   FOLPointer := nil;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
+
   FWarningLabel := nil;
   NotNullFormat := '';
   LastTwoKeys := '';
@@ -2309,11 +2477,11 @@ procedure TDateTimePickerToOLDateTime.NewOnChange(Sender: TObject);
 begin
   FUpdatingFromControl := True;
   try
-    //OLPointer^ := Edit.Date + Edit.Time;
-
-     //OLPointer^ := StrToDateTime(THackDateTimePicker(Edit).Caption);
-
-     SetValueAfterValidation(Edit.DateTime);
+    {$IF CompilerVersion >= 34.0}
+    SetValueAfterValidation(Edit.DateTime);
+    {$ELSE}
+    OLPointer^ := Edit.DateTime;
+    {$IFEND}
 
     if Assigned(FEditOnChange) then
       FEditOnChange(Edit);
@@ -2342,7 +2510,11 @@ begin
       begin
         SysTime := PSystemTime(Message.LParam);
         NewDate := SystemTimeToDateTime(SysTime^);
+        {$IF CompilerVersion >= 34.0}
         SetValueAfterValidation(NewDate);
+        {$ELSE}
+        OLPointer^ := NewDate;
+        {$IFEND}
       end
       else
         OLPointer^ := Null;
@@ -2492,11 +2664,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TDateTimePickerToOLDateTime.SetValidationFunction(const Value: TOLDateTimeValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TDateTimePickerToOLDateTime.SetValueAfterValidation(dt: OLDateTime);
 var
   vr: TOLValidationResult;
@@ -2507,7 +2682,9 @@ begin
   if vr.Valid then
     OLPointer^ := dt;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TDateTimePickerToOLDateTime.ValueIsValid(dt: OLDateTime): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -2519,12 +2696,16 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TDateTimePickerToOLDateTime.GetCurrentValidationResult: TOLValidationResult;
 begin
   Result := ValueIsValid(OLPointer^);
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TDateTimePickerToOLDateTime.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -2560,6 +2741,7 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
 { TCheckBoxToOLBoolean }
 
@@ -2569,7 +2751,11 @@ begin
   FEdit := nil;
   FEditOnClick := nil;
   FOLPointer := nil;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
+
   FOriginalHint := '';
   FOriginalShowHint := False;
 end;
@@ -2590,11 +2776,14 @@ begin
   inherited;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TCheckBoxToOLBoolean.SetValidationFunction(const Value: TOLBooleanValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TCheckBoxToOLBoolean.ValueIsValid(b: OLBoolean): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -2606,7 +2795,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TCheckBoxToOLBoolean.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -2640,7 +2831,9 @@ begin
     Edit.ShowHint := true;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TCheckBoxToOLBoolean.SetValueAfterValidation(b: OLBoolean);
 var
   vr: TOLValidationResult;
@@ -2651,6 +2844,7 @@ begin
   if vr.Valid then
     OLPointer^ := b;
 end;
+{$IFEND}
 
 
 procedure TCheckBoxToOLBoolean.OnOLChange(Sender: TObject);
@@ -2660,7 +2854,11 @@ end;
 
 procedure TCheckBoxToOLBoolean.NewOnClick(Sender: TObject);
 begin
+  {$IF CompilerVersion >= 34.0}
   SetValueAfterValidation(Edit.Checked);
+  {$ELSE}
+  OLPointer^ := Edit.Checked;
+  {$IFEND}
 
   if Assigned(FEditOnClick) then
     FEditOnClick(Edit);
@@ -2673,8 +2871,10 @@ begin
   if Edit.Checked <> (OLPointer^).IfNull(False) then
     Edit.Checked := (OLPointer^).IfNull(False);
 
+  {$IF CompilerVersion >= 34.0}
   vr := ValueIsValid(OLPointer^);
   ShowValidationState(vr);
+  {$IFEND}
 end;
 
 procedure TCheckBoxToOLBoolean.SetEdit(const Value: TCheckBox);
@@ -2707,7 +2907,10 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TOLIntegerToLabel.Destroy;
@@ -2737,8 +2940,10 @@ begin
     if Lbl.Caption <> s then
       Lbl.Caption := s;
 
+    {$IF CompilerVersion >= 34.0}
     vr := ValueIsValid(OLPointer^);
     ShowValidationState(vr);
+    {$IFEND}
   end;
 
   if Assigned(Calculation) then
@@ -2784,11 +2989,14 @@ begin
   FValueOnErrorInCalculation := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLIntegerToLabel.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLIntegerToLabel.ValueIsValid(i: OLInteger): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -2800,7 +3008,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLIntegerToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -2813,6 +3023,7 @@ begin
       Lbl.Font.Color := vr.Color;
   end;
 end;
+{$IFEND}
 
 { TOLStringToLabel }
 
@@ -2823,7 +3034,10 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 procedure TOLStringToLabel.RefreshControl;
@@ -2881,11 +3095,14 @@ begin
   FValueOnErrorInCalculation := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLStringToLabel.SetValidationFunction(const Value: TOLStringValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLStringToLabel.ValueIsValid(s: OLString): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -2897,7 +3114,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLStringToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -2910,6 +3129,7 @@ begin
        Lbl.Font.Color := vr.Color;
   end;
 end;
+{$IFEND}
 
 { TOLDoubleToLabel }
 
@@ -2921,7 +3141,10 @@ begin
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
   FFormat := DOUBLE_FORMAT;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TOLDoubleToLabel.Destroy;
@@ -2958,8 +3181,10 @@ begin
     if Lbl.Caption <> s then
       Lbl.Caption := s;
 
+    {$IF CompilerVersion >= 34.0}
     vr := ValueIsValid(OLPointer^);
     ShowValidationState(vr);
+      {$IFEND}
   end;
 
   if Assigned(Calculation) then
@@ -3005,11 +3230,14 @@ begin
   FValueOnErrorInCalculation := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDoubleToLabel.SetValidationFunction(const Value: TOLDoubleValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLDoubleToLabel.ValueIsValid(d: OLDouble): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -3021,7 +3249,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDoubleToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -3034,6 +3264,7 @@ begin
        Lbl.Font.Color := vr.Color;
   end;
 end;
+{$IFEND}
 
 { TOLCurrencyToLabel }
 
@@ -3045,7 +3276,10 @@ begin
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
   FFormat := CURRENCY_FORMAT;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
 end;
 
 destructor TOLCurrencyToLabel.Destroy;
@@ -3082,8 +3316,10 @@ begin
     if Lbl.Caption <> s then
       Lbl.Caption := s;
 
+    {$IF CompilerVersion >= 34.0}
     vr := ValueIsValid(OLPointer^);
     ShowValidationState(vr);
+    {$IFEND}
   end;
 
   if Assigned(Calculation) then
@@ -3129,11 +3365,14 @@ begin
   FValueOnErrorInCalculation := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLCurrencyToLabel.SetValidationFunction(const Value: TOLCurrencyValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLCurrencyToLabel.ValueIsValid(c: OLCurrency): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -3145,7 +3384,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLCurrencyToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -3158,6 +3399,7 @@ begin
        Lbl.Font.Color := vr.Color;
   end;
 end;
+{$IFEND}
 
 { TOLDateToLabel }
 
@@ -3208,8 +3450,10 @@ begin
       Lbl.Caption := s;
   end;
 
-   if OLPointer <> nil then
-     ShowValidationState(ValueIsValid(OLPointer^));
+  {$IF CompilerVersion >= 34.0}
+  if OLPointer <> nil then
+    ShowValidationState(ValueIsValid(OLPointer^));
+  {$IFEND}
  end;
 
  procedure TOLDateToLabel.SetCalculation(const Value: TFunctionReturningOLDate);
@@ -3243,11 +3487,14 @@ begin
   FValueOnErrorInCalculation := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDateToLabel.SetValidationFunction(const Value: TOLDateValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLDateToLabel.ValueIsValid(d: OLDate): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -3259,12 +3506,16 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLDateToLabel.GetCurrentValidationResult: TOLValidationResult;
 begin
   Result := ValueIsValid(OLPointer^);
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDateToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if Assigned(FLabel) then
@@ -3275,6 +3526,7 @@ begin
       FLabel.Font.Color := clRed;
   end;
 end;
+{$IFEND}
 
 { TOLDateTimeToLabel }
 
@@ -3325,8 +3577,10 @@ begin
        Lbl.Caption := s;
    end;
 
-   if OLPointer <> nil then
-     ShowValidationState(ValueIsValid(OLPointer^));
+  {$IF CompilerVersion >= 34.0}
+  if OLPointer <> nil then
+    ShowValidationState(ValueIsValid(OLPointer^));
+  {$IFEND}
  end;
 
  procedure TOLDateTimeToLabel.SetCalculation(const Value: TFunctionReturningOLDateTime);
@@ -3360,11 +3614,14 @@ begin
   FValueOnErrorInCalculation := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDateTimeToLabel.SetValidationFunction(const Value: TOLDateTimeValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLDateTimeToLabel.ValueIsValid(dt: OLDateTime): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -3376,12 +3633,16 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TOLDateTimeToLabel.GetCurrentValidationResult: TOLValidationResult;
 begin
   Result := ValueIsValid(OLPointer^);
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDateTimeToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if Assigned(FLabel) then
@@ -3392,6 +3653,7 @@ begin
       FLabel.Font.Color := clRed;
   end;
 end;
+{$IFEND}
 
 { TScrollBarToOLInteger }
 
@@ -3401,7 +3663,10 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
   FWarningLabel := nil;
 end;
 
@@ -3427,8 +3692,6 @@ begin
     end
     else
       FOLPointer^.OnChange := nil;
-    {$ELSE}
-    FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
   inherited;
@@ -3436,7 +3699,11 @@ end;
 
 procedure TScrollBarToOLInteger.NewOnChange(Sender: TObject);
 begin
+  {$IF CompilerVersion >= 34.0}
   SetValueAfterValidation(Edit.Position);
+  {$ELSE}
+  OLPointer^ := Edit.Position;
+  {$IFEND}
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -3455,8 +3722,10 @@ begin
   begin
     Edit.Position := (OLPointer^).IfNull(0);
 
+    {$IF CompilerVersion >= 34.0}
     vr := ValueIsValid(OLPointer^);
     ShowValidationState(vr);
+    {$IFEND}
   end;
 end;
 
@@ -3478,11 +3747,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TScrollBarToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TScrollBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -3494,12 +3766,16 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TScrollBarToOLInteger.GetCurrentValidationResult: TOLValidationResult;
 begin
   Result := ValueIsValid(OLPointer^);
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TScrollBarToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -3529,7 +3805,9 @@ begin
     FWarningLabel.Visible := True;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TScrollBarToOLInteger.SetValueAfterValidation(i: OLInteger);
 var
   vr: TOLValidationResult;
@@ -3540,6 +3818,7 @@ begin
   if vr.Valid then
     OLPointer^ := i;
 end;
+{$IFEND}
 
 { TTrackBarToOLInteger }
 
@@ -3549,7 +3828,10 @@ begin
   FEdit := nil;
   FEditOnChange := nil;
   FOLPointer := nil;
+
+  {$IF CompilerVersion >= 34.0}
   FValidationFunction := nil;
+  {$IFEND}
   FWarningLabel := nil;
 end;
 
@@ -3575,21 +3857,25 @@ begin
     end
     else
       FOLPointer^.OnChange := nil;
-    {$ELSE}
-    FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
   inherited;
 end;
 
+{$IF CompilerVersion >= 34.0}
 function TTrackBarToOLInteger.GetCurrentValidationResult: TOLValidationResult;
 begin
   Result := inherited GetCurrentValidationResult;
 end;
+{$IFEND}
 
 procedure TTrackBarToOLInteger.NewOnChange(Sender: TObject);
 begin
+  {$IF CompilerVersion >= 34.0}
   SetValueAfterValidation(Edit.Position);
+  {$ELSE}
+  OLPointer^ := Edit.Position;
+  {$IFEND}
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
@@ -3608,8 +3894,10 @@ begin
   begin
     Edit.Position := (OLPointer^).IfNull(0);
 
+    {$IF CompilerVersion >= 34.0}
     vr := ValueIsValid(OLPointer^);
     ShowValidationState(vr);
+    {$IFEND}
   end;
 end;
 
@@ -3631,11 +3919,14 @@ begin
   FOLPointer := Value;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TTrackBarToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
   FValidationFunction := Value;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 function TTrackBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
 var
   vr: TOLValidationResult;
@@ -3647,7 +3938,9 @@ begin
 
   Result := vr;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TTrackBarToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -3677,7 +3970,9 @@ begin
     FWarningLabel.Visible := True;
   end;
 end;
+{$IFEND}
 
+{$IF CompilerVersion >= 34.0}
 procedure TTrackBarToOLInteger.SetValueAfterValidation(i: OLInteger);
 var
   vr: TOLValidationResult;
@@ -3688,6 +3983,7 @@ begin
   if vr.Valid then
     OLPointer^ := i;
 end;
+{$IFEND}
 
 { TOLLinkManager }
 
@@ -4655,3 +4951,4 @@ finalization
   OLLinkManager.Free;
 
 end.
+
