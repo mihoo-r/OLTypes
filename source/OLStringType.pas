@@ -2718,6 +2718,7 @@ var
   Arr: TJSONArray;
   Obj: TJSONObject;
   i: Integer;
+  o: TJSONObject;
 begin
   JSONValue := TJSONObject.ParseJSONValue(self.FValue);
   if not Assigned(JSONValue) then
@@ -2754,9 +2755,9 @@ begin
       end
       else
       begin
-        if CurrObj is TJSONObject then
-        begin
-          var o := CurrObj as TJSONObject;
+         if CurrObj is TJSONObject then
+         begin
+           o := CurrObj as TJSONObject;
           if o.GetValue(Part) is TJSONString then
           begin
             o.RemovePair(Part).Free;
@@ -2814,9 +2815,9 @@ begin
           ReplaceJSONArrayElement(Arr, Index, TJSONString.Create(Value));
       end;
     end
-    else if CurrObj is TJSONObject then
-    begin
-      var o := CurrObj as TJSONObject;
+     else if CurrObj is TJSONObject then
+     begin
+       o := CurrObj as TJSONObject;
       o.RemovePair(Part).Free;
 
       if Value.IsNull then
