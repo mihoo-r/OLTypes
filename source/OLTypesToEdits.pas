@@ -1859,7 +1859,7 @@ begin
       begin
         SysTime := PSystemTime(Message.LParam);
         NewDate := SystemTimeToDateTime(SysTime^);
-        OLPointer^ := NewDate;
+        SetValueAfterValidation(NewDate);
       end
       else
         OLPointer^ := Null;
@@ -2168,7 +2168,7 @@ begin
       begin
         SysTime := PSystemTime(Message.LParam);
         NewDate := SystemTimeToDateTime(SysTime^);
-        OLPointer^ := NewDate;
+        SetValueAfterValidation(NewDate);
       end
       else
         OLPointer^ := Null;
