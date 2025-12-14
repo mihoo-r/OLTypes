@@ -2643,125 +2643,223 @@ type
    ///   Helper class for TEdit to enable data binding with OL types.
    /// </summary>
    TOLEditHelper = class helper for TEdit
-     /// <summary>
-     ///   Links the edit control to an OLInteger variable for two-way data binding.
-     /// </summary>
-     procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil;  const Alignment: TAlignment=taRightJustify); overload;
+      {$IF CompilerVersion >= 34.0}
       /// <summary>
-      ///   Links the edit control to an OLDouble variable for two-way data binding with validation.
+      ///   Links the edit control to an OLInteger variable for two-way data binding with validation.
       /// </summary>
-      procedure Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil;  const Alignment: TAlignment=taRightJustify); overload;
+      {$ELSE}
       /// <summary>
-      ///   Links the edit control to an OLCurrency variable for two-way data binding with validation.
+      ///   Links the edit control to an OLInteger variable for two-way data binding.
       /// </summary>
-      procedure Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-      /// <summary>
-      ///   Links the edit control to an OLString variable for two-way data binding with validation.
-      /// </summary>
-      procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
+      procedure Link(var i: OLInteger; const Alignment: TAlignment=taRightJustify); overload;
+      {$IFEND}
+       {$IF CompilerVersion >= 34.0}
+       /// <summary>
+       ///   Links the edit control to an OLDouble variable for two-way data binding with validation.
+       /// </summary>
+       procedure Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+       {$ELSE}
+       /// <summary>
+       ///   Links the edit control to an OLDouble variable for two-way data binding.
+       /// </summary>
+       procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+       {$IFEND}
+       {$IF CompilerVersion >= 34.0}
+       /// <summary>
+       ///   Links the edit control to an OLCurrency variable for two-way data binding with validation.
+       /// </summary>
+       procedure Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+       {$ELSE}
+       /// <summary>
+       ///   Links the edit control to an OLCurrency variable for two-way data binding.
+       /// </summary>
+       procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+       {$IFEND}
+       {$IF CompilerVersion >= 34.0}
+       /// <summary>
+       ///   Links the edit control to an OLString variable for two-way data binding with validation.
+       /// </summary>
+       procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
+       {$ELSE}
+       /// <summary>
+       ///   Links the edit control to an OLString variable for two-way data binding.
+       /// </summary>
+       procedure Link(var s: OLString); overload;
+       {$IFEND}
    end;
 
    /// <summary>
    ///   Helper class for TSpinEdit to enable data binding with OL types.
    /// </summary>
     TOLSpinEditHelper = class helper for TSpinEdit
+      {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the spin edit control to an OLInteger variable for two-way data binding with validation.
       /// </summary>
       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the spin edit control to an OLInteger variable for two-way data binding.
+      /// </summary>
+      procedure Link(var i: OLInteger); overload;
+      {$IFEND}
     end;
 
    /// <summary>
    ///   Helper class for TTrackBar to enable data binding with OL types.
    /// </summary>
     TOLTrackBarHelper = class helper for TTrackBar
+      {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the track bar control to an OLInteger variable for two-way data binding with validation.
       /// </summary>
       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the track bar control to an OLInteger variable for two-way data binding.
+      /// </summary>
+      procedure Link(var i: OLInteger); overload;
+      {$IFEND}
     end;
 
    /// <summary>
    ///   Helper class for TScrollBar to enable data binding with OL types.
    /// </summary>
     TOLScrollBarHelper = class helper for TScrollBar
+      {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the scroll bar control to an OLInteger variable for two-way data binding with validation.
       /// </summary>
       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the scroll bar control to an OLInteger variable for two-way data binding.
+      /// </summary>
+      procedure Link(var i: OLInteger); overload;
+      {$IFEND}
     end;
 
    /// <summary>
    ///   Helper class for TMemo to enable data binding with OL types.
    /// </summary>
     TOLMemoHelper = class helper for TMemo
-      /// <summary>
-      ///   Links the memo control to an OLString variable for two-way data binding.
-      /// </summary>
-      procedure Link(var s: OLString); overload;
+      {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the memo control to an OLString variable for two-way data binding with validation.
       /// </summary>
       procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the memo control to an OLString variable for two-way data binding.
+      /// </summary>
+      procedure Link(var s: OLString); overload;
+      {$IFEND}
     end;
 
    /// <summary>
    ///   Helper class for TDateTimePicker to enable data binding with OL types.
    /// </summary>
    TOLDateTimePickerHelper = class helper for TDateTimePicker
+     {$IF CompilerVersion >= 34.0}
      /// <summary>
-     ///   Links the date/time picker control to an OLDate variable for two-way data binding.
+     ///   Links the date/time picker control to an OLDate variable for two-way data binding with validation.
      /// </summary>
      procedure Link(var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
      /// <summary>
-     ///   Links the date/time picker control to an OLDateTime variable for two-way data binding.
+     ///   Links the date/time picker control to an OLDateTime variable for two-way data binding with validation.
      /// </summary>
      procedure Link(var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
+     {$ELSE}
+     /// <summary>
+     ///   Links the date/time picker control to an OLDate variable for two-way data binding.
+     /// </summary>
+     procedure Link(var d: OLDate); overload;
+     /// <summary>
+     ///   Links the date/time picker control to an OLDateTime variable for two-way data binding.
+     /// </summary>
+     procedure Link(var d: OLDateTime); overload;
+     {$IFEND}
    end;
 
    /// <summary>
    ///   Helper class for TCheckBox to enable data binding with OL types.
    /// </summary>
    TOLCheckBoxHelper = class helper for TCheckBox
+     {$IF CompilerVersion >= 34.0}
      /// <summary>
-     ///   Links the checkbox control to an OLBoolean variable for two-way data binding.
+     ///   Links the checkbox control to an OLBoolean variable for two-way data binding with validation.
      /// </summary>
      procedure Link(var b: OLBoolean; const ValidationFunction:
          TOLBooleanValidationFunction = nil);
+     {$ELSE}
+     /// <summary>
+     ///   Links the checkbox control to an OLBoolean variable for two-way data binding.
+     /// </summary>
+     procedure Link(var b: OLBoolean);
+     {$IFEND}
    end;
 
    /// <summary>
    ///   Helper class for TLabel to enable data binding with OL types.
    /// </summary>
     TOLLabelHelper = class helper for TLabel
+      {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the label control to an OLInteger variable for one-way data binding (display only) with validation.
       /// </summary>
       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the label control to an OLInteger variable for one-way data binding (display only).
+      /// </summary>
+      procedure Link(var i: OLInteger); overload;
+      {$IFEND}
      /// <summary>
      ///   Links the label control to a function that returns OLInteger for computed display.
      /// </summary>
      procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+     {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the label control to an OLString variable for one-way data binding (display only) with validation.
       /// </summary>
       procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the label control to an OLString variable for one-way data binding (display only).
+      /// </summary>
+      procedure Link(var s: OLString); overload;
+      {$IFEND}
      /// <summary>
      ///   Links the label control to a function that returns OLString for computed display.
      /// </summary>
      procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+     {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the label control to an OLDouble variable for one-way data binding (display only) with validation.
       /// </summary>
       procedure Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT); overload;
-     /// <summary>
-     ///   Links the label control to a function that returns OLDouble for computed display.
-     /// </summary>
-     procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the label control to an OLDouble variable for one-way data binding (display only).
+      /// </summary>
+      procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+      {$IFEND}
+      /// <summary>
+      ///   Links the label control to a function that returns OLDouble for computed display.
+      /// </summary>
+      procedure Link(const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+      {$IF CompilerVersion >= 34.0}
       /// <summary>
       ///   Links the label control to an OLCurrency variable for one-way data binding (display only) with validation.
       /// </summary>
       procedure Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT); overload;
+      {$ELSE}
+      /// <summary>
+      ///   Links the label control to an OLCurrency variable for one-way data binding (display only).
+      /// </summary>
+      procedure Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+      {$IFEND}
      /// <summary>
      ///   Links the label control to a function that returns OLCurrency for computed display.
      /// </summary>
@@ -2769,7 +2867,11 @@ type
      /// <summary>
      ///   Links the label control to an OLDate variable for one-way data binding (display only).
      /// </summary>
+     {$IF CompilerVersion >= 34.0}
      procedure Link(var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
+     {$ELSE}
+     procedure Link(var d: OLDate); overload;
+     {$IFEND}
      /// <summary>
      ///   Links the label control to a function that returns OLDate for computed display.
      /// </summary>
@@ -2777,7 +2879,11 @@ type
      /// <summary>
      ///   Links the label control to an OLDateTime variable for one-way data binding (display only).
      /// </summary>
+     {$IF CompilerVersion >= 34.0}
      procedure Link(var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
+     {$ELSE}
+     procedure Link(var d: OLDateTime); overload;
+     {$IFEND}
      /// <summary>
      ///   Links the label control to a function that returns OLDateTime for computed display.
      /// </summary>
@@ -2947,9 +3053,14 @@ end;
 
 { TOLEditHelper }
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLEditHelper.Link(var i: OLInteger; ValidationFunction:
     TOLIntegerValidationFunction = nil; const Alignment:
     TAlignment=taRightJustify);
+{$ELSE}
+procedure TOLEditHelper.Link(var i: OLInteger; const Alignment:
+    TAlignment=taRightJustify);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -2962,16 +3073,24 @@ begin
    if not Form.IsMyField(i) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
-   try
-     Links.Link(Self, i, ValidationFunction, Alignment);
-   except
+    try
+      {$IF CompilerVersion >= 34.0}
+      Links.Link(Self, i, ValidationFunction, Alignment);
+      {$ELSE}
+      Links.Link(Self, i, Alignment);
+      {$IFEND}
+    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
    end;
 end;
 
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLEditHelper.Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
+{$ELSE}
+procedure TOLEditHelper.Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -2984,16 +3103,24 @@ begin
    if not Form.IsMyField(d) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
-   try
-     Links.Link(Self, d, ValidationFunction, Format, Alignment);
-   except
+    try
+      {$IF CompilerVersion >= 34.0}
+      Links.Link(Self, d, ValidationFunction, Format, Alignment);
+      {$ELSE}
+      Links.Link(Self, d, Format, Alignment);
+      {$IFEND}
+    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
    end;
 end;
 
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLEditHelper.Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
+{$ELSE}
+procedure TOLEditHelper.Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3006,15 +3133,23 @@ begin
    if not Form.IsMyField(curr) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
-   try
-     Links.Link(Self, curr, ValidationFunction, Format, Alignment);
-   except
+    try
+      {$IF CompilerVersion >= 34.0}
+      Links.Link(Self, curr, ValidationFunction, Format, Alignment);
+      {$ELSE}
+      Links.Link(Self, curr, Format, Alignment);
+      {$IFEND}
+    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
    end;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLEditHelper.Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil);
+{$ELSE}
+procedure TOLEditHelper.Link(var s: OLString);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3035,7 +3170,11 @@ begin
    end;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLSpinEditHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
+{$ELSE}
+procedure TOLSpinEditHelper.Link(var i: OLInteger);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3045,18 +3184,26 @@ begin
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
 
-   if not Form.IsMyField(i) then
-     raise Exception.Create('OLType must be a field of the owning TForm.');
-
-   try
-     Links.Link(Self, i, ValidationFunction);
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TSpinEdit: ' + E.Message);
-   end;
+    if not Form.IsMyField(i) then
+      raise Exception.Create('OLType must be a field of the owning TForm.');
+ 
+    try
+      {$IF CompilerVersion >= 34.0}
+      Links.Link(Self, i, ValidationFunction);
+      {$ELSE}
+      Links.Link(Self, i);
+      {$IFEND}
+    except
+      on E: Exception do
+        raise Exception.Create('Link failed for TSpinEdit: ' + E.Message);
+    end;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLTrackBarHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
+{$ELSE}
+procedure TOLTrackBarHelper.Link(var i: OLInteger);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3066,18 +3213,26 @@ begin
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
 
-   if not Form.IsMyField(i) then
-     raise Exception.Create('OLType must be a field of the owning TForm.');
-
-   try
-     Links.Link(Self, i, ValidationFunction);
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TTrackBar: ' + E.Message);
-   end;
+    if not Form.IsMyField(i) then
+      raise Exception.Create('OLType must be a field of the owning TForm.');
+ 
+    try
+      {$IF CompilerVersion >= 34.0}
+      Links.Link(Self, i, ValidationFunction);
+      {$ELSE}
+      Links.Link(Self, i);
+      {$IFEND}
+    except
+      on E: Exception do
+        raise Exception.Create('Link failed for TTrackBar: ' + E.Message);
+    end;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLScrollBarHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
+{$ELSE}
+procedure TOLScrollBarHelper.Link(var i: OLInteger);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3090,38 +3245,25 @@ begin
    if not Form.IsMyField(i) then
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
-   try
-     Links.Link(Self, i, ValidationFunction);
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TScrollBar: ' + E.Message);
-   end;
+    try
+      {$IF CompilerVersion >= 34.0}
+      Links.Link(Self, i, ValidationFunction);
+      {$ELSE}
+      Links.Link(Self, i);
+      {$IFEND}
+    except
+      on E: Exception do
+        raise Exception.Create('Link failed for TScrollBar: ' + E.Message);
+    end;
 end;
 
 { TOLMemoHelper }
 
-procedure TOLMemoHelper.Link(var s: OLString);
-var
-  Form: TForm;
-begin
-   if not Assigned(Self) then
-     raise Exception.Create('Control is nil.');
-   Form := Self.Owner as TForm;
-   if not Assigned(Form) then
-     raise Exception.Create('Control must be owned by a TForm.');
-
-   if not Form.IsMyField(s) then
-     raise Exception.Create('OLType must be a field of the owning TForm.');
-
-   try
-     Links.Link(Self, s);
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TMemo: ' + E.Message);
-   end;
-end;
-
+{$IF CompilerVersion >= 34.0}
 procedure TOLMemoHelper.Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil);
+{$ELSE}
+procedure TOLMemoHelper.Link(var s: OLString);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3131,21 +3273,30 @@ begin
    if not Assigned(Form) then
      raise Exception.Create('Control must be owned by a TForm.');
 
-   if not Form.IsMyField(s) then
-     raise Exception.Create('OLType must be a field of the owning TForm.');
-
-   try
-     Links.Link(Self, s, ValidationFunction);
-   except
+    if not Form.IsMyField(s) then
+      raise Exception.Create('OLType must be a field of the owning TForm.');
+ 
+    try
+      {$IF CompilerVersion >= 34.0}
+      Links.Link(Self, s, ValidationFunction);
+      {$ELSE}
+      Links.Link(Self, s);
+      {$IFEND}
+    except
      on E: Exception do
        raise Exception.Create('Link failed for TMemo: ' + E.Message);
    end;
 end;
+
 
 { TOLDateTimePickerHelper }
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDateTimePickerHelper.Link(var d: OLDate; const ValidationFunction:
     TOLDateValidationFunction = nil);
+{$ELSE}
+procedure TOLDateTimePickerHelper.Link(var d: OLDate);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3159,15 +3310,23 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, d, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, d);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
    end;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLDateTimePickerHelper.Link(var d: OLDateTime; const
     ValidationFunction: TOLDateTimeValidationFunction = nil);
+{$ELSE}
+procedure TOLDateTimePickerHelper.Link(var d: OLDateTime);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3181,7 +3340,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, d, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, d);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
@@ -3189,8 +3352,12 @@ begin
 end;
 
 { TOLCheckBoxHelper }
+{$IF CompilerVersion >= 34.0}
 procedure TOLCheckBoxHelper.Link(var b: OLBoolean; const
-        ValidationFunction: TOLBooleanValidationFunction = nil);
+    ValidationFunction: TOLBooleanValidationFunction = nil);
+{$ELSE}
+procedure TOLCheckBoxHelper.Link(var b: OLBoolean);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3204,14 +3371,22 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, b, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, b);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TCheckBox: ' + E.Message);
    end;
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLLabelHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
+{$ELSE}
+procedure TOLLabelHelper.Link(var i: OLInteger);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3225,7 +3400,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, i, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, i, ValidationFunction);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
@@ -3237,7 +3416,11 @@ begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLLabelHelper.Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil);
+{$ELSE}
+procedure TOLLabelHelper.Link(var s: OLString);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3251,7 +3434,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, s, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, s);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
@@ -3263,7 +3450,11 @@ begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLLabelHelper.Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT);
+{$ELSE}
+procedure TOLLabelHelper.Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3277,7 +3468,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, d, ValidationFunction, Format);
+     {$ELSE}
+     Links.Link(Self, d, Format);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
@@ -3289,7 +3484,11 @@ begin
    Links.Link(Self, f, Format, ValueOnErrorInCalculation);
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLLabelHelper.Link(var curr: OLCurrency; ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT);
+{$ELSE}
+procedure TOLLabelHelper.Link(var curr: OLCurrency; const Format: string = CURRENCY_FORMAT);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3303,7 +3502,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, curr, ValidationFunction, Format);
+     {$ELSE}
+     Links.Link(Self, curr, Format);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
@@ -3315,8 +3518,12 @@ begin
    Links.Link(Self, f, Format, ValueOnErrorInCalculation);
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLLabelHelper.Link(var d: OLDate; const ValidationFunction:
     TOLDateValidationFunction = nil);
+{$ELSE}
+procedure TOLLabelHelper.Link(var d: OLDate);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3330,7 +3537,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, d, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, d);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
@@ -3342,8 +3553,12 @@ begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
+{$IF CompilerVersion >= 34.0}
 procedure TOLLabelHelper.Link(var d: OLDateTime; const ValidationFunction:
     TOLDateTimeValidationFunction = nil);
+{$ELSE}
+procedure TOLLabelHelper.Link(var d: OLDateTime);
+{$IFEND}
 var
   Form: TForm;
 begin
@@ -3357,7 +3572,11 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
+     {$IF CompilerVersion >= 34.0}
      Links.Link(Self, d, ValidationFunction);
+     {$ELSE}
+     Links.Link(Self, d);
+     {$IFEND}
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
