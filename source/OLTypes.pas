@@ -40,6 +40,8 @@ type
   TOLCurrencyValidationFunction = reference to function(c: OLCurrency): TOLValidationResult;
   TOLStringValidationFunction = reference to function(s: OLString): TOLValidationResult;
   TOLBooleanValidationFunction = reference to function(b: OLBoolean): TOLValidationResult;
+  TOLDateValidationFunction = reference to function(d: OLDate): TOLValidationResult;
+  TOLDateTimeValidationFunction = reference to function(dt: OLDateTime): TOLValidationResult;
 
 
   OLBoolean = OLBooleanType.OLBoolean;
@@ -2710,11 +2712,11 @@ type
      /// <summary>
      ///   Links the date/time picker control to an OLDate variable for two-way data binding.
      /// </summary>
-     procedure Link(var d: OLDate); overload;
+     procedure Link(var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
      /// <summary>
      ///   Links the date/time picker control to an OLDateTime variable for two-way data binding.
      /// </summary>
-     procedure Link(var d: OLDateTime); overload;
+     procedure Link(var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
    end;
 
    /// <summary>
@@ -2733,10 +2735,6 @@ type
    /// </summary>
     TOLLabelHelper = class helper for TLabel
       /// <summary>
-      ///   Links the label control to an OLInteger variable for one-way data binding (display only).
-      /// </summary>
-      procedure Link(var i: OLInteger); overload;
-      /// <summary>
       ///   Links the label control to an OLInteger variable for one-way data binding (display only) with validation.
       /// </summary>
       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
@@ -2745,10 +2743,6 @@ type
      /// </summary>
      procedure Link(const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
       /// <summary>
-      ///   Links the label control to an OLString variable for one-way data binding (display only).
-      /// </summary>
-      procedure Link(var s: OLString); overload;
-      /// <summary>
       ///   Links the label control to an OLString variable for one-way data binding (display only) with validation.
       /// </summary>
       procedure Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil); overload;
@@ -2756,10 +2750,6 @@ type
      ///   Links the label control to a function that returns OLString for computed display.
      /// </summary>
      procedure Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-      /// <summary>
-      ///   Links the label control to an OLDouble variable for one-way data binding (display only).
-      /// </summary>
-      procedure Link(var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
       /// <summary>
       ///   Links the label control to an OLDouble variable for one-way data binding (display only) with validation.
       /// </summary>
@@ -2779,7 +2769,7 @@ type
      /// <summary>
      ///   Links the label control to an OLDate variable for one-way data binding (display only).
      /// </summary>
-     procedure Link(var d: OLDate); overload;
+     procedure Link(var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
      /// <summary>
      ///   Links the label control to a function that returns OLDate for computed display.
      /// </summary>
@@ -2787,7 +2777,7 @@ type
      /// <summary>
      ///   Links the label control to an OLDateTime variable for one-way data binding (display only).
      /// </summary>
-     procedure Link(var d: OLDateTime); overload;
+     procedure Link(var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
      /// <summary>
      ///   Links the label control to a function that returns OLDateTime for computed display.
      /// </summary>
@@ -3154,7 +3144,8 @@ end;
 
 { TOLDateTimePickerHelper }
 
-procedure TOLDateTimePickerHelper.Link(var d: OLDate);
+procedure TOLDateTimePickerHelper.Link(var d: OLDate; const ValidationFunction:
+    TOLDateValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3168,14 +3159,15 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, d);
+     Links.Link(Self, d, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
    end;
 end;
 
-procedure TOLDateTimePickerHelper.Link(var d: OLDateTime);
+procedure TOLDateTimePickerHelper.Link(var d: OLDateTime; const
+    ValidationFunction: TOLDateTimeValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3189,7 +3181,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, d);
+     Links.Link(Self, d, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
@@ -3219,29 +3211,6 @@ begin
    end;
 end;
 
-{ TOLLabelHelper }
-
-procedure TOLLabelHelper.Link(var i: OLInteger);
-var
-  Form: TForm;
-begin
-   if not Assigned(Self) then
-     raise Exception.Create('Control is nil.');
-   Form := Self.Owner as TForm;
-   if not Assigned(Form) then
-     raise Exception.Create('Control must be owned by a TForm.');
-
-   if not Form.IsMyField(i) then
-     raise Exception.Create('OLType must be a field of the owning TForm.');
-
-   try
-     Links.Link(Self, i);
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TLabel: ' + E.Message);
-   end;
-end;
-
 procedure TOLLabelHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
 var
   Form: TForm;
@@ -3268,27 +3237,6 @@ begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLabelHelper.Link(var s: OLString);
-var
-  Form: TForm;
-begin
-   if not Assigned(Self) then
-     raise Exception.Create('Control is nil.');
-   Form := Self.Owner as TForm;
-   if not Assigned(Form) then
-     raise Exception.Create('Control must be owned by a TForm.');
-
-   if not Form.IsMyField(s) then
-     raise Exception.Create('OLType must be a field of the owning TForm.');
-
-   try
-     Links.Link(Self, s);
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TLabel: ' + E.Message);
-   end;
-end;
-
 procedure TOLLabelHelper.Link(var s: OLString; ValidationFunction: TOLStringValidationFunction = nil);
 var
   Form: TForm;
@@ -3313,27 +3261,6 @@ end;
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string);
 begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
-end;
-
-procedure TOLLabelHelper.Link(var d: OLDouble; const Format: string);
-var
-  Form: TForm;
-begin
-   if not Assigned(Self) then
-     raise Exception.Create('Control is nil.');
-   Form := Self.Owner as TForm;
-   if not Assigned(Form) then
-     raise Exception.Create('Control must be owned by a TForm.');
-
-   if not Form.IsMyField(d) then
-     raise Exception.Create('OLType must be a field of the owning TForm.');
-
-   try
-     Links.Link(Self, d, Format);
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TLabel: ' + E.Message);
-   end;
 end;
 
 procedure TOLLabelHelper.Link(var d: OLDouble; ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT);
@@ -3388,7 +3315,8 @@ begin
    Links.Link(Self, f, Format, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLabelHelper.Link(var d: OLDate);
+procedure TOLLabelHelper.Link(var d: OLDate; const ValidationFunction:
+    TOLDateValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3402,7 +3330,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, d);
+     Links.Link(Self, d, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);
@@ -3414,7 +3342,8 @@ begin
    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
-procedure TOLLabelHelper.Link(var d: OLDateTime);
+procedure TOLLabelHelper.Link(var d: OLDateTime; const ValidationFunction:
+    TOLDateTimeValidationFunction = nil);
 var
   Form: TForm;
 begin
@@ -3428,7 +3357,7 @@ begin
      raise Exception.Create('OLType must be a field of the owning TForm.');
 
    try
-     Links.Link(Self, d);
+     Links.Link(Self, d, ValidationFunction);
    except
      on E: Exception do
        raise Exception.Create('Link failed for TLabel: ' + E.Message);

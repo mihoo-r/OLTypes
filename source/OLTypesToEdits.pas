@@ -274,15 +274,21 @@ type
     FEditOnEnter: TEditOnEnter;
     FEditOnKeyPress: TEditOnKeyPress;
     FOLPointer: POLDate;
+    FValidationFunction: TOLDateValidationFunction;
+    FWarningLabel: TLabel;
     NotNullFormat: string;
     LastTwoKeys, LastThreeKeys: OLString;
     FOriginalWindowProc: TWndMethod;
     FUpdatingFromRefresh: Boolean;
     FUpdatingFromControl: Boolean;
+    FOriginalHint: string;
+    FOriginalShowHint: Boolean;
 
     procedure NewWindowProc(var Message: TMessage);
     procedure SetEdit(const Value: TDateTimePicker);
     procedure SetOLPointer(const Value: POLDate);
+    procedure SetValidationFunction(const Value: TOLDateValidationFunction);
+    procedure SetValueAfterValidation(d: OLDate);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -293,8 +299,13 @@ type
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(d: OLDate): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLDateValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TDateTimePickerToOLDateTime = class(TOLControlLink)
@@ -304,15 +315,21 @@ type
     FEditOnEnter: TEditOnEnter;
     FEditOnKeyPress: TEditOnKeyPress;
     FOLPointer: POLDateTime;
+    FValidationFunction: TOLDateTimeValidationFunction;
+    FWarningLabel: TLabel;
     NotNullFormat: string;
     LastTwoKeys, LastThreeKeys: OLString;
     FOriginalWindowProc: TWndMethod;
     FUpdatingFromRefresh: Boolean;
     FUpdatingFromControl: Boolean;
+    FOriginalHint: string;
+    FOriginalShowHint: Boolean;
 
     procedure NewWindowProc(var Message: TMessage);
     procedure SetEdit(const Value: TDateTimePicker);
     procedure SetOLPointer(const Value: POLDateTime);
+    procedure SetValidationFunction(const Value: TOLDateTimeValidationFunction);
+    procedure SetValueAfterValidation(dt: OLDateTime);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -323,8 +340,13 @@ type
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(dt: OLDateTime): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLDateTimeValidationFunction read
+        FValidationFunction write SetValidationFunction;
   end;
 
   TCheckBoxToOLBoolean = class(TOLControlLink)
@@ -474,10 +496,13 @@ type
   private
     FLabel: TLabel;
     FOLPointer: POLDate;
+    FValidationFunction: TOLDateValidationFunction;
+    FOriginalFontColor: TColor;
     FCalculation: TFunctionReturningOLDate;
     FValueOnErrorInCalculation: OLString;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLDate);
+    procedure SetValidationFunction(const Value: TOLDateValidationFunction);
     procedure SetCalculation(const Value: TFunctionReturningOLDate);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
@@ -485,9 +510,14 @@ type
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(d: OLDate): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLDateValidationFunction read
+        FValidationFunction write SetValidationFunction;
     property Calculation: TFunctionReturningOLDate read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
@@ -496,10 +526,13 @@ type
   private
     FLabel: TLabel;
     FOLPointer: POLDateTime;
+    FValidationFunction: TOLDateTimeValidationFunction;
+    FOriginalFontColor: TColor;
     FCalculation: TFunctionReturningOLDateTime;
     FValueOnErrorInCalculation: OLString;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLDateTime);
+    procedure SetValidationFunction(const Value: TOLDateTimeValidationFunction);
     procedure SetCalculation(const Value: TFunctionReturningOLDateTime);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
@@ -507,9 +540,14 @@ type
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
+    function ValueIsValid(dt: OLDateTime): TOLValidationResult;
+    function GetCurrentValidationResult: TOLValidationResult; override;
     function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
+    property ValidationFunction: TOLDateTimeValidationFunction read
+        FValidationFunction write SetValidationFunction;
     property Calculation: TFunctionReturningOLDateTime read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
   end;
@@ -537,8 +575,8 @@ type
     procedure Link(const Edit: TEdit; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
     procedure Link(const Edit: TMemo; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
-    procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
-    procedure Link(const Edit: TDateTimePicker; var d: OLDateTime); overload;
+    procedure Link(const Edit: TDateTimePicker; var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
+    procedure Link(const Edit: TDateTimePicker; var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
     procedure Link(const Edit: TCheckBox; var b: OLBoolean; const
         ValidationFunction: TOLBooleanValidationFunction = nil); overload;
 
@@ -552,9 +590,9 @@ type
     procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
     procedure Link(const Lbl: TLabel; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-    procedure Link(const Lbl: TLabel; var d: OLDate); overload;
+    procedure Link(const Lbl: TLabel; var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-    procedure Link(const Lbl: TLabel; var d: OLDateTime); overload;
+    procedure Link(const Lbl: TLabel; var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
 
     procedure RefreshControls(FormToRefresh: TForm = nil);
@@ -1749,11 +1787,15 @@ begin
   FEditOnEnter := nil;
   FEditOnKeyPress := nil;
   FOLPointer := nil;
+  FValidationFunction := nil;
+  FWarningLabel := nil;
   NotNullFormat := '';
   LastTwoKeys := '';
   LastThreeKeys := '';
   FUpdatingFromRefresh := False;
   FUpdatingFromControl := False;
+  FOriginalHint := '';
+  FOriginalShowHint := False;
 end;
 
 destructor TDateTimePickerToOLDate.Destroy;
@@ -1788,7 +1830,7 @@ procedure TDateTimePickerToOLDate.NewOnChange(Sender: TObject);
 begin
   FUpdatingFromControl := True;
   try
-    OLPointer^ := Edit.DateTime;
+    SetValueAfterValidation(Edit.DateTime);
 
     if Assigned(FEditOnChange) then
       FEditOnChange(Edit);
@@ -1952,6 +1994,9 @@ begin
     FOriginalWindowProc := Value.WindowProc;
     Value.WindowProc := NewWindowProc;
 
+    FOriginalHint := Value.Hint;
+    FOriginalShowHint := Value.ShowHint;
+
     if Value.Parent <> nil then
       Value.HandleNeeded;
   end;
@@ -1964,6 +2009,75 @@ begin
   FOLPointer := Value;
 end;
 
+procedure TDateTimePickerToOLDate.SetValidationFunction(const Value: TOLDateValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+procedure TDateTimePickerToOLDate.SetValueAfterValidation(d: OLDate);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(d);
+  ShowValidationState(vr);
+
+  if vr.Valid then
+    OLPointer^ := d;
+end;
+
+function TDateTimePickerToOLDate.ValueIsValid(d: OLDate): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(d)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+function TDateTimePickerToOLDate.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := ValueIsValid(OLPointer^);
+end;
+
+procedure TDateTimePickerToOLDate.ShowValidationState(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    if Assigned(FWarningLabel) then
+    begin
+      FWarningLabel.Visible := False;
+      FWarningLabel.Free;
+      FWarningLabel := nil;
+
+      Edit.Hint := FOriginalHint;
+      Edit.ShowHint := FOriginalShowHint;
+    end;
+  end
+  else
+  begin
+    if not Assigned(FWarningLabel) then
+    begin
+      FWarningLabel := TLabel.Create(Edit.Owner as TForm);
+      FWarningLabel.Parent := Edit.Owner as TForm;
+      FWarningLabel.Caption := '⚠';
+      FWarningLabel.Font.Color := clRed;
+      FWarningLabel.Font.Size := 12;
+      FWarningLabel.AutoSize := True;
+      FWarningLabel.Left := Edit.Left + Edit.Width + 5;
+      FWarningLabel.Top := Edit.Top;
+    end;
+    FWarningLabel.Hint := vr.Message;
+    FWarningLabel.ShowHint := True;
+    FWarningLabel.Visible := True;
+
+    Edit.Hint := vr.Message;
+    Edit.ShowHint := true;
+  end;
+end;
+
 { TDateTimePickerToOLDateTime }
 
 constructor TDateTimePickerToOLDateTime.Create;
@@ -1974,6 +2088,8 @@ begin
   FEditOnEnter := nil;
   FEditOnKeyPress := nil;
   FOLPointer := nil;
+  FValidationFunction := nil;
+  FWarningLabel := nil;
   NotNullFormat := '';
   LastTwoKeys := '';
   LastThreeKeys := '';
@@ -1995,11 +2111,18 @@ begin
       FEdit.OnChange := FEditOnChange;
     if Assigned(FEditOnEnter) then
       FEdit.OnEnter := FEditOnEnter;
-    if Assigned(FEditOnKeyPress) then
-      FEdit.OnKeyPress := FEditOnKeyPress;
-  end;
-  inherited;
-end;
+     if Assigned(FEditOnKeyPress) then
+       FEdit.OnKeyPress := FEditOnKeyPress;
+   end;
+
+   if Assigned(FWarningLabel) then
+   begin
+     FWarningLabel.Free;
+     FWarningLabel := nil;
+   end;
+
+   inherited;
+ end;
 
 procedure TDateTimePickerToOLDateTime.Notification(AComponent: TComponent; Operation: TOperation);
 begin
@@ -2014,9 +2137,9 @@ begin
   try
     //OLPointer^ := Edit.Date + Edit.Time;
 
-    //OLPointer^ := StrToDateTime(THackDateTimePicker(Edit).Caption);
+     //OLPointer^ := StrToDateTime(THackDateTimePicker(Edit).Caption);
 
-    OLPointer^ := Edit.DateTime;
+     SetValueAfterValidation(Edit.DateTime);
 
     if Assigned(FEditOnChange) then
       FEditOnChange(Edit);
@@ -2182,6 +2305,9 @@ begin
 
     if Value.Parent <> nil then
       Value.HandleNeeded;
+
+    FOriginalHint := Value.Hint;
+    FOriginalShowHint := Value.ShowHint;
   end;
 end;
 
@@ -2190,6 +2316,75 @@ begin
   if not Assigned(Value) then
     raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
+end;
+
+procedure TDateTimePickerToOLDateTime.SetValidationFunction(const Value: TOLDateTimeValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+procedure TDateTimePickerToOLDateTime.SetValueAfterValidation(dt: OLDateTime);
+var
+  vr: TOLValidationResult;
+begin
+  vr := ValueIsValid(dt);
+  ShowValidationState(vr);
+
+  if vr.Valid then
+    OLPointer^ := dt;
+end;
+
+function TDateTimePickerToOLDateTime.ValueIsValid(dt: OLDateTime): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(dt)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+function TDateTimePickerToOLDateTime.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := ValueIsValid(OLPointer^);
+end;
+
+procedure TDateTimePickerToOLDateTime.ShowValidationState(vr: TOLValidationResult);
+begin
+  if vr.Valid then
+  begin
+    if Assigned(FWarningLabel) then
+    begin
+      FWarningLabel.Visible := False;
+      FWarningLabel.Free;
+      FWarningLabel := nil;
+
+      Edit.Hint := FOriginalHint;
+      Edit.ShowHint := FOriginalShowHint;
+    end;
+  end
+  else
+  begin
+    if not Assigned(FWarningLabel) then
+    begin
+      FWarningLabel := TLabel.Create(Edit.Owner as TForm);
+      FWarningLabel.Parent := Edit.Owner as TForm;
+      FWarningLabel.Caption := '⚠';
+      FWarningLabel.Font.Color := clRed;
+      FWarningLabel.Font.Size := 12;
+      FWarningLabel.AutoSize := True;
+      FWarningLabel.Left := Edit.Left + Edit.Width + 5;
+      FWarningLabel.Top := Edit.Top;
+    end;
+    FWarningLabel.Hint := vr.Message;
+    FWarningLabel.ShowHint := True;
+    FWarningLabel.Visible := True;
+
+    Edit.Hint := vr.Message;
+    Edit.ShowHint := true;
+  end;
 end;
 
 { TCheckBoxToOLBoolean }
@@ -2838,9 +3033,12 @@ begin
     if Lbl.Caption <> s then
       Lbl.Caption := s;
   end;
-end;
 
-procedure TOLDateToLabel.SetCalculation(const Value: TFunctionReturningOLDate);
+   if OLPointer <> nil then
+     ShowValidationState(ValueIsValid(OLPointer^));
+ end;
+
+ procedure TOLDateToLabel.SetCalculation(const Value: TFunctionReturningOLDate);
 begin
   if Assigned(Value) and (FOLPointer <> nil) then
     raise Exception.Create(CALCULATION_ASSIGN_ERROR);
@@ -2852,6 +3050,8 @@ procedure TOLDateToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
   Control := Value;
+  if Assigned(Value) then
+    FOriginalFontColor := Value.Font.Color;
 end;
 
 procedure TOLDateToLabel.SetOLPointer(const Value: POLDate);
@@ -2867,6 +3067,39 @@ end;
 procedure TOLDateToLabel.SetValueOnErrorInCalculation(const Value: OLString);
 begin
   FValueOnErrorInCalculation := Value;
+end;
+
+procedure TOLDateToLabel.SetValidationFunction(const Value: TOLDateValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TOLDateToLabel.ValueIsValid(d: OLDate): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(d)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+function TOLDateToLabel.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := ValueIsValid(OLPointer^);
+end;
+
+procedure TOLDateToLabel.ShowValidationState(vr: TOLValidationResult);
+begin
+  if Assigned(FLabel) then
+  begin
+    if vr.Valid then
+      FLabel.Font.Color := FOriginalFontColor
+    else
+      FLabel.Font.Color := clRed;
+  end;
 end;
 
 { TOLDateTimeToLabel }
@@ -2912,14 +3145,17 @@ begin
     s := Calculation().ToString();
     if Lbl.Caption <> s then
       Lbl.Caption := s;
-  except
-    s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
-    if Lbl.Caption <> s then
-      Lbl.Caption := s;
-  end;
-end;
+   except
+     s := ValueOnErrorInCalculation.IfNullOrEmpty(ERROR_STRING);
+     if Lbl.Caption <> s then
+       Lbl.Caption := s;
+   end;
 
-procedure TOLDateTimeToLabel.SetCalculation(const Value: TFunctionReturningOLDateTime);
+   if OLPointer <> nil then
+     ShowValidationState(ValueIsValid(OLPointer^));
+ end;
+
+ procedure TOLDateTimeToLabel.SetCalculation(const Value: TFunctionReturningOLDateTime);
 begin
   if Assigned(Value) and (FOLPointer <> nil) then
     raise Exception.Create(CALCULATION_ASSIGN_ERROR);
@@ -2931,6 +3167,8 @@ procedure TOLDateTimeToLabel.SetLabel(const Value: TLabel);
 begin
   FLabel := Value;
   Control := Value;
+  if Assigned(Value) then
+    FOriginalFontColor := Value.Font.Color;
 end;
 
 procedure TOLDateTimeToLabel.SetOLPointer(const Value: POLDateTime);
@@ -2946,6 +3184,39 @@ end;
 procedure TOLDateTimeToLabel.SetValueOnErrorInCalculation(const Value: OLString);
 begin
   FValueOnErrorInCalculation := Value;
+end;
+
+procedure TOLDateTimeToLabel.SetValidationFunction(const Value: TOLDateTimeValidationFunction);
+begin
+  FValidationFunction := Value;
+end;
+
+function TOLDateTimeToLabel.ValueIsValid(dt: OLDateTime): TOLValidationResult;
+var
+  vr: TOLValidationResult;
+begin
+  if Assigned(ValidationFunction) then
+    vr := ValidationFunction(dt)
+  else
+    vr := TOLValidationResult.Ok();
+
+  Result := vr;
+end;
+
+function TOLDateTimeToLabel.GetCurrentValidationResult: TOLValidationResult;
+begin
+  Result := ValueIsValid(OLPointer^);
+end;
+
+procedure TOLDateTimeToLabel.ShowValidationState(vr: TOLValidationResult);
+begin
+  if Assigned(FLabel) then
+  begin
+    if vr.Valid then
+      FLabel.Font.Color := FOriginalFontColor
+    else
+      FLabel.Font.Color := clRed;
+  end;
 end;
 
 { TScrollBarToOLInteger }
@@ -3601,7 +3872,8 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDate);
+procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDate; const
+    ValidationFunction: TOLDateValidationFunction = nil);
 var
   Link: TDateTimePickerToOLDate;
   Observer: TObject;
@@ -3614,6 +3886,7 @@ begin
 
   Link := TDateTimePickerToOLDate.Create;
   Link.FOLPointer := @d;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLDate
   if not FValueMulticasters.TryGetValue(@d, Observer) then
@@ -3666,8 +3939,36 @@ begin
 end;
 
 
-procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d:
-    OLDateTime);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDate; const
+    ValidationFunction: TOLDateValidationFunction = nil);
+var
+  Link: TOLDateToLabel;
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
+begin
+  Link := TOLDateToLabel.Create;
+  Link.Lbl := Lbl;
+  Link.FOLPointer := @d;
+  Link.ValidationFunction := ValidationFunction;
+  {$IF CompilerVersion >= 34.0}
+  // Get or create multicaster for this OLDate
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDate
+  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  {$IFEND}
+  AddLink(Lbl, Link);
+
+  Link.RefreshControl();
+end;
+
+procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDateTime;
+    const ValidationFunction: TOLDateTimeValidationFunction = nil);
 var
   Link: TDateTimePickerToOLDateTime;
   Observer: TObject;
@@ -3684,6 +3985,7 @@ begin
 
   Link := TDateTimePickerToOLDateTime.Create;
   Link.FOLPointer := @d;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLDateTime
   if not FValueMulticasters.TryGetValue(@d, Observer) then
@@ -3939,46 +4241,8 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDate);
-var
-  Link: TOLDateToLabel;
-  Observer: TObject;
-  ValueMulticaster: TOLValueMulticaster;
-begin
-  Link := TOLDateToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @d;
-  {$IF CompilerVersion >= 34.0}
-  // Get or create multicaster for this OLDate
-  if not FValueMulticasters.TryGetValue(@d, Observer) then
-  begin
-    ValueMulticaster := TOLValueMulticaster.Create;
-    FValueMulticasters.Add(@d, ValueMulticaster);
-  end
-  else
-    ValueMulticaster := Observer as TOLValueMulticaster;
-  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDate
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
-  {$IFEND}
-  AddLink(Lbl, Link);
-
-  Link.RefreshControl();
-end;
-
-procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
-var
-  Link: TOLDateTimeToLabel;
-begin
-  Link := TOLDateTimeToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.Calculation := f;
-  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
-
-  Link.RefreshControl();
-end;
-
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDateTime);
+procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDateTime; const
+    ValidationFunction: TOLDateTimeValidationFunction = nil);
 var
   Link: TOLDateTimeToLabel;
   Observer: TObject;
@@ -3987,6 +4251,7 @@ begin
   Link := TOLDateTimeToLabel.Create;
   Link.Lbl := Lbl;
   Link.FOLPointer := @d;
+  Link.ValidationFunction := ValidationFunction;
   {$IF CompilerVersion >= 34.0}
   // Get or create multicaster for this OLDateTime
   if not FValueMulticasters.TryGetValue(@d, Observer) then
@@ -3999,6 +4264,19 @@ begin
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDateTime
   ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
+  AddLink(Lbl, Link);
+
+  Link.RefreshControl();
+end;
+
+ procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
+var
+  Link: TOLDateTimeToLabel;
+begin
+  Link := TOLDateTimeToLabel.Create;
+  Link.Lbl := Lbl;
+  Link.Calculation := f;
+  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
