@@ -569,9 +569,7 @@ type
     procedure Link(const Edit: TSpinEdit; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
     procedure Link(const Edit: TTrackBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
     procedure Link(const Edit: TScrollBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
-    procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
-    procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
     procedure Link(const Edit: TEdit; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
     procedure Link(const Edit: TMemo; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
@@ -584,10 +582,8 @@ type
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-    procedure Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
     procedure Link(const Lbl: TLabel; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-    procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
     procedure Link(const Lbl: TLabel; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT); overload;
     procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
     procedure Link(const Lbl: TLabel; var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
@@ -3700,35 +3696,6 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
-var
-  Link: TEditToOLDouble;
-  Observer: TObject;
-  ValueMulticaster: TOLValueMulticaster;
-begin
-  Link := TEditToOLDouble.Create;
-  Link.FFormat := Format;
-  Link.Edit := Edit;
-  Link.FOLPointer := @d;
-  {$IF CompilerVersion >= 34.0}
-  // Get or create multicaster for this OLDouble
-  if not FValueMulticasters.TryGetValue(@d, Observer) then
-  begin
-    ValueMulticaster := TOLValueMulticaster.Create;
-    FValueMulticasters.Add(@d, ValueMulticaster);
-  end
-  else
-    ValueMulticaster := Observer as TOLValueMulticaster;
-  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDouble
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
-  {$IFEND}
-  AddLink(Edit, Link);
-
-  Edit.Alignment := Alignment;
-
-  Link.RefreshControl();
-end;
-
 procedure TOLLinkManager.Link(const Edit: TEdit; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
 var
   Link: TEditToOLDouble;
@@ -3750,35 +3717,6 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDouble
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
-  {$IFEND}
-  AddLink(Edit, Link);
-
-  Edit.Alignment := Alignment;
-
-  Link.RefreshControl();
-end;
-
-procedure TOLLinkManager.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
-var
-  Link: TEditToOLCurrency;
-  Observer: TObject;
-  ValueMulticaster: TOLValueMulticaster;
-begin
-  Link := TEditToOLCurrency.Create;
-  Link.FFormat := Format;
-  Link.Edit := Edit;
-  Link.FOLPointer := @curr;
-  {$IF CompilerVersion >= 34.0}
-  // Get or create multicaster for this OLCurrency
-  if not FValueMulticasters.TryGetValue(@curr, Observer) then
-  begin
-    ValueMulticaster := TOLValueMulticaster.Create;
-    FValueMulticasters.Add(@curr, ValueMulticaster);
-  end
-  else
-    ValueMulticaster := Observer as TOLValueMulticaster;
-  curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
   ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
   {$IFEND}
   AddLink(Edit, Link);
@@ -4104,33 +4042,6 @@ begin
   Link.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT);
-var
-  Link: TOLDoubleToLabel;
-  Observer: TObject;
-  ValueMulticaster: TOLValueMulticaster;
-begin
-  Link := TOLDoubleToLabel.Create;
-  Link.FFormat := Format;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @d;
-  {$IF CompilerVersion >= 34.0}
-  // Get or create multicaster for this OLDouble
-  if not FValueMulticasters.TryGetValue(@d, Observer) then
-  begin
-    ValueMulticaster := TOLValueMulticaster.Create;
-    FValueMulticasters.Add(@d, ValueMulticaster);
-  end
-  else
-    ValueMulticaster := Observer as TOLValueMulticaster;
-  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDouble
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
-  {$IFEND}
-  AddLink(Lbl, Link);
-
-  Link.RefreshControl();
-end;
-
 procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT);
 var
   Link: TOLDoubleToLabel;
@@ -4168,33 +4079,6 @@ begin
   Link.Lbl := Lbl;
   Link.Calculation := f;
   Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
-
-  Link.RefreshControl();
-end;
-
-procedure TOLLinkManager.Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT);
-var
-  Link: TOLCurrencyToLabel;
-  Observer: TObject;
-  ValueMulticaster: TOLValueMulticaster;
-begin
-  Link := TOLCurrencyToLabel.Create;
-  Link.FFormat := Format;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @curr;
-  {$IF CompilerVersion >= 34.0}
-  // Get or create multicaster for this OLCurrency
-  if not FValueMulticasters.TryGetValue(@curr, Observer) then
-  begin
-    ValueMulticaster := TOLValueMulticaster.Create;
-    FValueMulticasters.Add(@curr, ValueMulticaster);
-  end
-  else
-    ValueMulticaster := Observer as TOLValueMulticaster;
-  curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
-  {$IFEND}
   AddLink(Lbl, Link);
 
   Link.RefreshControl();
@@ -4366,6 +4250,9 @@ var
   List: TObjectList<TOLControlLink>;
   Timer: TTimer;
   CleanupHook: TComponent;
+  Multicaster: TOLValueMulticaster;
+  MulticastersToRemove: TList<Pointer>;
+  OLIntPtr: POLInteger;
 begin
   if DestroyedForm <> nil then
   begin
@@ -4399,30 +4286,30 @@ begin
           // Find and remove this link from any multicaster
           for var MulticasterPair in FValueMulticasters do
           begin
-            var Multicaster := MulticasterPair.Value as TOLValueMulticaster;
+            Multicaster := MulticasterPair.Value as TOLValueMulticaster;
             Multicaster.RemoveLink(Link);  // Safe to call even if link not in multicaster
           end;
         end;
 
         // Clean up empty multicasters
-        var MulticastersToRemove := TList<Pointer>.Create;
+        MulticastersToRemove := TList<Pointer>.Create;
         try
           for var MulticasterPair in FValueMulticasters do
           begin
-            var Multicaster := MulticasterPair.Value as TOLValueMulticaster;
+            Multicaster := MulticasterPair.Value as TOLValueMulticaster;
             if Multicaster.IsEmpty then
               MulticastersToRemove.Add(MulticasterPair.Key);
           end;
 
           for var OLPointer in MulticastersToRemove do
           begin
-            var Multicaster := FValueMulticasters[OLPointer];
+            Multicaster := FValueMulticasters[OLPointer] as TOLValueMulticaster;
             FValueMulticasters.Remove(OLPointer);
 
             // Set OnChange := nil on the OLInteger variable before freeing multicaster
             // This prevents Access Violations when the variable is reused later
             // All OL types have OnChange at the same offset, so we can use POLInteger
-            var OLIntPtr := POLInteger(OLPointer);
+            OLIntPtr := POLInteger(OLPointer);
             if Assigned(OLIntPtr) then
               OLIntPtr^.OnChange := nil;
 
