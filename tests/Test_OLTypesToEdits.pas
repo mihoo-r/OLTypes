@@ -138,6 +138,7 @@ type
     procedure TestValueChangeTriggersPickerUpdate;
   end;
 
+  {$IF CompilerVersion >= 34.0}
   // Test class for TDateTimePickerToOLDate validation
   TestDateTimePickerToOLDateValidation = class(TTestCase)
   private
@@ -196,20 +197,6 @@ type
     procedure TestValidationPass;
   end;
 
-  // Test class for TCheckBoxToOLBoolean binding
-  TestCheckBoxToOLBoolean = class(TTestCase)
-  private
-    FCheckBox: TCheckBox;
-    FForm: TestForm;
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure TestCheckBoxToValueSync;
-    procedure TestValueToCheckBoxSync;
-    procedure TestNullHandling;
-  end;
-
   TestCheckBoxToOLBooleanValidation = class(TTestCase)
   private
     FCheckBox: TCheckBox;
@@ -222,6 +209,21 @@ type
     procedure TestValidationFail;
     procedure TestValidationPass;
     procedure TestValueNotUpdatedOnFail;
+  end;
+  {$IFEND}
+
+  // Test class for TCheckBoxToOLBoolean binding
+  TestCheckBoxToOLBoolean = class(TTestCase)
+  private
+    FCheckBox: TCheckBox;
+    FForm: TestForm;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestCheckBoxToValueSync;
+    procedure TestValueToCheckBoxSync;
+    procedure TestNullHandling;
   end;
 
   // Test class for TOLTypesToControlsLinks (integration tests)
@@ -270,7 +272,13 @@ type
 implementation
 
 uses
-  DateUtils, Vcl.Graphics;
+  DateUtils,
+
+  {$IF CompilerVersion >= 23.0}
+    Vcl.Graphics;
+  {$ELSE}
+    Graphics;
+  {$IFEND}
 
 procedure WaitForTimers();
 begin
@@ -501,7 +509,7 @@ procedure TestEditToOLCurrency.TestDecimalPrecision;
 begin
   // Currency should limit decimal places
   FEdit.Text := '123.456789';
-  
+
   // Should be limited to 4 decimal places during edit
   CheckTrue(True, 'Decimal precision test - check manually');
 end;
@@ -635,7 +643,7 @@ begin
   WaitForTimers();
 
   CheckEquals(TestDate, FPicker.Date, 'First cycle should work');
-  
+
   // Second cycle - simulate reopening form
   Picker2 := TDateTimePicker.Create(FForm);
   Picker2.Parent := FForm;
@@ -654,7 +662,7 @@ begin
 
   CheckEquals(TestDate, Picker2.Date,
     'Second cycle: value change should update picker');
-  
+
   Picker2.Free;
 end;
 
@@ -755,7 +763,7 @@ begin
   WaitForTimers();
 
   CheckEquals(TestDateTime, FPicker.DateTime, 0.001, 'First cycle should work');
-  
+
   // Second cycle - simulate reopening form
   Picker2 := TDateTimePicker.Create(FForm);
   Picker2.Parent := FForm;
@@ -778,9 +786,9 @@ begin
   FForm.FDateTime := TestDateTime;
   WaitForTimers();
 
-  CheckEquals(TestDateTime, Picker2.DateTime, 0.001, 
+  CheckEquals(TestDateTime, Picker2.DateTime, 0.001,
     'Second cycle: value change should update picker');
-  
+
   Picker2.Free;
 end;
 
@@ -803,6 +811,8 @@ begin
     'Second update should work - this was failing when OnChange was not set');
 end;
 
+
+{$IF CompilerVersion >= 34.0}
 { TestDateTimePickerToOLDateValidation }
 
 function TestDateTimePickerToOLDateValidation.MustBeFutureDate(d: OLDate): TOLValidationResult;
@@ -1091,55 +1101,6 @@ begin
   CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
 end;
 
-{ TestCheckBoxToOLBoolean }
-
-procedure TestCheckBoxToOLBoolean.SetUp;
-begin
-   FForm := TestForm.CreateNew(nil, 0);
-   FCheckBox := TCheckBox.Create(FForm);
-   FCheckBox.Parent := FForm;
-   FForm.FBoolean := True;
-  FCheckBox.Link(FForm.FBoolean);
-end;
-
-procedure TestCheckBoxToOLBoolean.TearDown;
-begin
-  Links.RemoveLinks(FForm);
-  FForm.Free;
-end;
-
-procedure TestCheckBoxToOLBoolean.TestCheckBoxToValueSync;
-begin
-  FCheckBox.Checked := True;
-
-  CheckTrue(FForm.FBoolean = True, 'Value should be TRUE when checked');
-
-  FCheckBox.Checked := False;
-
-  CheckTrue(FForm.FBoolean = False, 'Value should be FALSE when unchecked');
-end;
-
-procedure TestCheckBoxToOLBoolean.TestValueToCheckBoxSync;
-begin
-  FForm.FBoolean := True;
-  WaitForTimers();
-
-  CheckTrue(FCheckBox.Checked, 'CheckBox should be checked when value is TRUE');
-
-  FForm.FBoolean := False;
-  WaitForTimers();
-
-  CheckFalse(FCheckBox.Checked, 'CheckBox should be unchecked when value is FALSE');
-end;
-
-procedure TestCheckBoxToOLBoolean.TestNullHandling;
-begin
-  FForm.FBoolean := Null;
-  WaitForTimers();
-
-  // NULL Boolean should display as unchecked (IfNull(False))
-  CheckFalse(FCheckBox.Checked, 'NULL should display as unchecked');
-end;
 
 { TestCheckBoxToOLBooleanValidation }
 
@@ -1226,6 +1187,58 @@ begin
   CheckTrue(FForm.FBoolean, 'Value should not be updated on validation fail');
 end;
 
+{$IFEND}
+
+{ TestCheckBoxToOLBoolean }
+
+procedure TestCheckBoxToOLBoolean.SetUp;
+begin
+   FForm := TestForm.CreateNew(nil, 0);
+   FCheckBox := TCheckBox.Create(FForm);
+   FCheckBox.Parent := FForm;
+   FForm.FBoolean := True;
+  FCheckBox.Link(FForm.FBoolean);
+end;
+
+procedure TestCheckBoxToOLBoolean.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestCheckBoxToOLBoolean.TestCheckBoxToValueSync;
+begin
+  FCheckBox.Checked := True;
+
+  CheckTrue(FForm.FBoolean = True, 'Value should be TRUE when checked');
+
+  FCheckBox.Checked := False;
+
+  CheckTrue(FForm.FBoolean = False, 'Value should be FALSE when unchecked');
+end;
+
+procedure TestCheckBoxToOLBoolean.TestValueToCheckBoxSync;
+begin
+  FForm.FBoolean := True;
+  WaitForTimers();
+
+  CheckTrue(FCheckBox.Checked, 'CheckBox should be checked when value is TRUE');
+
+  FForm.FBoolean := False;
+  WaitForTimers();
+
+  CheckFalse(FCheckBox.Checked, 'CheckBox should be unchecked when value is FALSE');
+end;
+
+procedure TestCheckBoxToOLBoolean.TestNullHandling;
+begin
+  FForm.FBoolean := Null;
+  WaitForTimers();
+
+  // NULL Boolean should display as unchecked (IfNull(False))
+  CheckFalse(FCheckBox.Checked, 'NULL should display as unchecked');
+end;
+
 { TestOLTypesToControlsLinks }
 
 procedure TestOLTypesToControlsLinks.SetUp;
@@ -1289,9 +1302,9 @@ begin
     begin
       Result := FForm.FInt * 2;
     end;
-  
+
   FLabel1.Link(Calc);
-  
+
   CheckEquals('200', FLabel1.Caption, 'Label should display calculated value');
 end;
 
@@ -1417,9 +1430,9 @@ begin
     begin
       raise Exception.Create('Test error');
     end;
-  
+
   FLabel1.Link(Calc, 'CUSTOM_ERROR');
-  
+
   CheckEquals('CUSTOM_ERROR', FLabel1.Caption, 'Error in calculation should display custom error message');
 end;
 
@@ -1447,15 +1460,15 @@ begin
   Edit2.Parent := FForm;
   Edit3 := TEdit.Create(FForm);
   Edit3.Parent := FForm;
-  
+
   Value := 100;
-  
+
   Links.Link(Edit1, Value);
   Links.Link(Edit2, Value);
   Links.Link(Edit3, Value);
-  
+
   Links.RemoveLinks(FForm);
-  
+
   // Should not crash
   CheckTrue(True, 'Multiple link removal successful');
 end;
@@ -1468,13 +1481,13 @@ begin
   Edit := TEdit.Create(FForm);
   Edit.Parent := FForm;
   Value := 100;
-  
+
   Links.Link(Edit, Value);
   Links.RemoveLinks(FForm);
-  
+
   // Should not crash even after removal
   Links.RefreshControls(FForm);
-  
+
   CheckTrue(True, 'Refresh after removal does not crash');
 end;
 
@@ -1489,13 +1502,13 @@ begin
     Edit := TEdit.Create(TestForm);
     Edit.Parent := TestForm;
     Value := 100;
-    
+
     Links.Link(Edit, Value);
     Links.RemoveLinks(TestForm);
   finally
     TestForm.Free;
   end;
-  
+
   CheckTrue(True, 'Form destruction with proper cleanup successful');
 end;
 
@@ -1513,11 +1526,13 @@ initialization
   RegisterTest(TestDateTimePickerToOLDate.Suite);
   RegisterTest(TestDateTimePickerToOLDateTime.Suite);
   RegisterTest(TestCheckBoxToOLBoolean.Suite);
+  {$IF CompilerVersion >= 34.0}
   RegisterTest(TestCheckBoxToOLBooleanValidation.Suite);
   RegisterTest(TestDateTimePickerToOLDateValidation.Suite);
   RegisterTest(TestDateTimePickerToOLDateTimeValidation.Suite);
   RegisterTest(TestOLDateToLabelValidation.Suite);
   RegisterTest(TestOLDateTimeToLabelValidation.Suite);
+  {$IFEND}
   RegisterTest(TestOLTypesToControlsLinks.Suite);
   RegisterTest(TestMemorySafety.Suite);
 
