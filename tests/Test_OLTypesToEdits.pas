@@ -1,4 +1,4 @@
-unit Test_OLTypesToEdits;
+﻿unit Test_OLTypesToEdits;
 
 interface
 
@@ -138,6 +138,64 @@ type
     procedure TestValueChangeTriggersPickerUpdate;
   end;
 
+  // Test class for TDateTimePickerToOLDate validation
+  TestDateTimePickerToOLDateValidation = class(TTestCase)
+  private
+    FPicker: TDateTimePicker;
+    FForm: TestForm;
+    function MustBeFutureDate(d: OLDate): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+    procedure TestValueNotUpdatedOnFail;
+  end;
+
+  // Test class for TDateTimePickerToOLDateTime validation
+  TestDateTimePickerToOLDateTimeValidation = class(TTestCase)
+  private
+    FPicker: TDateTimePicker;
+    FForm: TestForm;
+    function MustBeFutureDateTime(dt: OLDateTime): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+    procedure TestValueNotUpdatedOnFail;
+  end;
+
+  // Test class for TOLDateToLabel validation
+  TestOLDateToLabelValidation = class(TTestCase)
+  private
+    FLabel: TLabel;
+    FForm: TestForm;
+    function MustBeFutureDate(d: OLDate): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+  end;
+
+  // Test class for TOLDateTimeToLabel validation
+  TestOLDateTimeToLabelValidation = class(TTestCase)
+  private
+    FLabel: TLabel;
+    FForm: TestForm;
+    function MustBeFutureDateTime(dt: OLDateTime): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+  end;
+
   // Test class for TCheckBoxToOLBoolean binding
   TestCheckBoxToOLBoolean = class(TTestCase)
   private
@@ -150,6 +208,20 @@ type
     procedure TestCheckBoxToValueSync;
     procedure TestValueToCheckBoxSync;
     procedure TestNullHandling;
+  end;
+
+  TestCheckBoxToOLBooleanValidation = class(TTestCase)
+  private
+    FCheckBox: TCheckBox;
+    FForm: TestForm;
+    function MustBeChecked(b: OLBoolean): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+    procedure TestValueNotUpdatedOnFail;
   end;
 
   // Test class for TOLTypesToControlsLinks (integration tests)
@@ -198,7 +270,7 @@ type
 implementation
 
 uses
-  DateUtils;
+  DateUtils, Vcl.Graphics;
 
 procedure WaitForTimers();
 begin
@@ -731,6 +803,294 @@ begin
     'Second update should work - this was failing when OnChange was not set');
 end;
 
+{ TestDateTimePickerToOLDateValidation }
+
+function TestDateTimePickerToOLDateValidation.MustBeFutureDate(d: OLDate): TOLValidationResult;
+begin
+  if d.IfNull(EncodeDate(1900, 1, 1)) > Date then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('Date must be in the future');
+end;
+
+procedure TestDateTimePickerToOLDateValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FPicker := TDateTimePicker.Create(FForm);
+  FPicker.Parent := FForm;
+  FPicker.Format := 'dd/MM/yyyy';
+  FPicker.Date := OLDate.Today.IncYear(10); // Future date
+  FForm.FDate := OLDate.Today.IncYear(10); // Future date
+  Links.Link(FPicker, FForm.FDate, MustBeFutureDate);
+end;
+
+procedure TestDateTimePickerToOLDateValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestDateTimePickerToOLDateValidation.TestValidationFail;
+var
+  InitialComponentCount: Integer;
+  i: Integer;
+  WarningLabel: TLabel;
+begin
+  InitialComponentCount := FForm.ComponentCount;
+
+  FPicker.Date := EncodeDate(2020, 1, 1); // Past date
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+
+  CheckEquals(InitialComponentCount + 1, FForm.ComponentCount, 'A new label component should be added');
+
+  WarningLabel := nil;
+  for i := 0 to FForm.ComponentCount - 1 do
+    if FForm.Components[i] is TLabel then
+      if (FForm.Components[i] as TLabel).Caption = '⚠' then
+      begin
+        WarningLabel := FForm.Components[i] as TLabel;
+        break;
+      end;
+
+  Check(Assigned(WarningLabel), 'Warning label should be found');
+  if Assigned(WarningLabel) then
+  begin
+    Check(WarningLabel.Visible, 'Warning label should be visible');
+    CheckEquals('Date must be in the future', WarningLabel.Hint, 'Hint should be set on validation fail');
+  end;
+end;
+
+procedure TestDateTimePickerToOLDateValidation.TestValidationPass;
+var
+  ComponentCountBeforePass: Integer;
+begin
+  // First, fail validation to create the label
+  FPicker.Date := EncodeDate(2020, 1, 1);
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+  ComponentCountBeforePass := FForm.ComponentCount;
+
+  // Now, pass validation
+  FPicker.Date := EncodeDate(2030, 1, 1);
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+
+  CheckEquals(ComponentCountBeforePass - 1, FForm.ComponentCount, 'Warning label component should be removed');
+end;
+
+procedure TestDateTimePickerToOLDateValidation.TestValueNotUpdatedOnFail;
+begin
+  FForm.FDate := EncodeDate(2026, 1, 1); // Start with a valid value
+  FPicker.Date := EncodeDate(2020, 1, 1);
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+
+  CheckEquals(EncodeDate(2026, 1, 1), TDate(FForm.FDate), 'Value should not be updated on validation fail');
+end;
+
+{ TestDateTimePickerToOLDateTimeValidation }
+
+function TestDateTimePickerToOLDateTimeValidation.MustBeFutureDateTime(dt: OLDateTime): TOLValidationResult;
+begin
+  if dt.IfNull(EncodeDate(1900, 1, 1)) > Now then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('DateTime must be in the future');
+end;
+
+procedure TestDateTimePickerToOLDateTimeValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FPicker := TDateTimePicker.Create(FForm);
+  FPicker.Parent := FForm;
+  FPicker.Format := 'dd/MM/yyyy HH:mm:ss';
+  {$IF CompilerVersion >= 23.0} // XE2+
+    FPicker.Kind := dtkDateTime;
+  {$ELSE}
+    // Delphi 2010: there is no dtkDateTime
+    FPicker.Kind := dtkTime;
+  {$IFEND}
+  FForm.FDateTime := Now + 1; // Future datetime
+  FPicker.DateTime := Now + 1;
+  Links.Link(FPicker, FForm.FDateTime, MustBeFutureDateTime);
+end;
+
+procedure TestDateTimePickerToOLDateTimeValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestDateTimePickerToOLDateTimeValidation.TestValidationFail;
+var
+  InitialComponentCount: Integer;
+  i: Integer;
+  WarningLabel: TLabel;
+begin
+  InitialComponentCount := FForm.ComponentCount;
+
+  FPicker.DateTime := Now - 1; // Past datetime
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+
+  CheckEquals(InitialComponentCount + 1, FForm.ComponentCount, 'A new label component should be added');
+
+  WarningLabel := nil;
+  for i := 0 to FForm.ComponentCount - 1 do
+    if FForm.Components[i] is TLabel then
+      if (FForm.Components[i] as TLabel).Caption = '⚠' then
+      begin
+        WarningLabel := FForm.Components[i] as TLabel;
+        break;
+      end;
+
+  Check(Assigned(WarningLabel), 'Warning label should be found');
+  if Assigned(WarningLabel) then
+  begin
+    Check(WarningLabel.Visible, 'Warning label should be visible');
+    CheckEquals('DateTime must be in the future', WarningLabel.Hint, 'Hint should be set on validation fail');
+  end;
+end;
+
+procedure TestDateTimePickerToOLDateTimeValidation.TestValidationPass;
+var
+  ComponentCountBeforePass: Integer;
+begin
+  // First, fail validation to create the label
+  FPicker.DateTime := Now - 1;
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+  ComponentCountBeforePass := FForm.ComponentCount;
+
+  // Now, pass validation
+  FPicker.DateTime := Now + 2;
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+
+  CheckEquals(ComponentCountBeforePass - 1, FForm.ComponentCount, 'Warning label component should be removed');
+end;
+
+procedure TestDateTimePickerToOLDateTimeValidation.TestValueNotUpdatedOnFail;
+begin
+  FForm.FDateTime := Now + 1; // Start with a valid value
+  FPicker.DateTime := Now - 1;
+  FPicker.OnChange(FPicker);
+  WaitForTimers;
+
+  CheckTrue(TDateTime(FForm.FDateTime) > Now, 'Value should not be updated on validation fail');
+end;
+
+{ TestOLDateToLabelValidation }
+
+function TestOLDateToLabelValidation.MustBeFutureDate(d: OLDate): TOLValidationResult;
+begin
+  if d.IfNull(EncodeDate(1900, 1, 1)) > Date then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('Date must be in the future');
+end;
+
+procedure TestOLDateToLabelValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FLabel := TLabel.Create(FForm);
+  FLabel.Parent := FForm;
+  FForm.FDate := OLDate.Today.IncYear(10); // Future date
+  Links.Link(FLabel, FForm.FDate, MustBeFutureDate);
+end;
+
+procedure TestOLDateToLabelValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestOLDateToLabelValidation.TestValidationFail;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  FForm.FDate := EncodeDate(2020, 1, 1); // Past date
+  WaitForTimers;
+
+  CheckNotEquals(OriginalColor, FLabel.Font.Color, 'Label color should change on validation fail');
+  CheckEquals(clRed, FLabel.Font.Color, 'Label should be red on validation fail');
+end;
+
+procedure TestOLDateToLabelValidation.TestValidationPass;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  // First, fail validation
+  FForm.FDate := EncodeDate(2020, 1, 1);
+  WaitForTimers;
+
+  // Now, pass validation
+  FForm.FDate := EncodeDate(2030, 1, 1);
+  WaitForTimers;
+
+  CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
+end;
+
+{ TestOLDateTimeToLabelValidation }
+
+function TestOLDateTimeToLabelValidation.MustBeFutureDateTime(dt: OLDateTime): TOLValidationResult;
+begin
+  if dt.IfNull(EncodeDate(1900, 1, 1)) > Now then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('DateTime must be in the future');
+end;
+
+procedure TestOLDateTimeToLabelValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FLabel := TLabel.Create(FForm);
+  FLabel.Parent := FForm;
+  FForm.FDateTime := Now + 1; // Future datetime
+  Links.Link(FLabel, FForm.FDateTime, MustBeFutureDateTime);
+end;
+
+procedure TestOLDateTimeToLabelValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestOLDateTimeToLabelValidation.TestValidationFail;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  FForm.FDateTime := Now - 1; // Past datetime
+  WaitForTimers;
+
+  CheckNotEquals(OriginalColor, FLabel.Font.Color, 'Label color should change on validation fail');
+  CheckEquals(clRed, FLabel.Font.Color, 'Label should be red on validation fail');
+end;
+
+procedure TestOLDateTimeToLabelValidation.TestValidationPass;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  // First, fail validation
+  FForm.FDateTime := Now - 1;
+  WaitForTimers;
+
+  // Now, pass validation
+  FForm.FDateTime := Now + 2;
+  WaitForTimers;
+
+  CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
+end;
+
 { TestCheckBoxToOLBoolean }
 
 procedure TestCheckBoxToOLBoolean.SetUp;
@@ -779,6 +1139,91 @@ begin
 
   // NULL Boolean should display as unchecked (IfNull(False))
   CheckFalse(FCheckBox.Checked, 'NULL should display as unchecked');
+end;
+
+{ TestCheckBoxToOLBooleanValidation }
+
+function TestCheckBoxToOLBooleanValidation.MustBeChecked(b: OLBoolean): TOLValidationResult;
+begin
+  if b.IfNull(False) then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('Must be checked');
+end;
+
+procedure TestCheckBoxToOLBooleanValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FCheckBox := TCheckBox.Create(FForm);
+  FCheckBox.Parent := FForm;
+  FCheckBox.Caption := 'Test CheckBox';
+  FForm.FBoolean := true;
+  Links.Link(FCheckBox, FForm.FBoolean, MustBeChecked);
+end;
+
+procedure TestCheckBoxToOLBooleanValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestCheckBoxToOLBooleanValidation.TestValidationFail;
+var
+  InitialComponentCount: Integer;
+  i: Integer;
+  WarningLabel: TLabel;
+begin
+  InitialComponentCount := FForm.ComponentCount;
+
+  FCheckBox.Checked := False;
+  FCheckBox.OnClick(FCheckBox);
+  WaitForTimers;
+
+  CheckEquals(InitialComponentCount + 1, FForm.ComponentCount, 'A new label component should be added');
+
+  WarningLabel := nil;
+  for i := 0 to FForm.ComponentCount - 1 do
+    if FForm.Components[i] is TLabel then
+      if (FForm.Components[i] as TLabel).Caption = '⚠' then
+      begin
+        WarningLabel := FForm.Components[i] as TLabel;
+        break;
+      end;
+
+  Check(Assigned(WarningLabel), 'Warning label should be found');
+  if Assigned(WarningLabel) then
+  begin
+    Check(WarningLabel.Visible, 'Warning label should be visible');
+    CheckEquals('Must be checked', WarningLabel.Hint, 'Hint should be set on validation fail');
+  end;
+end;
+
+procedure TestCheckBoxToOLBooleanValidation.TestValidationPass;
+var
+  ComponentCountBeforePass: Integer;
+begin
+  // First, fail validation to create the label
+  FCheckBox.Checked := False;
+  FCheckBox.OnClick(FCheckBox);
+  WaitForTimers;
+  ComponentCountBeforePass := FForm.ComponentCount;
+
+  // Now, pass validation
+  FCheckBox.Checked := True;
+  FCheckBox.OnClick(FCheckBox);
+  WaitForTimers;
+
+  CheckEquals(ComponentCountBeforePass - 1, FForm.ComponentCount, 'Warning label component should be removed');
+end;
+
+procedure TestCheckBoxToOLBooleanValidation.TestValueNotUpdatedOnFail;
+begin
+  FForm.FBoolean := True; // Start with a valid value
+  FCheckBox.Checked := False;
+  FCheckBox.OnClick(FCheckBox);
+  WaitForTimers;
+
+  CheckTrue(FForm.FBoolean, 'Value should not be updated on validation fail');
 end;
 
 { TestOLTypesToControlsLinks }
@@ -1068,6 +1513,11 @@ initialization
   RegisterTest(TestDateTimePickerToOLDate.Suite);
   RegisterTest(TestDateTimePickerToOLDateTime.Suite);
   RegisterTest(TestCheckBoxToOLBoolean.Suite);
+  RegisterTest(TestCheckBoxToOLBooleanValidation.Suite);
+  RegisterTest(TestDateTimePickerToOLDateValidation.Suite);
+  RegisterTest(TestDateTimePickerToOLDateTimeValidation.Suite);
+  RegisterTest(TestOLDateToLabelValidation.Suite);
+  RegisterTest(TestOLDateTimeToLabelValidation.Suite);
   RegisterTest(TestOLTypesToControlsLinks.Suite);
   RegisterTest(TestMemorySafety.Suite);
 
