@@ -203,6 +203,7 @@ type
 
     /// <summary>
     ///   Returns the day number within the week (ISO 8601).
+    ///  1 as Monday, 7 as Sunday.
     /// </summary>
     function DayOfTheWeek(): OLInteger; { ISO 8601 }
 
