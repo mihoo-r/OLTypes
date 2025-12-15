@@ -269,6 +269,7 @@ type
     procedure TestFormDestruction;
   end;
 
+  {$IF CompilerVersion >= 34.0}
   // Test class for TForm.IsValid method
   TestFormIsValid = class(TTestCase)
   private
@@ -287,7 +288,6 @@ type
     procedure TestFormIsValidWhenOneInvalid;
   end;
 
-  {$IF CompilerVersion >= 34.0}
   TestEditIsValid = class(TTestCase)
   private
     FForm: TestForm;
@@ -1613,6 +1613,8 @@ begin
    inherited CreateNew(AOwner, Dummy);
  end;
 
+
+{$IF CompilerVersion >= 34.0}
 { TestFormIsValid }
 
 procedure TestFormIsValid.SetUp;
@@ -1674,7 +1676,6 @@ begin
   CheckFalse(FForm.IsValid, 'Form should be invalid when at least one linked control is invalid');
 end;
 
-{$IF CompilerVersion >= 34.0}
 { TestEditIsValid }
 
 procedure TestEditIsValid.SetUp;
@@ -1939,8 +1940,8 @@ end;
   {$IFEND}
   RegisterTest(TestOLTypesToControlsLinks.Suite);
   RegisterTest(TestMemorySafety.Suite);
-  RegisterTest(TestFormIsValid.Suite);
   {$IF CompilerVersion >= 34.0}
+  RegisterTest(TestFormIsValid.Suite);
   RegisterTest(TestEditIsValid.Suite);
   RegisterTest(TestTrackBarIsValid.Suite);
   RegisterTest(TestMemoIsValid.Suite);
