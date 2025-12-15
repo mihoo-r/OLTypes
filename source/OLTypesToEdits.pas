@@ -32,7 +32,6 @@ type
     constructor Create; reintroduce;
     procedure RefreshControl; virtual; abstract;
     function NeedsTimer: Boolean; virtual;
-    function GetCurrentValidationResult: TOLValidationResult; virtual;
     procedure ShowValidationState(vr: TOLValidationResult); virtual;
     property Control: TControl read FControl write FControl;
   end;
@@ -66,7 +65,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -106,7 +104,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
 
     property Edit: TSpinEdit read FEdit write SetEdit;
@@ -143,7 +140,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
     property Edit: TScrollBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -177,7 +173,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
     property Edit: TTrackBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
@@ -374,7 +369,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(d: OLDate): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
@@ -423,7 +417,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(dt: OLDateTime): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
     property Edit: TDateTimePicker read FEdit write SetEdit;
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
@@ -642,7 +635,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(d: OLDate): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
     function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
@@ -680,7 +672,6 @@ type
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(dt: OLDateTime): TOLValidationResult;
-    function GetCurrentValidationResult: TOLValidationResult; override;
     {$IFEND}
     function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
@@ -985,11 +976,6 @@ begin
     vr := TOLValidationResult.Ok();
 
   Result := vr;
-end;
-
-function TEditToOLInteger.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := ValueIsValid(OLPointer^);
 end;
 
 procedure TEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
@@ -2030,13 +2016,6 @@ end;
 {$IFEND}
 
 {$IF CompilerVersion >= 34.0}
-function TSpinEditToOLInteger.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := ValueIsValid(OLPointer^);
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
 procedure TSpinEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -2083,10 +2062,6 @@ begin
   Result := false;
 end;
 
-function TOLControlLink.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := TOLValidationResult.Ok;
-end;
 
 procedure TOLControlLink.ShowValidationState(vr: TOLValidationResult);
 begin
@@ -2368,13 +2343,6 @@ begin
     vr := TOLValidationResult.Ok();
 
   Result := vr;
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
-function TDateTimePickerToOLDate.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := ValueIsValid(OLPointer^);
 end;
 {$IFEND}
 
@@ -2695,13 +2663,6 @@ begin
     vr := TOLValidationResult.Ok();
 
   Result := vr;
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
-function TDateTimePickerToOLDateTime.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := ValueIsValid(OLPointer^);
 end;
 {$IFEND}
 
@@ -3509,13 +3470,6 @@ end;
 {$IFEND}
 
 {$IF CompilerVersion >= 34.0}
-function TOLDateToLabel.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := ValueIsValid(OLPointer^);
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
 procedure TOLDateToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if Assigned(FLabel) then
@@ -3632,13 +3586,6 @@ begin
     vr := TOLValidationResult.Ok();
 
   Result := vr;
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
-function TOLDateTimeToLabel.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := ValueIsValid(OLPointer^);
 end;
 {$IFEND}
 
@@ -3769,13 +3716,6 @@ end;
 {$IFEND}
 
 {$IF CompilerVersion >= 34.0}
-function TScrollBarToOLInteger.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := ValueIsValid(OLPointer^);
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
 procedure TScrollBarToOLInteger.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
@@ -3861,13 +3801,6 @@ begin
   end;
   inherited;
 end;
-
-{$IF CompilerVersion >= 34.0}
-function TTrackBarToOLInteger.GetCurrentValidationResult: TOLValidationResult;
-begin
-  Result := inherited GetCurrentValidationResult;
-end;
-{$IFEND}
 
 procedure TTrackBarToOLInteger.NewOnChange(Sender: TObject);
 begin
