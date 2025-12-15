@@ -351,6 +351,21 @@ type
   end;
   {$IFEND}
 
+  {$IF CompilerVersion >= 34.0}
+  // Test class for TForm.ShowValidationState method
+  TestFormShowValidationState = class(TTestCase)
+  private
+    FForm: TestForm;
+    FEdit: TEdit;
+    FValue: OLInteger;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestUpdatesVisuals;
+  end;
+  {$IFEND}
+
 implementation
 
 uses
@@ -1865,6 +1880,47 @@ begin
 end;
 {$IFEND}
 
+{$IF CompilerVersion >= 34.0}
+{ TestFormShowValidationState }
+
+procedure TestFormShowValidationState.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FValue := 10;
+
+  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+    begin
+      if i >= 0 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be positive', clRed);
+    end);
+end;
+
+procedure TestFormShowValidationState.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestFormShowValidationState.TestUpdatesVisuals;
+begin
+  FValue := -5;
+  // Manually reset visual state to ensure ShowValidationState does the work
+  FEdit.Color := clWindow;
+  FEdit.Hint := '';
+  FEdit.ShowHint := False;
+
+  FForm.ShowValidationState;
+
+  CheckEquals(clRed, FEdit.Color, 'Edit color should be updated by ShowValidationState');
+  CheckEquals('Must be positive', FEdit.Hint, 'Edit hint should be updated');
+  CheckTrue(FEdit.ShowHint, 'Edit should show hint');
+end;
+{$IFEND}
+
  initialization
   RegisterTest(TestEditToOLInteger.Suite);
   RegisterTest(TestEditToOLString.Suite);
@@ -1881,14 +1937,15 @@ end;
   RegisterTest(TestOLDateToLabelValidation.Suite);
   RegisterTest(TestOLDateTimeToLabelValidation.Suite);
   {$IFEND}
-   RegisterTest(TestOLTypesToControlsLinks.Suite);
-    RegisterTest(TestMemorySafety.Suite);
-    RegisterTest(TestFormIsValid.Suite);
-    {$IF CompilerVersion >= 34.0}
-    RegisterTest(TestEditIsValid.Suite);
-    RegisterTest(TestTrackBarIsValid.Suite);
-    RegisterTest(TestMemoIsValid.Suite);
-    RegisterTest(TestCheckBoxIsValid.Suite);
-    {$IFEND}
+  RegisterTest(TestOLTypesToControlsLinks.Suite);
+  RegisterTest(TestMemorySafety.Suite);
+  RegisterTest(TestFormIsValid.Suite);
+  {$IF CompilerVersion >= 34.0}
+  RegisterTest(TestEditIsValid.Suite);
+  RegisterTest(TestTrackBarIsValid.Suite);
+  RegisterTest(TestMemoIsValid.Suite);
+  RegisterTest(TestCheckBoxIsValid.Suite);
+  RegisterTest(TestFormShowValidationState.Suite);
+  {$IFEND}
 
  end.
