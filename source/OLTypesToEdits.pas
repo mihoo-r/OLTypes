@@ -1026,7 +1026,6 @@ end;
 
 procedure TOLEditLink<T>.NewOnExit(Sender: TObject);
 begin
-  RefreshControl;
   if Assigned(FEditOnExit) then
     FEditOnExit(Sender);
 end;
@@ -1430,8 +1429,6 @@ end;
 
 procedure TEditToOLDouble.NewOnExit(Sender: TObject);
 begin
-  RefreshControl;
-
   if Assigned(FEditOnExit) then
     FEditOnExit(Sender);
 end;
@@ -1646,8 +1643,6 @@ end;
 
 procedure TEditToOLCurrency.NewOnExit(Sender: TObject);
 begin
-  RefreshControl;
-
   if Assigned(FEditOnExit) then
     FEditOnExit(Sender);
 end;
@@ -1871,8 +1866,6 @@ end;
 
 procedure TSpinEditToOLInteger.NewOnExit(Sender: TObject);
 begin
-  RefreshControl;
-
   if Assigned(FEditOnExit) then
     FEditOnExit(Sender);
 end;
