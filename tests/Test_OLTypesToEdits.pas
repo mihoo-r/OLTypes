@@ -441,10 +441,10 @@ end;
 
 procedure TestEditToOLString.SetUp;
 begin
-   FForm := TestForm.CreateNew(nil, 0);
-   FEdit := TEdit.Create(FForm);
-   FEdit.Parent := FForm;
-   FForm.FString := 'Initial Value';
+  FForm := TestForm.CreateNew(nil, 0);
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FForm.FString := 'Initial Value';
   FEdit.Link(FForm.FString);
 end;
 
@@ -493,8 +493,7 @@ begin
 
   CheckEquals('', FEdit.Text, 'NULL should display as empty string');
 
-  //When you see it in an Edit, that it is an empty string it is no longer unknown, Null.
-  CheckTrue(FForm.FString.IsEmptyStr, 'Value should be an empty string');
+  CheckTrue(FForm.FString.IsNull, 'Value should be an Null');
 end;
 
 procedure TestEditToOLString.TestSpecialCharacters;
