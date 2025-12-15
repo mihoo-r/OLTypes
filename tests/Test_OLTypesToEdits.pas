@@ -269,6 +269,88 @@ type
     procedure TestFormDestruction;
   end;
 
+  // Test class for TForm.IsValid method
+  TestFormIsValid = class(TTestCase)
+  private
+    FForm: TestForm;
+    FEdit: TEdit;
+    FValue: OLInteger;
+    FCheckBox: TCheckBox;
+    FBooleanValue: OLBoolean;
+    FMemo: TMemo;
+    FStringValue: OLString;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestFormIsValidWhenAllValid;
+    procedure TestFormIsValidWhenOneInvalid;
+  end;
+
+  {$IF CompilerVersion >= 34.0}
+  TestEditIsValid = class(TTestCase)
+  private
+    FForm: TestForm;
+    FEdit: TEdit;
+    FValue: OLInteger;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestIsValidWhenValid;
+    procedure TestIsValidWhenInvalid;
+    procedure TestIsValidWithoutValidation;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 34.0}
+  TestTrackBarIsValid = class(TTestCase)
+  private
+    FForm: TestForm;
+    FTrackBar: TTrackBar;
+    FValue: OLInteger;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestIsValidWhenValid;
+    procedure TestIsValidWhenInvalid;
+    procedure TestIsValidWithoutValidation;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 34.0}
+  TestMemoIsValid = class(TTestCase)
+  private
+    FForm: TestForm;
+    FMemo: TMemo;
+    FValue: OLString;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestIsValidWhenValid;
+    procedure TestIsValidWhenInvalid;
+    procedure TestIsValidWithoutValidation;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 34.0}
+  TestCheckBoxIsValid = class(TTestCase)
+  private
+    FForm: TestForm;
+    FCheckBox: TCheckBox;
+    FValue: OLBoolean;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestIsValidWhenValid;
+    procedure TestIsValidWhenInvalid;
+    procedure TestIsValidWithoutValidation;
+  end;
+  {$IFEND}
+
 implementation
 
 uses
@@ -1509,15 +1591,282 @@ begin
     TestForm.Free;
   end;
 
-  CheckTrue(True, 'Form destruction with proper cleanup successful');
-end;
+   CheckTrue(True, 'Form destruction with proper cleanup successful');
+ end;
 
-constructor TestForm.CreateNew(AOwner: TComponent; Dummy: Integer);
+ constructor TestForm.CreateNew(AOwner: TComponent; Dummy: Integer);
+ begin
+   inherited CreateNew(AOwner, Dummy);
+ end;
+
+{ TestFormIsValid }
+
+procedure TestFormIsValid.SetUp;
 begin
-  inherited CreateNew(AOwner, Dummy);
+  FForm := TestForm.CreateNew(nil, 0);
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FValue := 10;
+  FCheckBox := TCheckBox.Create(FForm);
+  FCheckBox.Parent := FForm;
+  FBooleanValue := True;
+  FMemo := TMemo.Create(FForm);
+  FMemo.Parent := FForm;
+  FStringValue := 'Valid';
+  {$IF CompilerVersion >= 34.0}
+  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+    begin
+      if i < 0 then
+        Result := TOLValidationResult.Error('Must be positive')
+      else
+        Result := TOLValidationResult.Ok;
+    end);
+  Links.Link(FCheckBox, FBooleanValue, function(b: OLBoolean): TOLValidationResult
+    begin
+      if b.IfNull(False) then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be checked');
+    end);
+  Links.Link(FMemo, FStringValue, function(s: OLString): TOLValidationResult
+    begin
+      if Length(s) >= 3 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Too short');
+    end);
+  {$ELSE}
+  Links.Link(FEdit, FValue);
+  Links.Link(FCheckBox, FBooleanValue);
+  Links.Link(FMemo, FStringValue);
+  {$IFEND}
 end;
 
-initialization
+procedure TestFormIsValid.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestFormIsValid.TestFormIsValidWhenAllValid;
+begin
+  FValue := 5;
+  CheckTrue(FForm.IsValid, 'Form should be valid when all linked controls are valid');
+end;
+
+procedure TestFormIsValid.TestFormIsValidWhenOneInvalid;
+begin
+  FValue := -1;
+  CheckFalse(FForm.IsValid, 'Form should be invalid when at least one linked control is invalid');
+end;
+
+{$IF CompilerVersion >= 34.0}
+{ TestEditIsValid }
+
+procedure TestEditIsValid.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FValue := 10;
+end;
+
+procedure TestEditIsValid.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestEditIsValid.TestIsValidWhenValid;
+begin
+  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+    begin
+      if i >= 0 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be non-negative');
+    end);
+  FValue := 5;
+  CheckTrue(FEdit.IsValid, 'Edit should be valid when value meets validation criteria');
+end;
+
+procedure TestEditIsValid.TestIsValidWhenInvalid;
+begin
+  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+    begin
+      if i >= 0 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be non-negative');
+    end);
+  FValue := -1;
+  CheckFalse(FEdit.IsValid, 'Edit should be invalid when value fails validation criteria');
+end;
+
+procedure TestEditIsValid.TestIsValidWithoutValidation;
+begin
+  Links.Link(FEdit, FValue);
+  FValue := 100;
+  CheckTrue(FEdit.IsValid, 'Edit should be valid when linked without validation function');
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+{ TestTrackBarIsValid }
+
+procedure TestTrackBarIsValid.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FTrackBar := TTrackBar.Create(FForm);
+  FTrackBar.Parent := FForm;
+  FTrackBar.Max := 100;
+  FTrackBar.Min := -100;
+  FValue := 50;
+end;
+
+procedure TestTrackBarIsValid.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestTrackBarIsValid.TestIsValidWhenValid;
+begin
+  Links.Link(FTrackBar, FValue, function(i: OLInteger): TOLValidationResult
+    begin
+      if i >= 0 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be non-negative');
+    end);
+  FValue := 25;
+  CheckTrue(FTrackBar.IsValid, 'TrackBar should be valid when value meets validation criteria');
+end;
+
+procedure TestTrackBarIsValid.TestIsValidWhenInvalid;
+begin
+  Links.Link(FTrackBar, FValue, function(i: OLInteger): TOLValidationResult
+    begin
+      if i >= 0 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be non-negative');
+    end);
+  FValue := -10;
+  CheckFalse(FTrackBar.IsValid, 'TrackBar should be invalid when value fails validation criteria');
+end;
+
+procedure TestTrackBarIsValid.TestIsValidWithoutValidation;
+begin
+  Links.Link(FTrackBar, FValue);
+  FValue := 75;
+  CheckTrue(FTrackBar.IsValid, 'TrackBar should be valid when linked without validation function');
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+{ TestMemoIsValid }
+
+procedure TestMemoIsValid.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FMemo := TMemo.Create(FForm);
+  FMemo.Parent := FForm;
+  FValue := 'Test';
+end;
+
+procedure TestMemoIsValid.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestMemoIsValid.TestIsValidWhenValid;
+begin
+  Links.Link(FMemo, FValue, function(s: OLString): TOLValidationResult
+    begin
+      if Length(s) >= 3 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Too short');
+    end);
+  FValue := 'Valid';
+  CheckTrue(FMemo.IsValid, 'Memo should be valid when value meets validation criteria');
+end;
+
+procedure TestMemoIsValid.TestIsValidWhenInvalid;
+begin
+  Links.Link(FMemo, FValue, function(s: OLString): TOLValidationResult
+    begin
+      if Length(s) >= 3 then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Too short');
+    end);
+  FValue := 'Hi';
+  CheckFalse(FMemo.IsValid, 'Memo should be invalid when value fails validation criteria');
+end;
+
+procedure TestMemoIsValid.TestIsValidWithoutValidation;
+begin
+  Links.Link(FMemo, FValue);
+  FValue := 'Any text';
+  CheckTrue(FMemo.IsValid, 'Memo should be valid when linked without validation function');
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+{ TestCheckBoxIsValid }
+
+procedure TestCheckBoxIsValid.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FCheckBox := TCheckBox.Create(FForm);
+  FCheckBox.Parent := FForm;
+  FValue := True;
+end;
+
+procedure TestCheckBoxIsValid.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestCheckBoxIsValid.TestIsValidWhenValid;
+begin
+  Links.Link(FCheckBox, FValue, function(b: OLBoolean): TOLValidationResult
+    begin
+      if b.IfNull(False) then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be checked');
+    end);
+  FValue := True;
+  CheckTrue(FCheckBox.IsValid, 'CheckBox should be valid when value meets validation criteria');
+end;
+
+procedure TestCheckBoxIsValid.TestIsValidWhenInvalid;
+begin
+  Links.Link(FCheckBox, FValue, function(b: OLBoolean): TOLValidationResult
+    begin
+      if b.IfNull(False) then
+        Result := TOLValidationResult.Ok
+      else
+        Result := TOLValidationResult.Error('Must be checked');
+    end);
+  FValue := False;
+  CheckFalse(FCheckBox.IsValid, 'CheckBox should be invalid when value fails validation criteria');
+end;
+
+procedure TestCheckBoxIsValid.TestIsValidWithoutValidation;
+begin
+  Links.Link(FCheckBox, FValue);
+  FValue := False;
+  CheckTrue(FCheckBox.IsValid, 'CheckBox should be valid when linked without validation function');
+end;
+{$IFEND}
+
+ initialization
   RegisterTest(TestEditToOLInteger.Suite);
   RegisterTest(TestEditToOLString.Suite);
   RegisterTest(TestEditToOLDouble.Suite);
@@ -1533,7 +1882,14 @@ initialization
   RegisterTest(TestOLDateToLabelValidation.Suite);
   RegisterTest(TestOLDateTimeToLabelValidation.Suite);
   {$IFEND}
-  RegisterTest(TestOLTypesToControlsLinks.Suite);
-  RegisterTest(TestMemorySafety.Suite);
+   RegisterTest(TestOLTypesToControlsLinks.Suite);
+    RegisterTest(TestMemorySafety.Suite);
+    RegisterTest(TestFormIsValid.Suite);
+    {$IF CompilerVersion >= 34.0}
+    RegisterTest(TestEditIsValid.Suite);
+    RegisterTest(TestTrackBarIsValid.Suite);
+    RegisterTest(TestMemoIsValid.Suite);
+    RegisterTest(TestCheckBoxIsValid.Suite);
+    {$IFEND}
 
-end.
+ end.
