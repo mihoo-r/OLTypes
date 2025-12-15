@@ -447,7 +447,7 @@ type
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
     function ValueIsValid(b: OLBoolean): TOLValidationResult;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     {$IFEND}
     property Edit: TCheckBox read FEdit write SetEdit;
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
