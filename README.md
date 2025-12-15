@@ -10,7 +10,7 @@ The library provides a comprehensive set of features, including:
 
 * **OLTypes (Nullable Primitive Types)**: The core library provides nullable types like OLString, OLDateTime, OLInteger, etc., which are interchangeable with standard Delphi types (String, TDateTime, Integer), but **allow storing Null values**.
 * **Primitive Type Helpers**: Extensions with many additional methods for basic types like Integer, String, etc. (Available from Delphi 2006+).
-* **DataBinding (OLTypesToEdits)**: Automatic binding of OL types to VCL controls for seamless UI synchronization (Available from Delphi XE2+).
+* **DataBinding (OLTypesToEdits)**: Automatic binding of OL types to VCL controls for seamless UI synchronization and **data validation** (Available from Delphi XE2+).
 * **OLArrays** and **OLDictionaries**: Dynamic arrays and dictionaries with helper methods for OL types (Available from Delphi 2009+).
 * **OLRegistry**: Helper functions for Windows Registry operations (Available from Delphi 2006+).
 * **OLThreadRunner**: A tool for running tasks in separate threads (Available from Delphi 2009+).
