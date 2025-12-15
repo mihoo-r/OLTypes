@@ -2686,19 +2686,29 @@ type
        ///   Links the edit control to an OLString variable for two-way data binding.
        /// </summary>
        procedure Link(var s: OLString); overload;
-       {$IFEND}
-   end;
+        {$IFEND}
+         {$IF CompilerVersion >= 34.0}
+         /// <summary>
+         ///   Checks if the edit control has a valid value.
+         /// </summary>
+         function IsValid: Boolean;
+         {$IFEND}
+     end;
 
    /// <summary>
    ///   Helper class for TSpinEdit to enable data binding with OL types.
    /// </summary>
     TOLSpinEditHelper = class helper for TSpinEdit
-      {$IF CompilerVersion >= 34.0}
-      /// <summary>
-      ///   Links the spin edit control to an OLInteger variable for two-way data binding with validation.
-      /// </summary>
-      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
-      {$ELSE}
+       {$IF CompilerVersion >= 34.0}
+       /// <summary>
+       ///   Links the spin edit control to an OLInteger variable for two-way data binding with validation.
+       /// </summary>
+       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+       /// <summary>
+       ///   Checks if the spin edit control has a valid value.
+       /// </summary>
+       function IsValid: Boolean;
+       {$ELSE}
       /// <summary>
       ///   Links the spin edit control to an OLInteger variable for two-way data binding.
       /// </summary>
@@ -2714,7 +2724,11 @@ type
       /// <summary>
       ///   Links the track bar control to an OLInteger variable for two-way data binding with validation.
       /// </summary>
-      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+       /// <summary>
+       ///   Checks if the track bar control has a valid value.
+       /// </summary>
+       function IsValid: Boolean;
       {$ELSE}
       /// <summary>
       ///   Links the track bar control to an OLInteger variable for two-way data binding.
@@ -2727,12 +2741,16 @@ type
    ///   Helper class for TScrollBar to enable data binding with OL types.
    /// </summary>
     TOLScrollBarHelper = class helper for TScrollBar
-      {$IF CompilerVersion >= 34.0}
-      /// <summary>
-      ///   Links the scroll bar control to an OLInteger variable for two-way data binding with validation.
-      /// </summary>
-      procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
-      {$ELSE}
+       {$IF CompilerVersion >= 34.0}
+       /// <summary>
+       ///   Links the scroll bar control to an OLInteger variable for two-way data binding with validation.
+       /// </summary>
+       procedure Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+       /// <summary>
+       ///   Checks if the scroll bar control has a valid value.
+       /// </summary>
+       function IsValid: Boolean;
+       {$ELSE}
       /// <summary>
       ///   Links the scroll bar control to an OLInteger variable for two-way data binding.
       /// </summary>
@@ -2753,9 +2771,15 @@ type
       /// <summary>
       ///   Links the memo control to an OLString variable for two-way data binding.
       /// </summary>
-      procedure Link(var s: OLString); overload;
-      {$IFEND}
-    end;
+        procedure Link(var s: OLString); overload;
+        {$IFEND}
+        {$IF CompilerVersion >= 34.0}
+        /// <summary>
+        ///   Checks if the memo control has a valid value.
+        /// </summary>
+        function IsValid: Boolean;
+        {$IFEND}
+     end;
 
    /// <summary>
    ///   Helper class for TDateTimePicker to enable data binding with OL types.
@@ -2766,11 +2790,15 @@ type
      ///   Links the date/time picker control to an OLDate variable for two-way data binding with validation.
      /// </summary>
      procedure Link(var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
-     /// <summary>
-     ///   Links the date/time picker control to an OLDateTime variable for two-way data binding with validation.
-     /// </summary>
-     procedure Link(var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
-     {$ELSE}
+      /// <summary>
+      ///   Links the date/time picker control to an OLDateTime variable for two-way data binding with validation.
+      /// </summary>
+      procedure Link(var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
+      /// <summary>
+      ///   Checks if the date/time picker control has a valid value.
+      /// </summary>
+      function IsValid: Boolean;
+      {$ELSE}
      /// <summary>
      ///   Links the date/time picker control to an OLDate variable for two-way data binding.
      /// </summary>
@@ -2790,9 +2818,13 @@ type
      /// <summary>
      ///   Links the checkbox control to an OLBoolean variable for two-way data binding with validation.
      /// </summary>
-     procedure Link(var b: OLBoolean; const ValidationFunction:
-         TOLBooleanValidationFunction = nil);
-     {$ELSE}
+       procedure Link(var b: OLBoolean; const ValidationFunction:
+           TOLBooleanValidationFunction = nil);
+       /// <summary>
+       ///   Checks if the checkbox control has a valid value.
+       /// </summary>
+       function IsValid: Boolean;
+      {$ELSE}
      /// <summary>
      ///   Links the checkbox control to an OLBoolean variable for two-way data binding.
      /// </summary>
@@ -2884,19 +2916,30 @@ type
      {$ELSE}
      procedure Link(var d: OLDateTime); overload;
      {$IFEND}
-     /// <summary>
-     ///   Links the label control to a function that returns OLDateTime for computed display.
-     /// </summary>
-     procedure Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
-   end;
+      /// <summary>
+      ///   Links the label control to a function that returns OLDateTime for computed display.
+      /// </summary>
+      procedure Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+      {$IF CompilerVersion >= 34.0}
+      /// <summary>
+      ///   Returns true if the control is valid according to its validation function, or if not linked or no validation function is set.
+      /// </summary>
+      function IsValid: Boolean;
+      {$IFEND}
+    end;
 
    /// <summary>
-   ///   Helper class for TForm to check if variables are form fields.
+   ///   Helper class for TForm to check if variables are form fields and all controls on the form are valid
    /// </summary>
-   TFormFieldsHelper = class helper for TForm
+   TOLFormHelper = class helper for TForm
    private
      function IsFieldOfRecord(const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
+     procedure CollectAllControls(AControl: TControl; var Controls: TList<TControl>);
    public
+     /// <summary>
+     ///   Checks if the form is valid (all controls on the form are valid).
+     /// </summary>
+     function IsValid: Boolean;
      /// <summary>
      ///   Checks if the specified variable is a field of this form.
      /// </summary>
@@ -2965,9 +3008,22 @@ end;
 
 
 
-{ TFormFieldsHelper }
+procedure TOLFormHelper.CollectAllControls(AControl: TControl; var
+    Controls: TList<TControl>);
+var
+  i: Integer;
+begin
+  Controls.Add(AControl);
+  if AControl is TWinControl then
+  begin
+    for i := 0 to TWinControl(AControl).ControlCount - 1 do
+      CollectAllControls(TWinControl(AControl).Controls[i], Controls);
+  end;
+end;
 
-function TFormFieldsHelper.IsFieldOfRecord(
+{ TOLFormHelper }
+
+function TOLFormHelper.IsFieldOfRecord(
   const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
 var
   RecType: TRttiStructuredType;
@@ -3012,7 +3068,7 @@ begin
 end;
 
 
-function TFormFieldsHelper.IsMyField(var X): Boolean;
+function TOLFormHelper.IsMyField(var X): Boolean;
 var
   ctx: TRttiContext;
   t: TRttiType;
@@ -3048,6 +3104,62 @@ begin
       if IsFieldOfRecord(ctx, FieldValue, ParamPtr) then
         Exit(True);
     end;
+  end;
+end;
+
+function TOLFormHelper.IsValid: Boolean;
+var
+  Controls: TList<TControl>;
+  Control: TControl;
+  Link: TOLControlLink;
+
+  i: Integer;
+  d: Double;
+  curr: Currency;
+  s: OLString;
+  fs: TFormatSettings;
+  CleanS: string;
+begin
+  Result := True;
+  Controls := TList<TControl>.Create;
+  try
+    CollectAllControls(Self, Controls);
+    for Control in Controls do
+    begin
+      Link := Links.GetLinkForControl(Control);
+      if Assigned(Link) then
+      begin
+        if Link.Control is TLabel then
+          Result := TLabel(Link.Control).IsValid;
+
+        if Link.Control is TEdit then
+          Result := TEdit(Link.Control).IsValid;
+
+        if Link.Control is TTrackBar then
+          Result := TTrackBar(Link.Control).IsValid;
+
+        if Link.Control is TScrollBar then
+          Result := TScrollBar(Link.Control).IsValid;
+
+        if Link.Control is TSpinEdit then
+          Result := TSpinEdit(Link.Control).IsValid;
+
+        if Link.Control is TMemo then
+          Result := TMemo(Link.Control).IsValid;
+
+        if Link.Control is TDateTimePicker then
+          Result := TDateTimePicker(Link.Control).IsValid;
+
+        if Link.Control is TCheckBox then
+          Result := TCheckBox(Link.Control).IsValid;
+
+        if not Result then
+          Exit;
+
+      end;
+    end;
+  finally
+    Controls.Free;
   end;
 end;
 
@@ -3171,11 +3283,65 @@ begin
    except
      on E: Exception do
        raise Exception.Create('Link failed for TEdit: ' + E.Message);
-   end;
-end;
+    end;
+  end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLSpinEditHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
+function TOLEditHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+  i: Integer;
+  d: Double;
+  curr: Currency;
+  s: OLString;
+  fs: TFormatSettings;
+  CleanS: string;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if not Assigned(Link) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  if Link is TEditToOLInteger then
+  begin
+    if TryStrToInt(TEditToOLInteger(Link).Edit.Text, i) then
+      Result := TEditToOLInteger(Link).ValueIsValid(i).Valid
+    else
+      Result := False;
+  end
+  else if Link is TEditToOLDouble then
+  begin
+    fs := FormatSettings;
+    s := TEditToOLDouble(Link).Edit.Text;
+    CleanS := OLType(s).Replaced(fs.ThousandSeparator, '');
+    if TryStrToFloat(CleanS, d) then
+      Result := TEditToOLDouble(Link).ValueIsValid(d).Valid
+    else
+      Result := False;
+  end
+  else if Link is TEditToOLCurrency then
+  begin
+    fs := FormatSettings;
+    s := TEditToOLCurrency(Link).Edit.Text;
+    CleanS := s.Replaced(fs.ThousandSeparator, '');
+    if TryStrToCurr(CleanS, curr) then
+      Result := TEditToOLCurrency(Link).ValueIsValid(curr).Valid
+    else
+      Result := False;
+  end
+  else if Link is TEditToOLString then
+  begin
+    Result := TEditToOLString(Link).ValueIsValid(OLString(TEditToOLString(Link).Edit.Text)).Valid;
+  end
+  else
+    Result := True; // Fallback
+end;
+{$IFEND}
+
+ {$IF CompilerVersion >= 34.0}
+ procedure TOLSpinEditHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
 {$ELSE}
 procedure TOLSpinEditHelper.Link(var i: OLInteger);
 {$IFEND}
@@ -3202,6 +3368,19 @@ begin
         raise Exception.Create('Link failed for TSpinEdit: ' + E.Message);
     end;
 end;
+
+{$IF CompilerVersion >= 34.0}
+function TOLSpinEditHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if Assigned(Link) then
+    Result := TSpinEditToOLInteger(Link).ValueIsValid(TSpinEditToOLInteger(Link).Edit.Value).Valid
+  else
+    Result := True;
+end;
+{$IFEND}
 
 {$IF CompilerVersion >= 34.0}
 procedure TOLTrackBarHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
@@ -3231,7 +3410,20 @@ begin
         raise Exception.Create('Link failed for TTrackBar: ' + E.Message);
     end;
 end;
-
+ 
+{$IF CompilerVersion >= 34.0}
+function TOLTrackBarHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if Assigned(Link) then
+    Result := TTrackBarToOLInteger(Link).ValueIsValid(TTrackBarToOLInteger(Link).Edit.Position).Valid
+  else
+    Result := True;
+end;
+{$IFEND}
+ 
 {$IF CompilerVersion >= 34.0}
 procedure TOLScrollBarHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
 {$ELSE}
@@ -3261,6 +3453,19 @@ begin
     end;
 end;
 
+{$IF CompilerVersion >= 34.0}
+function TOLScrollBarHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if Assigned(Link) then
+    Result := TScrollBarToOLInteger(Link).ValueIsValid(TScrollBarToOLInteger(Link).Edit.Position).Valid
+  else
+    Result := True;
+end;
+{$IFEND}
+
 { TOLMemoHelper }
 
 {$IF CompilerVersion >= 34.0}
@@ -3288,12 +3493,25 @@ begin
       {$IFEND}
     except
      on E: Exception do
-       raise Exception.Create('Link failed for TMemo: ' + E.Message);
-   end;
+        raise Exception.Create('Link failed for TMemo: ' + E.Message);
+    end;
+ end;
+
+{$IF CompilerVersion >= 34.0}
+function TOLMemoHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if Assigned(Link) then
+    Result := TMemoToOLString(Link).ValueIsValid(OLString(TMemoToOLString(Link).Edit.Text)).Valid
+  else
+    Result := True;
 end;
+{$IFEND}
 
 
-{ TOLDateTimePickerHelper }
+ { TOLDateTimePickerHelper }
 
 {$IF CompilerVersion >= 34.0}
 procedure TOLDateTimePickerHelper.Link(var d: OLDate; const ValidationFunction:
@@ -3349,13 +3567,34 @@ begin
      {$ELSE}
      Links.Link(Self, d);
      {$IFEND}
-   except
-     on E: Exception do
-       raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
-   end;
-end;
+    except
+      on E: Exception do
+        raise Exception.Create('Link failed for TDateTimePicker: ' + E.Message);
+    end;
+ end;
 
-{ TOLCheckBoxHelper }
+{$IF CompilerVersion >= 34.0}
+function TOLDateTimePickerHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if not Assigned(Link) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  if Link is TDateTimePickerToOLDate then
+    Result := TDateTimePickerToOLDate(Link).ValueIsValid(OLDate(TDateTimePickerToOLDate(Link).Edit.Date)).Valid
+  else if Link is TDateTimePickerToOLDateTime then
+    Result := TDateTimePickerToOLDateTime(Link).ValueIsValid(OLDateTime(TDateTimePickerToOLDateTime(Link).Edit.DateTime)).Valid
+  else
+    Result := True;
+end;
+{$IFEND}
+
+ { TOLCheckBoxHelper }
 {$IF CompilerVersion >= 34.0}
 procedure TOLCheckBoxHelper.Link(var b: OLBoolean; const
     ValidationFunction: TOLBooleanValidationFunction = nil);
@@ -3383,11 +3622,24 @@ begin
    except
      on E: Exception do
        raise Exception.Create('Link failed for TCheckBox: ' + E.Message);
-   end;
-end;
+    end;
+ end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLabelHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
+function TOLCheckBoxHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if Assigned(Link) then
+    Result := TCheckBoxToOLBoolean(Link).ValueIsValid(OLBoolean(TCheckBoxToOLBoolean(Link).Edit.Checked)).Valid
+  else
+    Result := True;
+end;
+{$IFEND}
+
+ {$IF CompilerVersion >= 34.0}
+ procedure TOLLabelHelper.Link(var i: OLInteger; ValidationFunction: TOLIntegerValidationFunction = nil);
 {$ELSE}
 procedure TOLLabelHelper.Link(var i: OLInteger);
 {$IFEND}
@@ -3589,11 +3841,79 @@ end;
 
 procedure TOLLabelHelper.Link(const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
 begin
-   Links.Link(Self, f, ValueOnErrorInCalculation);
+    Links.Link(Self, f, ValueOnErrorInCalculation);
 end;
 
+{$IF CompilerVersion >= 34.0}
+function TOLLabelHelper.IsValid: Boolean;
+var
+  Link: TOLControlLink;
+  i: Integer;
+  d: Double;
+  curr: Currency;
+  s: OLString;
+  fs: TFormatSettings;
+  CleanS: string;
+begin
+  Link := Links.GetLinkForControl(Self);
+  if not Assigned(Link) then
+  begin
+    Result := True;
+    Exit;
+  end;
 
- {$IF CompilerVersion >= 24.0}
+  if Link is TOLIntegerToLabel then
+  begin
+    if TryStrToInt(TOLIntegerToLabel(Link).Lbl.Caption, i) then
+      Result := TOLIntegerToLabel(Link).ValueIsValid(i).Valid
+    else
+      Result := False;
+  end
+  else if Link is TOLDoubleToLabel then
+  begin
+    fs := FormatSettings;
+    s := TOLDoubleToLabel(Link).Lbl.Caption;
+    CleanS := OLType(s).Replaced(fs.ThousandSeparator, '');
+    if TryStrToFloat(CleanS, d) then
+      Result := TOLDoubleToLabel(Link).ValueIsValid(d).Valid
+    else
+      Result := False;
+  end
+  else if Link is TOLCurrencyToLabel then
+  begin
+    fs := FormatSettings;
+    s := TOLCurrencyToLabel(Link).Lbl.Caption;
+    CleanS := s.Replaced(fs.ThousandSeparator, '');
+    if TryStrToCurr(CleanS, curr) then
+      Result := TOLCurrencyToLabel(Link).ValueIsValid(curr).Valid
+    else
+      Result := False;
+  end
+  else if Link is TOLStringToLabel then
+  begin
+    Result := TOLStringToLabel(Link).ValueIsValid(OLString(TOLStringToLabel(Link).lbl.Caption)).Valid;
+  end
+  else if Link is TOLDateToLabel then
+  begin
+    if OLString(TOLDateToLabel(Link).lbl.Caption).TryToDate() then
+      Result := TOLDateToLabel(Link).ValueIsValid(OLString(TOLDateToLabel(Link).lbl.Caption).ToDate()).Valid
+    else
+      Result := False;
+  end
+  else if Link is TOLDateTimeToLabel then
+  begin
+    if OLString(TOLDateToLabel(Link).lbl.Caption).TryToDateTime() then
+      Result := TOLDateTimeToLabel(Link).ValueIsValid(OLString(TOLDateTimeToLabel(Link).lbl.Caption).ToDateTime()).Valid
+    else
+      Result := False;
+  end
+  else
+    Result := True; // Fallback
+end;
+{$IFEND}
+
+
+  {$IF CompilerVersion >= 24.0}
 
 { TOLIntegerHelper }
 
