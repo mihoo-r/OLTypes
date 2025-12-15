@@ -36,42 +36,63 @@ type
     property Control: TControl read FControl write FControl;
   end;
 
-  TEditToOLInteger = class(TOLControlLink)
+  {$IF CompilerVersion >= 34.0}
+  TOLValidationFunction<T> = reference to function(val: T): TOLValidationResult;
+  {$IFEND}
+
+  TOLEditLink<T> = class(TOLControlLink)
   private
+  protected
     FEdit: TEdit;
     FEditOnChange: TEditOnChange;
     FEditOnExit: TNotifyEvent;
-    FOLPointer: POLInteger;
-    FUpdatingFromControl: Boolean;
-    {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLIntegerValidationFunction;
-    {$IFEND}
+    FOLPointer: ^T;
     FOriginalColor: TColor;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
-    procedure SetEdit(const Value: TEdit);
-    procedure SetOLPointer(const Value: POLInteger);
+    FUpdatingFromControl: Boolean;
     {$IF CompilerVersion >= 34.0}
-    procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
-    procedure SetValueAfterValidation(i: OLInteger);
+    FValidationFunction: TOLValidationFunction<T>;
     {$IFEND}
+
+    function ValToString(const v: T): string; virtual; abstract;
+    function StringToVal(const s: string; out v: T): Boolean; virtual; abstract;
+    function GetNull: T; virtual; abstract;
+    function TreatEmptyAsNull: Boolean; virtual;
+    function IsPartialEntry(const s: string): Boolean; virtual;
+
+    procedure SetEdit(const Value: TEdit); virtual;
+    function GetOLPointer: Pointer;
+    procedure SetOLPointer(const Value: Pointer);
+    {$IF CompilerVersion >= 34.0}
+    procedure SetValidationFunction(const Value: TOLValidationFunction<T>);
+    procedure SetValueAfterValidation(const v: T);
+    {$IFEND}
+
+    procedure NewOnChange(Sender: TObject);
+    procedure NewOnExit(Sender: TObject);
+
   public
     constructor Create;
     destructor Destroy; override;
-    procedure NewOnChange(Sender: TObject);
-    procedure NewOnExit(Sender: TObject);
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); override;
-    function ValueIsValid(i: OLInteger): TOLValidationResult;
+    function ValueIsValid(const v: T): TOLValidationResult; virtual;
+    property ValidationFunction: TOLValidationFunction<T> read FValidationFunction write SetValidationFunction;
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
-    property OLPointer: POLInteger read FOLPointer write SetOLPointer;
-    {$IF CompilerVersion >= 34.0}
-    property ValidationFunction: TOLIntegerValidationFunction read
-        FValidationFunction write SetValidationFunction;
-    {$IFEND}
+    property OLPointer: Pointer read GetOLPointer write SetOLPointer;
+  end;
+
+  TEditToOLInteger = class(TOLEditLink<OLInteger>)
+  protected
+    function ValToString(const v: OLInteger): string; override;
+    function StringToVal(const s: string; out v: OLInteger): Boolean; override;
+    function GetNull: OLInteger; override;
+    function TreatEmptyAsNull: Boolean; override;
+    function IsPartialEntry(const s: string): Boolean; override;
   end;
 
   TSpinEditToOLInteger = class(TOLControlLink)
@@ -260,40 +281,14 @@ type
     {$IFEND}
   end;
 
-  TEditToOLString = class(TOLControlLink)
-  private
-    FEdit: TEdit;
-    FEditOnChange: TEditOnChange;
-    FOLPointer: POLString;
-    {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLStringValidationFunction;
-    {$IFEND}
-    FOriginalColor: TColor;
-    FOriginalHint: string;
-    FOriginalShowHint: Boolean;
-    procedure SetEdit(const Value: TEdit);
-    procedure SetOLPointer(const Value: POLString);
-    {$IF CompilerVersion >= 34.0}
-    procedure SetValidationFunction(const Value: TOLStringValidationFunction);
-    procedure SetValueAfterValidation(s: OLString);
-    {$IFEND}
-  public
-    constructor Create;
-    destructor Destroy; override;
-    procedure NewOnChange(Sender: TObject);
-    procedure OnOLChange(Sender: TObject);
-    procedure RefreshControl; override;
-    {$IF CompilerVersion >= 34.0}
-    procedure ShowValidationState(vr: TOLValidationResult);
-    function ValueIsValid(s: OLString): TOLValidationResult;
-    {$IFEND}
-    property Edit: TEdit read FEdit write SetEdit;
-    property OLPointer: POLString read FOLPointer write SetOLPointer;
-    {$IF CompilerVersion >= 34.0}
-    property ValidationFunction: TOLStringValidationFunction read
-        FValidationFunction write SetValidationFunction;
-    {$IFEND}
+  TEditToOLString = class(TOLEditLink<OLString>)
+  protected
+    function ValToString(const v: OLString): string; override;
+    function StringToVal(const s: string; out v: OLString): Boolean; override;
+    function GetNull: OLString; override;
+    function TreatEmptyAsNull: Boolean; override;
   end;
+
 
   TMemoToOLString = class(TOLControlLink)
   private
@@ -939,7 +934,9 @@ begin
     Link.RefreshControl;
 end;
 
-constructor TEditToOLInteger.Create;
+{ TOLEditLink<T> }
+
+constructor TOLEditLink<T>.Create;
 begin
   inherited;
   FEdit := nil;
@@ -949,12 +946,8 @@ begin
   FUpdatingFromControl := False;
 end;
 
-destructor TEditToOLInteger.Destroy;
+destructor TOLEditLink<T>.Destroy;
 begin
-  // Note: We don't set FOLPointer^.OnChange := nil here because when using
-  // observer pattern (multiple controls to one value), the OnChange points to
-  // the observer, not to this link. The observer handles cleanup via RemoveLink.
-
   if Assigned(FEdit) then
   begin
     if Assigned(FEditOnChange) then
@@ -965,135 +958,102 @@ begin
   inherited;
 end;
 
-{$IF CompilerVersion >= 34.0}
-function TEditToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
-var
-  vr: TOLValidationResult;
+function TOLEditLink<T>.TreatEmptyAsNull: Boolean;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(i)
-  else
-    vr := TOLValidationResult.Ok();
-
-  Result := vr;
+  Result := True;
 end;
 
-procedure TEditToOLInteger.ShowValidationState(vr: TOLValidationResult);
+function TOLEditLink<T>.IsPartialEntry(const s: string): Boolean;
 begin
-  if vr.Valid then
-  begin
-    Edit.Color := FOriginalColor;
-    Edit.Hint := FOriginalHint;
-    Edit.ShowHint := FOriginalShowHint;
-  end
-  else
-  begin
-    if vr.Color = clDefault then
-      Edit.Color := $CBC0FF
-    else
-      Edit.Color := vr.Color;
-
-    Edit.Hint := vr.Message;
-    Edit.ShowHint := true;
-  end;
+  Result := False;
 end;
 
-procedure TEditToOLInteger.SetValueAfterValidation(i: OLInteger);
+procedure TOLEditLink<T>.NewOnChange(Sender: TObject);
 var
-  vr: TOLValidationResult;
-begin
-  vr := ValueIsValid(i);
-  ShowValidationState(vr);
-
-  if vr.Valid then
-    OLPointer^ := i;
-end;
-{$IFEND}
-
-procedure TEditToOLInteger.NewOnChange(Sender: TObject);
-var
-  i, j: integer;
+  v: T;
+  s: string;
+  j: Integer;
 begin
   if FUpdatingFromControl then Exit;
 
-  if (Edit.Text = '-') or (Edit.Text = '') then
+  s := Edit.Text;
+  
+  if (TreatEmptyAsNull and (s = '')) then
   begin
-    if Edit.Text = '' then
-    begin
       FUpdatingFromControl := True;
       try
         {$IF CompilerVersion >= 34.0}
-        SetValueAfterValidation(Null);
+        SetValueAfterValidation(GetNull);
         {$ELSE}
-        OLPointer^ := Null;
+        FOLPointer^ := GetNull;
         {$IFEND}
       finally
         FUpdatingFromControl := False;
       end;
-    end;
+  end
+  else if IsPartialEntry(s) then
+  begin
+    // Do nothing
+  end
+  else if StringToVal(s, v) then
+  begin
+      FUpdatingFromControl := True;
+      try
+        {$IF CompilerVersion >= 34.0}
+        SetValueAfterValidation(v);
+        {$ELSE}
+        FOLPointer^ := v;
+        {$IFEND}
+      finally
+        FUpdatingFromControl := False;
+      end;
   end
   else
   begin
-    if TryStrToInt(Edit.Text, i) then
-    begin
-      FUpdatingFromControl := True;
-      try
-        {$IF CompilerVersion >= 34.0}
-        SetValueAfterValidation(i);
-        {$ELSE}
-        OLPointer^ := i;
-        {$IFEND}
-      finally
-        FUpdatingFromControl := False;
-      end;
-    end
-    else
-    begin
       FUpdatingFromControl := True;
       try
         j := Edit.SelStart;
-        Edit.Text := (OLPointer^).ToString();
+        Edit.Text := ValToString(FOLPointer^);
         if j > 0 then Edit.SelStart := j - 1;
       finally
         FUpdatingFromControl := False;
       end;
-    end;
   end;
 
   if Assigned(FEditOnChange) then
     FEditOnChange(Edit);
 end;
 
-procedure TEditToOLInteger.NewOnExit(Sender: TObject);
+procedure TOLEditLink<T>.NewOnExit(Sender: TObject);
 begin
   RefreshControl;
-
   if Assigned(FEditOnExit) then
     FEditOnExit(Sender);
 end;
 
-procedure TEditToOLInteger.OnOLChange(Sender: TObject);
+procedure TOLEditLink<T>.OnOLChange(Sender: TObject);
 begin
   RefreshControl;
 end;
 
-procedure TEditToOLInteger.RefreshControl;
+procedure TOLEditLink<T>.RefreshControl;
 var
+  s: string;
+  {$IF CompilerVersion >= 34.0}
   vr: TOLValidationResult;
+  {$IFEND}
 begin
   if FUpdatingFromControl then Exit;
-
-  // Don't overwrite user input while they're typing
   if Edit.Focused() then Exit;
 
-  if Edit.Text <> (OLPointer^).ToString() then
+  s := ValToString(FOLPointer^);
+  if Edit.Text <> s then
   begin
     FUpdatingFromControl := True;
     try
-      Edit.Text := (OLPointer^).ToString();
-
+      Edit.Text := s;
       {$IF CompilerVersion >= 34.0}
-      vr := ValueIsValid(OLPointer^);
+      vr := ValueIsValid(FOLPointer^);
       ShowValidationState(vr);
       {$IFEND}
     finally
@@ -1102,7 +1062,7 @@ begin
   end;
 end;
 
-procedure TEditToOLInteger.SetEdit(const Value: TEdit);
+procedure TOLEditLink<T>.SetEdit(const Value: TEdit);
 begin
   FEdit := Value;
   Control := Value;
@@ -1118,119 +1078,33 @@ begin
   end;
 end;
 
-procedure TEditToOLInteger.SetOLPointer(const Value: POLInteger);
+function TOLEditLink<T>.GetOLPointer: Pointer;
 begin
-  if not Assigned(Value) then
+  Result := FOLPointer;
+end;
+
+procedure TOLEditLink<T>.SetOLPointer(const Value: Pointer);
+begin
+  if Value = nil then
     raise Exception.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TEditToOLInteger.SetValidationFunction(const Value:
-    TOLIntegerValidationFunction);
+procedure TOLEditLink<T>.SetValidationFunction(const Value: TOLValidationFunction<T>);
 begin
   FValidationFunction := Value;
 end;
-{$IFEND}
 
-{ TEditToOLString }
-
-constructor TEditToOLString.Create;
+function TOLEditLink<T>.ValueIsValid(const v: T): TOLValidationResult;
 begin
-  inherited;
-  FEdit := nil;
-  FEditOnChange := nil;
-  FOLPointer := nil;
-
-  {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
-  {$IFEND}
-end;
-
-destructor TEditToOLString.Destroy;
-begin
-  // Note: We don't set FOLPointer^.OnChange := nil here because when using
-  // observer pattern (multiple controls to one value), the OnChange points to
-  // the observer, not to this link. The observer handles cleanup via RemoveLink.
-  inherited;
-end;
-
-procedure TEditToOLString.NewOnChange(Sender: TObject);
-begin
-  {$IF CompilerVersion >= 34.0}
-  SetValueAfterValidation(Edit.Text);
-  {$ELSE}
-  OLPointer^ := Edit.Text;
-  {$IFEND}
-
-  if Assigned(FEditOnChange) then
-    FEditOnChange(Edit);
-end;
-
-procedure TEditToOLString.OnOLChange(Sender: TObject);
-begin
-  RefreshControl;
-end;
-
-procedure TEditToOLString.RefreshControl;
-var
-  vr: TOLValidationResult;
-begin
-  if Edit.Text <> (OLPointer^).ToString() then
-  begin
-    Edit.Text := (OLPointer^).ToString();
-
-    {$IF CompilerVersion >= 34.0}
-    vr := ValueIsValid(OLPointer^);
-    ShowValidationState(vr);
-    {$IFEND}
-  end;
-end;
-
-procedure TEditToOLString.SetEdit(const Value: TEdit);
-begin
-  FEdit := Value;
-  Control := Value;
-  if Assigned(Value) then
-  begin
-    FEditOnChange := Value.OnChange;
-    Value.OnChange := NewOnChange;
-    FOriginalColor := Value.Color;
-    FOriginalHint := Value.Hint;
-    FOriginalShowHint := Value.ShowHint;
-  end;
-end;
-
-procedure TEditToOLString.SetOLPointer(const Value: POLString);
-begin
-  if not Assigned(Value) then
-    raise Exception.Create('OLPointer cannot be nil.');
-  FOLPointer := Value;
-end;
-
-{$IF CompilerVersion >= 34.0}
-procedure TEditToOLString.SetValidationFunction(const Value: TOLStringValidationFunction);
-begin
-  FValidationFunction := Value;
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
-function TEditToOLString.ValueIsValid(s: OLString): TOLValidationResult;
-var
-  vr: TOLValidationResult;
-begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(s)
+  if Assigned(FValidationFunction) then
+    Result := FValidationFunction(v)
   else
-    vr := TOLValidationResult.Ok();
-
-  Result := vr;
+    Result := TOLValidationResult.Ok;
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-procedure TEditToOLString.ShowValidationState(vr: TOLValidationResult);
+procedure TOLEditLink<T>.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
   begin
@@ -1249,20 +1123,82 @@ begin
     Edit.ShowHint := true;
   end;
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-procedure TEditToOLString.SetValueAfterValidation(s: OLString);
+procedure TOLEditLink<T>.SetValueAfterValidation(const v: T);
 var
   vr: TOLValidationResult;
 begin
-  vr := ValueIsValid(s);
+  vr := ValueIsValid(v);
   ShowValidationState(vr);
 
   if vr.Valid then
-    OLPointer^ := s;
+    FOLPointer^ := v;
 end;
 {$IFEND}
+
+{ TEditToOLInteger }
+
+function TEditToOLInteger.ValToString(const v: OLInteger): string;
+begin
+  Result := v.ToString();
+end;
+
+function TEditToOLInteger.StringToVal(const s: string; out v: OLInteger): Boolean;
+var
+  i: Integer;
+begin
+  if (s = '-') then
+    Exit(False); // Should be handled by IsPartialEntry
+
+  Result := TryStrToInt(s, i);
+  if Result then
+    v := i;
+end;
+
+function TEditToOLInteger.GetNull: OLInteger;
+begin
+  Result := Null;
+end;
+
+function TEditToOLInteger.TreatEmptyAsNull: Boolean;
+begin
+  Result := True;
+end;
+
+function TEditToOLInteger.IsPartialEntry(const s: string): Boolean;
+begin
+  Result := (s = '-');
+end;
+
+
+
+
+{ TEditToOLString }
+
+
+
+{ TEditToOLString }
+
+function TEditToOLString.ValToString(const v: OLString): string;
+begin
+  Result := v.ToString();
+end;
+
+function TEditToOLString.StringToVal(const s: string; out v: OLString): Boolean;
+begin
+  v := s;
+  Result := True;
+end;
+
+function TEditToOLString.GetNull: OLString;
+begin
+  Result := Null;
+end;
+
+function TEditToOLString.TreatEmptyAsNull: Boolean;
+begin
+  Result := False;
+end;
 
 { TMemoToOLString }
 
@@ -4035,7 +3971,7 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
+  Link.ValidationFunction := TOLValidationFunction<OLInteger>(ValidationFunction);
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
@@ -4198,7 +4134,7 @@ begin
   Link.Edit := Edit;
   Link.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
+  Link.ValidationFunction := TOLValidationFunction<OLString>(ValidationFunction);
   // Get or create multicaster for this OLString
   if not FValueMulticasters.TryGetValue(@s, Observer) then
   begin
