@@ -15,7 +15,7 @@ uses
     Vcl.Forms, Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Controls
   {$ELSE} SysUtils, Classes, Generics.Collections, Rtti,
     Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls
-  {$IFEND}, OLValidation;
+  {$IFEND}, OLValidation, OLValidationTypes;
 
 type
   TRttiFieldHack = class(TRttiField);
@@ -33,15 +33,15 @@ type
   TFunctionReturningOLDate = reference to function(): OLDate;
   TFunctionReturningOLDateTime= reference to function(): OLDateTime;
 
-  TOLValidationResult = OLValidation.TOLValidationResult;
+  TOLValidationResult = OLValidationTypes.TOLValidationResult;
 
-  TOLIntegerValidationFunction = reference to function(i: OLInteger): TOLValidationResult;
-  TOLDoubleValidationFunction = reference to function(d: OLDouble): TOLValidationResult;
-  TOLCurrencyValidationFunction = reference to function(c: OLCurrency): TOLValidationResult;
-  TOLStringValidationFunction = reference to function(s: OLString): TOLValidationResult;
-  TOLBooleanValidationFunction = reference to function(b: OLBoolean): TOLValidationResult;
-  TOLDateValidationFunction = reference to function(d: OLDate): TOLValidationResult;
-  TOLDateTimeValidationFunction = reference to function(dt: OLDateTime): TOLValidationResult;
+  TOLIntegerValidationFunction = OLValidationTypes.TOLIntegerValidationFunction;
+  TOLDoubleValidationFunction = OLValidationTypes.TOLDoubleValidationFunction;
+  TOLCurrencyValidationFunction = OLValidationTypes.TOLCurrencyValidationFunction;
+  TOLStringValidationFunction = OLValidationTypes.TOLStringValidationFunction;
+  TOLBooleanValidationFunction = OLValidationTypes.TOLBooleanValidationFunction;
+  TOLDateValidationFunction = OLValidationTypes.TOLDateValidationFunction;
+  TOLDateTimeValidationFunction = OLValidationTypes.TOLDateTimeValidationFunction;
 
 
   OLBoolean = OLBooleanType.OLBoolean;
@@ -95,6 +95,8 @@ type
   OLIntDateDictionary = OLDictionaries.OLIntDateDictionary;
   OLStrDblDictionary = OLDictionaries.OLStrDblDictionary;
   {$IFEND}
+
+  TOLValidators = OLValidation.TOLValidators;
 
   TStringPatternFind = OLStringType.TStringPatternFind;
 
