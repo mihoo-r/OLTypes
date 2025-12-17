@@ -12,11 +12,38 @@ uses
   OLIntegerType, OLDoubleType, OLCurrencyType, OLStringType, OLDateType, OLDateTimeType, OLValidationTypes, OLValidationLocalization;
 
 type
+  /// <summary>Internal types for smart overloading.</summary>
+  TSmartValidatorType = (svtMin, svtMax, svtPositive, svtNegative, svtAfter, svtBefore);
 
+  /// <summary>
+  ///   A record that can implicitly convert to any numeric/date validation function.
+  ///   This solves the ambiguity of numeric literals in overloaded methods.
+  /// </summary>
+  TSmartValidator = record
+  public
+    FType: TSmartValidatorType;
+    FValue: Extended;
+    FMessage: string;
+    class function Create(AType: TSmartValidatorType; AValue: Extended; const AMessage: string): TSmartValidator; static;
+    class operator Implicit(const a: TSmartValidator): TOLIntegerValidationFunction;
+    class operator Implicit(const a: TSmartValidator): TOLDoubleValidationFunction;
+    class operator Implicit(const a: TSmartValidator): TOLCurrencyValidationFunction;
+    class operator Implicit(const a: TSmartValidator): TOLDateValidationFunction;
+    class operator Implicit(const a: TSmartValidator): TOLDateTimeValidationFunction;
+  end;
 
-  // Types moved to OLValidationTypes.pas
-
-
+  /// <summary>A record for range-based smart validators (Between).</summary>
+  TSmartRangeValidator = record
+  public
+    FMin, FMax: Extended;
+    FMessage: string;
+    class function Create(AMin, AMax: Extended; const AMessage: string): TSmartRangeValidator; static;
+    class operator Implicit(const a: TSmartRangeValidator): TOLIntegerValidationFunction;
+    class operator Implicit(const a: TSmartRangeValidator): TOLDoubleValidationFunction;
+    class operator Implicit(const a: TSmartRangeValidator): TOLCurrencyValidationFunction;
+    class operator Implicit(const a: TSmartRangeValidator): TOLDateValidationFunction;
+    class operator Implicit(const a: TSmartRangeValidator): TOLDateTimeValidationFunction;
+  end;
 
   TOLValidators = class
   public
@@ -25,41 +52,22 @@ type
     /// </summary>
     class function IsRequired(const ErrorMessage: string = 'This field is required.'): TValidationRule; static;
 
-    // Integer Validators
-    /// <summary>Checks if the integer value is at least MinValue.</summary>
-    class function MinInt(const MinValue: Integer; const ErrorMessage: string = ''): TOLIntegerValidationFunction; static;
-    /// <summary>Checks if the integer value is at most MaxValue.</summary>
-    class function MaxInt(const MaxValue: Integer; const ErrorMessage: string = ''): TOLIntegerValidationFunction; static;
-    /// <summary>Checks if the integer value is between MinValue and MaxValue (inclusive).</summary>
-    class function BetweenInt(const MinValue, MaxValue: Integer; const ErrorMessage: string = ''): TOLIntegerValidationFunction; static;
-    /// <summary>Checks if the integer value is greater than zero.</summary>
-    class function PositiveInt(const ErrorMessage: string = ''): TOLIntegerValidationFunction; static;
-    /// <summary>Checks if the integer value is less than zero.</summary>
-    class function NegativeInt(const ErrorMessage: string = ''): TOLIntegerValidationFunction; static;
+    // Numeric/Date Validators (Using Smart Overloading)
+    /// <summary>Checks if the numeric or date value is at least AValue.</summary>
+    class function Min(const AValue: Extended; const ErrorMessage: string = ''): TSmartValidator; overload; static;
+    /// <summary>Checks if the numeric or date value is at most AValue.</summary>
+    class function Max(const AValue: Extended; const ErrorMessage: string = ''): TSmartValidator; overload; static;
+    /// <summary>Checks if the value is between AMin and AMax.</summary>
+    class function Between(const AMin, AMax: Extended; const ErrorMessage: string = ''): TSmartRangeValidator; overload; static;
+    /// <summary>Checks if the value is after a specified value.</summary>
+    class function After(const AValue: Extended; const ErrorMessage: string = ''): TSmartValidator; overload; static;
+    /// <summary>Checks if the value is before a specified value.</summary>
+    class function Before(const AValue: Extended; const ErrorMessage: string = ''): TSmartValidator; overload; static;
 
-    // Double Validators
-    /// <summary>Checks if the double value is at least MinValue.</summary>
-    class function MinDouble(const MinValue: Double; const ErrorMessage: string = ''): TOLDoubleValidationFunction; static;
-    /// <summary>Checks if the double value is at most MaxValue.</summary>
-    class function MaxDouble(const MaxValue: Double; const ErrorMessage: string = ''): TOLDoubleValidationFunction; static;
-    /// <summary>Checks if the double value is between MinValue and MaxValue.</summary>
-    class function BetweenDouble(const MinValue, MaxValue: Double; const ErrorMessage: string = ''): TOLDoubleValidationFunction; static;
-    /// <summary>Checks if the double value is greater than zero.</summary>
-    class function PositiveDouble(const ErrorMessage: string = ''): TOLDoubleValidationFunction; static;
-    /// <summary>Checks if the double value is less than zero.</summary>
-    class function NegativeDouble(const ErrorMessage: string = ''): TOLDoubleValidationFunction; static;
-
-    // Currency Validators
-    /// <summary>Checks if the currency value is at least MinValue.</summary>
-    class function MinCurrency(const MinValue: Currency; const ErrorMessage: string = ''): TOLCurrencyValidationFunction; static;
-    /// <summary>Checks if the currency value is at most MaxValue.</summary>
-    class function MaxCurrency(const MaxValue: Currency; const ErrorMessage: string = ''): TOLCurrencyValidationFunction; static;
-    /// <summary>Checks if the currency value is between MinValue and MaxValue.</summary>
-    class function BetweenCurrency(const MinValue, MaxValue: Currency; const ErrorMessage: string = ''): TOLCurrencyValidationFunction; static;
-    /// <summary>Checks if the currency value is greater than zero.</summary>
-    class function PositiveCurrency(const ErrorMessage: string = ''): TOLCurrencyValidationFunction; static;
-    /// <summary>Checks if the currency value is less than zero.</summary>
-    class function NegativeCurrency(const ErrorMessage: string = ''): TOLCurrencyValidationFunction; static;
+    /// <summary>Checks if the value is greater than zero.</summary>
+    class function Positive(const ErrorMessage: string = ''): TSmartValidator; static;
+    /// <summary>Checks if the value is less than zero.</summary>
+    class function Negative(const ErrorMessage: string = ''): TSmartValidator; static;
 
     // String Validators
     /// <summary>Checks if the string length is at least MinLen.</summary>
@@ -93,17 +101,10 @@ type
     /// <summary>Checks if the string is a valid NIP number (Poland).</summary>
     class function NIP(const ErrorMessage: string = ''): TOLStringValidationFunction; static;
 
-    // Date Validators
-    /// <summary>Checks if the date is in the past.</summary>
-    class function PastDate(const ErrorMessage: string = ''): TOLDateValidationFunction; static;
-    /// <summary>Checks if the date is in the future.</summary>
-    class function FutureDate(const ErrorMessage: string = ''): TOLDateValidationFunction; static;
-    /// <summary>Checks if the date is after a specified date.</summary>
-    class function AfterDate(const AValue: OLDate; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
-    /// <summary>Checks if the date is before a specified date.</summary>
-    class function BeforeDate(const AValue: OLDate; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
-    /// <summary>Checks if the date is between AMin and AMax.</summary>
-    class function BetweenDate(const AMin, AMax: OLDate; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
+    /// <summary>Checks if the date/time is in the past.</summary>
+    class function Past(const ErrorMessage: string = ''): TSmartValidator; static;
+    /// <summary>Checks if the date/time is in the future.</summary>
+    class function Future(const ErrorMessage: string = ''): TSmartValidator; static;
     /// <summary>Checks if the date is today.</summary>
     class function Today(const ErrorMessage: string = ''): TOLDateValidationFunction; static;
     /// <summary>Checks if the birth date implies a minimum age.</summary>
@@ -115,20 +116,261 @@ type
     /// <summary>Checks if the date is a weekend (Sat-Sun).</summary>
     class function IsWeekend(const ErrorMessage: string = ''): TOLDateValidationFunction; static;
 
-    // DateTime Validators
-    /// <summary>Checks if the date and time are in the past.</summary>
-    class function PastDateTime(const ErrorMessage: string = ''): TOLDateTimeValidationFunction; static;
-    /// <summary>Checks if the date and time are in the future.</summary>
-    class function FutureDateTime(const ErrorMessage: string = ''): TOLDateTimeValidationFunction; static;
-    /// <summary>Checks if the date and time are after a specified value.</summary>
-    class function AfterDateTime(const AValue: OLDateTime; const ErrorMessage: string = ''): TOLDateTimeValidationFunction; static;
-    /// <summary>Checks if the date and time are before a specified value.</summary>
-    class function BeforeDateTime(const AValue: OLDateTime; const ErrorMessage: string = ''): TOLDateTimeValidationFunction; static;
-    /// <summary>Checks if the date and time are between AMin and AMax.</summary>
-    class function BetweenDateTime(const AMin, AMax: OLDateTime; const ErrorMessage: string = ''): TOLDateTimeValidationFunction; static;
   end;
 
 implementation
+
+{ TSmartValidator }
+
+class function TSmartValidator.Create(AType: TSmartValidatorType; AValue: Extended; const AMessage: string): TSmartValidator;
+begin
+  Result.FType := AType;
+  Result.FValue := AValue;
+  Result.FMessage := AMessage;
+end;
+
+class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLIntegerValidationFunction;
+begin
+  Result := function(Value: OLInteger): TOLValidationResult
+  var
+    Msg: string;
+    ival: Integer;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    ival := Trunc(a.FValue);
+    case a.FType of
+      svtMin: if Value < ival then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinInt, 'Value must be at least %d.'), [ival]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtMax: if Value > ival then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxInt, 'Value must be at most %d.'), [ival]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtPositive: if Value <= 0 then
+        begin
+          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtNegative: if Value >= 0 then
+        begin
+          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLDoubleValidationFunction;
+begin
+  Result := function(Value: OLDouble): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    case a.FType of
+      svtMin, svtAfter: if Value < a.FValue then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinDouble, 'Value must be at least %g.'), [a.FValue]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtMax, svtBefore: if Value > a.FValue then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxDouble, 'Value must be at most %g.'), [a.FValue]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtPositive: if Value <= 0 then
+        begin
+          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtNegative: if Value >= 0 then
+        begin
+          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLCurrencyValidationFunction;
+begin
+  Result := function(Value: OLCurrency): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    case a.FType of
+      svtMin: if Value < a.FValue then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinCurrency, 'Value must be at least %m.'), [a.FValue]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtMax: if Value > a.FValue then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxCurrency, 'Value must be at most %m.'), [a.FValue]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtPositive: if Value <= 0 then
+        begin
+          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtNegative: if Value >= 0 then
+        begin
+          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLDateValidationFunction;
+begin
+  Result := function(Value: OLDate): TOLValidationResult
+  var
+    Msg: string;
+    target: TDateTime;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    target := Int(a.FValue); // Use date part for OLDate
+    case a.FType of
+      svtMin, svtAfter: if Value <= target then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.AfterDate, 'Date must be after %s.'), [DateToStr(target)]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtMax, svtBefore: if Value >= target then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BeforeDate, 'Date must be before %s.'), [DateToStr(target)]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLDateTimeValidationFunction;
+begin
+  Result := function(Value: OLDateTime): TOLValidationResult
+  var
+    Msg: string;
+    target: TDateTime;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    target := a.FValue;
+    case a.FType of
+      svtMin, svtAfter: if Value <= target then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.AfterDateTime, 'Date and time must be after %s.'), [DateTimeToStr(target)]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+      svtMax, svtBefore: if Value >= target then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BeforeDateTime, 'Date and time must be before %s.'), [DateTimeToStr(target)]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg));
+        end;
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+{ TSmartRangeValidator }
+
+class function TSmartRangeValidator.Create(AMin, AMax: Extended; const AMessage: string): TSmartRangeValidator;
+begin
+  Result.FMin := AMin;
+  Result.FMax := AMax;
+  Result.FMessage := AMessage;
+end;
+
+class operator TSmartRangeValidator.Implicit(const a: TSmartRangeValidator): TOLIntegerValidationFunction;
+begin
+  Result := function(Value: OLInteger): TOLValidationResult
+  var
+    Msg: string;
+    iMin, iMax: Integer;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    iMin := Trunc(a.FMin);
+    iMax := Trunc(a.FMax);
+    if (Value < iMin) or (Value > iMax) then
+    begin
+      if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenInt, 'Value must be between %d and %d.'), [iMin, iMax]) else Msg := a.FMessage;
+      Exit(TOLValidationResult.Error(Msg));
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartRangeValidator.Implicit(const a: TSmartRangeValidator): TOLDoubleValidationFunction;
+begin
+  Result := function(Value: OLDouble): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    if (Value < a.FMin) or (Value > a.FMax) then
+    begin
+      if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenDouble, 'Value must be between %g and %g.'), [a.FMin, a.FMax]) else Msg := a.FMessage;
+      Exit(TOLValidationResult.Error(Msg));
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartRangeValidator.Implicit(const a: TSmartRangeValidator): TOLCurrencyValidationFunction;
+begin
+  Result := function(Value: OLCurrency): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    if (Value < a.FMin) or (Value > a.FMax) then
+    begin
+      if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenCurrency, 'Value must be between %m and %m.'), [a.FMin, a.FMax]) else Msg := a.FMessage;
+      Exit(TOLValidationResult.Error(Msg));
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartRangeValidator.Implicit(const a: TSmartRangeValidator): TOLDateValidationFunction;
+begin
+  Result := function(Value: OLDate): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    if not Value.InRange(OLDate(a.FMin), OLDate(a.FMax)) then
+    begin
+      if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenDate, 'Date must be between %s and %s.'), [OLDate(a.FMin).ToString, OLDate(a.FMax).ToString]) else Msg := a.FMessage;
+      Exit(TOLValidationResult.Error(Msg));
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartRangeValidator.Implicit(const a: TSmartRangeValidator): TOLDateTimeValidationFunction;
+begin
+  Result := function(Value: OLDateTime): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if not Value.HasValue then Exit(TOLValidationResult.Ok);
+    if (Value < a.FMin) or (Value > a.FMax) then
+    begin
+      if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenDateTime, 'Date and time must be between %s and %s.'), [OLDateTime(a.FMin).ToString, OLDateTime(a.FMax).ToString]) else Msg := a.FMessage;
+      Exit(TOLValidationResult.Error(Msg));
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
 
 { TOLValidators }
 
@@ -152,338 +394,39 @@ begin
   end;
 end;
 
-class function TOLValidators.MinInt(const MinValue: Integer; const ErrorMessage: string): TOLIntegerValidationFunction;
+class function TOLValidators.Min(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLInteger): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok); // Allow Null, use IsRequired to forbid
-
-    if Value < MinValue then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.MinInt, 'Value must be at least %d.'), [MinValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartValidator.Create(svtMin, AValue, ErrorMessage);
 end;
 
-class function TOLValidators.MaxInt(const MaxValue: Integer; const ErrorMessage: string): TOLIntegerValidationFunction;
+class function TOLValidators.Max(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLInteger): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value > MaxValue then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.MaxInt, 'Value must be at most %d.'), [MaxValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartValidator.Create(svtMax, AValue, ErrorMessage);
 end;
 
-class function TOLValidators.BetweenInt(const MinValue, MaxValue: Integer; const ErrorMessage: string): TOLIntegerValidationFunction;
+class function TOLValidators.Between(const AMin, AMax: Extended; const ErrorMessage: string): TSmartRangeValidator;
 begin
-  Result := function(Value: OLInteger): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if (Value < MinValue) or (Value > MaxValue) then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenInt, 'Value must be between %d and %d.'), [MinValue, MaxValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartRangeValidator.Create(AMin, AMax, ErrorMessage);
 end;
 
-class function TOLValidators.PositiveInt(const ErrorMessage: string): TOLIntegerValidationFunction;
+class function TOLValidators.After(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLInteger): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value.AsInteger <= 0 then
-    begin
-      if ErrorMessage = '' then
-        Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.')
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartValidator.Create(svtAfter, AValue, ErrorMessage);
 end;
 
-class function TOLValidators.NegativeInt(const ErrorMessage: string): TOLIntegerValidationFunction;
+class function TOLValidators.Before(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLInteger): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value.AsInteger >= 0 then
-    begin
-      if ErrorMessage = '' then
-        Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.')
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartValidator.Create(svtBefore, AValue, ErrorMessage);
 end;
 
-{ Double Validators }
-
-class function TOLValidators.MinDouble(const MinValue: Double; const ErrorMessage: string): TOLDoubleValidationFunction;
+class function TOLValidators.Positive(const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLDouble): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value < MinValue then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.MinDouble, 'Value must be at least %g.'), [MinValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartValidator.Create(svtPositive, 0, ErrorMessage);
 end;
 
-class function TOLValidators.MaxDouble(const MaxValue: Double; const ErrorMessage: string): TOLDoubleValidationFunction;
+class function TOLValidators.Negative(const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLDouble): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value > MaxValue then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.MaxDouble, 'Value must be at most %g.'), [MaxValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-class function TOLValidators.BetweenDouble(const MinValue, MaxValue: Double; const ErrorMessage: string): TOLDoubleValidationFunction;
-begin
-  Result := function(Value: OLDouble): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if (Value < MinValue) or (Value > MaxValue) then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenDouble, 'Value must be between %g and %g.'), [MinValue, MaxValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-class function TOLValidators.PositiveDouble(const ErrorMessage: string): TOLDoubleValidationFunction;
-begin
-  Result := function(Value: OLDouble): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value <= 0 then
-    begin
-      if ErrorMessage = '' then
-        Msg := 'Value must be positive.'
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-class function TOLValidators.NegativeDouble(const ErrorMessage: string): TOLDoubleValidationFunction;
-begin
-  Result := function(Value: OLDouble): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value >= 0 then
-    begin
-      if ErrorMessage = '' then
-        Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.')
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-{ Currency Validators }
-
-class function TOLValidators.MinCurrency(const MinValue: Currency; const ErrorMessage: string): TOLCurrencyValidationFunction;
-begin
-  Result := function(Value: OLCurrency): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value < MinValue then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.MinCurrency, 'Value must be at least %m.'), [MinValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-class function TOLValidators.MaxCurrency(const MaxValue: Currency; const ErrorMessage: string): TOLCurrencyValidationFunction;
-begin
-  Result := function(Value: OLCurrency): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value > MaxValue then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.MaxCurrency, 'Value must be at most %m.'), [MaxValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-class function TOLValidators.BetweenCurrency(const MinValue, MaxValue: Currency; const ErrorMessage: string): TOLCurrencyValidationFunction;
-begin
-  Result := function(Value: OLCurrency): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-  if (Value < MinValue) or (Value > MaxValue) then
-    begin
-      if ErrorMessage = '' then
-        Msg := Format(GetLocalizedMessage(ValidationMessages.BetweenCurrency, 'Value must be between %m and %m.'), [MinValue, MaxValue])
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-class function TOLValidators.PositiveCurrency(const ErrorMessage: string): TOLCurrencyValidationFunction;
-begin
-  Result := function(Value: OLCurrency): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value <= 0 then
-    begin
-      if ErrorMessage = '' then
-        Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.')
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
-end;
-
-class function TOLValidators.NegativeCurrency(const ErrorMessage: string): TOLCurrencyValidationFunction;
-begin
-  Result := function(Value: OLCurrency): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if not Value.HasValue then
-      Exit(TOLValidationResult.Ok);
-
-    if Value >= 0 then
-    begin
-      if ErrorMessage = '' then
-        Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.')
-      else
-        Msg := ErrorMessage;
-      Result := TOLValidationResult.Error(Msg);
-    end
-    else
-      Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartValidator.Create(svtNegative, 0, ErrorMessage);
 end;
 
 { String Validators }
@@ -926,91 +869,6 @@ end;
 
 { Date Validators }
 
-class function TOLValidators.PastDate(const ErrorMessage: string): TOLDateValidationFunction;
-begin
-  Result := function(Value: OLDate): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value < OLDate.Today then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.PastDate, 'Date must be in the past.'))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
-class function TOLValidators.FutureDate(const ErrorMessage: string): TOLDateValidationFunction;
-begin
-  Result := function(Value: OLDate): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value > OLDate.Today then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.FutureDate, 'Date must be in the future.'))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
-class function TOLValidators.AfterDate(const AValue: OLDate; const ErrorMessage: string): TOLDateValidationFunction;
-begin
-  Result := function(Value: OLDate): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value > AValue then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(Format(GetLocalizedMessage(ValidationMessages.AfterDate, 'Date must be after %s.'), [AValue.ToString]))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
-class function TOLValidators.BeforeDate(const AValue: OLDate; const ErrorMessage: string): TOLDateValidationFunction;
-begin
-  Result := function(Value: OLDate): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value < AValue then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(Format(GetLocalizedMessage(ValidationMessages.BeforeDate, 'Date must be before %s.'), [AValue.ToString]))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
-class function TOLValidators.BetweenDate(const AMin, AMax: OLDate; const ErrorMessage: string): TOLDateValidationFunction;
-begin
-  Result := function(Value: OLDate): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value.InRange(AMin, AMax) then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(Format(GetLocalizedMessage(ValidationMessages.BetweenDate, 'Date must be between %s and %s.'), [AMin.ToString, AMax.ToString]))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
 class function TOLValidators.Today(const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
@@ -1021,7 +879,7 @@ begin
     else
     begin
       if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Today, 'Date must be today.'))
+        Result := TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Today, 'Date must be today.')) // Reuse generic date error or add specific one
       else
         Result := TOLValidationResult.Error(ErrorMessage);
     end;
@@ -1033,7 +891,7 @@ begin
   Result := function(Value: OLDate): TOLValidationResult
   begin
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if OLDate.Today.YearsBetween(Value) >= Age then
+    if Value.YearsBetween(OLDate.Today) >= Age then
       Result := TOLValidationResult.Ok
     else
     begin
@@ -1098,89 +956,14 @@ end;
 
 { DateTime Validators }
 
-class function TOLValidators.PastDateTime(const ErrorMessage: string): TOLDateTimeValidationFunction;
+class function TOLValidators.Past(const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLDateTime): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value < OLDateTime.Now then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.PastDateTime, 'Date and time must be in the past.'))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
+  Result := TSmartValidator.Create(svtBefore, Now, ErrorMessage);
 end;
 
-class function TOLValidators.FutureDateTime(const ErrorMessage: string): TOLDateTimeValidationFunction;
+class function TOLValidators.Future(const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(Value: OLDateTime): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value > OLDateTime.Now then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.FutureDateTime, 'Date and time must be in the future.'))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
-class function TOLValidators.AfterDateTime(const AValue: OLDateTime; const ErrorMessage: string): TOLDateTimeValidationFunction;
-begin
-  Result := function(Value: OLDateTime): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value > AValue then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(Format(GetLocalizedMessage(ValidationMessages.AfterDateTime, 'Date and time must be after %s.'), [AValue.ToString]))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
-class function TOLValidators.BeforeDateTime(const AValue: OLDateTime; const ErrorMessage: string): TOLDateTimeValidationFunction;
-begin
-  Result := function(Value: OLDateTime): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if Value < AValue then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(Format(GetLocalizedMessage(ValidationMessages.BeforeDateTime, 'Date and time must be before %s.'), [AValue.ToString]))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
-end;
-
-class function TOLValidators.BetweenDateTime(const AMin, AMax: OLDateTime; const ErrorMessage: string): TOLDateTimeValidationFunction;
-begin
-  Result := function(Value: OLDateTime): TOLValidationResult
-  begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    if (Value >= AMin) and (Value <= AMax) then
-      Result := TOLValidationResult.Ok
-    else
-    begin
-      if ErrorMessage = '' then
-        Result := TOLValidationResult.Error(Format(GetLocalizedMessage(ValidationMessages.BetweenDateTime, 'Date and time must be between %s and %s.'), [AMin.ToString, AMax.ToString]))
-      else
-        Result := TOLValidationResult.Error(ErrorMessage);
-    end;
-  end;
+  Result := TSmartValidator.Create(svtAfter, Now, ErrorMessage);
 end;
 
 end.

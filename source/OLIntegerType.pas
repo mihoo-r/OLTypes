@@ -204,6 +204,7 @@ type
     class operator Implicit(const a: Variant): OLInteger;
     class operator Implicit(const a: OLInteger): Variant;
     class operator Implicit(const a: OLInteger): OLDouble;
+    class operator Implicit(const a: OLInteger): Extended;
 
 
     class operator Inc(a: OLInteger): OLInteger;
@@ -333,11 +334,17 @@ class operator OLInteger.Implicit(const a: OLInteger): integer;
 var
   OutPut: integer;
 begin
-
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as integer value');
   OutPut := a.FValue;
   Result := OutPut;
+end;
+
+class operator OLInteger.Implicit(const a: OLInteger): Extended;
+begin
+  if not a.ValuePresent then
+    raise Exception.Create('Null cannot be used as Extended value');
+  Result := a.FValue;
 end;
 
 class operator OLInteger.Dec(a: OLInteger): OLInteger;

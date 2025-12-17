@@ -70,6 +70,7 @@ type
     class operator Implicit(const a: OLDate): TDateTime;
     class operator Implicit(const a: Variant): OLDate;
     class operator Implicit(const a: OLDate): Variant;
+    class operator Implicit(const a: OLDate): Extended;
     class operator Implicit(const a: Extended): OLDate;
     class operator Implicit(const a: string): OLDate;
 
@@ -521,6 +522,15 @@ end;
 
 class operator OLDate.Implicit(const a: OLDate): TDateTime;
 begin
+  if not a.HasValue then
+    raise Exception.Create('Null cannot be used as TDateTime value');
+  Result := a.FValue;
+end;
+
+class operator OLDate.Implicit(const a: OLDate): Extended;
+begin
+  if not a.HasValue then
+    raise Exception.Create('Null cannot be used as Extended value');
   Result := a.FValue;
 end;
 

@@ -108,6 +108,7 @@ type
     class operator Implicit(const a: OLDateTime): TDateTime;
     class operator Implicit(const a: Variant): OLDateTime;
     class operator Implicit(const a: OLDateTime): Variant;
+    class operator Implicit(const a: OLDateTime): Extended;
     class operator Implicit(const a: Extended): OLDateTime;
     class operator Implicit(const a: string): OLDateTime;
 
@@ -865,6 +866,13 @@ class operator OLDateTime.Implicit(const a: OLDateTime): TDateTime;
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as TDateTime value.');
+  Result := a.FValue;
+end;
+
+class operator OLDateTime.Implicit(const a: OLDateTime): Extended;
+begin
+  if not a.ValuePresent then
+    raise Exception.Create('Null cannot be used as Extended value');
   Result := a.FValue;
 end;
 

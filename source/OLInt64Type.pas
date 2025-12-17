@@ -201,6 +201,7 @@ type
 
     class operator Implicit(a: OLInt64): Variant;
     class operator Implicit(a: OLInt64): OLDouble;
+    class operator Implicit(a: OLInt64): Extended;
 
     class operator Inc(a: OLInt64): OLInt64;
     class operator Dec(a: OLInt64): OLInt64;
@@ -322,6 +323,13 @@ begin
     raise Exception.Create('Null cannot be used as Int64 value');
   OutPut := a.Value;
   Result := OutPut;
+end;
+
+class operator OLInt64.Implicit(a: OLInt64): Extended;
+begin
+  if not a.ValuePresent then
+    raise Exception.Create('Null cannot be used as Extended value');
+  Result := a.Value;
 end;
 
 class operator OLInt64.Dec(a: OLInt64): OLInt64;
