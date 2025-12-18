@@ -35,6 +35,7 @@ uses
   OLTypesToEdits in '..\source\OLTypesToEdits.pas',
   SmartToDate in '..\source\SmartToDate.pas',
   TestOLDictionaries in 'TestOLDictionaries.pas',
+  Test_OLValidation in 'Test_OLValidation.pas',
   OLDictionaries in '..\source\OLDictionaries.pas',
   OLArrays in '..\source\OLArrays.pas',
   OLInt64Type in '..\source\OLInt64Type.pas';

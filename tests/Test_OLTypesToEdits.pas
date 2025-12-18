@@ -226,8 +226,8 @@ type
     procedure TestNullHandling;
   end;
 
-  // Test class for TOLTypesToControlsLinks (integration tests)
-  TestOLTypesToControlsLinks = class(TTestCase)
+  // Test class for TOLLinkManager (integration tests)
+  TestOLLinkManager = class(TTestCase)
   private
     FForm: TestForm;
     FEdit1: TEdit;
@@ -1337,7 +1337,7 @@ end;
 
 { TestOLTypesToControlsLinks }
 
-procedure TestOLTypesToControlsLinks.SetUp;
+procedure TestOLLinkManager.SetUp;
 begin
   FForm := TestForm.CreateNew(nil, 0);
   FEdit1 := TEdit.Create(FForm);
@@ -1363,34 +1363,34 @@ begin
    FForm.FBoolean := False;
 end;
 
-procedure TestOLTypesToControlsLinks.TearDown;
+procedure TestOLLinkManager.TearDown;
 begin
   Links.RemoveLinks(FForm);
   FForm.Free;
 end;
 
-procedure TestOLTypesToControlsLinks.TestLinkEditToInteger;
+procedure TestOLLinkManager.TestLinkEditToInteger;
 begin
   FEdit1.Link(FForm.FInt);
 
   CheckEquals('100', FEdit1.Text, 'Edit should display linked value');
 end;
 
-procedure TestOLTypesToControlsLinks.TestLinkEditToString;
+procedure TestOLLinkManager.TestLinkEditToString;
 begin
   FEdit1.Link(FForm.FString);
 
   CheckEquals('Test', FEdit1.Text, 'Edit should display linked string');
 end;
 
-procedure TestOLTypesToControlsLinks.TestLinkLabelToInteger;
+procedure TestOLLinkManager.TestLinkLabelToInteger;
 begin
   FLabel1.Link(FForm.FInt);
 
   CheckEquals('100', FLabel1.Caption, 'Label should display linked value');
 end;
 
-procedure TestOLTypesToControlsLinks.TestLinkLabelWithCalculation;
+procedure TestOLLinkManager.TestLinkLabelWithCalculation;
 var
   Calc: TFunctionReturningOLInteger;
 begin
@@ -1404,7 +1404,7 @@ begin
   CheckEquals('200', FLabel1.Caption, 'Label should display calculated value');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneInteger;
+procedure TestOLLinkManager.TestMultipleControlsToOneInteger;
 begin
   FEdit1.Link(FForm.FInt);
   FEdit2.Link(FForm.FInt);
@@ -1418,7 +1418,7 @@ begin
   CheckEquals('500', FLabel1.Caption, 'Label should be synced');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneString;
+procedure TestOLLinkManager.TestMultipleControlsToOneString;
 begin
   FEdit1.Link(FForm.FString);
   FEdit2.Link(FForm.FString);
@@ -1432,7 +1432,7 @@ begin
   CheckEquals('Updated', FLabel1.Caption, 'Label should be synced');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDouble;
+procedure TestOLLinkManager.TestMultipleControlsToOneDouble;
 begin
   FEdit1.Link(FForm.FDouble);
   FEdit2.Link(FForm.FDouble);
@@ -1446,7 +1446,7 @@ begin
   CheckTrue(Pos('789', FLabel1.Caption) > 0, 'Label should be synced');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneCurrency;
+procedure TestOLLinkManager.TestMultipleControlsToOneCurrency;
 begin
   FEdit1.Link(FForm.FCurrency);
   FEdit2.Link(FForm.FCurrency);
@@ -1460,7 +1460,7 @@ begin
   CheckTrue(Pos('200', FLabel1.Caption) > 0, 'Label should be synced');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDate;
+procedure TestOLLinkManager.TestMultipleControlsToOneDate;
 var
   TestDate: TDate;
 begin
@@ -1477,7 +1477,7 @@ begin
   CheckTrue(Pos('2025', FLabel1.Caption) > 0, 'Label should be synced');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneDateTime;
+procedure TestOLLinkManager.TestMultipleControlsToOneDateTime;
 var
   TestDateTime: TDateTime;
 begin
@@ -1494,7 +1494,7 @@ begin
   CheckTrue(Pos('2025', FLabel1.Caption) > 0, 'Label should be synced');
 end;
 
-procedure TestOLTypesToControlsLinks.TestMultipleControlsToOneBoolean;
+procedure TestOLLinkManager.TestMultipleControlsToOneBoolean;
 begin
   FCheckBox1.Link(FForm.FBoolean);
   FCheckBox2.Link(FForm.FBoolean);
@@ -1506,7 +1506,7 @@ begin
   CheckTrue(FCheckBox2.Checked, 'CheckBox2 should be synced');
 end;
 
-procedure TestOLTypesToControlsLinks.TestRefreshControls;
+procedure TestOLLinkManager.TestRefreshControls;
 begin
   FEdit1.Link(FForm.FInt);
 
@@ -1518,7 +1518,7 @@ end;
 
 
 
-procedure TestOLTypesToControlsLinks.TestCalculationError;
+procedure TestOLLinkManager.TestCalculationError;
 var
   Calc: TFunctionReturningOLInteger;
 begin
@@ -1938,7 +1938,7 @@ end;
   RegisterTest(TestOLDateToLabelValidation.Suite);
   RegisterTest(TestOLDateTimeToLabelValidation.Suite);
   {$IFEND}
-  RegisterTest(TestOLTypesToControlsLinks.Suite);
+  RegisterTest(TestOLLinkManager.Suite);
   RegisterTest(TestMemorySafety.Suite);
   {$IF CompilerVersion >= 34.0}
   RegisterTest(TestFormIsValid.Suite);
