@@ -142,12 +142,12 @@ begin
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
     ival := Trunc(a.FValue);
     case a.FType of
-      svtMin: if Value < ival then
+      svtMin, svtAfter: if Value < ival then
         begin
           if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinInt, 'Value must be at least %d.'), [ival]) else Msg := a.FMessage;
           Exit(TOLValidationResult.Error(Msg, a.FColor));
         end;
-      svtMax: if Value > ival then
+      svtMax, svtBefore: if Value > ival then
         begin
           if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxInt, 'Value must be at most %d.'), [ival]) else Msg := a.FMessage;
           Exit(TOLValidationResult.Error(Msg, a.FColor));
@@ -208,12 +208,12 @@ begin
   begin
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
     case a.FType of
-      svtMin: if Value < a.FValue then
+      svtMin, svtAfter: if Value < a.FValue then
         begin
           if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinCurrency, 'Value must be at least %m.'), [a.FValue]) else Msg := a.FMessage;
           Exit(TOLValidationResult.Error(Msg, a.FColor));
         end;
-      svtMax: if Value > a.FValue then
+      svtMax, svtBefore: if Value > a.FValue then
         begin
           if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxCurrency, 'Value must be at most %m.'), [a.FValue]) else Msg := a.FMessage;
           Exit(TOLValidationResult.Error(Msg, a.FColor));
@@ -881,7 +881,7 @@ begin
   var
     Msg: string;
   begin
-    if (not Value.HasValue) or (Value.YearsBetween(OLDate.Today) >= Age) then
+    if (not Value.HasValue) or (OLDate.Today.YearsBetween(Value) >= Age) then
       Result := TOLValidationResult.Ok
     else
     begin
@@ -898,7 +898,7 @@ begin
   var
     Msg: string;
   begin
-    if (not Value.HasValue) or (Value.YearsBetween(OLDate.Today) <= Age) then
+    if (not Value.HasValue) or (OLDate.Today.YearsBetween(Value) <= Age) then
       Result := TOLValidationResult.Ok
     else
     begin
