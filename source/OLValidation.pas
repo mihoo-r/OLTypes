@@ -45,7 +45,7 @@ type
     class operator Implicit(const a: TSmartRangeValidator): TOLDateTimeValidationFunction;
   end;
 
-  TOLValidators = class
+  OLValid = class
   public
     /// <summary>
     ///   Returns a validation rule that checks if the string value is not empty.
@@ -372,10 +372,10 @@ begin
   end;
 end;
 
-{ TOLValidators }
+{ OLValid }
 
 
-class function TOLValidators.IsRequired(const ErrorMessage: string): TValidationRule;
+class function OLValid.IsRequired(const ErrorMessage: string): TValidationRule;
 begin
   Result := function(const Value: string; const SenderControl: TControl): TOLValidationResult
   var
@@ -394,44 +394,44 @@ begin
   end;
 end;
 
-class function TOLValidators.Min(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Min(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtMin, AValue, ErrorMessage);
 end;
 
-class function TOLValidators.Max(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Max(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtMax, AValue, ErrorMessage);
 end;
 
-class function TOLValidators.Between(const AMin, AMax: Extended; const ErrorMessage: string): TSmartRangeValidator;
+class function OLValid.Between(const AMin, AMax: Extended; const ErrorMessage: string): TSmartRangeValidator;
 begin
   Result := TSmartRangeValidator.Create(AMin, AMax, ErrorMessage);
 end;
 
-class function TOLValidators.After(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
+class function OLValid.After(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtAfter, AValue, ErrorMessage);
 end;
 
-class function TOLValidators.Before(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Before(const AValue: Extended; const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtBefore, AValue, ErrorMessage);
 end;
 
-class function TOLValidators.Positive(const ErrorMessage: string): TSmartValidator;
+class function OLValid.Positive(const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtPositive, 0, ErrorMessage);
 end;
 
-class function TOLValidators.Negative(const ErrorMessage: string): TSmartValidator;
+class function OLValid.Negative(const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtNegative, 0, ErrorMessage);
 end;
 
 { String Validators }
 
-class function TOLValidators.MinLength(const MinLen: Integer; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.MinLength(const MinLen: Integer; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -450,7 +450,7 @@ begin
   end;
 end;
 
-class function TOLValidators.MaxLength(const MaxLen: Integer; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.MaxLength(const MaxLen: Integer; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -469,7 +469,7 @@ begin
   end;
 end;
 
-class function TOLValidators.AlphaNumeric(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.AlphaNumeric(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -491,7 +491,7 @@ begin
   end;
 end;
 
-class function TOLValidators.DigitsOnly(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.DigitsOnly(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -513,7 +513,7 @@ begin
   end;
 end;
 
-class function TOLValidators.Email(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.Email(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -537,7 +537,7 @@ begin
   end;
 end;
 
-class function TOLValidators.Password(const MinLen: Integer; const RequireMixedCase, RequireDigits, RequireSpecialChar: Boolean; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.Password(const MinLen: Integer; const RequireMixedCase, RequireDigits, RequireSpecialChar: Boolean; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -583,7 +583,7 @@ begin
   end;
 end;
 
-class function TOLValidators.URL(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.URL(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -603,7 +603,7 @@ begin
   end;
 end;
 
-class function TOLValidators.CreditCard(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.CreditCard(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -639,7 +639,7 @@ begin
   end;
 end;
 
-class function TOLValidators.EAN(const IsGTIN14: Boolean; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.EAN(const IsGTIN14: Boolean; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -682,7 +682,7 @@ begin
   end;
 end;
 
-class function TOLValidators.BIC(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.BIC(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -702,7 +702,7 @@ begin
   end;
 end;
 
-class function TOLValidators.IPv4(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.IPv4(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -731,7 +731,7 @@ begin
   end;
 end;
 
-class function TOLValidators.IPv6(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.IPv6(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -751,7 +751,7 @@ begin
   end;
 end;
 
-class function TOLValidators.IBAN(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.IBAN(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   begin
@@ -767,7 +767,7 @@ begin
   end;
 end;
 
-class function TOLValidators.PESEL(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.PESEL(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -817,7 +817,7 @@ begin
   end;
 end;
 
-class function TOLValidators.NIP(const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.NIP(const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -869,7 +869,7 @@ end;
 
 { Date Validators }
 
-class function TOLValidators.Today(const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.Today(const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   begin
@@ -886,7 +886,7 @@ begin
   end;
 end;
 
-class function TOLValidators.MinAge(const Age: Integer; const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.MinAge(const Age: Integer; const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   begin
@@ -903,7 +903,7 @@ begin
   end;
 end;
 
-class function TOLValidators.MaxAge(const Age: Integer; const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.MaxAge(const Age: Integer; const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   begin
@@ -920,7 +920,7 @@ begin
   end;
 end;
 
-class function TOLValidators.IsWeekday(const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.IsWeekday(const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   begin
@@ -937,7 +937,7 @@ begin
   end;
 end;
 
-class function TOLValidators.IsWeekend(const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.IsWeekend(const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   begin
@@ -956,12 +956,12 @@ end;
 
 { DateTime Validators }
 
-class function TOLValidators.Past(const ErrorMessage: string): TSmartValidator;
+class function OLValid.Past(const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtBefore, Now, ErrorMessage);
 end;
 
-class function TOLValidators.Future(const ErrorMessage: string): TSmartValidator;
+class function OLValid.Future(const ErrorMessage: string): TSmartValidator;
 begin
   Result := TSmartValidator.Create(svtAfter, Now, ErrorMessage);
 end;

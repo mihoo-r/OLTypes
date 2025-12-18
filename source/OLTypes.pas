@@ -96,7 +96,7 @@ type
   OLStrDblDictionary = OLDictionaries.OLStrDblDictionary;
   {$IFEND}
 
-  TOLValidators = OLValidation.TOLValidators;
+  OLValid = OLValidation.OLValid;
 
   TStringPatternFind = OLStringType.TStringPatternFind;
 
