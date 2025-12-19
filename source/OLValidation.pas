@@ -9,11 +9,11 @@ uses
   Graphics, Controls,
   {$IFEND}
   {$IF CompilerVersion >= 23.0} System.SysUtils, System.Types, System.StrUtils, System.DateUtils {$ELSE} SysUtils, Types, StrUtils, DateUtils {$IFEND},
-  OLIntegerType, OLDoubleType, OLCurrencyType, OLStringType, OLDateType, OLDateTimeType, OLValidationTypes, OLValidationLocalization;
+  OLIntegerType, OLDoubleType, OLCurrencyType, OLStringType, OLDateType, OLBooleanType, OLDateTimeType, OLValidationTypes, OLValidationLocalization;
 
 type
   /// <summary>Internal types for smart overloading.</summary>
-  TSmartValidatorType = (svtMin, svtMax, svtPositive, svtNegative, svtAfter, svtBefore);
+  TSmartValidatorType = (svtMin, svtMax, svtPositive, svtNegative, svtAfter, svtBefore, svtRequired);
 
   /// <summary>
   ///   A record that can implicitly convert to any numeric/date validation function.
@@ -29,6 +29,8 @@ type
     class operator Implicit(const a: TSmartValidator): TOLIntegerValidationFunction;
     class operator Implicit(const a: TSmartValidator): TOLDoubleValidationFunction;
     class operator Implicit(const a: TSmartValidator): TOLCurrencyValidationFunction;
+    class operator Implicit(const a: TSmartValidator): TOLStringValidationFunction;
+    class operator Implicit(const a: TSmartValidator): TOLBooleanValidationFunction;
     class operator Implicit(const a: TSmartValidator): TOLDateValidationFunction;
     class operator Implicit(const a: TSmartValidator): TOLDateTimeValidationFunction;
   end;
@@ -50,9 +52,10 @@ type
   OLValid = class
   public
     /// <summary>
-    ///   Returns a validation rule that checks if the string value is not empty.
+    ///   Returns a validation rule that checks if the value is not empty or null.
     /// </summary>
-    class function IsRequired(const AColor: TColor = clDefault; const ErrorMessage: string = 'This field is required.'): TValidationRule; static;
+    class function IsRequired(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
+
 
     // Numeric/Date Validators (Using Smart Overloading)
     /// <summary>Checks if the numeric or date value is at least AValue.</summary>
@@ -139,29 +142,40 @@ begin
     Msg: string;
     ival: Integer;
   begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
     ival := Trunc(a.FValue);
-    case a.FType of
-      svtMin, svtAfter: if Value < ival then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinInt, 'Value must be at least %d.'), [ival]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtMax, svtBefore: if Value > ival then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxInt, 'Value must be at most %d.'), [ival]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtPositive: if Value <= 0 then
-        begin
-          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtNegative: if Value >= 0 then
-        begin
-          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
+    if a.FType = svtRequired then
+    begin
+      if not Value.HasValue then
+      begin
+        if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Required, 'This field is required.') else Msg := a.FMessage;
+        Exit(TOLValidationResult.Error(Msg, a.FColor));
+      end;
+    end
+    else
+    begin
+      if not Value.HasValue then Exit(TOLValidationResult.Ok);
+      case a.FType of
+        svtMin, svtAfter: if Value < ival then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinInt, 'Value must be at least %d.'), [ival]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtMax, svtBefore: if Value > ival then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxInt, 'Value must be at most %d.'), [ival]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtPositive: if Value <= 0 then
+          begin
+            if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtNegative: if Value >= 0 then
+          begin
+            if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+      end;
     end;
     Result := TOLValidationResult.Ok;
   end;
@@ -173,28 +187,39 @@ begin
   var
     Msg: string;
   begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    case a.FType of
-      svtMin, svtAfter: if Value < a.FValue then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinDouble, 'Value must be at least %g.'), [a.FValue]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtMax, svtBefore: if Value > a.FValue then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxDouble, 'Value must be at most %g.'), [a.FValue]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtPositive: if Value <= 0 then
-        begin
-          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtNegative: if Value >= 0 then
-        begin
-          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
+    if a.FType = svtRequired then
+    begin
+      if not Value.HasValue then
+      begin
+        if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Required, 'This field is required.') else Msg := a.FMessage;
+        Exit(TOLValidationResult.Error(Msg, a.FColor));
+      end;
+    end
+    else
+    begin
+      if not Value.HasValue then Exit(TOLValidationResult.Ok);
+      case a.FType of
+        svtMin, svtAfter: if Value < a.FValue then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinDouble, 'Value must be at least %g.'), [a.FValue]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtMax, svtBefore: if Value > a.FValue then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxDouble, 'Value must be at most %g.'), [a.FValue]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtPositive: if Value <= 0 then
+          begin
+            if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtNegative: if Value >= 0 then
+          begin
+            if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+      end;
     end;
     Result := TOLValidationResult.Ok;
   end;
@@ -206,28 +231,75 @@ begin
   var
     Msg: string;
   begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
-    case a.FType of
-      svtMin, svtAfter: if Value < a.FValue then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinCurrency, 'Value must be at least %m.'), [a.FValue]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtMax, svtBefore: if Value > a.FValue then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxCurrency, 'Value must be at most %m.'), [a.FValue]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtPositive: if Value <= 0 then
-        begin
-          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtNegative: if Value >= 0 then
-        begin
-          if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
+    if a.FType = svtRequired then
+    begin
+      if not Value.HasValue then
+      begin
+        if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Required, 'This field is required.') else Msg := a.FMessage;
+        Exit(TOLValidationResult.Error(Msg, a.FColor));
+      end;
+    end
+    else
+    begin
+      if not Value.HasValue then Exit(TOLValidationResult.Ok);
+      case a.FType of
+        svtMin, svtAfter: if Value < a.FValue then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinCurrency, 'Value must be at least %m.'), [a.FValue]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtMax, svtBefore: if Value > a.FValue then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxCurrency, 'Value must be at most %m.'), [a.FValue]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtPositive: if Value <= 0 then
+          begin
+            if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Positive, 'Value must be positive.') else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtNegative: if Value >= 0 then
+          begin
+            if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Negative, 'Value must be negative.') else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+      end;
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLStringValidationFunction;
+begin
+  Result := function(Value: OLString): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if a.FType = svtRequired then
+    begin
+      if Value.ToString() = '' then
+      begin
+        if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Required, 'This field is required.') else Msg := a.FMessage;
+        Exit(TOLValidationResult.Error(Msg, a.FColor));
+      end;
+    end;
+    Result := TOLValidationResult.Ok;
+  end;
+end;
+
+class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLBooleanValidationFunction;
+begin
+  Result := function(Value: OLBoolean): TOLValidationResult
+  var
+    Msg: string;
+  begin
+    if a.FType = svtRequired then
+    begin
+      if not Value.HasValue then
+      begin
+        if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Required, 'This field is required.') else Msg := a.FMessage;
+        Exit(TOLValidationResult.Error(Msg, a.FColor));
+      end;
     end;
     Result := TOLValidationResult.Ok;
   end;
@@ -240,19 +312,30 @@ begin
     Msg: string;
     target: TDateTime;
   begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
     target := Int(a.FValue); // Use date part for OLDate
-    case a.FType of
-      svtMin, svtAfter: if Value <= target then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.AfterDate, 'Date must be after %s.'), [DateToStr(target)]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtMax, svtBefore: if Value >= target then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BeforeDate, 'Date must be before %s.'), [DateToStr(target)]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
+    if a.FType = svtRequired then
+    begin
+      if not Value.HasValue then
+      begin
+        if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Required, 'This field is required.') else Msg := a.FMessage;
+        Exit(TOLValidationResult.Error(Msg, a.FColor));
+      end;
+    end
+    else
+    begin
+      if not Value.HasValue then Exit(TOLValidationResult.Ok);
+      case a.FType of
+        svtMin, svtAfter: if Value <= target then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.AfterDate, 'Date must be after %s.'), [DateToStr(target)]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtMax, svtBefore: if Value >= target then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BeforeDate, 'Date must be before %s.'), [DateToStr(target)]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+      end;
     end;
     Result := TOLValidationResult.Ok;
   end;
@@ -265,19 +348,30 @@ begin
     Msg: string;
     target: TDateTime;
   begin
-    if not Value.HasValue then Exit(TOLValidationResult.Ok);
     target := a.FValue;
-    case a.FType of
-      svtMin, svtAfter: if Value <= target then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.AfterDateTime, 'Date and time must be after %s.'), [DateTimeToStr(target)]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
-      svtMax, svtBefore: if Value >= target then
-        begin
-          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BeforeDateTime, 'Date and time must be before %s.'), [DateTimeToStr(target)]) else Msg := a.FMessage;
-          Exit(TOLValidationResult.Error(Msg, a.FColor));
-        end;
+    if a.FType = svtRequired then
+    begin
+      if not Value.HasValue then
+      begin
+        if a.FMessage = '' then Msg := GetLocalizedMessage(ValidationMessages.Required, 'This field is required.') else Msg := a.FMessage;
+        Exit(TOLValidationResult.Error(Msg, a.FColor));
+      end;
+    end
+    else
+    begin
+      if not Value.HasValue then Exit(TOLValidationResult.Ok);
+      case a.FType of
+        svtMin, svtAfter: if Value <= target then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.AfterDateTime, 'Date and time must be after %s.'), [DateTimeToStr(target)]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+        svtMax, svtBefore: if Value >= target then
+          begin
+            if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BeforeDateTime, 'Date and time must be before %s.'), [DateTimeToStr(target)]) else Msg := a.FMessage;
+            Exit(TOLValidationResult.Error(Msg, a.FColor));
+          end;
+      end;
     end;
     Result := TOLValidationResult.Ok;
   end;
@@ -379,19 +473,9 @@ end;
 { OLValid }
 
 
-class function OLValid.IsRequired(const AColor: TColor; const ErrorMessage: string): TValidationRule;
+class function OLValid.IsRequired(const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := function(const Value: string; const SenderControl: TControl): TOLValidationResult
-  var
-    Msg: string;
-  begin
-    if Value = '' then
-    begin
-      Msg := GetLocalizedMessage(ValidationMessages.Required, ErrorMessage);
-      Exit(TOLValidationResult.Error(Msg, AColor));
-    end;
-    Result := TOLValidationResult.Ok;
-  end;
+  Result := TSmartValidator.Create(svtRequired, 0, AColor, ErrorMessage);
 end;
 
 class function OLValid.Min(const AValue: Extended; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
