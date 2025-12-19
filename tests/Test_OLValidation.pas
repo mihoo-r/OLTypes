@@ -26,11 +26,33 @@ type
     procedure TestSmartRangeValidatorColor;
     procedure TestNumericTypes;
     procedure TestPasswordValidator;
+    procedure TestValueRequired;
   end;
 
 implementation
 
 { TestOLValidation }
+
+procedure TestOLValidation.TestValueRequired;
+var
+  Res: TOLValidationResult;
+begin
+  // String validation with vrValueRequired
+  CheckFalse(OLValid.Email(vrValueRequired)(OLString.Null).Valid, 'Email(vrValueRequired) should fail for Null');
+  CheckFalse(OLValid.PESEL(vrValueRequired)(OLString.Null).Valid, 'PESEL(vrValueRequired) should fail for Null');
+  CheckTrue(OLValid.Email(vrAllowNullOrEmpty)(OLString.Null).Valid, 'Email(vrAllowNullOrEmpty) should pass for Null');
+
+  // Numeric validation with vrValueRequired
+  CheckFalse(OLValid.Min(10, vrValueRequired)(OLInteger.Null).Valid, 'Min(vrValueRequired) should fail for Null Integer');
+  CheckTrue(OLValid.Min(10, vrAllowNullOrEmpty)(OLInteger.Null).Valid, 'Min(vrAllowNullOrEmpty) should pass for Null Integer');
+
+  // Date validation with vrValueRequired
+  CheckFalse(OLValid.Today(vrValueRequired)(OLDate.Null).Valid, 'Today(vrValueRequired) should fail for Null Date');
+  CheckTrue(OLValid.Today(vrAllowNullOrEmpty)(OLDate.Null).Valid, 'Today(vrAllowNullOrEmpty) should pass for Null Date');
+
+  // Range validation with vrValueRequired
+  CheckFalse(OLValid.Between(1, 10, vrValueRequired)(OLInteger.Null).Valid, 'Between(vrValueRequired) should fail for Null');
+end;
 
 procedure TestOLValidation.TestIsRequired;
 var
@@ -317,12 +339,12 @@ var
   Res: TOLValidationResult;
 begin
   // Test if color is correctly propagated
-  Rule := OLValid.Min(10, clRed);
+  Rule := OLValid.Min(10, vrAllowNullOrEmpty, clRed);
   Res := Rule(5);
   CheckFalse(Res.Valid);
   CheckEquals(clRed, Res.Color, 'Color should be clRed on failure');
 
-  Rule := OLValid.Min(10, clBlue);
+  Rule := OLValid.Min(10, vrAllowNullOrEmpty, clBlue);
   Res := Rule(5);
   CheckFalse(Res.Valid);
   CheckEquals(clBlue, Res.Color, 'Color should be clBlue on failure');
@@ -334,7 +356,7 @@ var
   Res: TOLValidationResult;
 begin
   // Test Between color
-  Rule := OLValid.Between(10, 20, clWebOrange);
+  Rule := OLValid.Between(10, 20, vrAllowNullOrEmpty, clWebOrange);
   Res := Rule(5);
   CheckFalse(Res.Valid);
   CheckEquals(clWebOrange, Res.Color, 'Color should be clWebOrange on failure');
