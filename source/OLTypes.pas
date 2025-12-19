@@ -25,6 +25,10 @@ const
   DOUBLE_FORMAT = '###,###,###,##0.0####';
   CURRENCY_FORMAT = '###,###,###,##0.00##';
 
+  // Re-export TValueRequired enum values for easier access
+  vrValueRequired = OLValidation.vrValueRequired;
+  vrAllowNullOrEmpty = OLValidation.vrAllowNullOrEmpty;
+
 type
   TFunctionReturningOLInteger = reference to function(): OLInteger;
   TFunctionReturningOLString = reference to function(): OLString;
@@ -97,6 +101,7 @@ type
   {$IFEND}
 
   OLValid = OLValidation.OLValid;
+  TValueRequired = OLValidation.TValueRequired;
 
   TStringPatternFind = OLStringType.TStringPatternFind;
 
