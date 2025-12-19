@@ -35,16 +35,16 @@ implementation
 procedure TestOLValidation.TestIsRequired;
 var
   Res: TOLValidationResult;
-  Rule: TValidationRule;
+  Rule: TOLStringValidationFunction;
 begin
   // Valid case
   Rule := OLValid.IsRequired();
-  Res := Rule('text', nil);
+  Res := Rule('text');
   CheckTrue(Res.Valid, 'IsRequired should pass for non-empty string');
 
   // Invalid case
   Rule := OLValid.IsRequired();
-  Res := Rule('', nil);
+  Res := Rule('');
   CheckFalse(Res.Valid, 'IsRequired should fail for empty string');
   CheckFalse(Res.Message.IsEmptyStr, 'IsRequired should not have empty Message on fail');
 end;
