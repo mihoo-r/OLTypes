@@ -2,6 +2,8 @@ unit Test_OLValidation;
 
 interface
 
+{$IF CompilerVersion >= 34.0}
+
 uses
   TestFramework, SysUtils,
   {$IF CompilerVersion >= 23.0}
@@ -26,32 +28,47 @@ type
     procedure TestSmartRangeValidatorColor;
     procedure TestNumericTypes;
     procedure TestPasswordValidator;
-    procedure TestValueRequired;
+    procedure TestNullHandling;
   end;
+
+
+{$IFEND}
 
 implementation
 
+{$IF CompilerVersion >= 34.0}
+
+uses
+  {$IF CompilerVersion >= 23.0}
+  System.Variants;
+  {$ELSE}
+  Variants;
+  {$IFEND}
+
 { TestOLValidation }
 
-procedure TestOLValidation.TestValueRequired;
+procedure TestOLValidation.TestNullHandling;
 var
   Res: TOLValidationResult;
+  ivf: TOLIntegerValidationFunction;
+  dvf: TOLDateValidationFunction;
 begin
-  // String validation with vrValueRequired
-  CheckFalse(OLValid.Email(vrValueRequired)(OLString.Null).Valid, 'Email(vrValueRequired) should fail for Null');
-  CheckFalse(OLValid.PESEL(vrValueRequired)(OLString.Null).Valid, 'PESEL(vrValueRequired) should fail for Null');
-  CheckTrue(OLValid.Email(vrAllowNullOrEmpty)(OLString.Null).Valid, 'Email(vrAllowNullOrEmpty) should pass for Null');
+  // By default, all specific validators should PASS for Null/Empty
+  CheckTrue(OLValid.Email()(Null).Valid, 'Email() should pass for Null by default');
+  CheckTrue(OLValid.PESEL()(Null).Valid, 'PESEL() should pass for Null by default');
+  
+  ivf := OLValid.Min(10);
+  CheckTrue(ivf(Null).Valid, 'Min(10) should pass for Null Integer by default');
 
-  // Numeric validation with vrValueRequired
-  CheckFalse(OLValid.Min(10, vrValueRequired)(OLInteger.Null).Valid, 'Min(vrValueRequired) should fail for Null Integer');
-  CheckTrue(OLValid.Min(10, vrAllowNullOrEmpty)(OLInteger.Null).Valid, 'Min(vrAllowNullOrEmpty) should pass for Null Integer');
+  dvf := OLValid.Today();
+  CheckTrue(dvf(Null).Valid, 'Today() should pass for Null Date by default');
 
-  // Date validation with vrValueRequired
-  CheckFalse(OLValid.Today(vrValueRequired)(OLDate.Null).Valid, 'Today(vrValueRequired) should fail for Null Date');
-  CheckTrue(OLValid.Today(vrAllowNullOrEmpty)(OLDate.Null).Valid, 'Today(vrAllowNullOrEmpty) should pass for Null Date');
-
-  // Range validation with vrValueRequired
-  CheckFalse(OLValid.Between(1, 10, vrValueRequired)(OLInteger.Null).Valid, 'Between(vrValueRequired) should fail for Null');
+  ivf := OLValid.Between(1, 10);
+  CheckTrue(ivf(Null).Valid, 'Between(1, 10) should pass for Null by default');
+  
+  // Only IsRequired should fail for Null
+  ivf := OLValid.IsRequired();
+  CheckFalse(ivf(Null).Valid, 'IsRequired() should fail for Null');
 end;
 
 procedure TestOLValidation.TestIsRequired;
@@ -339,12 +356,12 @@ var
   Res: TOLValidationResult;
 begin
   // Test if color is correctly propagated
-  Rule := OLValid.Min(10, vrAllowNullOrEmpty, clRed);
+  Rule := OLValid.Min(10, clRed);
   Res := Rule(5);
   CheckFalse(Res.Valid);
   CheckEquals(clRed, Res.Color, 'Color should be clRed on failure');
 
-  Rule := OLValid.Min(10, vrAllowNullOrEmpty, clBlue);
+  Rule := OLValid.Min(10, clBlue);
   Res := Rule(5);
   CheckFalse(Res.Valid);
   CheckEquals(clBlue, Res.Color, 'Color should be clBlue on failure');
@@ -356,7 +373,7 @@ var
   Res: TOLValidationResult;
 begin
   // Test Between color
-  Rule := OLValid.Between(10, 20, vrAllowNullOrEmpty, clWebOrange);
+  Rule := OLValid.Between(10, 20, clWebOrange);
   Res := Rule(5);
   CheckFalse(Res.Valid);
   CheckEquals(clWebOrange, Res.Color, 'Color should be clWebOrange on failure');
@@ -420,5 +437,7 @@ end;
 
 initialization
   RegisterTest(TestOLValidation.Suite);
+
+{$IFEND}
 
 end.

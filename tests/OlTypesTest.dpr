@@ -36,6 +36,7 @@ uses
   SmartToDate in '..\source\SmartToDate.pas',
   TestOLDictionaries in 'TestOLDictionaries.pas',
   Test_OLValidation in 'Test_OLValidation.pas',
+  Test_FluentValidation in 'Test_FluentValidation.pas',
   OLDictionaries in '..\source\OLDictionaries.pas',
   OLArrays in '..\source\OLArrays.pas',
   OLInt64Type in '..\source\OLInt64Type.pas';

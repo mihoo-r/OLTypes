@@ -210,6 +210,20 @@ type
     procedure TestValidationPass;
     procedure TestValueNotUpdatedOnFail;
   end;
+  TestMultiValidator = class(TTestCase)
+  private
+    FForm: TestForm;
+    FEdit: TEdit;
+    FValue: OLInteger;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestMultipleValidatorsSuccess;
+    procedure TestMultipleValidatorsFirstFail;
+    procedure TestMultipleValidatorsSecondFail;
+    procedure TestSetValidationFunctionClearsOthers;
+  end;
   {$IFEND}
 
   // Test class for TCheckBoxToOLBoolean binding
@@ -369,7 +383,7 @@ type
 implementation
 
 uses
-  DateUtils,
+  DateUtils, OLValidationTypes,
 
   {$IF CompilerVersion >= 23.0}
     Vcl.Graphics;
@@ -927,7 +941,7 @@ begin
   FPicker.Format := 'dd/MM/yyyy';
   FPicker.Date := OLDate.Today.IncYear(10); // Future date
   FForm.FDate := OLDate.Today.IncYear(10); // Future date
-  Links.Link(FPicker, FForm.FDate, MustBeFutureDate);
+  Links.Link(FPicker, FForm.FDate).AddValidator(MustBeFutureDate);
 end;
 
 procedure TestDateTimePickerToOLDateValidation.TearDown;
@@ -1019,7 +1033,7 @@ begin
   {$IFEND}
   FForm.FDateTime := Now + 1; // Future datetime
   FPicker.DateTime := Now + 1;
-  Links.Link(FPicker, FForm.FDateTime, MustBeFutureDateTime);
+  Links.Link(FPicker, FForm.FDateTime).AddValidator(MustBeFutureDateTime);
 end;
 
 procedure TestDateTimePickerToOLDateTimeValidation.TearDown;
@@ -1103,7 +1117,7 @@ begin
   FLabel := TLabel.Create(FForm);
   FLabel.Parent := FForm;
   FForm.FDate := OLDate.Today.IncYear(10); // Future date
-  Links.Link(FLabel, FForm.FDate, MustBeFutureDate);
+  Links.Link(FLabel, FForm.FDate).AddValidator(MustBeFutureDate);
 end;
 
 procedure TestOLDateToLabelValidation.TearDown;
@@ -1158,7 +1172,7 @@ begin
   FLabel := TLabel.Create(FForm);
   FLabel.Parent := FForm;
   FForm.FDateTime := Now + 1; // Future datetime
-  Links.Link(FLabel, FForm.FDateTime, MustBeFutureDateTime);
+  Links.Link(FLabel, FForm.FDateTime).AddValidator(MustBeFutureDateTime);
 end;
 
 procedure TestOLDateTimeToLabelValidation.TearDown;
@@ -1215,7 +1229,7 @@ begin
   FCheckBox.Parent := FForm;
   FCheckBox.Caption := 'Test CheckBox';
   FForm.FBoolean := true;
-  Links.Link(FCheckBox, FForm.FBoolean, MustBeChecked);
+  Links.Link(FCheckBox, FForm.FBoolean).AddValidator(MustBeChecked);
 end;
 
 procedure TestCheckBoxToOLBooleanValidation.TearDown;
@@ -1420,9 +1434,10 @@ end;
 
 procedure TestOLLinkManager.TestMultipleControlsToOneString;
 begin
+  FLabel1.Link(FForm.FString);
   FEdit1.Link(FForm.FString);
   FEdit2.Link(FForm.FString);
-  FLabel1.Link(FForm.FString);
+  //FLabel1.Link(FForm.FString);
 
   FForm.FString := 'Updated';
   WaitForTimers();
@@ -1630,21 +1645,21 @@ begin
   FMemo.Parent := FForm;
   FStringValue := 'Valid';
   {$IF CompilerVersion >= 34.0}
-  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+  Links.Link(FEdit, FValue).AddValidator(function(i: OLInteger): TOLValidationResult
     begin
       if i < 0 then
         Result := TOLValidationResult.Error('Must be positive')
       else
         Result := TOLValidationResult.Ok;
     end);
-  Links.Link(FCheckBox, FBooleanValue, function(b: OLBoolean): TOLValidationResult
+  Links.Link(FCheckBox, FBooleanValue).AddValidator(function(b: OLBoolean): TOLValidationResult
     begin
       if b.IfNull(False) then
         Result := TOLValidationResult.Ok
       else
         Result := TOLValidationResult.Error('Must be checked');
     end);
-  Links.Link(FMemo, FStringValue, function(s: OLString): TOLValidationResult
+  Links.Link(FMemo, FStringValue).AddValidator(function(s: OLString): TOLValidationResult
     begin
       if Length(s) >= 3 then
         Result := TOLValidationResult.Ok
@@ -1694,7 +1709,7 @@ end;
 
 procedure TestEditIsValid.TestIsValidWhenValid;
 begin
-  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+  Links.Link(FEdit, FValue).AddValidator(function(i: OLInteger): TOLValidationResult
     begin
       if i >= 0 then
         Result := TOLValidationResult.Ok
@@ -1707,12 +1722,12 @@ end;
 
 procedure TestEditIsValid.TestIsValidWhenInvalid;
 begin
-  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+  Links.Link(FEdit, FValue).AddValidator(function(i: OLInteger): TOLValidationResult
     begin
       if i >= 0 then
         Result := TOLValidationResult.Ok
       else
-        Result := TOLValidationResult.Error('Must be non-negative');
+        Result := TOLValidationResult.Error('Must be positive', clRed);
     end);
   FValue := -1;
   CheckFalse(FEdit.IsValid, 'Edit should be invalid when value fails validation criteria');
@@ -1747,7 +1762,7 @@ end;
 
 procedure TestTrackBarIsValid.TestIsValidWhenValid;
 begin
-  Links.Link(FTrackBar, FValue, function(i: OLInteger): TOLValidationResult
+  Links.Link(FTrackBar, FValue).AddValidator(function(i: OLInteger): TOLValidationResult
     begin
       if i >= 0 then
         Result := TOLValidationResult.Ok
@@ -1760,7 +1775,7 @@ end;
 
 procedure TestTrackBarIsValid.TestIsValidWhenInvalid;
 begin
-  Links.Link(FTrackBar, FValue, function(i: OLInteger): TOLValidationResult
+  Links.Link(FTrackBar, FValue).AddValidator(function(i: OLInteger): TOLValidationResult
     begin
       if i >= 0 then
         Result := TOLValidationResult.Ok
@@ -1798,7 +1813,7 @@ end;
 
 procedure TestMemoIsValid.TestIsValidWhenValid;
 begin
-  Links.Link(FMemo, FValue, function(s: OLString): TOLValidationResult
+  Links.Link(FMemo, FValue).AddValidator(function(s: OLString): TOLValidationResult
     begin
       if Length(s) >= 3 then
         Result := TOLValidationResult.Ok
@@ -1811,7 +1826,7 @@ end;
 
 procedure TestMemoIsValid.TestIsValidWhenInvalid;
 begin
-  Links.Link(FMemo, FValue, function(s: OLString): TOLValidationResult
+  Links.Link(FMemo, FValue).AddValidator(function(s: OLString): TOLValidationResult
     begin
       if Length(s) >= 3 then
         Result := TOLValidationResult.Ok
@@ -1849,7 +1864,7 @@ end;
 
 procedure TestCheckBoxIsValid.TestIsValidWhenValid;
 begin
-  Links.Link(FCheckBox, FValue, function(b: OLBoolean): TOLValidationResult
+  Links.Link(FCheckBox, FValue).AddValidator(function(b: OLBoolean): TOLValidationResult
     begin
       if b.IfNull(False) then
         Result := TOLValidationResult.Ok
@@ -1862,7 +1877,7 @@ end;
 
 procedure TestCheckBoxIsValid.TestIsValidWhenInvalid;
 begin
-  Links.Link(FCheckBox, FValue, function(b: OLBoolean): TOLValidationResult
+  Links.Link(FCheckBox, FValue).AddValidator(function(b: OLBoolean): TOLValidationResult
     begin
       if b.IfNull(False) then
         Result := TOLValidationResult.Ok
@@ -1891,7 +1906,7 @@ begin
   FEdit.Parent := FForm;
   FValue := 10;
 
-  Links.Link(FEdit, FValue, function(i: OLInteger): TOLValidationResult
+  Links.Link(FEdit, FValue).AddValidator(function(i: OLInteger): TOLValidationResult
     begin
       if i >= 0 then
         Result := TOLValidationResult.Ok
@@ -1920,6 +1935,119 @@ begin
   CheckEquals('Must be positive', FEdit.Hint, 'Edit hint should be updated');
   CheckTrue(FEdit.ShowHint, 'Edit should show hint');
 end;
+
+{ TestMultiValidator }
+
+procedure TestMultiValidator.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FValue := 10;
+end;
+
+procedure TestMultiValidator.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestMultiValidator.TestMultipleValidatorsSuccess;
+var
+  link: TEditToOLInteger;
+begin
+  link := Links.Link(FEdit, FValue);
+
+  link.AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      if val > 0 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('Must be positive');
+    end);
+
+  link.AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      if val < 100 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('Must be less than 100');
+    end);
+
+  FValue := 50;
+  CheckTrue(FEdit.IsValid, 'Should be valid for 50');
+end;
+
+procedure TestMultiValidator.TestMultipleValidatorsFirstFail;
+var
+  link: TEditToOLInteger;
+begin
+  link := Links.Link(FEdit, FValue);
+
+  link.AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      if val > 0 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('First Error');
+    end);
+
+  link.AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      if val < 100 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('Second Error');
+    end);
+
+  FValue := -10;
+  CheckFalse(FEdit.IsValid, 'Should be invalid for -10');
+
+  FForm.ShowValidationState;
+  CheckEquals('First Error', FEdit.Hint, 'Should show the first error');
+end;
+
+procedure TestMultiValidator.TestMultipleValidatorsSecondFail;
+var
+  link: TEditToOLInteger;
+begin
+  link := Links.Link(FEdit, FValue);
+
+  link.AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      if val > 0 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('First Error');
+    end);
+
+  link.AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      if val < 100 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('Second Error');
+    end);
+
+  FValue := 150;
+  CheckFalse(FEdit.IsValid, 'Should be invalid for 150');
+
+  FForm.ShowValidationState;
+  CheckEquals('Second Error', FEdit.Hint, 'Should show the second error');
+end;
+
+procedure TestMultiValidator.TestSetValidationFunctionClearsOthers;
+var
+  link: TEditToOLInteger;
+begin
+  link := Links.Link(FEdit, FValue);
+
+  link.AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      if val > 0 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('First Error');
+    end);
+
+  link.ValidationFunction := function(val: OLInteger): TOLValidationResult
+    begin
+      if val = 42 then Result := TOLValidationResult.Ok
+      else Result := TOLValidationResult.Error('Only 42 is allowed');
+    end;
+
+  FValue := 50; // Positive, but not 42
+  CheckFalse(FEdit.IsValid, 'Should be invalid because 42 is now the only rule');
+
+  FForm.ShowValidationState;
+  CheckEquals('Only 42 is allowed', FEdit.Hint, 'Should show the new error');
+end;
 {$IFEND}
 
  initialization
@@ -1947,6 +2075,7 @@ end;
   RegisterTest(TestMemoIsValid.Suite);
   RegisterTest(TestCheckBoxIsValid.Suite);
   RegisterTest(TestFormShowValidationState.Suite);
+  RegisterTest(TestMultiValidator.Suite);
   {$IFEND}
 
  end.
