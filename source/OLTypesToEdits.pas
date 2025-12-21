@@ -2,11 +2,14 @@
 
 interface
 
-uses OLTypes, OLValidation, {$IF CompilerVersion >= 23.0} System.Generics.Collections, {$ELSE} Generics.Collections, {$IFEND}
+uses 
+  OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
+  OLIntegerType, OLInt64Type, OLStringType,
+  OLValidation, OLValidationTypes, {$IF CompilerVersion >= 23.0} System.Generics.Collections, {$ELSE} Generics.Collections, {$IFEND}
   {$IF CompilerVersion >= 23.0}
   Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms,
   System.Classes, Vcl.Controls, Messages, Winapi.Windows, Vcl.ExtCtrls,
-  Vcl.Graphics, OLBooleanType;
+  Vcl.Graphics;
   {$ELSE}
   StdCtrls, SysUtils, Spin, ComCtrls, Forms, Classes, Controls, Messages, Windows, ExtCtrls, Graphics;
   {$IFEND}
@@ -32,7 +35,9 @@ type
     constructor Create; reintroduce;
     procedure RefreshControl; virtual; abstract;
     function NeedsTimer: Boolean; virtual;
+    {$IF CompilerVersion >= 34.0}
     procedure ShowValidationState(vr: TOLValidationResult); virtual;
+    {$IFEND}
     property Control: TControl read FControl write FControl;
   end;
 
@@ -52,7 +57,7 @@ type
     FOriginalShowHint: Boolean;
     FUpdatingFromControl: Boolean;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLValidationFunction<T>;
+    FValidators: TList<TOLValidationFunction<T>>;
     {$IFEND}
 
     function ValToString(const v: T): string; virtual; abstract;
@@ -65,6 +70,7 @@ type
     function GetOLPointer: Pointer;
     procedure SetOLPointer(const Value: Pointer);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLValidationFunction<T>;
     procedure SetValidationFunction(const Value: TOLValidationFunction<T>);
     procedure SetValueAfterValidation(const v: T);
     {$IFEND}
@@ -78,9 +84,10 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    function AddValidator(const Value: TOLValidationFunction<T>): TOLEditLink<T>;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(const v: T): TOLValidationResult; virtual;
-    property ValidationFunction: TOLValidationFunction<T> read FValidationFunction write SetValidationFunction;
+    property ValidationFunction: TOLValidationFunction<T> read GetValidationFunction write SetValidationFunction;
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
     property OLPointer: Pointer read GetOLPointer write SetOLPointer;
@@ -93,6 +100,47 @@ type
     function GetNull: OLInteger; override;
     function TreatEmptyAsNull: Boolean; override;
     function IsPartialEntry(const s: string): Boolean; override;
+  public
+    {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLIntegerValidationFunction): TEditToOLInteger;
+    /// <summary>Adds a validation rule: value is required. For OLInteger, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLInteger;
+    {$IFEND}
   end;
 
   TSpinEditToOLInteger = class(TOLControlLink)
@@ -103,7 +151,7 @@ type
     FOLPointer: POLInteger;
     FUpdatingFromControl: Boolean;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLIntegerValidationFunction;
+    FValidators: TList<TOLIntegerValidationFunction>;
     {$IFEND}
     FOriginalColor: TColor;
     FOriginalHint: string;
@@ -112,6 +160,7 @@ type
     procedure SetEdit(const Value: TSpinEdit);
     procedure SetOLPointer(const Value: POLInteger);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLIntegerValidationFunction;
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
     {$IFEND}
@@ -123,6 +172,44 @@ type
     procedure RefreshControl; override;
 
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLIntegerValidationFunction): TSpinEditToOLInteger;
+    /// <summary>Adds a validation rule: value is required. For OLInteger, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSpinEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSpinEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSpinEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSpinEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSpinEditToOLInteger;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSpinEditToOLInteger;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
     {$IFEND}
@@ -131,8 +218,7 @@ type
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
 
     {$IF CompilerVersion >= 34.0}
-    property ValidationFunction: TOLIntegerValidationFunction read
-        FValidationFunction write SetValidationFunction;
+    property ValidationFunction: TOLIntegerValidationFunction read GetValidationFunction write SetValidationFunction;
     {$IFEND}
 
   end;
@@ -143,12 +229,13 @@ type
     FEditOnChange: TEditOnChange;
     FOLPointer: POLInteger;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLIntegerValidationFunction;
+    FValidators: TList<TOLIntegerValidationFunction>;
     {$IFEND}
     FWarningLabel: TLabel;
     procedure SetEdit(const Value: TScrollBar);
     procedure SetOLPointer(const Value: POLInteger);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLIntegerValidationFunction;
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
     {$IFEND}
@@ -159,14 +246,51 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLIntegerValidationFunction): TScrollBarToOLInteger;
+    /// <summary>Adds a validation rule: value is required. For OLInteger, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TScrollBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TScrollBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TScrollBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TScrollBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TScrollBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TScrollBarToOLInteger;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
     {$IFEND}
     property Edit: TScrollBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
-    property ValidationFunction: TOLIntegerValidationFunction read
-        FValidationFunction write SetValidationFunction;
+    property ValidationFunction: TOLIntegerValidationFunction read GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -176,12 +300,13 @@ type
     FEditOnChange: TEditOnChange;
     FOLPointer: POLInteger;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLIntegerValidationFunction;
+    FValidators: TList<TOLIntegerValidationFunction>;
     {$IFEND}
     FWarningLabel: TLabel;
     procedure SetEdit(const Value: TTrackBar);
     procedure SetOLPointer(const Value: POLInteger);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLIntegerValidationFunction;
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     procedure SetValueAfterValidation(i: OLInteger);
     {$IFEND}
@@ -192,14 +317,51 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLIntegerValidationFunction): TTrackBarToOLInteger;
+    /// <summary>Adds a validation rule: value is required. For OLInteger, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TTrackBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TTrackBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TTrackBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TTrackBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TTrackBarToOLInteger;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TTrackBarToOLInteger;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
     {$IFEND}
     property Edit: TTrackBar read FEdit write SetEdit;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
-    property ValidationFunction: TOLIntegerValidationFunction read
-        FValidationFunction write SetValidationFunction;
+    property ValidationFunction: TOLIntegerValidationFunction read GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -212,7 +374,7 @@ type
     FUpdatingFromControl: Boolean;
     FFormat: string;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLDoubleValidationFunction;
+    FValidators: TList<TOLDoubleValidationFunction>;
     {$IFEND}
     FOriginalColor: TColor;
     FOriginalHint: string;
@@ -220,6 +382,7 @@ type
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLDouble);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLDoubleValidationFunction;
     procedure SetValidationFunction(const Value: TOLDoubleValidationFunction);
     procedure SetValueAfterValidation(d: OLDouble);
     {$IFEND}
@@ -231,6 +394,44 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLDoubleValidationFunction): TEditToOLDouble;
+    /// <summary>Adds a validation rule: value is required. For OLDouble, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDouble;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Double; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDouble;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Double; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDouble;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Double; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDouble;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDouble;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDouble;
     procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(d: OLDouble): TOLValidationResult;
     {$IFEND}
@@ -238,7 +439,7 @@ type
     property OLPointer: POLDouble read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDoubleValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -251,7 +452,7 @@ type
     FUpdatingFromControl: Boolean;
     FFormat: string;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLCurrencyValidationFunction;
+    FValidators: TList<TOLCurrencyValidationFunction>;
     {$IFEND}
     FOriginalColor: TColor;
     FOriginalHint: string;
@@ -259,6 +460,7 @@ type
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLCurrency);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLCurrencyValidationFunction;
     procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
     procedure SetValueAfterValidation(c: OLCurrency);
     {$IFEND}
@@ -270,6 +472,44 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLCurrencyValidationFunction): TEditToOLCurrency;
+    /// <summary>Adds a validation rule: value is required. For OLCurrency, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLCurrency;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Currency; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLCurrency;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Currency; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLCurrency;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Currency; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLCurrency;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLCurrency;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLCurrency;
     procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(c: OLCurrency): TOLValidationResult;
     {$IFEND}
@@ -277,7 +517,7 @@ type
     property OLPointer: POLCurrency read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLCurrencyValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -287,6 +527,96 @@ type
     function StringToVal(const s: string; out v: OLString): Boolean; override;
     function GetNull: OLString; override;
     function TreatEmptyAsNull: Boolean; override;
+  public
+    {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a validation rule: value must be a valid PESEL (Poland).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Pesel(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: value is required. For OLString, it checks if it is not null and not empty.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string length must be at least MinLen.</summary>
+    /// <param name="MinLen">Minimum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MinLength(const MinLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string length must be at most MaxLen.</summary>
+    /// <param name="MaxLen">Maximum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MaxLength(const MaxLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must contain only alphanumeric characters.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AlphaNumeric(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must contain only digits.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function DigitsOnly(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid email address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Email(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must meet password complexity requirements.</summary>
+    /// <param name="MinLen">Minimum password length.</param>
+    /// <param name="RequireMixedCase">Whether to require both upper and lower case letters.</param>
+    /// <param name="RequireDigits">Whether to require numeric digits.</param>
+    /// <param name="RequireSpecialChar">Whether to require special characters.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Password(const MinLen: Integer = 8; const RequireMixedCase: Boolean = True; const RequireDigits: Boolean = True; const RequireSpecialChar: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid URL.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function URL(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid Credit Card number (Luhn check).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function CreditCard(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid EAN code.</summary>
+    /// <param name="IsGTIN14">True if checking for GTIN-14 specifically.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function EAN(const IsGTIN14: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid BIC/SWIFT code.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function BIC(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid IPv4 address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IPv4(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid IPv6 address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IPv6(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: string must be a valid IBAN.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IBAN(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    /// <summary>Adds a validation rule: value must be a valid NIP (Poland).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLString;
+    {$IFEND}
   end;
 
 
@@ -296,7 +626,7 @@ type
     FEditOnChange: TEditOnChange;
     FOLPointer: POLString;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLStringValidationFunction;
+    FValidators: TList<TOLStringValidationFunction>;
     {$IFEND}
     FOriginalColor: TColor;
     FOriginalHint: string;
@@ -304,6 +634,7 @@ type
     procedure SetEdit(const Value: TMemo);
     procedure SetOLPointer(const Value: POLString);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLStringValidationFunction;
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
     procedure SetValueAfterValidation(s: OLString);
     {$IFEND}
@@ -314,6 +645,97 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLStringValidationFunction): TMemoToOLString;
+    /// <summary>Adds a validation rule: value must be a valid PESEL (Poland).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Pesel(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: value is required. For OLString, it checks if it is not null and not empty.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string length must be at least MinLen.</summary>
+    /// <param name="MinLen">Minimum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MinLength(const MinLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string length must be at most MaxLen.</summary>
+    /// <param name="MaxLen">Maximum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MaxLength(const MaxLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must contain only alphanumeric characters.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AlphaNumeric(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must contain only digits.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function DigitsOnly(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid email address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Email(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must meet password complexity requirements.</summary>
+    /// <param name="MinLen">Minimum password length.</param>
+    /// <param name="RequireMixedCase">Whether to require both upper and lower case letters.</param>
+    /// <param name="RequireDigits">Whether to require numeric digits.</param>
+    /// <param name="RequireSpecialChar">Whether to require special characters.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Password(const MinLen: Integer = 8; const RequireMixedCase: Boolean = True; const RequireDigits: Boolean = True; const RequireSpecialChar: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid URL.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function URL(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid Credit Card number (Luhn check).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function CreditCard(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid EAN code.</summary>
+    /// <param name="IsGTIN14">True if checking for GTIN-14 specifically.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function EAN(const IsGTIN14: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid BIC/SWIFT code.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function BIC(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid IPv4 address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IPv4(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid IPv6 address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IPv6(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: string must be a valid IBAN.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IBAN(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Adds a validation rule: value must be a valid NIP (Poland).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
     procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(s: OLString): TOLValidationResult;
     {$IFEND}
@@ -321,7 +743,7 @@ type
     property OLPointer: POLString read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLStringValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -333,7 +755,7 @@ type
     FEditOnKeyPress: TEditOnKeyPress;
     FOLPointer: POLDate;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLDateValidationFunction;
+    FValidators: TList<TOLDateValidationFunction>;
     {$IFEND}
     FWarningLabel: TLabel;
     NotNullFormat: string;
@@ -348,6 +770,7 @@ type
     procedure SetEdit(const Value: TDateTimePicker);
     procedure SetOLPointer(const Value: POLDate);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLDateValidationFunction;
     procedure SetValidationFunction(const Value: TOLDateValidationFunction);
     procedure SetValueAfterValidation(d: OLDate);
     {$IFEND}
@@ -362,6 +785,74 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLDateValidationFunction): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: value is required. For OLDate, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed date.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinDate: TDate; const AColor: TColor; const ErrorMessage:
+        string): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed date.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxDate: TDate; const AColor: TColor; const ErrorMessage:
+        string): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed date.</param>
+    /// <param name="MaxVal">Maximum allowed date.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinDate, MaxDate: TDate; const AColor: TColor; const
+        ErrorMessage: string): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be in the past.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Past(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be in the future.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Future(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be today.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Today(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: birth date implies a minimum age.</summary>
+    /// <param name="Age">Minimum required age.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MinAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: birth date implies a maximum age.</summary>
+    /// <param name="Age">Maximum allowed age.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MaxAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be a weekday (Mon-Fri).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IsWeekday(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Adds a validation rule: date must be a weekend (Sat-Sun).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IsWeekend(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(d: OLDate): TOLValidationResult;
     {$IFEND}
@@ -369,7 +860,7 @@ type
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDateValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -381,7 +872,7 @@ type
     FEditOnKeyPress: TEditOnKeyPress;
     FOLPointer: POLDateTime;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLDateTimeValidationFunction;
+    FValidators: TList<TOLDateTimeValidationFunction>;
     {$IFEND}
     FWarningLabel: TLabel;
     NotNullFormat: string;
@@ -396,6 +887,7 @@ type
     procedure SetEdit(const Value: TDateTimePicker);
     procedure SetOLPointer(const Value: POLDateTime);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLDateTimeValidationFunction;
     procedure SetValidationFunction(const Value: TOLDateTimeValidationFunction);
     procedure SetValueAfterValidation(dt: OLDateTime);
     {$IFEND}
@@ -410,6 +902,48 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLDateTimeValidationFunction): TDateTimePickerToOLDateTime;
+    /// <summary>Adds a validation rule: value is required. For OLDateTime, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDateTime;
+    /// <summary>Adds a validation rule: date/time must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed date/time.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinDate: TDateTime; const AColor: TColor; const
+        ErrorMessage: string): TDateTimePickerToOLDateTime;
+    /// <summary>Adds a validation rule: date/time must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed date/time.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxDate: TDateTime; const AColor: TColor; const
+        ErrorMessage: string): TDateTimePickerToOLDateTime;
+    /// <summary>Adds a validation rule: date/time must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed date/time.</param>
+    /// <param name="MaxVal">Maximum allowed date/time.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinDate, MaxDate: TDateTime; const AColor: TColor; const
+        ErrorMessage: string): TDateTimePickerToOLDateTime;
+    /// <summary>Adds a validation rule: date/time must be in the past.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Past(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDateTime;
+    /// <summary>Adds a validation rule: date/time must be in the future.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Future(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDateTime;
+
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(dt: OLDateTime): TOLValidationResult;
     {$IFEND}
@@ -417,7 +951,7 @@ type
     property OLPointer: POLDateTime read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDateTimeValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -427,15 +961,17 @@ type
     FEditOnClick: TEditOnClick;
     FOLPointer: POLBoolean;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLBooleanValidationFunction;
+    FValidators: TList<TOLBooleanValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
     FWarningLabel: TLabel;
+    FAllowGrayed: Boolean;
     procedure SetEdit(const Value: TCheckBox);
     procedure SetOLPointer(const Value: POLBoolean);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLBooleanValidationFunction;
     procedure SetValidationFunction(const Value: TOLBooleanValidationFunction);
     procedure SetValueAfterValidation(b: OLBoolean);
     {$IFEND}
@@ -446,6 +982,16 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLBooleanValidationFunction): TCheckBoxToOLBoolean;
+    /// <summary>Adds a validation rule: value is required. For OLBoolean, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage:
+        string = ''): TCheckBoxToOLBoolean;
     function ValueIsValid(b: OLBoolean): TOLValidationResult;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     {$IFEND}
@@ -453,8 +999,9 @@ type
     property OLPointer: POLBoolean read FOLPointer write SetOLPointer;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLBooleanValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
+    property AllowGrayed: Boolean read FAllowGrayed write FAllowGrayed;
   end;
 
   TOLIntegerToLabel = class(TOLControlLink)
@@ -464,7 +1011,7 @@ type
     FCalculation: TFunctionReturningOLInteger;
     FValueOnErrorInCalculation: OLString;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLIntegerValidationFunction;
+    FValidators: TList<TOLIntegerValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
     function NeedsTimer: Boolean;
@@ -473,6 +1020,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLInteger);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLIntegerValidationFunction;
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     {$IFEND}
   public
@@ -481,17 +1029,53 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLIntegerValidationFunction): TOLIntegerToLabel;
+    /// <summary>Adds a validation rule: value is required. For OLInteger, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
     procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(i: OLInteger): TOLValidationResult;
+    property ValidationFunction: TOLIntegerValidationFunction read GetValidationFunction write SetValidationFunction;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLInteger read FOLPointer write SetOLPointer;
     property Calculation: TFunctionReturningOLInteger read FCalculation write SetCalculation;
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
-    {$IF CompilerVersion >= 34.0}
-    property ValidationFunction: TOLIntegerValidationFunction read
-        FValidationFunction write SetValidationFunction;
-    {$IFEND}
+
   end;
 
   TOLStringToLabel = class(TOLControlLink)
@@ -501,7 +1085,7 @@ type
     FCalculation: TFunctionReturningOLString;
     FValueOnErrorInCalculation: OLString;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLStringValidationFunction;
+    FValidators: TList<TOLStringValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
     procedure SetLabel(const Value: TLabel);
@@ -509,13 +1093,106 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLString);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLStringValidationFunction;
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
     {$IFEND}
   public
     constructor Create;
+    destructor Destroy; override;
     procedure RefreshControl; override;
     function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLStringValidationFunction): TOLStringToLabel;
+    /// <summary>Adds a validation rule: value must be a valid PESEL (Poland).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Pesel(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: value is required. For OLString, it checks if it is not null and not empty.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string length must be at least MinLen.</summary>
+    /// <param name="MinLen">Minimum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MinLength(const MinLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string length must be at most MaxLen.</summary>
+    /// <param name="MaxLen">Maximum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MaxLength(const MaxLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must contain only alphanumeric characters.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AlphaNumeric(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must contain only digits.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function DigitsOnly(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid email address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Email(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must meet password complexity requirements.</summary>
+    /// <param name="MinLen">Minimum password length.</param>
+    /// <param name="RequireMixedCase">Whether to require both upper and lower case letters.</param>
+    /// <param name="RequireDigits">Whether to require numeric digits.</param>
+    /// <param name="RequireSpecialChar">Whether to require special characters.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Password(const MinLen: Integer = 8; const RequireMixedCase: Boolean = True; const RequireDigits: Boolean = True; const RequireSpecialChar: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid URL.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function URL(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid Credit Card number (Luhn check).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function CreditCard(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid EAN code.</summary>
+    /// <param name="IsGTIN14">True if checking for GTIN-14 specifically.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function EAN(const IsGTIN14: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid BIC/SWIFT code.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function BIC(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid IPv4 address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IPv4(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid IPv6 address.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IPv6(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: string must be a valid IBAN.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IBAN(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Adds a validation rule: value must be a valid NIP (Poland).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
     procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(s: OLString): TOLValidationResult;
     {$IFEND}
@@ -525,7 +1202,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLStringValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -537,7 +1214,7 @@ type
     FValueOnErrorInCalculation: OLString;
     FFormat: string;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLDoubleValidationFunction;
+    FValidators: TList<TOLDoubleValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
     procedure SetLabel(const Value: TLabel);
@@ -545,6 +1222,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLDouble);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLDoubleValidationFunction;
     procedure SetValidationFunction(const Value: TOLDoubleValidationFunction);
     {$IFEND}
   public
@@ -554,6 +1232,44 @@ type
     procedure RefreshControl; override;
     function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLDoubleValidationFunction): TOLDoubleToLabel;
+    /// <summary>Adds a validation rule: value is required. For OLDouble, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Double; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Double; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Double; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
     procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(d: OLDouble): TOLValidationResult;
     {$IFEND}
@@ -563,7 +1279,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDoubleValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -575,7 +1291,7 @@ type
     FValueOnErrorInCalculation: OLString;
     FFormat: string;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLCurrencyValidationFunction;
+    FValidators: TList<TOLCurrencyValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
     procedure SetLabel(const Value: TLabel);
@@ -583,6 +1299,7 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLCurrency);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLCurrencyValidationFunction;
     procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
     {$IFEND}
   public
@@ -592,6 +1309,44 @@ type
     procedure RefreshControl; override;
     function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLCurrencyValidationFunction): TOLCurrencyToLabel;
+    /// <summary>Adds a validation rule: value is required. For OLCurrency, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
+    /// <summary>Adds a validation rule: value must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinVal: Currency; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
+    /// <summary>Adds a validation rule: value must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxVal: Currency; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
+    /// <summary>Adds a validation rule: value must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed value.</param>
+    /// <param name="MaxVal">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinVal, MaxVal: Currency; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
+    /// <summary>Adds a validation rule: value must be greater than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
+    /// <summary>Adds a validation rule: value must be less than zero.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
     procedure ShowValidationState(vr: TOLValidationResult);
     function ValueIsValid(c: OLCurrency): TOLValidationResult;
     {$IFEND}
@@ -601,7 +1356,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLCurrencyValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -610,7 +1365,7 @@ type
     FLabel: TLabel;
     FOLPointer: POLDate;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLDateValidationFunction;
+    FValidators: TList<TOLDateValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
     FCalculation: TFunctionReturningOLDate;
@@ -618,6 +1373,7 @@ type
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLDate);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLDateValidationFunction;
     procedure SetValidationFunction(const Value: TOLDateValidationFunction);
     {$IFEND}
     procedure SetCalculation(const Value: TFunctionReturningOLDate);
@@ -628,6 +1384,74 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLDateValidationFunction): TOLDateToLabel;
+    /// <summary>Adds a validation rule: value is required. For OLDate, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed date.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinDate: TDate; const AColor: TColor; const ErrorMessage:
+        string): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed date.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxDate: TDate; const AColor: TColor; const ErrorMessage:
+        string): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed date.</param>
+    /// <param name="MaxVal">Maximum allowed date.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinDate, MaxDate: TDate; const AColor: TColor; const
+        ErrorMessage: string): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be in the past.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Past(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be in the future.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Future(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be today.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Today(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Adds a validation rule: birth date implies a minimum age.</summary>
+    /// <param name="Age">Minimum required age.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MinAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Adds a validation rule: birth date implies a maximum age.</summary>
+    /// <param name="Age">Maximum allowed age.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function MaxAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be a weekday (Mon-Fri).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IsWeekday(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Adds a validation rule: date must be a weekend (Sat-Sun).</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function IsWeekend(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(d: OLDate): TOLValidationResult;
     {$IFEND}
@@ -638,7 +1462,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDateValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -647,7 +1471,7 @@ type
     FLabel: TLabel;
     FOLPointer: POLDateTime;
     {$IF CompilerVersion >= 34.0}
-    FValidationFunction: TOLDateTimeValidationFunction;
+    FValidators: TList<TOLDateTimeValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
     FCalculation: TFunctionReturningOLDateTime;
@@ -655,6 +1479,7 @@ type
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLDateTime);
     {$IF CompilerVersion >= 34.0}
+    function GetValidationFunction: TOLDateTimeValidationFunction;
     procedure SetValidationFunction(const Value: TOLDateTimeValidationFunction);
     {$IFEND}
     procedure SetCalculation(const Value: TFunctionReturningOLDateTime);
@@ -665,6 +1490,47 @@ type
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a manual validation function to the list of validators.</summary>
+    /// <param name="Value">The validation function to add.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function AddValidator(const Value: TOLDateTimeValidationFunction): TOLDateTimeToLabel;
+    /// <summary>Adds a validation rule: value is required. For OLDateTime, it checks if it has a value.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateTimeToLabel;
+    /// <summary>Adds a validation rule: date/time must be at least MinVal.</summary>
+    /// <param name="MinVal">Minimum allowed date/time.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Min(const MinDate: TDateTime; const AColor: TColor; const
+        ErrorMessage: string): TOLDateTimeToLabel;
+    /// <summary>Adds a validation rule: date/time must be at most MaxVal.</summary>
+    /// <param name="MaxVal">Maximum allowed date/time.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Max(const MaxDate: TDateTime; const AColor: TColor; const
+        ErrorMessage: string): TOLDateTimeToLabel;
+    /// <summary>Adds a validation rule: date/time must be between MinVal and MaxVal (inclusive).</summary>
+    /// <param name="MinVal">Minimum allowed date/time.</param>
+    /// <param name="MaxVal">Maximum allowed date/time.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Between(const MinDate, MaxDate: TDateTime; const AColor: TColor; const
+        ErrorMessage: string): TOLDateTimeToLabel;
+    /// <summary>Adds a validation rule: date/time must be in the past.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Past(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateTimeToLabel;
+    /// <summary>Adds a validation rule: date/time must be in the future.</summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>Returns Self for fluent API chaining.</returns>
+    function Future(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateTimeToLabel;
     procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(dt: OLDateTime): TOLValidationResult;
     {$IFEND}
@@ -675,7 +1541,7 @@ type
     property ValueOnErrorInCalculation: OLString read FValueOnErrorInCalculation write SetValueOnErrorInCalculation;
     {$IF CompilerVersion >= 34.0}
     property ValidationFunction: TOLDateTimeValidationFunction read
-        FValidationFunction write SetValidationFunction;
+        GetValidationFunction write SetValidationFunction;
     {$IFEND}
   end;
 
@@ -691,100 +1557,99 @@ type
     constructor Create;
     destructor Destroy; override;
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TEdit; var i: OLInteger; const ValidationFunction:
-        TOLIntegerValidationFunction = nil; const Alignment: TAlignment=taRightJustify);
+    function Link(const Edit: TEdit; var i: OLInteger; const Alignment: TAlignment=taRightJustify): TEditToOLInteger;
         overload;
     {$ELSE}
-    procedure Link(const Edit: TEdit; var i: OLInteger; const Alignment: TAlignment=taRightJustify);
+    function Link(const Edit: TEdit; var i: OLInteger; const Alignment: TAlignment=taRightJustify): TEditToOLInteger;
         overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TSpinEdit; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    function Link(const Edit: TSpinEdit; var i: OLInteger): TSpinEditToOLInteger; overload;
     {$ELSE}
-    procedure Link(const Edit: TSpinEdit; var i: OLInteger); overload;
+    function Link(const Edit: TSpinEdit; var i: OLInteger): TSpinEditToOLInteger; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TTrackBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    function Link(const Edit: TTrackBar; var i: OLInteger): TTrackBarToOLInteger; overload;
     {$ELSE}
-    procedure Link(const Edit: TTrackBar; var i: OLInteger); overload;
+    function Link(const Edit: TTrackBar; var i: OLInteger): TTrackBarToOLInteger; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TScrollBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    function Link(const Edit: TScrollBar; var i: OLInteger): TScrollBarToOLInteger; overload;
     {$ELSE}
-    procedure Link(const Edit: TScrollBar; var i: OLInteger); overload;
+    function Link(const Edit: TScrollBar; var i: OLInteger): TScrollBarToOLInteger; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TEdit; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    function Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLDouble; overload;
     {$ELSE}
-    procedure Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    function Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLDouble; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TEdit; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    function Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLCurrency; overload;
     {$ELSE}
-    procedure Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify); overload;
+    function Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLCurrency; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TEdit; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
+    function Link(const Edit: TEdit; var s: OLString): TEditToOLString; overload;
     {$ELSE}
-    procedure Link(const Edit: TEdit; var s: OLString); overload;
+    function Link(const Edit: TEdit; var s: OLString): TEditToOLString; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TMemo; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
+    function Link(const Edit: TMemo; var s: OLString): TMemoToOLString; overload;
     {$ELSE}
-    procedure Link(const Edit: TMemo; var s: OLString); overload;
+    function Link(const Edit: TMemo; var s: OLString): TMemoToOLString; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TDateTimePicker; var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
+    function Link(const Edit: TDateTimePicker; var d: OLDate): TDateTimePickerToOLDate; overload;
     {$ELSE}
-    procedure Link(const Edit: TDateTimePicker; var d: OLDate); overload;
+    function Link(const Edit: TDateTimePicker; var d: OLDate): TDateTimePickerToOLDate; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TDateTimePicker; var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
+    function Link(const Edit: TDateTimePicker; var d: OLDateTime): TDateTimePickerToOLDateTime; overload;
     {$ELSE}
-    procedure Link(const Edit: TDateTimePicker; var d: OLDateTime); overload;
+    function Link(const Edit: TDateTimePicker; var d: OLDateTime): TDateTimePickerToOLDateTime; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Edit: TCheckBox; var b: OLBoolean; const ValidationFunction: TOLBooleanValidationFunction = nil); overload;
+    function Link(const Edit: TCheckBox; var b: OLBoolean; AllowGrayed: Boolean = False): TCheckBoxToOLBoolean; overload;
     {$ELSE}
-    procedure Link(const Edit: TCheckBox; var b: OLBoolean); overload;
+    function Link(const Edit: TCheckBox; var b: OLBoolean; AllowGrayed: Boolean = False): TCheckBoxToOLBoolean; overload;
     {$IFEND}
 
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Lbl: TLabel; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil); overload;
+    function Link(const Lbl: TLabel; var i: OLInteger): TOLIntegerToLabel; overload;
     {$ELSE}
-    procedure Link(const Lbl: TLabel; var i: OLInteger); overload;
+    function Link(const Lbl: TLabel; var i: OLInteger): TOLIntegerToLabel; overload;
     {$IFEND}
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    function Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLIntegerToLabel; overload;
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Lbl: TLabel; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil); overload;
+    function Link(const Lbl: TLabel; var s: OLString): TOLStringToLabel; overload;
     {$ELSE}
-    procedure Link(const Lbl: TLabel; var s: OLString); overload;
+    function Link(const Lbl: TLabel; var s: OLString): TOLStringToLabel; overload;
     {$IFEND}
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    function Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLStringToLabel; overload;
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Lbl: TLabel; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT); overload;
+    function Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT): TOLDoubleToLabel; overload;
     {$ELSE}
-    procedure Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT); overload;
+    function Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT): TOLDoubleToLabel; overload;
     {$IFEND}
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    function Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLDoubleToLabel; overload;
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Lbl: TLabel; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT); overload;
+    function Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT): TOLCurrencyToLabel; overload;
     {$ELSE}
-    procedure Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT); overload;
+    function Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT): TOLCurrencyToLabel; overload;
     {$IFEND}
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    function Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLCurrencyToLabel; overload;
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Lbl: TLabel; var d: OLDate; const ValidationFunction: TOLDateValidationFunction = nil); overload;
+    function Link(const Lbl: TLabel; var d: OLDate): TOLDateToLabel; overload;
     {$ELSE}
-    procedure Link(const Lbl: TLabel; var d: OLDate); overload;
+    function Link(const Lbl: TLabel; var d: OLDate): TOLDateToLabel; overload;
     {$IFEND}
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    function Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLDateToLabel; overload;
     {$IF CompilerVersion >= 34.0}
-    procedure Link(const Lbl: TLabel; var d: OLDateTime; const ValidationFunction: TOLDateTimeValidationFunction = nil); overload;
+    function Link(const Lbl: TLabel; var d: OLDateTime): TOLDateTimeToLabel; overload;
     {$ELSE}
-    procedure Link(const Lbl: TLabel; var d: OLDateTime); overload;
+    function Link(const Lbl: TLabel; var d: OLDateTime): TOLDateTimeToLabel; overload;
     {$IFEND}
-    procedure Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING); overload;
+    function Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLDateTimeToLabel; overload;
 
     procedure RefreshControls(FormToRefresh: TForm = nil);
     procedure RemoveLinks(DestroyedForm: TForm = nil);
@@ -944,6 +1809,9 @@ begin
   FEditOnExit := nil;
   FOLPointer := nil;
   FUpdatingFromControl := False;
+  {$IF CompilerVersion >= 34.0}
+  FValidators := TList<TOLValidationFunction<T>>.Create;
+  {$IFEND}
 end;
 
 destructor TOLEditLink<T>.Destroy;
@@ -955,6 +1823,9 @@ begin
     if Assigned(FEditOnExit) then
       FEdit.OnExit := FEditOnExit;
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -1090,17 +1961,44 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLEditLink<T>.GetValidationFunction: TOLValidationFunction<T>;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TOLEditLink<T>.SetValidationFunction(const Value: TOLValidationFunction<T>);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
+end;
+
+function TOLEditLink<T>.AddValidator(const Value: TOLValidationFunction<T>): TOLEditLink<T>;
+var
+  vr: TOLValidationResult;
+begin
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
+
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
 end;
 
 function TOLEditLink<T>.ValueIsValid(const v: T): TOLValidationResult;
+var
+  Validator: TOLValidationFunction<T>;
 begin
-  if Assigned(FValidationFunction) then
-    Result := FValidationFunction(v)
-  else
-    Result := TOLValidationResult.Ok;
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(v);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 
 procedure TOLEditLink<T>.ShowValidationState(vr: TOLValidationResult);
@@ -1169,6 +2067,89 @@ begin
   Result := (s = '-');
 end;
 
+{$IF CompilerVersion >= 34.0}
+function TEditToOLInteger.AddValidator(const Value: TOLIntegerValidationFunction): TEditToOLInteger;
+var
+  vr: TOLValidationResult;
+begin
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(function(val: OLInteger): TOLValidationResult
+      begin
+        Result := Value(val);
+      end);
+
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TEditToOLInteger.RequireValue(const AColor: TColor; const ErrorMessage: string): TEditToOLInteger;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TEditToOLInteger.Min(const MinVal: Integer; const AColor: TColor; const ErrorMessage: string): TEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLInteger.Max(const MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLInteger.Between(const MinVal, MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLInteger.Positive(const AColor: TColor; const ErrorMessage: string): TEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLInteger.Negative(const AColor: TColor; const ErrorMessage: string): TEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+{$IFEND}
+
 
 
 
@@ -1199,6 +2180,201 @@ begin
   Result := False;
 end;
 
+{$IF CompilerVersion >= 34.0}
+function TEditToOLString.Pesel(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.PESEL(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.RequireValue(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TSmartValidator;
+begin
+  vFunc := OLValid.IsRequired(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      // TSmartValidator implicitly converts to TOLStringValidationFunction
+      Result := TOLStringValidationFunction(vFunc)(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.MinLength(const MinLen: Integer; const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.MinLength(MinLen, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.MaxLength(const MaxLen: Integer; const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.MaxLength(MaxLen, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.AlphaNumeric(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.AlphaNumeric(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.DigitsOnly(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.DigitsOnly(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.Email(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.Email(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.Password(const MinLen: Integer; const RequireMixedCase, RequireDigits, RequireSpecialChar: Boolean; const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.Password(MinLen, RequireMixedCase, RequireDigits, RequireSpecialChar, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.URL(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.URL(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.CreditCard(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.CreditCard(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.EAN(const IsGTIN14: Boolean; const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.EAN(IsGTIN14, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.BIC(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.BIC(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.IPv4(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IPv4(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.IPv6(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IPv6(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.IBAN(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IBAN(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLString.NIP(const AColor: TColor; const ErrorMessage: string): TEditToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.NIP(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+{$IFEND}
+
 { TMemoToOLString }
 
 constructor TMemoToOLString.Create;
@@ -1209,7 +2385,7 @@ begin
   FOLPointer := nil;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLStringValidationFunction>.Create;
   {$IFEND}
 end;
 
@@ -1224,6 +2400,9 @@ begin
     if Assigned(FEditOnChange) then
       FEdit.OnChange := FEditOnChange;
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -1281,23 +2460,238 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TMemoToOLString.GetValidationFunction: TOLStringValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TMemoToOLString.SetValidationFunction(const Value: TOLStringValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TMemoToOLString.ValueIsValid(s: OLString): TOLValidationResult;
+function TMemoToOLString.AddValidator(const Value: TOLStringValidationFunction): TMemoToOLString;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(s)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+{$IF CompilerVersion >= 34.0}
+function TMemoToOLString.Pesel(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.PESEL(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.RequireValue(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TSmartValidator;
+begin
+  vFunc := OLValid.IsRequired(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := TOLStringValidationFunction(vFunc)(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.MinLength(const MinLen: Integer; const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.MinLength(MinLen, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.MaxLength(const MaxLen: Integer; const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.MaxLength(MaxLen, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.AlphaNumeric(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.AlphaNumeric(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.DigitsOnly(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.DigitsOnly(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.Email(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.Email(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.Password(const MinLen: Integer; const RequireMixedCase, RequireDigits, RequireSpecialChar: Boolean; const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.Password(MinLen, RequireMixedCase, RequireDigits, RequireSpecialChar, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.URL(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.URL(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.CreditCard(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.CreditCard(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.EAN(const IsGTIN14: Boolean; const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.EAN(IsGTIN14, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.BIC(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.BIC(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.IPv4(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IPv4(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.IPv6(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IPv6(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.IBAN(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IBAN(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TMemoToOLString.NIP(const AColor: TColor; const ErrorMessage: string): TMemoToOLString;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.NIP(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+{$IFEND}
+
+function TMemoToOLString.ValueIsValid(s: OLString): TOLValidationResult;
+var
+  Validator: TOLStringValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(s);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -1349,7 +2743,7 @@ begin
   FFormat := DOUBLE_FORMAT;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLDoubleValidationFunction>.Create;
   {$IFEND}
 end;
 
@@ -1358,6 +2752,9 @@ begin
   // Note: We don't set FOLPointer^.OnChange := nil here because when using
   // observer pattern (multiple controls to one value), the OnChange points to
   // the observer, not to this link. The observer handles cleanup via RemoveLink.
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -1372,7 +2769,7 @@ begin
 
   fs := FormatSettings;
   s := Edit.Text;
-  CleanS := OLType(s).Replaced(fs.ThousandSeparator, '');
+  CleanS := OLString(s).Replaced(fs.ThousandSeparator, '');
 
   if (CleanS = '-') or (CleanS = '') or (CleanS = fs.DecimalSeparator) or (CleanS = '-' + fs.DecimalSeparator) then
   begin
@@ -1491,23 +2888,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TEditToOLDouble.GetValidationFunction: TOLDoubleValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TEditToOLDouble.SetValidationFunction(const Value: TOLDoubleValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TEditToOLDouble.ValueIsValid(d: OLDouble): TOLValidationResult;
+function TEditToOLDouble.AddValidator(const Value: TOLDoubleValidationFunction): TEditToOLDouble;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(d)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TEditToOLDouble.RequireValue(const AColor: TColor; const ErrorMessage: string): TEditToOLDouble;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TEditToOLDouble.Min(const MinVal: Double; const AColor: TColor; const ErrorMessage: string): TEditToOLDouble;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDouble.Max(const MaxVal: Double; const AColor: TColor; const ErrorMessage: string): TEditToOLDouble;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDouble.Between(const MinVal, MaxVal: Double; const AColor: TColor; const ErrorMessage: string): TEditToOLDouble;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDouble.Positive(const AColor: TColor; const ErrorMessage: string): TEditToOLDouble;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDouble.Negative(const AColor: TColor; const ErrorMessage: string): TEditToOLDouble;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDouble.ValueIsValid(d: OLDouble): TOLValidationResult;
+var
+  Validator: TOLDoubleValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(d);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -1559,7 +3043,7 @@ begin
   FFormat := CURRENCY_FORMAT;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLCurrencyValidationFunction>.Create;
   {$IFEND}
 end;
 
@@ -1574,6 +3058,9 @@ begin
     if Assigned(FEditOnChange) then
       FEdit.OnChange := FEditOnChange;
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -1705,23 +3192,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TEditToOLCurrency.GetValidationFunction: TOLCurrencyValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TEditToOLCurrency.SetValidationFunction(const Value: TOLCurrencyValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TEditToOLCurrency.ValueIsValid(c: OLCurrency): TOLValidationResult;
+function TEditToOLCurrency.AddValidator(const Value: TOLCurrencyValidationFunction): TEditToOLCurrency;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(c)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TEditToOLCurrency.RequireValue(const AColor: TColor; const ErrorMessage: string): TEditToOLCurrency;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TEditToOLCurrency.Min(const MinVal: Currency; const AColor: TColor; const ErrorMessage: string): TEditToOLCurrency;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLCurrency.Max(const MaxVal: Currency; const AColor: TColor; const ErrorMessage: string): TEditToOLCurrency;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLCurrency.Between(const MinVal, MaxVal: Currency; const AColor: TColor; const ErrorMessage: string): TEditToOLCurrency;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLCurrency.Positive(const AColor: TColor; const ErrorMessage: string): TEditToOLCurrency;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLCurrency.Negative(const AColor: TColor; const ErrorMessage: string): TEditToOLCurrency;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLCurrency.ValueIsValid(c: OLCurrency): TOLValidationResult;
+var
+  Validator: TOLCurrencyValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(c);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -1772,7 +3346,7 @@ begin
   FUpdatingFromControl := False;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLIntegerValidationFunction>.Create;
   {$IFEND}
 end;
 
@@ -1806,6 +3380,10 @@ begin
      if Assigned(FEditOnChange) then
        FEdit.OnChange := FEditOnChange;
    end;
+
+   {$IF CompilerVersion >= 34.0}
+   FValidators.Free;
+   {$IFEND}
 
    inherited;
  end;
@@ -1924,23 +3502,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TSpinEditToOLInteger.GetValidationFunction: TOLIntegerValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TSpinEditToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TSpinEditToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+function TSpinEditToOLInteger.AddValidator(const Value: TOLIntegerValidationFunction): TSpinEditToOLInteger;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(i)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TSpinEditToOLInteger.RequireValue(const AColor: TColor; const ErrorMessage: string): TSpinEditToOLInteger;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TSpinEditToOLInteger.Min(const MinVal: Integer; const AColor: TColor; const ErrorMessage: string): TSpinEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TSpinEditToOLInteger.Max(const MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TSpinEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TSpinEditToOLInteger.Between(const MinVal, MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TSpinEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TSpinEditToOLInteger.Positive(const AColor: TColor; const ErrorMessage: string): TSpinEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TSpinEditToOLInteger.Negative(const AColor: TColor; const ErrorMessage: string): TSpinEditToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TSpinEditToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  Validator: TOLIntegerValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(i);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -1991,11 +3656,12 @@ begin
   Result := false;
 end;
 
-
+{$IF CompilerVersion >= 34.0}
 procedure TOLControlLink.ShowValidationState(vr: TOLValidationResult);
 begin
   // Do nothing by default
 end;
+{$IFEND}
 
 { TDateTimePickerToOLDate }
 
@@ -2009,7 +3675,7 @@ begin
   FOLPointer := nil;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLDateValidationFunction>.Create;
   {$IFEND}
 
   FWarningLabel := nil;
@@ -2039,6 +3705,16 @@ begin
     if Assigned(FEditOnKeyPress) then
       FEdit.OnKeyPress := FEditOnKeyPress;
   end;
+
+  if Assigned(FWarningLabel) then
+  begin
+    FWarningLabel.Free;
+    FWarningLabel := nil;
+  end;
+
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
 
   inherited;
 end;
@@ -2242,9 +3918,97 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TDateTimePickerToOLDate.GetValidationFunction: TOLDateValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TDateTimePickerToOLDate.SetValidationFunction(const Value: TOLDateValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
+end;
+
+function TDateTimePickerToOLDate.AddValidator(const Value: TOLDateValidationFunction): TDateTimePickerToOLDate;
+var
+  vr: TOLValidationResult;
+begin
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
+
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TDateTimePickerToOLDate.RequireValue(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.Min(const MinDate: TDate; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.Min(MinDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.Max(const MaxDate: TDate; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.Max(MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.Between(const MinDate, MaxDate: TDate; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.Between(MinDate, MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.Past(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.Past(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.Future(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.Future(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.Today(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.Today(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.MinAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.MinAge(Age, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.MaxAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.MaxAge(Age, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.IsWeekday(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.IsWeekday(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDate.IsWeekend(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDate;
+begin
+  AddValidator(OLValid.IsWeekend(AColor, ErrorMessage));
+  Result := Self;
 end;
 {$IFEND}
 
@@ -2264,14 +4028,15 @@ end;
 {$IF CompilerVersion >= 34.0}
 function TDateTimePickerToOLDate.ValueIsValid(d: OLDate): TOLValidationResult;
 var
-  vr: TOLValidationResult;
+  Validator: TOLDateValidationFunction;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(d)
-  else
-    vr := TOLValidationResult.Ok();
-
-  Result := vr;
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(d);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -2325,7 +4090,7 @@ begin
   FOLPointer := nil;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLDateTimeValidationFunction>.Create;
   {$IFEND}
 
   FWarningLabel := nil;
@@ -2359,6 +4124,10 @@ begin
      FWarningLabel.Free;
      FWarningLabel := nil;
    end;
+
+   {$IF CompilerVersion >= 34.0}
+   FValidators.Free;
+   {$IFEND}
 
    inherited;
  end;
@@ -2562,9 +4331,67 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TDateTimePickerToOLDateTime.GetValidationFunction: TOLDateTimeValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TDateTimePickerToOLDateTime.SetValidationFunction(const Value: TOLDateTimeValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
+end;
+
+function TDateTimePickerToOLDateTime.AddValidator(const Value: TOLDateTimeValidationFunction): TDateTimePickerToOLDateTime;
+var
+  vr: TOLValidationResult;
+begin
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
+
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TDateTimePickerToOLDateTime.RequireValue(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDateTime;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDateTime.Min(const MinDate: TDateTime; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDateTime;
+begin
+  AddValidator(OLValid.Min(MinDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDateTime.Max(const MaxDate: TDateTime; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDateTime;
+begin
+  AddValidator(OLValid.Max(MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDateTime.Between(const MinDate, MaxDate: TDateTime; const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDateTime;
+begin
+  AddValidator(OLValid.Between(MinDate, MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDateTime.Past(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDateTime;
+begin
+  AddValidator(OLValid.Past(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TDateTimePickerToOLDateTime.Future(const AColor: TColor; const ErrorMessage: string): TDateTimePickerToOLDateTime;
+begin
+  AddValidator(OLValid.Future(AColor, ErrorMessage));
+  Result := Self;
 end;
 {$IFEND}
 
@@ -2584,14 +4411,15 @@ end;
 {$IF CompilerVersion >= 34.0}
 function TDateTimePickerToOLDateTime.ValueIsValid(dt: OLDateTime): TOLValidationResult;
 var
-  vr: TOLValidationResult;
+  Validator: TOLDateTimeValidationFunction;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(dt)
-  else
-    vr := TOLValidationResult.Ok();
-
-  Result := vr;
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(dt);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -2643,7 +4471,7 @@ begin
   FOLPointer := nil;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLBooleanValidationFunction>.Create;
   {$IFEND}
 
   FOriginalHint := '';
@@ -2663,27 +4491,58 @@ begin
   end;
   if Assigned(FWarningLabel) then
     FWarningLabel.Free;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TCheckBoxToOLBoolean.GetValidationFunction: TOLBooleanValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TCheckBoxToOLBoolean.SetValidationFunction(const Value: TOLBooleanValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TCheckBoxToOLBoolean.ValueIsValid(b: OLBoolean): TOLValidationResult;
+function TCheckBoxToOLBoolean.AddValidator(const Value: TOLBooleanValidationFunction): TCheckBoxToOLBoolean;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(b)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TCheckBoxToOLBoolean.RequireValue(const AColor: TColor = clDefault;
+    const ErrorMessage: string = ''): TCheckBoxToOLBoolean;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TCheckBoxToOLBoolean.ValueIsValid(b: OLBoolean): TOLValidationResult;
+var
+  Validator: TOLBooleanValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(b);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -2743,9 +4602,21 @@ begin
 end;
 
 procedure TCheckBoxToOLBoolean.NewOnClick(Sender: TObject);
+var b: OLBoolean;
 begin
+  if FAllowGrayed then
+  begin
+    case Edit.State of
+      cbUnchecked: b := False;
+      cbChecked: b := True;
+      cbGrayed: b := Null;
+    end;
+  end
+  else
+    b := Edit.Checked;
+
   {$IF CompilerVersion >= 34.0}
-  SetValueAfterValidation(Edit.Checked);
+  SetValueAfterValidation(b);
   {$ELSE}
   OLPointer^ := Edit.Checked;
   {$IFEND}
@@ -2758,8 +4629,24 @@ procedure TCheckBoxToOLBoolean.RefreshControl;
 var
   vr: TOLValidationResult;
 begin
-  if Edit.Checked <> (OLPointer^).IfNull(False) then
-    Edit.Checked := (OLPointer^).IfNull(False);
+  if FAllowGrayed then
+  begin
+    if (OLPointer^).IsNull then
+    begin
+      if Edit.State <> cbGrayed then
+        Edit.State := cbGrayed;
+    end
+    else
+    begin
+      if Edit.Checked <> OLPointer^ then
+        Edit.Checked := OLPointer^;
+    end;
+  end
+  else
+  begin
+    if Edit.Checked <> (OLPointer^).IfNull(False) then
+      Edit.Checked := (OLPointer^).IfNull(False);
+  end;
 
   {$IF CompilerVersion >= 34.0}
   vr := ValueIsValid(OLPointer^);
@@ -2773,6 +4660,9 @@ begin
   Control := Value;
   if Assigned(Value) then
   begin
+    if Value.AllowGrayed then
+      FAllowGrayed := True;
+    Value.AllowGrayed := FAllowGrayed;
     FEditOnClick := Value.OnClick;
     Value.OnClick := NewOnClick;
     FOriginalFontColor := Value.Font.Color;
@@ -2799,7 +4689,7 @@ begin
   FValueOnErrorInCalculation := '';
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLIntegerValidationFunction>.Create;
   {$IFEND}
 end;
 
@@ -2811,6 +4701,9 @@ begin
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -2880,23 +4773,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLIntegerToLabel.GetValidationFunction: TOLIntegerValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TOLIntegerToLabel.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TOLIntegerToLabel.ValueIsValid(i: OLInteger): TOLValidationResult;
+function TOLIntegerToLabel.AddValidator(const Value: TOLIntegerValidationFunction): TOLIntegerToLabel;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(i)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TOLIntegerToLabel.RequireValue(const AColor: TColor; const ErrorMessage: string): TOLIntegerToLabel;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLIntegerToLabel.Min(const MinVal: Integer; const AColor: TColor; const ErrorMessage: string): TOLIntegerToLabel;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLIntegerToLabel.Max(const MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TOLIntegerToLabel;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLIntegerToLabel.Between(const MinVal, MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TOLIntegerToLabel;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLIntegerToLabel.Positive(const AColor: TColor; const ErrorMessage: string): TOLIntegerToLabel;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLIntegerToLabel.Negative(const AColor: TColor; const ErrorMessage: string): TOLIntegerToLabel;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLIntegerToLabel.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  Validator: TOLIntegerValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(i);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -2926,8 +4906,22 @@ begin
   FValueOnErrorInCalculation := '';
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLStringValidationFunction>.Create;
   {$IFEND}
+end;
+
+destructor TOLStringToLabel.Destroy;
+begin
+  if Assigned(FOLPointer) then
+  begin
+    {$IF CompilerVersion >= 34.0}
+    FOLPointer^.OnChange := nil;
+    {$IFEND}
+  end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
+  inherited;
 end;
 
 procedure TOLStringToLabel.RefreshControl;
@@ -2986,23 +4980,238 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLStringToLabel.GetValidationFunction: TOLStringValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TOLStringToLabel.SetValidationFunction(const Value: TOLStringValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TOLStringToLabel.ValueIsValid(s: OLString): TOLValidationResult;
+function TOLStringToLabel.AddValidator(const Value: TOLStringValidationFunction): TOLStringToLabel;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(s)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+{$IF CompilerVersion >= 34.0}
+function TOLStringToLabel.Pesel(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.PESEL(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.RequireValue(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TSmartValidator;
+begin
+  vFunc := OLValid.IsRequired(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := TOLStringValidationFunction(vFunc)(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.MinLength(const MinLen: Integer; const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.MinLength(MinLen, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.MaxLength(const MaxLen: Integer; const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.MaxLength(MaxLen, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.AlphaNumeric(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.AlphaNumeric(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.DigitsOnly(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.DigitsOnly(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.Email(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.Email(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.Password(const MinLen: Integer; const RequireMixedCase, RequireDigits, RequireSpecialChar: Boolean; const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.Password(MinLen, RequireMixedCase, RequireDigits, RequireSpecialChar, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.URL(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.URL(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.CreditCard(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.CreditCard(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.EAN(const IsGTIN14: Boolean; const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.EAN(IsGTIN14, AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.BIC(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.BIC(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.IPv4(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IPv4(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.IPv6(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IPv6(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.IBAN(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.IBAN(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLStringToLabel.NIP(const AColor: TColor; const ErrorMessage: string): TOLStringToLabel;
+var
+  vFunc: TOLStringValidationFunction;
+begin
+  vFunc := OLValid.NIP(AColor, ErrorMessage);
+  AddValidator(function(val: OLString): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+{$IFEND}
+
+function TOLStringToLabel.ValueIsValid(s: OLString): TOLValidationResult;
+var
+  Validator: TOLStringValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(s);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -3033,7 +5242,7 @@ begin
   FFormat := DOUBLE_FORMAT;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLDoubleValidationFunction>.Create;
   {$IFEND}
 end;
 
@@ -3045,6 +5254,9 @@ begin
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -3121,23 +5333,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLDoubleToLabel.GetValidationFunction: TOLDoubleValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TOLDoubleToLabel.SetValidationFunction(const Value: TOLDoubleValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TOLDoubleToLabel.ValueIsValid(d: OLDouble): TOLValidationResult;
+function TOLDoubleToLabel.AddValidator(const Value: TOLDoubleValidationFunction): TOLDoubleToLabel;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(d)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TOLDoubleToLabel.RequireValue(const AColor: TColor; const ErrorMessage: string): TOLDoubleToLabel;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDoubleToLabel.Min(const MinVal: Double; const AColor: TColor; const ErrorMessage: string): TOLDoubleToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLDoubleToLabel.Max(const MaxVal: Double; const AColor: TColor; const ErrorMessage: string): TOLDoubleToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLDoubleToLabel.Between(const MinVal, MaxVal: Double; const AColor: TColor; const ErrorMessage: string): TOLDoubleToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLDoubleToLabel.Positive(const AColor: TColor; const ErrorMessage: string): TOLDoubleToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLDoubleToLabel.Negative(const AColor: TColor; const ErrorMessage: string): TOLDoubleToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLDouble): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TOLDoubleToLabel.ValueIsValid(d: OLDouble): TOLValidationResult;
+var
+  Validator: TOLDoubleValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(d);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -3168,7 +5467,7 @@ begin
   FFormat := CURRENCY_FORMAT;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLCurrencyValidationFunction>.Create;
   {$IFEND}
 end;
 
@@ -3180,6 +5479,9 @@ begin
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -3256,23 +5558,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLCurrencyToLabel.GetValidationFunction: TOLCurrencyValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TOLCurrencyToLabel.SetValidationFunction(const Value: TOLCurrencyValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TOLCurrencyToLabel.ValueIsValid(c: OLCurrency): TOLValidationResult;
+function TOLCurrencyToLabel.AddValidator(const Value: TOLCurrencyValidationFunction): TOLCurrencyToLabel;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(c)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TOLCurrencyToLabel.RequireValue(const AColor: TColor; const ErrorMessage: string): TOLCurrencyToLabel;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLCurrencyToLabel.Min(const MinVal: Currency; const AColor: TColor; const ErrorMessage: string): TOLCurrencyToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Min(Double(MinVal), AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(Double(val));
+    end);
+  Result := Self;
+end;
+
+function TOLCurrencyToLabel.Max(const MaxVal: Currency; const AColor: TColor; const ErrorMessage: string): TOLCurrencyToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Max(Double(MaxVal), AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(Double(val));
+    end);
+  Result := Self;
+end;
+
+function TOLCurrencyToLabel.Between(const MinVal, MaxVal: Currency; const AColor: TColor; const ErrorMessage: string): TOLCurrencyToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Between(Double(MinVal), Double(MaxVal), AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(Double(val));
+    end);
+  Result := Self;
+end;
+
+function TOLCurrencyToLabel.Positive(const AColor: TColor; const ErrorMessage: string): TOLCurrencyToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(Double(val));
+    end);
+  Result := Self;
+end;
+
+function TOLCurrencyToLabel.Negative(const AColor: TColor; const ErrorMessage: string): TOLCurrencyToLabel;
+var
+  vFunc: TOLDoubleValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLCurrency): TOLValidationResult
+    begin
+      Result := vFunc(Double(val));
+    end);
+  Result := Self;
+end;
+
+function TOLCurrencyToLabel.ValueIsValid(c: OLCurrency): TOLValidationResult;
+var
+  Validator: TOLCurrencyValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(c);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -3300,6 +5689,9 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+  {$IF CompilerVersion >= 34.0}
+  FValidators := TList<TOLDateValidationFunction>.Create;
+  {$IFEND}
 end;
 
 destructor TOLDateToLabel.Destroy;
@@ -3310,6 +5702,9 @@ begin
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -3378,23 +5773,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLDateToLabel.GetValidationFunction: TOLDateValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TOLDateToLabel.SetValidationFunction(const Value: TOLDateValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TOLDateToLabel.ValueIsValid(d: OLDate): TOLValidationResult;
+function TOLDateToLabel.AddValidator(const Value: TOLDateValidationFunction): TOLDateToLabel;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(d)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TOLDateToLabel.RequireValue(const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.Min(const MinDate: TDate; const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.Min(MinDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.Max(const MaxDate: TDate; const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.Max(MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.Between(const MinDate, MaxDate: TDate; const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.Between(MinDate, MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.Past(const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.Past(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.Future(const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.Future(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.Today(const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.Today(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.MinAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.MinAge(Age, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.MaxAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.MaxAge(Age, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.IsWeekday(const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.IsWeekday(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.IsWeekend(const AColor: TColor; const ErrorMessage: string): TOLDateToLabel;
+begin
+  AddValidator(OLValid.IsWeekend(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateToLabel.ValueIsValid(d: OLDate): TOLValidationResult;
+var
+  Validator: TOLDateValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(d);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -3420,6 +5902,9 @@ begin
   FOLPointer := nil;
   FCalculation := nil;
   FValueOnErrorInCalculation := '';
+  {$IF CompilerVersion >= 34.0}
+  FValidators := TList<TOLDateTimeValidationFunction>.Create;
+  {$IFEND}
 end;
 
 destructor TOLDateTimeToLabel.Destroy;
@@ -3430,6 +5915,9 @@ begin
     FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -3498,23 +5986,80 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLDateTimeToLabel.GetValidationFunction: TOLDateTimeValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TOLDateTimeToLabel.SetValidationFunction(const Value: TOLDateTimeValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TOLDateTimeToLabel.ValueIsValid(dt: OLDateTime): TOLValidationResult;
+function TOLDateTimeToLabel.AddValidator(const Value: TOLDateTimeValidationFunction): TOLDateTimeToLabel;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(dt)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TOLDateTimeToLabel.RequireValue(const AColor: TColor; const ErrorMessage: string): TOLDateTimeToLabel;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateTimeToLabel.Min(const MinDate: TDateTime; const AColor: TColor; const ErrorMessage: string): TOLDateTimeToLabel;
+begin
+  AddValidator(OLValid.Min(MinDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateTimeToLabel.Max(const MaxDate: TDateTime; const AColor: TColor; const ErrorMessage: string): TOLDateTimeToLabel;
+begin
+  AddValidator(OLValid.Max(MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateTimeToLabel.Between(const MinDate, MaxDate: TDateTime; const AColor: TColor; const ErrorMessage: string): TOLDateTimeToLabel;
+begin
+  AddValidator(OLValid.Between(MinDate, MaxDate, AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateTimeToLabel.Past(const AColor: TColor; const ErrorMessage: string): TOLDateTimeToLabel;
+begin
+  AddValidator(OLValid.Past(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateTimeToLabel.Future(const AColor: TColor; const ErrorMessage: string): TOLDateTimeToLabel;
+begin
+  AddValidator(OLValid.Future(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TOLDateTimeToLabel.ValueIsValid(dt: OLDateTime): TOLValidationResult;
+var
+  Validator: TOLDateTimeValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(dt);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -3541,7 +6086,7 @@ begin
   FOLPointer := nil;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLIntegerValidationFunction>.Create;
   {$IFEND}
   FWarningLabel := nil;
 end;
@@ -3570,6 +6115,16 @@ begin
       FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+
+  if Assigned(FWarningLabel) then
+  begin
+    FWarningLabel.Free;
+    FWarningLabel := nil;
+  end;
+
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -3624,23 +6179,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TScrollBarToOLInteger.GetValidationFunction: TOLIntegerValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TScrollBarToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TScrollBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+function TScrollBarToOLInteger.AddValidator(const Value: TOLIntegerValidationFunction): TScrollBarToOLInteger;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(i)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TScrollBarToOLInteger.RequireValue(const AColor: TColor; const ErrorMessage: string): TScrollBarToOLInteger;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TScrollBarToOLInteger.Min(const MinVal: Integer; const AColor: TColor; const ErrorMessage: string): TScrollBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TScrollBarToOLInteger.Max(const MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TScrollBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TScrollBarToOLInteger.Between(const MinVal, MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TScrollBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TScrollBarToOLInteger.Positive(const AColor: TColor; const ErrorMessage: string): TScrollBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TScrollBarToOLInteger.Negative(const AColor: TColor; const ErrorMessage: string): TScrollBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TScrollBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  Validator: TOLIntegerValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(i);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -3699,7 +6341,7 @@ begin
   FOLPointer := nil;
 
   {$IF CompilerVersion >= 34.0}
-  FValidationFunction := nil;
+  FValidators := TList<TOLIntegerValidationFunction>.Create;
   {$IFEND}
   FWarningLabel := nil;
 end;
@@ -3728,6 +6370,16 @@ begin
       FOLPointer^.OnChange := nil;
     {$IFEND}
   end;
+
+  if Assigned(FWarningLabel) then
+  begin
+    FWarningLabel.Free;
+    FWarningLabel := nil;
+  end;
+
+  {$IF CompilerVersion >= 34.0}
+  FValidators.Free;
+  {$IFEND}
   inherited;
 end;
 
@@ -3782,23 +6434,110 @@ begin
 end;
 
 {$IF CompilerVersion >= 34.0}
+function TTrackBarToOLInteger.GetValidationFunction: TOLIntegerValidationFunction;
+begin
+  if FValidators.Count > 0 then
+    Result := FValidators[0]
+  else
+    Result := nil;
+end;
+
 procedure TTrackBarToOLInteger.SetValidationFunction(const Value: TOLIntegerValidationFunction);
 begin
-  FValidationFunction := Value;
+  FValidators.Clear;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 end;
-{$IFEND}
 
-{$IF CompilerVersion >= 34.0}
-function TTrackBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+function TTrackBarToOLInteger.AddValidator(const Value: TOLIntegerValidationFunction): TTrackBarToOLInteger;
 var
   vr: TOLValidationResult;
 begin
-  if Assigned(ValidationFunction) then
-    vr := ValidationFunction(i)
-  else
-    vr := TOLValidationResult.Ok();
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(Value);
 
-  Result := vr;
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TTrackBarToOLInteger.RequireValue(const AColor: TColor; const ErrorMessage: string): TTrackBarToOLInteger;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TTrackBarToOLInteger.Min(const MinVal: Integer; const AColor: TColor; const ErrorMessage: string): TTrackBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Min(MinVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TTrackBarToOLInteger.Max(const MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TTrackBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TTrackBarToOLInteger.Between(const MinVal, MaxVal: Integer; const AColor: TColor; const ErrorMessage: string): TTrackBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Between(MinVal, MaxVal, AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TTrackBarToOLInteger.Positive(const AColor: TColor; const ErrorMessage: string): TTrackBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Positive(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TTrackBarToOLInteger.Negative(const AColor: TColor; const ErrorMessage: string): TTrackBarToOLInteger;
+var
+  vFunc: TOLIntegerValidationFunction;
+begin
+  vFunc := OLValid.Negative(AColor, ErrorMessage);
+  AddValidator(function(val: OLInteger): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TTrackBarToOLInteger.ValueIsValid(i: OLInteger): TOLValidationResult;
+var
+  Validator: TOLIntegerValidationFunction;
+begin
+  Result := TOLValidationResult.Ok;
+  for Validator in FValidators do
+  begin
+    Result := Validator(i);
+    if not Result.Valid then
+      Exit;
+  end;
 end;
 {$IFEND}
 
@@ -3948,23 +6687,20 @@ end;
 
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TEdit; var i: OLInteger; const
-    ValidationFunction: TOLIntegerValidationFunction = nil; const Alignment:
-    TAlignment=taRightJustify);
+function TOLLinkManager.Link(const Edit: TEdit; var i: OLInteger; const Alignment:
+    TAlignment=taRightJustify): TEditToOLInteger;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TEdit; var i: OLInteger; const Alignment:
-    TAlignment=taRightJustify);
+function TOLLinkManager.Link(const Edit: TEdit; var i: OLInteger; const Alignment:
+    TAlignment=taRightJustify): TEditToOLInteger;
 {$IFEND}
 var
-  Link: TEditToOLInteger;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TEditToOLInteger.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @i;
+  Result := TEditToOLInteger.Create;
+  Result.Edit := Edit;
+  Result.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := TOLValidationFunction<OLInteger>(ValidationFunction);
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
@@ -3974,30 +6710,28 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
   Edit.Alignment := Alignment;
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger): TTrackBarToOLInteger;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger);
+function TOLLinkManager.Link(const Edit: TTrackBar; var i: OLInteger): TTrackBarToOLInteger;
 {$IFEND}
 var
-  Link: TTrackBarToOLInteger;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TTrackBarToOLInteger.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @i;
+  Result := TTrackBarToOLInteger.Create;
+  Result.Edit := Edit;
+  Result.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
@@ -4007,28 +6741,26 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger): TScrollBarToOLInteger;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger);
+function TOLLinkManager.Link(const Edit: TScrollBar; var i: OLInteger): TScrollBarToOLInteger;
 {$IFEND}
 var
-  Link: TScrollBarToOLInteger;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TScrollBarToOLInteger.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @i;
+  Result := TScrollBarToOLInteger.Create;
+  Result.Edit := Edit;
+  Result.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
@@ -4038,29 +6770,27 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TEdit; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
+function TOLLinkManager.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLDouble;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify);
+function TOLLinkManager.Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLDouble;
 {$IFEND}
 var
-  Link: TEditToOLDouble;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TEditToOLDouble.Create;
-  Link.FFormat := Format;
-  Link.Edit := Edit;
-  Link.FOLPointer := @d;
+  Result := TEditToOLDouble.Create;
+  Result.FFormat := Format;
+  Result.Edit := Edit;
+  Result.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLDouble
   if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
@@ -4070,31 +6800,29 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDouble
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
   Edit.Alignment := Alignment;
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TEdit; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
+function TOLLinkManager.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLCurrency;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify);
+function TOLLinkManager.Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLCurrency;
 {$IFEND}
 var
-  Link: TEditToOLCurrency;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TEditToOLCurrency.Create;
-  Link.FFormat := Format;
-  Link.Edit := Edit;
-  Link.FOLPointer := @curr;
+  Result := TEditToOLCurrency.Create;
+  Result.FFormat := Format;
+  Result.Edit := Edit;
+  Result.FOLPointer := @curr;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLCurrency
   if not FValueMulticasters.TryGetValue(@curr, Observer) then
   begin
@@ -4104,30 +6832,28 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
   Edit.Alignment := Alignment;
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TEdit; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TEdit; var s: OLString): TEditToOLString;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TEdit; var s: OLString);
+function TOLLinkManager.Link(const Edit: TEdit; var s: OLString): TEditToOLString;
 {$IFEND}
 var
-  Link: TEditToOLString;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TEditToOLString.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @s;
+  Result := TEditToOLString.Create;
+  Result.Edit := Edit;
+  Result.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := TOLValidationFunction<OLString>(ValidationFunction);
   // Get or create multicaster for this OLString
   if not FValueMulticasters.TryGetValue(@s, Observer) then
   begin
@@ -4137,28 +6863,26 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   s.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLString
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TMemo; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TMemo; var s: OLString): TMemoToOLString;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TMemo; var s: OLString);
+function TOLLinkManager.Link(const Edit: TMemo; var s: OLString): TMemoToOLString;
 {$IFEND}
 var
-  Link: TMemoToOLString;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TMemoToOLString.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @s;
+  Result := TMemoToOLString.Create;
+  Result.Edit := Edit;
+  Result.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLString
   if not FValueMulticasters.TryGetValue(@s, Observer) then
   begin
@@ -4168,21 +6892,19 @@ begin
   end
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDate; const
-    ValidationFunction: TOLDateValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDate): TDateTimePickerToOLDate;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDate);
+function TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDate): TDateTimePickerToOLDate;
 {$IFEND}
 var
-  Link: TDateTimePickerToOLDate;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
@@ -4191,10 +6913,9 @@ begin
     Edit.Format := DelphiDateTimeFormatToWindowsFormat(FormatSettings.ShortDateFormat);
   end;
 
-  Link := TDateTimePickerToOLDate.Create;
-  Link.FOLPointer := @d;
+  Result := TDateTimePickerToOLDate.Create;
+  Result.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLDate
   if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
@@ -4204,12 +6925,12 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDate
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  Link.Edit := Edit;
-  AddLink(Edit, Link);
+  Result.Edit := Edit;
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {*
@@ -4247,21 +6968,18 @@ end;
 
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDate; const
-    ValidationFunction: TOLDateValidationFunction = nil);
+function TOLLinkManager.Link(const Lbl: TLabel; var d: OLDate): TOLDateToLabel;
 {$ELSE}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDate);
+function TOLLinkManager.Link(const Lbl: TLabel; var d: OLDate): TOLDateToLabel;
 {$IFEND}
 var
-  Link: TOLDateToLabel;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TOLDateToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @d;
+  Result := TOLDateToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLDate
   if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
@@ -4271,21 +6989,19 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDate
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Lbl, Link);
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDateTime;
-    const ValidationFunction: TOLDateTimeValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDateTime): TDateTimePickerToOLDateTime;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDateTime);
+function TOLLinkManager.Link(const Edit: TDateTimePicker; var d: OLDateTime): TDateTimePickerToOLDateTime;
 {$IFEND}
 var
-  Link: TDateTimePickerToOLDateTime;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
@@ -4298,10 +7014,9 @@ begin
         FormatSettings.ShortDateFormat + ' ' + FormatSettings.LongTimeFormat);
   end;
 
-  Link := TDateTimePickerToOLDateTime.Create;
-  Link.FOLPointer := @d;
+  Result := TDateTimePickerToOLDateTime.Create;
+  Result.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLDateTime
   if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
@@ -4311,29 +7026,28 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDateTime
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  Link.Edit := Edit;
-  AddLink(Edit, Link);
+  Result.Edit := Edit;
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TCheckBox; var b: OLBoolean; const ValidationFunction: TOLBooleanValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TCheckBox; var b: OLBoolean; AllowGrayed: Boolean = False): TCheckBoxToOLBoolean;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TCheckBox; var b: OLBoolean);
+function TOLLinkManager.Link(const Edit: TCheckBox; var b: OLBoolean; AllowGrayed: Boolean = False): TCheckBoxToOLBoolean;
 {$IFEND}
 var
-  Link: TCheckBoxToOLBoolean;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TCheckBoxToOLBoolean.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @b;
+  Result := TCheckBoxToOLBoolean.Create;
+  Result.AllowGrayed := AllowGrayed;
+  Result.Edit := Edit;
+  Result.FOLPointer := @b;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
 
   // Get or create multicaster for this OLBoolean
   if not FValueMulticasters.TryGetValue(@b, Observer) then
@@ -4344,59 +7058,53 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   b.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLBoolean
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; const f:
+function TOLLinkManager.Link(const Lbl: TLabel; const f:
     TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string =
-    ERROR_STRING);
-var
-  Link: TOLIntegerToLabel;
+    ERROR_STRING): TOLIntegerToLabel;
 begin
-  Link := TOLIntegerToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.Calculation := f;
-  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
+  Result := TOLIntegerToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.Calculation := f;
+  Result.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; const f:
+function TOLLinkManager.Link(const Lbl: TLabel; const f:
     TFunctionReturningOLString; const ValueOnErrorInCalculation: string =
-    ERROR_STRING);
-var
-  Link: TOLStringToLabel;
+    ERROR_STRING): TOLStringToLabel;
 begin
-  Link := TOLStringToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.Calculation := f;
-  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
+  Result := TOLStringToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.Calculation := f;
+  Result.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var s: OLString; const ValidationFunction: TOLStringValidationFunction = nil);
+function TOLLinkManager.Link(const Lbl: TLabel; var s: OLString): TOLStringToLabel;
 {$ELSE}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var s: OLString);
+function TOLLinkManager.Link(const Lbl: TLabel; var s: OLString): TOLStringToLabel;
 {$IFEND}
 var
-  Link: TOLStringToLabel;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TOLStringToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @s;
+  Result := TOLStringToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.FOLPointer := @s;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLString
   if not FValueMulticasters.TryGetValue(@s, Observer) then
   begin
@@ -4406,43 +7114,39 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   s.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLString
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Lbl, Link);
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
-var
-  Link: TOLDoubleToLabel;
+function TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLDoubleToLabel;
 begin
-  Link := TOLDoubleToLabel.Create;
-  Link.FFormat := Format;
-  Link.Lbl := Lbl;
-  Link.Calculation := f;
-  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
+  Result := TOLDoubleToLabel.Create;
+  Result.FFormat := Format;
+  Result.Lbl := Lbl;
+  Result.Calculation := f;
+  Result.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDouble; const ValidationFunction: TOLDoubleValidationFunction = nil; const Format: string = DOUBLE_FORMAT);
+function TOLLinkManager.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT): TOLDoubleToLabel;
 {$ELSE}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT);
+function TOLLinkManager.Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT): TOLDoubleToLabel;
 {$IFEND}
 var
-  Link: TOLDoubleToLabel;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TOLDoubleToLabel.Create;
-  Link.FFormat := Format;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @d;
+  Result := TOLDoubleToLabel.Create;
+  Result.FFormat := Format;
+  Result.Lbl := Lbl;
+  Result.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLDouble
   if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
@@ -4452,43 +7156,39 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDouble
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Lbl, Link);
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING);
-var
-  Link: TOLCurrencyToLabel;
+function TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLCurrencyToLabel;
 begin
-  Link := TOLCurrencyToLabel.Create;
-  Link.FFormat := Format;
-  Link.Lbl := Lbl;
-  Link.Calculation := f;
-  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
+  Result := TOLCurrencyToLabel.Create;
+  Result.FFormat := Format;
+  Result.Lbl := Lbl;
+  Result.Calculation := f;
+  Result.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var curr: OLCurrency; const ValidationFunction: TOLCurrencyValidationFunction = nil; const Format: string = CURRENCY_FORMAT);
+function TOLLinkManager.Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT): TOLCurrencyToLabel;
 {$ELSE}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT);
+function TOLLinkManager.Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT): TOLCurrencyToLabel;
 {$IFEND}
 var
-  Link: TOLCurrencyToLabel;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TOLCurrencyToLabel.Create;
-  Link.FFormat := Format;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @curr;
+  Result := TOLCurrencyToLabel.Create;
+  Result.FFormat := Format;
+  Result.Lbl := Lbl;
+  Result.FOLPointer := @curr;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLCurrency
   if not FValueMulticasters.TryGetValue(@curr, Observer) then
   begin
@@ -4498,42 +7198,37 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   curr.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLCurrency
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Lbl, Link);
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
-procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string);
-var
-  Link: TOLDateToLabel;
+function TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string): TOLDateToLabel;
 begin
-  Link := TOLDateToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.Calculation := f;
-  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
+  Result := TOLDateToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.Calculation := f;
+  Result.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDateTime; const
-    ValidationFunction: TOLDateTimeValidationFunction = nil);
+function TOLLinkManager.Link(const Lbl: TLabel; var d: OLDateTime): TOLDateTimeToLabel;
 {$ELSE}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var d: OLDateTime);
+function TOLLinkManager.Link(const Lbl: TLabel; var d: OLDateTime): TOLDateTimeToLabel;
 {$IFEND}
 var
-  Link: TOLDateTimeToLabel;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TOLDateTimeToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @d;
+  Result := TOLDateTimeToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.FOLPointer := @d;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLDateTime
   if not FValueMulticasters.TryGetValue(@d, Observer) then
   begin
@@ -4543,41 +7238,37 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDateTime
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Lbl, Link);
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
- procedure TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string);
-var
-  Link: TOLDateTimeToLabel;
+ function TOLLinkManager.Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string): TOLDateTimeToLabel;
 begin
-  Link := TOLDateTimeToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.Calculation := f;
-  Link.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
-  AddLink(Lbl, Link);
+  Result := TOLDateTimeToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.Calculation := f;
+  Result.ValueOnErrorInCalculation := ValueOnErrorInCalculation;
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
+function TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger): TSpinEditToOLInteger;
 {$ELSE}
-procedure TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger);
+function TOLLinkManager.Link(const Edit: TSpinEdit; var i: OLInteger): TSpinEditToOLInteger;
 {$IFEND}
 var
-  Link: TSpinEditToOLInteger;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TSpinEditToOLInteger.Create;
-  Link.Edit := Edit;
-  Link.FOLPointer := @i;
+  Result := TSpinEditToOLInteger.Create;
+  Result.Edit := Edit;
+  Result.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
@@ -4587,28 +7278,26 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Edit, Link);
+  AddLink(Edit, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 {$IF CompilerVersion >= 34.0}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var i: OLInteger; const ValidationFunction: TOLIntegerValidationFunction = nil);
+function TOLLinkManager.Link(const Lbl: TLabel; var i: OLInteger): TOLIntegerToLabel;
 {$ELSE}
-procedure TOLLinkManager.Link(const Lbl: TLabel; var i: OLInteger);
+function TOLLinkManager.Link(const Lbl: TLabel; var i: OLInteger): TOLIntegerToLabel;
 {$IFEND}
 var
-  Link: TOLIntegerToLabel;
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
-  Link := TOLIntegerToLabel.Create;
-  Link.Lbl := Lbl;
-  Link.FOLPointer := @i;
+  Result := TOLIntegerToLabel.Create;
+  Result.Lbl := Lbl;
+  Result.FOLPointer := @i;
   {$IF CompilerVersion >= 34.0}
-  Link.ValidationFunction := ValidationFunction;
   // Get or create multicaster for this OLInteger
   if not FValueMulticasters.TryGetValue(@i, Observer) then
   begin
@@ -4618,11 +7307,11 @@ begin
   else
     ValueMulticaster := Observer as TOLValueMulticaster;
   i.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLInteger
-  ValueMulticaster.AddLink(Link);  // Register this link with the multicaster
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
   {$IFEND}
-  AddLink(Lbl, Link);
+  AddLink(Lbl, Result);
 
-  Link.RefreshControl();
+  Result.RefreshControl();
 end;
 
 procedure TOLLinkManager.RefreshControls(FormToRefresh: TForm = nil);
@@ -4813,4 +7502,3 @@ finalization
   OLLinkManager.Free;
 
 end.
-

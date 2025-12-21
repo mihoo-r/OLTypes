@@ -10,7 +10,19 @@ uses
   {$IFEND}
   OLIntegerType, OLBooleanType, OLDoubleType, OLCurrencyType, OLDateType, OLDateTimeType, OLStringType;
 
+const
+  ERROR_STRING = '#ERROR';
+  DOUBLE_FORMAT = '###,###,###,##0.0####';
+  CURRENCY_FORMAT = '###,###,###,##0.00##';
+
 type
+  TFunctionReturningOLInteger = reference to function(): OLInteger;
+  TFunctionReturningOLString = reference to function(): OLString;
+  TFunctionReturningOLDouble = reference to function(): OLDouble;
+  TFunctionReturningOLCurrency = reference to function(): OLCurrency;
+  TFunctionReturningOLDate = reference to function(): OLDate;
+  TFunctionReturningOLDateTime= reference to function(): OLDateTime;
+
   /// <summary>Represents the result of a validation check.</summary>
   TOLValidationResult = record
     /// <summary>True if the value is valid, false otherwise.</summary>

@@ -2,6 +2,8 @@ unit OLValidation;
 
 interface
 
+{$IF CompilerVersion >= 34.0}
+
 uses
   {$IF CompilerVersion >= 23.0}
   Vcl.Graphics, Vcl.Controls,
@@ -13,7 +15,7 @@ uses
 
 type
 
-  TValueRequired = (vrValueRequired, vrAllowNullOrEmpty);
+
   /// <summary>Internal types for smart overloading.</summary>
   TSmartValidatorType = (svtMin, svtMax, svtPositive, svtNegative, svtAfter, svtBefore, svtRequired);
 
@@ -27,8 +29,7 @@ type
     FValue: Extended;
     FMessage: string;
     FColor: TColor;
-    FAllowNullOrEmpty: TValueRequired;
-    class function Create(AType: TSmartValidatorType; AValue: Extended; const AAllowNullOrEmpty: TValueRequired; const AColor: TColor; const AMessage: string): TSmartValidator; static;
+    class function Create(AType: TSmartValidatorType; AValue: Extended; const AColor: TColor; const AMessage: string): TSmartValidator; static;
     class operator Implicit(const a: TSmartValidator): TOLIntegerValidationFunction;
     class operator Implicit(const a: TSmartValidator): TOLDoubleValidationFunction;
     class operator Implicit(const a: TSmartValidator): TOLCurrencyValidationFunction;
@@ -44,8 +45,7 @@ type
     FMin, FMax: Extended;
     FMessage: string;
     FColor: TColor;
-    FAllowNullOrEmpty: TValueRequired;
-    class function Create(AMin, AMax: Extended; const AAllowNullOrEmpty: TValueRequired; const AColor: TColor; const AMessage: string): TSmartRangeValidator; static;
+    class function Create(AMin, AMax: Extended; const AColor: TColor; const AMessage: string): TSmartRangeValidator; static;
     class operator Implicit(const a: TSmartRangeValidator): TOLIntegerValidationFunction;
     class operator Implicit(const a: TSmartRangeValidator): TOLDoubleValidationFunction;
     class operator Implicit(const a: TSmartRangeValidator): TOLCurrencyValidationFunction;
@@ -58,88 +58,195 @@ type
     /// <summary>
     ///   Returns a validation rule that checks if the value is not empty or null.
     /// </summary>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator that can be implicitly converted to specific validation functions.</returns>
     class function IsRequired(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
 
 
     // Numeric/Date Validators (Using Smart Overloading)
     /// <summary>Checks if the numeric or date value is at least AValue.</summary>
-    class function Min(const AValue: Extended; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
+    /// <param name="AValue">Minimum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function Min(const AValue: Extended; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
     /// <summary>Checks if the numeric or date value is at most AValue.</summary>
-    class function Max(const AValue: Extended; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
+    /// <param name="AValue">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function Max(const AValue: Extended; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
     /// <summary>Checks if the value is between AMin and AMax.</summary>
-    class function Between(const AMin, AMax: Extended; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartRangeValidator; overload; static;
+    /// <param name="AMin">Minimum allowed value.</param>
+    /// <param name="AMax">Maximum allowed value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart range validator.</returns>
+    class function Between(const AMin, AMax: Extended; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartRangeValidator; overload; static;
     /// <summary>Checks if the value is after a specified value.</summary>
-    class function After(const AValue: Extended; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
+    /// <param name="AValue">Threshold value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function After(const AValue: Extended; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
     /// <summary>Checks if the value is before a specified value.</summary>
-    class function Before(const AValue: Extended; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
+    /// <param name="AValue">Threshold value.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function Before(const AValue: Extended; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; overload; static;
 
     /// <summary>Checks if the value is greater than zero.</summary>
-    class function Positive(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function Positive(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
     /// <summary>Checks if the value is less than zero.</summary>
-    class function Negative(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
 
     // String Validators
     /// <summary>Checks if the string length is at least MinLen.</summary>
-    class function MinLength(const MinLen: Integer; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="MinLen">Minimum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function MinLength(const MinLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string length is at most MaxLen.</summary>
-    class function MaxLength(const MaxLen: Integer; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="MaxLen">Maximum character count.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function MaxLength(const MaxLen: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string contains only alphanumeric characters.</summary>
-    class function AlphaNumeric(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function AlphaNumeric(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string contains only digits.</summary>
-    class function DigitsOnly(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function DigitsOnly(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid email address.</summary>
-    class function Email(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function Email(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string meets password complexity requirements.</summary>
-    class function Password(const MinLen: Integer = 8; const RequireMixedCase: Boolean = True; const RequireDigits: Boolean = True; const RequireSpecialChar: Boolean = False; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="MinLen">Minimum password length.</param>
+    /// <param name="RequireMixedCase">Whether to require both upper and lower case letters.</param>
+    /// <param name="RequireDigits">Whether to require numeric digits.</param>
+    /// <param name="RequireSpecialChar">Whether to require special characters.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function Password(const MinLen: Integer = 8; const RequireMixedCase: Boolean = True; const RequireDigits: Boolean = True; const RequireSpecialChar: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid URL.</summary>
-    class function URL(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function URL(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid Credit Card number (Luhn check).</summary>
-    class function CreditCard(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function CreditCard(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid EAN/GTIN code.</summary>
-    class function EAN(const IsGTIN14: Boolean = False; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="IsGTIN14">True if checking for GTIN-14 specifically.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function EAN(const IsGTIN14: Boolean = False; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid BIC/SWIFT code.</summary>
-    class function BIC(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function BIC(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid IPv4 address.</summary>
-    class function IPv4(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function IPv4(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid IPv6 address.</summary>
-    class function IPv6(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function IPv6(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid IBAN.</summary>
-    class function IBAN(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function IBAN(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid PESEL number (Poland).</summary>
-    class function PESEL(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty;
-        const AColor: TColor = clDefault; const ErrorMessage: string = ''):
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function PESEL(const AColor: TColor = clDefault; const ErrorMessage: string = ''):
         TOLStringValidationFunction; static;
     /// <summary>Checks if the string is a valid NIP number (Poland).</summary>
-    class function NIP(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A string validation function.</returns>
+    class function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringValidationFunction; static;
 
     /// <summary>Checks if the date/time is in the past.</summary>
-    class function Past(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function Past(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
     /// <summary>Checks if the date/time is in the future.</summary>
-    class function Future(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A smart validator.</returns>
+    class function Future(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TSmartValidator; static;
     /// <summary>Checks if the date is today.</summary>
-    class function Today(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A date validation function.</returns>
+    class function Today(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
     /// <summary>Checks if the birth date implies a minimum age.</summary>
-    class function MinAge(const Age: Integer; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
+    /// <param name="Age">Minimum required age.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A date validation function.</returns>
+    class function MinAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
     /// <summary>Checks if the birth date implies a maximum age.</summary>
-    class function MaxAge(const Age: Integer; AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
+    /// <param name="Age">Maximum allowed age.</param>
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A date validation function.</returns>
+    class function MaxAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
     /// <summary>Checks if the date is a weekday (Mon-Fri).</summary>
-    class function IsWeekday(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A date validation function.</returns>
+    class function IsWeekday(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
     /// <summary>Checks if the date is a weekend (Sat-Sun).</summary>
-    class function IsWeekend(AlowNullOrEmpty: TValueRequired = vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
+    /// <param name="AColor">Color to set when validation fails.</param>
+    /// <param name="ErrorMessage">Custom error message.</param>
+    /// <returns>A date validation function.</returns>
+    class function IsWeekend(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateValidationFunction; static;
 
   end;
 
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion >= 34.0}
 
 { TSmartValidator }
 
-class function TSmartValidator.Create(AType: TSmartValidatorType; AValue: Extended; const AAllowNullOrEmpty: TValueRequired; const AColor: TColor; const AMessage: string): TSmartValidator;
+class function TSmartValidator.Create(AType: TSmartValidatorType; AValue: Extended; const AColor: TColor; const AMessage: string): TSmartValidator;
 begin
   Result.FType := AType;
   Result.FValue := AValue;
   Result.FColor := AColor;
   Result.FMessage := AMessage;
-  Result.FAllowNullOrEmpty := AAllowNullOrEmpty;
 end;
 
 class operator TSmartValidator.Implicit(const a: TSmartValidator): TOLIntegerValidationFunction;
@@ -149,7 +256,7 @@ begin
     Msg: string;
     ival: Integer;
   begin
-    if (a.FType = svtRequired) or (a.FAllowNullOrEmpty = vrValueRequired) then
+    if (a.FType = svtRequired) then
     begin
       if not Value.HasValue then
       begin
@@ -193,7 +300,7 @@ begin
   var
     Msg: string;
   begin
-    if (a.FType = svtRequired) or (a.FAllowNullOrEmpty = vrValueRequired) then
+    if (a.FType = svtRequired) then
     begin
       if not Value.HasValue then
       begin
@@ -236,7 +343,7 @@ begin
   var
     Msg: string;
   begin
-    if (a.FType = svtRequired) or (a.FAllowNullOrEmpty = vrValueRequired) then
+    if (a.FType = svtRequired) then
     begin
       if not Value.HasValue then
       begin
@@ -279,7 +386,7 @@ begin
   var
     Msg: string;
   begin
-    if (a.FType = svtRequired) or (a.FAllowNullOrEmpty = vrValueRequired) then
+    if (a.FType = svtRequired) then
     begin
       if Value.IsNullOrEmpty() then
       begin
@@ -297,7 +404,7 @@ begin
   var
     Msg: string;
   begin
-    if (a.FType = svtRequired) or (a.FAllowNullOrEmpty = vrValueRequired) then
+    if (a.FType = svtRequired) then
     begin
       if not Value.HasValue then
       begin
@@ -316,7 +423,7 @@ begin
     Msg: string;
     target: TDateTime;
   begin
-    if (a.FType = svtRequired) or (a.FAllowNullOrEmpty = vrValueRequired) then
+    if (a.FType = svtRequired) then
     begin
       if not Value.HasValue then
       begin
@@ -351,7 +458,7 @@ begin
     Msg: string;
     target: TDateTime;
   begin
-    if (a.FType = svtRequired) or (a.FAllowNullOrEmpty = vrValueRequired) then
+    if (a.FType = svtRequired) then
     begin
       if not Value.HasValue then
       begin
@@ -381,13 +488,12 @@ end;
 
 { TSmartRangeValidator }
 
-class function TSmartRangeValidator.Create(AMin, AMax: Extended; const AAllowNullOrEmpty: TValueRequired; const AColor: TColor; const AMessage: string): TSmartRangeValidator;
+class function TSmartRangeValidator.Create(AMin, AMax: Extended; const AColor: TColor; const AMessage: string): TSmartRangeValidator;
 begin
   Result.FMin := AMin;
   Result.FMax := AMax;
   Result.FColor := AColor;
   Result.FMessage := AMessage;
-  Result.FAllowNullOrEmpty := AAllowNullOrEmpty;
 end;
 
 class operator TSmartRangeValidator.Implicit(const a: TSmartRangeValidator): TOLIntegerValidationFunction;
@@ -397,9 +503,6 @@ begin
     Msg: string;
     iMin, iMax: Integer;
   begin
-    if (a.FAllowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-      Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), a.FColor));
-
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
     iMin := Trunc(a.FMin);
     iMax := Trunc(a.FMax);
@@ -418,9 +521,6 @@ begin
   var
     Msg: string;
   begin
-    if (a.FAllowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-      Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), a.FColor));
-
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
     if (Value < a.FMin) or (Value > a.FMax) then
     begin
@@ -437,9 +537,6 @@ begin
   var
     Msg: string;
   begin
-    if (a.FAllowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-      Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), a.FColor));
-
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
     if (Value < a.FMin) or (Value > a.FMax) then
     begin
@@ -456,9 +553,6 @@ begin
   var
     Msg: string;
   begin
-    if (a.FAllowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-      Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), a.FColor));
-
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
     if not Value.InRange(OLDate(a.FMin), OLDate(a.FMax)) then
     begin
@@ -475,9 +569,6 @@ begin
   var
     Msg: string;
   begin
-    if (a.FAllowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-      Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), a.FColor));
-
     if not Value.HasValue then Exit(TOLValidationResult.Ok);
     if (Value < a.FMin) or (Value > a.FMax) then
     begin
@@ -493,55 +584,53 @@ end;
 
 class function OLValid.IsRequired(const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtRequired, 0, vrValueRequired, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtRequired, 0, AColor, ErrorMessage);
 end;
 
-class function OLValid.Min(const AValue: Extended; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Min(const AValue: Extended; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtMin, AValue, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtMin, AValue, AColor, ErrorMessage);
 end;
 
-class function OLValid.Max(const AValue: Extended; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Max(const AValue: Extended; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtMax, AValue, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtMax, AValue, AColor, ErrorMessage);
 end;
 
-class function OLValid.Between(const AMin, AMax: Extended; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartRangeValidator;
+class function OLValid.Between(const AMin, AMax: Extended; const AColor: TColor; const ErrorMessage: string): TSmartRangeValidator;
 begin
-  Result := TSmartRangeValidator.Create(AMin, AMax, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartRangeValidator.Create(AMin, AMax, AColor, ErrorMessage);
 end;
 
-class function OLValid.After(const AValue: Extended; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.After(const AValue: Extended; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtAfter, AValue, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtAfter, AValue, AColor, ErrorMessage);
 end;
 
-class function OLValid.Before(const AValue: Extended; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Before(const AValue: Extended; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtBefore, AValue, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtBefore, AValue, AColor, ErrorMessage);
 end;
 
-class function OLValid.Positive(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Positive(const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtPositive, 0, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtPositive, 0, AColor, ErrorMessage);
 end;
 
-class function OLValid.Negative(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Negative(const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtNegative, 0, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtNegative, 0, AColor, ErrorMessage);
 end;
 
 { String Validators }
 
-class function OLValid.MinLength(const MinLen: Integer; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.MinLength(const MinLen: Integer; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     if Value.Length < MinLen then
     begin
@@ -553,15 +642,13 @@ begin
   end;
 end;
 
-class function OLValid.MaxLength(const MaxLen: Integer; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.MaxLength(const MaxLen: Integer; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     if Value.Length > MaxLen then
     begin
@@ -573,16 +660,14 @@ begin
   end;
 end;
 
-class function OLValid.AlphaNumeric(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.AlphaNumeric(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     i: Integer;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     for i := 1 to Value.Length do
       if not (Value[i] in ['a'..'z', 'A'..'Z', '0'..'9']) then
@@ -595,16 +680,14 @@ begin
   end;
 end;
 
-class function OLValid.DigitsOnly(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.DigitsOnly(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     i: Integer;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     for i := 1 to Value.Length do
       if not (Value[i] in ['0'..'9']) then
@@ -617,16 +700,14 @@ begin
   end;
 end;
 
-class function OLValid.Email(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.Email(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     s: string;
     atPos, dotPos: Integer;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     s := Value;
     // Basic validation without regex for maximum compatibility
@@ -645,7 +726,7 @@ begin
 end;
 
 class function OLValid.Password(const MinLen: Integer; const RequireMixedCase: Boolean; const RequireDigits: Boolean;
-    const RequireSpecialChar: Boolean; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+    const RequireSpecialChar: Boolean; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -653,18 +734,7 @@ begin
     i: Integer;
     hasUpper, hasLower, hasDigit, hasSpecial: Boolean;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
-    
-    // Explicit password empty check logic was here, but now handled by AlowNullOrEmpty.
-    // If vrValueRequired, we fail above.
-    // If vrAllowNullOrEmpty, we returned Ok above.
-    // However, Password function previously had this:
-    // if not Value.HasValue or (Value.Length = 0) then Error('Password is required.')
-    // This implies Password was ALWAYS required before?
-    // User requested "Add this parameter". If I pass vrAllowNullOrEmpty, it should allow empty password?
-    // Probably yes.
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
     
     s := Value;
     if Length(s) < MinLen then
@@ -703,15 +773,13 @@ begin
   end;
 end;
 
-class function OLValid.URL(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.URL(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     s: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     s := LowerCase(Value);
     if (Pos('http://', s) = 1) or (Pos('https://', s) = 1) or (Pos('ftp://', s) = 1) then
@@ -727,7 +795,7 @@ begin
   end;
 end;
 
-class function OLValid.CreditCard(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.CreditCard(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -735,9 +803,7 @@ begin
     i, digit, sum, weight: Integer;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     s := Value.DigitsOnly;
     if Length(s) < 13 then
@@ -765,7 +831,7 @@ begin
   end;
 end;
 
-class function OLValid.EAN(const IsGTIN14: Boolean; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.EAN(const IsGTIN14: Boolean; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -773,9 +839,7 @@ begin
     i, digit, sum, weight, expectedLen: Integer;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     s := Value.DigitsOnly;
     if IsGTIN14 then expectedLen := 14 else expectedLen := 13;
@@ -810,16 +874,14 @@ begin
   end;
 end;
 
-class function OLValid.BIC(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.BIC(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     s: string;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     s := Value.UpperCase;
     if (Length(s) = 8) or (Length(s) = 11) then
@@ -833,7 +895,7 @@ begin
   end;
 end;
 
-class function OLValid.IPv4(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.IPv4(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -841,9 +903,7 @@ begin
     i, val: Integer;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     parts := Value.SplitString('.');
     if Length(parts) <> 4 then
@@ -863,16 +923,14 @@ begin
   end;
 end;
 
-class function OLValid.IPv6(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.IPv6(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     parts: TStringDynArray;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     parts := Value.SplitString(':');
     if (Length(parts) >= 3) and (Length(parts) <= 8) then
@@ -886,15 +944,13 @@ begin
   end;
 end;
 
-class function OLValid.IBAN(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.IBAN(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     if Value.IsValidIBAN then
       Result := TOLValidationResult.Ok
@@ -907,9 +963,7 @@ begin
   end;
 end;
 
-class function OLValid.PESEL(AlowNullOrEmpty: TValueRequired =
-    vrAllowNullOrEmpty; const AColor: TColor = clDefault; const ErrorMessage:
-    string = ''): TOLStringValidationFunction;
+class function OLValid.PESEL(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -918,15 +972,8 @@ begin
     Weights: array[0..9] of Integer;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then
+    if Value.IsNullOrEmpty() then
       Exit(TOLValidationResult.Ok);
-
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-    begin
-      Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required,
-        'Field is required.'), AColor));
-    end;
-
 
     S := Value;
 
@@ -964,7 +1011,7 @@ begin
   end;
 end;
 
-class function OLValid.NIP(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
+class function OLValid.NIP(const AColor: TColor; const ErrorMessage: string): TOLStringValidationFunction;
 begin
   Result := function(Value: OLString): TOLValidationResult
   var
@@ -973,9 +1020,7 @@ begin
     Weights: array[0..8] of Integer;
     Msg: string;
   begin
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrAllowNullOrEmpty) then Exit(TOLValidationResult.Ok);
-    if Value.IsNullOrEmpty() and (AlowNullOrEmpty = vrValueRequired) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
+    if Value.IsNullOrEmpty() then Exit(TOLValidationResult.Ok);
 
     S := OLString(Value).DigitsOnly();
 
@@ -1015,15 +1060,12 @@ end;
 
 { Date Validators }
 
-class function OLValid.Today(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.Today(const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   var
     Msg: string;
   begin
-    if (AlowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
-
     if (not Value.HasValue) or (Value = OLDate.Today) then
       Result := TOLValidationResult.Ok
     else
@@ -1035,15 +1077,12 @@ begin
   end;
 end;
 
-class function OLValid.MinAge(const Age: Integer; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.MinAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   var
     Msg: string;
   begin
-    if (AlowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
-
     if (not Value.HasValue) or (OLDate.Today.YearsBetween(Value) >= Age) then
       Result := TOLValidationResult.Ok
     else
@@ -1055,15 +1094,12 @@ begin
   end;
 end;
 
-class function OLValid.MaxAge(const Age: Integer; AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.MaxAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   var
     Msg: string;
   begin
-    if (AlowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
-
     if (not Value.HasValue) or (OLDate.Today.YearsBetween(Value) <= Age) then
       Result := TOLValidationResult.Ok
     else
@@ -1075,15 +1111,12 @@ begin
   end;
 end;
 
-class function OLValid.IsWeekday(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.IsWeekday(const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   var
     Msg: string;
   begin
-    if (AlowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
-
     if (not Value.HasValue) or (DayOfWeek(Value) in [2..6]) then
       Result := TOLValidationResult.Ok
     else
@@ -1095,15 +1128,12 @@ begin
   end;
 end;
 
-class function OLValid.IsWeekend(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
+class function OLValid.IsWeekend(const AColor: TColor; const ErrorMessage: string): TOLDateValidationFunction;
 begin
   Result := function(Value: OLDate): TOLValidationResult
   var
     Msg: string;
   begin
-    if (AlowNullOrEmpty = vrValueRequired) and (not Value.HasValue) then
-       Exit(TOLValidationResult.Error(GetLocalizedMessage(ValidationMessages.Required, 'This field is required.'), AColor));
-
     if (not Value.HasValue) or (DayOfWeek(Value) in [1, 7]) then
       Result := TOLValidationResult.Ok
     else
@@ -1117,14 +1147,16 @@ end;
 
 { DateTime Validators }
 
-class function OLValid.Past(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Past(const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtBefore, Now, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtBefore, Now, AColor, ErrorMessage);
 end;
 
-class function OLValid.Future(AlowNullOrEmpty: TValueRequired; const AColor: TColor; const ErrorMessage: string): TSmartValidator;
+class function OLValid.Future(const AColor: TColor; const ErrorMessage: string): TSmartValidator;
 begin
-  Result := TSmartValidator.Create(svtAfter, Now, AlowNullOrEmpty, AColor, ErrorMessage);
+  Result := TSmartValidator.Create(svtAfter, Now, AColor, ErrorMessage);
 end;
+
+{$IFEND}
 
 end.

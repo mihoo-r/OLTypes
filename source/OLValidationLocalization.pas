@@ -2,6 +2,8 @@
 
 interface
 
+{$IF CompilerVersion >= 34.0}
+
 uses
   SysUtils,
   OLDictionaries,
@@ -84,7 +86,11 @@ function GetLocalizedMessage(const ADict: OLStrStrDictionary; const DefaultEN: s
 /// </summary>
 procedure InitializeDefaultTranslations;
 
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion >= 34.0}
 
 uses
   {$IF CompilerVersion >= 23.0} Winapi.Windows, System.StrUtils {$ELSE} Windows, StrUtils {$IFEND};
@@ -589,5 +595,7 @@ end;
 
 initialization
   InitializeDefaultTranslations;
+
+{$IFEND}
 
 end.
