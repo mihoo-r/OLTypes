@@ -56,6 +56,9 @@ type
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
     FUpdatingFromControl: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     {$IF CompilerVersion >= 34.0}
     FValidators: TList<TOLValidationFunction<T>>;
     {$IFEND}
@@ -156,6 +159,9 @@ type
     FOriginalColor: TColor;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure NewOnExit(Sender: TObject);
     procedure SetEdit(const Value: TSpinEdit);
     procedure SetOLPointer(const Value: POLInteger);
@@ -379,7 +385,11 @@ type
     FOriginalColor: TColor;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetEdit(const Value: TEdit);
+
     procedure SetOLPointer(const Value: POLDouble);
     {$IF CompilerVersion >= 34.0}
     function GetValidationFunction: TOLDoubleValidationFunction;
@@ -457,6 +467,9 @@ type
     FOriginalColor: TColor;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetEdit(const Value: TEdit);
     procedure SetOLPointer(const Value: POLCurrency);
     {$IF CompilerVersion >= 34.0}
@@ -631,6 +644,9 @@ type
     FOriginalColor: TColor;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetEdit(const Value: TMemo);
     procedure SetOLPointer(const Value: POLString);
     {$IF CompilerVersion >= 34.0}
@@ -765,6 +781,10 @@ type
     FUpdatingFromControl: Boolean;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
+
 
     procedure NewWindowProc(var Message: TMessage);
     procedure SetEdit(const Value: TDateTimePicker);
@@ -882,6 +902,10 @@ type
     FUpdatingFromControl: Boolean;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
+
 
     procedure NewWindowProc(var Message: TMessage);
     procedure SetEdit(const Value: TDateTimePicker);
@@ -966,6 +990,9 @@ type
     FOriginalFontColor: TColor;
     FOriginalHint: string;
     FOriginalShowHint: Boolean;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     FWarningLabel: TLabel;
     FAllowGrayed: Boolean;
     procedure SetEdit(const Value: TCheckBox);
@@ -1014,6 +1041,9 @@ type
     FValidators: TList<TOLIntegerValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     function NeedsTimer: Boolean;
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLInteger);
@@ -1088,7 +1118,11 @@ type
     FValidators: TList<TOLStringValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetLabel(const Value: TLabel);
+
     procedure SetOLPointer(const Value: POLString);
     procedure SetCalculation(const Value: TFunctionReturningOLString);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
@@ -1217,7 +1251,11 @@ type
     FValidators: TList<TOLDoubleValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetLabel(const Value: TLabel);
+
     procedure SetOLPointer(const Value: POLDouble);
     procedure SetCalculation(const Value: TFunctionReturningOLDouble);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
@@ -1294,7 +1332,11 @@ type
     FValidators: TList<TOLCurrencyValidationFunction>;
     {$IFEND}
     FOriginalFontColor: TColor;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetLabel(const Value: TLabel);
+
     procedure SetOLPointer(const Value: POLCurrency);
     procedure SetCalculation(const Value: TFunctionReturningOLCurrency);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
@@ -1370,6 +1412,9 @@ type
     FOriginalFontColor: TColor;
     FCalculation: TFunctionReturningOLDate;
     FValueOnErrorInCalculation: OLString;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLDate);
     {$IF CompilerVersion >= 34.0}
@@ -1476,6 +1521,9 @@ type
     FOriginalFontColor: TColor;
     FCalculation: TFunctionReturningOLDateTime;
     FValueOnErrorInCalculation: OLString;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements: TStyleElements;
+    {$IFEND}
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLDateTime);
     {$IF CompilerVersion >= 34.0}
@@ -2008,9 +2056,15 @@ begin
     Edit.Color := FOriginalColor;
     Edit.Hint := FOriginalHint;
     Edit.ShowHint := FOriginalShowHint;
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := FOriginalStyleElements;
+    {$IFEND}
   end
   else
   begin
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := Edit.StyleElements - [seClient];
+    {$IFEND}
     if vr.Color = clDefault then
       Edit.Color := $CBC0FF
     else
@@ -2449,6 +2503,9 @@ begin
     FOriginalColor := Value.Color;
     FOriginalHint := Value.Hint;
     FOriginalShowHint := Value.ShowHint;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
   end;
 end;
 
@@ -2703,9 +2760,15 @@ begin
     Edit.Color := FOriginalColor;
     Edit.Hint := FOriginalHint;
     Edit.ShowHint := FOriginalShowHint;
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := FOriginalStyleElements;
+    {$IFEND}
   end
   else
   begin
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := Edit.StyleElements - [seClient];
+    {$IFEND}
     if vr.Color = clDefault then
       Edit.Color := $CBC0FF
     else
@@ -2877,6 +2940,9 @@ begin
     FOriginalColor := Value.Color;
     FOriginalHint := Value.Hint;
     FOriginalShowHint := Value.ShowHint;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
   end;
 end;
 
@@ -3003,9 +3069,15 @@ begin
     Edit.Color := FOriginalColor;
     Edit.Hint := FOriginalHint;
     Edit.ShowHint := FOriginalShowHint;
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := FOriginalStyleElements;
+    {$IFEND}
   end
   else
   begin
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := Edit.StyleElements - [seClient];
+    {$IFEND}
     if vr.Color = clDefault then
       Edit.Color := $CBC0FF
     else
@@ -3181,6 +3253,9 @@ begin
     FOriginalColor := Value.Color;
     FOriginalHint := Value.Hint;
     FOriginalShowHint := Value.ShowHint;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
   end;
 end;
 
@@ -3307,9 +3382,15 @@ begin
     Edit.Color := FOriginalColor;
     Edit.Hint := FOriginalHint;
     Edit.ShowHint := FOriginalShowHint;
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := FOriginalStyleElements;
+    {$IFEND}
   end
   else
   begin
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := Edit.StyleElements - [seClient];
+    {$IFEND}
     if vr.Color = clDefault then
       Edit.Color := $CBC0FF
     else
@@ -3491,6 +3572,9 @@ begin
     FOriginalColor := Value.Color;
     FOriginalHint := Value.Hint;
     FOriginalShowHint := Value.ShowHint;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
   end;
 end;
 
@@ -3617,9 +3701,15 @@ begin
     Edit.Color := FOriginalColor;
     Edit.Hint := FOriginalHint;
     Edit.ShowHint := FOriginalShowHint;
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := FOriginalStyleElements;
+    {$IFEND}
   end
   else
   begin
+    {$IF CompilerVersion >= 23.0}
+    Edit.StyleElements := Edit.StyleElements - [seClient];
+    {$IFEND}
     if vr.Color = clDefault then
       Edit.Color := $CBC0FF
     else
@@ -3904,6 +3994,10 @@ begin
 
     FOriginalHint := Value.Hint;
     FOriginalShowHint := Value.ShowHint;
+
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
 
     if Value.Parent <> nil then
       Value.HandleNeeded;
@@ -4320,6 +4414,10 @@ begin
 
     FOriginalHint := Value.Hint;
     FOriginalShowHint := Value.ShowHint;
+
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
   end;
 end;
 
@@ -4668,6 +4766,9 @@ begin
     FOriginalFontColor := Value.Font.Color;
     FOriginalHint := Value.Hint;
     FOriginalShowHint := Value.ShowHint;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
   end;
 end;
 
@@ -4754,7 +4855,12 @@ begin
   FLabel := Value;
   Control := Value;
   if Assigned(Value) then
+  begin
     FOriginalFontColor := Value.Font.Color;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
+  end;
 end;
 
 procedure TOLIntegerToLabel.SetOLPointer(const Value: POLInteger);
@@ -4884,13 +4990,21 @@ end;
 procedure TOLIntegerToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
-    Lbl.Font.Color := FOriginalFontColor
+  begin
+    Lbl.Font.Color := FOriginalFontColor;
+    {$IF CompilerVersion >= 23.0}
+    Lbl.StyleElements := FOriginalStyleElements;
+    {$IFEND}
+  end
   else
   begin
     if vr.Color = clDefault then
       Lbl.Font.Color:= clRed
     else
       Lbl.Font.Color := vr.Color;
+    {$IF CompilerVersion >= 23.0}
+    Lbl.StyleElements := Lbl.StyleElements - [seFont];
+    {$IFEND}
   end;
 end;
 {$IFEND}
@@ -4961,7 +5075,12 @@ begin
   FLabel := Value;
   Control := Value;
   if Assigned(Value) then
+  begin
     FOriginalFontColor := Value.Font.Color;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
+  end;
 end;
 
 procedure TOLStringToLabel.SetOLPointer(const Value: POLString);
@@ -5219,13 +5338,21 @@ end;
 procedure TOLStringToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
-    Lbl.Font.Color := FOriginalFontColor
+  begin
+    Lbl.Font.Color := FOriginalFontColor;
+    {$IF CompilerVersion >= 23.0}
+    Lbl.StyleElements := FOriginalStyleElements;
+    {$IFEND}
+  end
   else
   begin
     if vr.Color = clDefault then
       Lbl.Font.Color := clRed
     else
        Lbl.Font.Color := vr.Color;
+    {$IF CompilerVersion >= 23.0}
+    Lbl.StyleElements := Lbl.StyleElements - [seFont];
+    {$IFEND}
   end;
 end;
 {$IFEND}
@@ -5314,7 +5441,12 @@ begin
   FLabel := Value;
   Control := Value;
   if Assigned(Value) then
+  begin
     FOriginalFontColor := Value.Font.Color;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
+  end;
 end;
 
 procedure TOLDoubleToLabel.SetOLPointer(const Value: POLDouble);
@@ -5539,7 +5671,12 @@ begin
   FLabel := Value;
   Control := Value;
   if Assigned(Value) then
+  begin
     FOriginalFontColor := Value.Font.Color;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
+  end;
 end;
 
 procedure TOLCurrencyToLabel.SetOLPointer(const Value: POLCurrency);
@@ -5669,13 +5806,21 @@ end;
 procedure TOLCurrencyToLabel.ShowValidationState(vr: TOLValidationResult);
 begin
   if vr.Valid then
-    Lbl.Font.Color := FOriginalFontColor
+  begin
+    Lbl.Font.Color := FOriginalFontColor;
+    {$IF CompilerVersion >= 23.0}
+    Lbl.StyleElements := FOriginalStyleElements;
+    {$IFEND}
+  end
   else
   begin
     if vr.Color = clDefault then
       Lbl.Font.Color := clRed
     else
        Lbl.Font.Color := vr.Color;
+    {$IF CompilerVersion >= 23.0}
+    Lbl.StyleElements := Lbl.StyleElements - [seFont];
+    {$IFEND}
   end;
 end;
 {$IFEND}
@@ -5754,7 +5899,12 @@ begin
   FLabel := Value;
   Control := Value;
   if Assigned(Value) then
+  begin
     FOriginalFontColor := Value.Font.Color;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
+  end;
 end;
 
 procedure TOLDateToLabel.SetOLPointer(const Value: POLDate);
@@ -5886,9 +6036,22 @@ begin
   if Assigned(FLabel) then
   begin
     if vr.Valid then
-      FLabel.Font.Color := FOriginalFontColor
+    begin
+      FLabel.Font.Color := FOriginalFontColor;
+      {$IF CompilerVersion >= 23.0}
+      FLabel.StyleElements := FOriginalStyleElements;
+      {$IFEND}
+    end
     else
-      FLabel.Font.Color := clRed;
+    begin
+      if vr.Color = clDefault then
+        FLabel.Font.Color := clRed
+      else
+        FLabel.Font.Color := vr.Color;
+      {$IF CompilerVersion >= 23.0}
+      FLabel.StyleElements := FLabel.StyleElements - [seFont];
+      {$IFEND}
+    end;
   end;
 end;
 {$IFEND}
@@ -5967,7 +6130,12 @@ begin
   FLabel := Value;
   Control := Value;
   if Assigned(Value) then
+  begin
     FOriginalFontColor := Value.Font.Color;
+    {$IF CompilerVersion >= 23.0}
+    FOriginalStyleElements := Value.StyleElements;
+    {$IFEND}
+  end;
 end;
 
 procedure TOLDateTimeToLabel.SetOLPointer(const Value: POLDateTime);
@@ -6069,9 +6237,22 @@ begin
   if Assigned(FLabel) then
   begin
     if vr.Valid then
-      FLabel.Font.Color := FOriginalFontColor
+    begin
+      FLabel.Font.Color := FOriginalFontColor;
+      {$IF CompilerVersion >= 23.0}
+      FLabel.StyleElements := FOriginalStyleElements;
+      {$IFEND}
+    end
     else
-      FLabel.Font.Color := clRed;
+    begin
+      if vr.Color = clDefault then
+        FLabel.Font.Color := clRed
+      else
+        FLabel.Font.Color := vr.Color;
+      {$IF CompilerVersion >= 23.0}
+      FLabel.StyleElements := FLabel.StyleElements - [seFont];
+      {$IFEND}
+    end;
   end;
 end;
 {$IFEND}
