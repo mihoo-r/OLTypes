@@ -1917,7 +1917,7 @@ begin
   // Find the end of the line including line break
   EndPos := Self.PosEx(sLineBreak, StartPos);
 
-  if EndPos.HasValue() then
+  if EndPos > 0 then
     // Delete line with its line break
     Self := Self.Deleted(StartPos, EndPos - StartPos + LineBreakLen)
   else
@@ -1941,7 +1941,7 @@ begin
   StartPos := GetLineStartPosition(LineIndex);
   LineBreakPos := Self.PosEx(sLineBreak, StartPos);
 
-  if LineBreakPos.HasValue() then
+  if LineBreakPos > 0 then
     Result := LineBreakPos.Decreased(1)
   else
     Result := Self.Length(); // Last line - return string length
@@ -2176,21 +2176,18 @@ function OLString.Pos(const SubStr: string; const CaseSensitivity:
 var
   OutPut: OLInteger;
   UpperSubString: string;
-  position: Integer;
 begin
   if IsNull then
     Exit(Null);
 
   // Changed to return 0 instead of NULL when not found
   if CaseSensitivity = csCaseSensitive then
-    position := System.Pos(SubStr, Self)
+    OutPut := System.Pos(SubStr, Self)
   else
   begin
     UpperSubString := SysUtils.UpperCase(SubStr);
-    position := System.Pos(UpperSubString, Self.UpperCase());
+    OutPut := System.Pos(UpperSubString, Self.UpperCase());
   end;
-
-  OutPut := position;
 
   Result := OutPut;
 end;
@@ -2200,21 +2197,18 @@ function OLString.PosEx(const SubStr: string; const Offset: integer; const
 var
   OutPut: OLInteger;
   UpperSubString: string;
-  position: Integer;
 begin
   if IsNull then
     Exit(Null);
 
   // Changed to return 0 instead of NULL when not found
   if CaseSensitivity = csCaseSensitive then
-    position := StrUtils.PosEx(SubStr, Self, Offset)
+    OutPut := StrUtils.PosEx(SubStr, Self, Offset)
   else
   begin
     UpperSubString := SysUtils.UpperCase(SubStr);
-    position := StrUtils.PosEx(UpperSubString, Self.UpperCase(), Offset);
+    OutPut := StrUtils.PosEx(UpperSubString, Self.UpperCase(), Offset);
   end;
-
-  OutPut := position;
 
   Result := OutPut;
 end;
@@ -3656,7 +3650,7 @@ begin
   Counter := -1;
   Position := Self.Pos(SubString, CaseSensitivity);
 
-  while not Position.IsNull() do
+  while Position > 0 do
   begin
     inc(Counter);
 
