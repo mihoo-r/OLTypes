@@ -173,8 +173,87 @@ type
   TestOLDateToLabelValidation = class(TTestCase)
   private
     FLabel: TLabel;
+    FPicker: TDateTimePicker;
     FForm: TestForm;
     function MustBeFutureDate(d: OLDate): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+  end;
+  {$IFEND}
+
+  {$IF CompilerVersion >= 34.0}
+  // Test class for TOLIntegerToLabel validation
+  TestOLIntegerToLabelValidation = class(TTestCase)
+  private
+    FLabel: TLabel;
+    FEdit: TEdit;
+    FForm: TestForm;
+    function MustBePositive(val: OLInteger): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+  end;
+
+  // Test class for TOLDoubleToLabel validation
+  TestOLDoubleToLabelValidation = class(TTestCase)
+  private
+    FLabel: TLabel;
+    FEdit: TEdit;
+    FForm: TestForm;
+    function MustBePositiveDouble(val: OLDouble): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestValidationFail;
+    procedure TestValidationPass;
+  end;
+
+  // Test class for TOLCurrencyToLabel validation
+  TestOLCurrencyToLabelValidation = class(TTestCase)
+  private
+    FLabel: TLabel;
+    FEdit: TEdit;
+    FForm: TestForm;
+    function MustBePositiveCurrency(val: OLCurrency): TOLValidationResult;
+    protected
+      procedure SetUp; override;
+      procedure TearDown; override;
+    published
+      procedure TestValidationFail;
+      procedure TestValidationPass;
+    end;
+
+    // Test class for TDateTimePicker linking precedence (OLType value should win)
+    TestDateTimePickerLinkingPrecedence = class(TTestCase)
+    private
+      FPicker: TDateTimePicker;
+      FForm: TestForm;
+    protected
+      procedure SetUp; override;
+      procedure TearDown; override;
+    published
+      procedure TestOLDatePrecedence;
+      procedure TestOLDateTimePrecedence;
+      procedure TestOLDateNullPrecedence;
+    end;
+    {$IFEND}
+
+  {$IF CompilerVersion >= 34.0}
+  // Test class for TOLStringToLabel validation
+  TestOLStringToLabelValidation = class(TTestCase)
+  private
+    FLabel: TLabel;
+    FEdit: TEdit;
+    FForm: TestForm;
+    function MustNotBeEmpty(s: OLString): TOLValidationResult;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -187,6 +266,7 @@ type
   TestOLDateTimeToLabelValidation = class(TTestCase)
   private
     FLabel: TLabel;
+    FPicker: TDateTimePicker;
     FForm: TestForm;
     function MustBeFutureDateTime(dt: OLDateTime): TOLValidationResult;
   protected
@@ -1116,8 +1196,12 @@ begin
   FForm := TestForm.CreateNew(nil, 0);
   FLabel := TLabel.Create(FForm);
   FLabel.Parent := FForm;
+  FPicker := TDateTimePicker.Create(FForm);
+  FPicker.Parent := FForm;
   FForm.FDate := OLDate.Today.IncYear(10); // Future date
-  Links.Link(FLabel, FForm.FDate).AddValidator(MustBeFutureDate);
+
+  FPicker.Link(FForm.FDate);
+  FLabel.Link(FForm.FDate).AddValidator(MustBeFutureDate);
 end;
 
 procedure TestOLDateToLabelValidation.TearDown;
@@ -1132,9 +1216,11 @@ var
 begin
   OriginalColor := FLabel.Font.Color;
 
-  FForm.FDate := EncodeDate(2020, 1, 1); // Past date
+  FPicker.Date := EncodeDate(2020, 1, 1); // Past date via Picker
+  FPicker.OnChange(FPicker);
   WaitForTimers;
 
+  CheckTrue(Pos('2020', FLabel.Caption) > 0, 'Label caption should update via Picker');
   CheckNotEquals(OriginalColor, FLabel.Font.Color, 'Label color should change on validation fail');
   CheckEquals(clRed, FLabel.Font.Color, 'Label should be red on validation fail');
 end;
@@ -1146,13 +1232,77 @@ begin
   OriginalColor := FLabel.Font.Color;
 
   // First, fail validation
-  FForm.FDate := EncodeDate(2020, 1, 1);
+  FPicker.Date := EncodeDate(2020, 1, 1);
+  FPicker.OnChange(FPicker);
   WaitForTimers;
 
   // Now, pass validation
-  FForm.FDate := EncodeDate(2030, 1, 1);
+  FPicker.Date := EncodeDate(2030, 1, 1);
+  FPicker.OnChange(FPicker);
   WaitForTimers;
 
+  CheckTrue(Pos('2030', FLabel.Caption) > 0, 'Label caption should update via Picker');
+  CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
+end;
+
+{ TestOLStringToLabelValidation }
+
+function TestOLStringToLabelValidation.MustNotBeEmpty(s: OLString): TOLValidationResult;
+begin
+  if not s.IsEmptyStr then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('String must not be empty');
+end;
+
+procedure TestOLStringToLabelValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FLabel := TLabel.Create(FForm);
+  FLabel.Parent := FForm;
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FForm.FString := 'Not empty';
+
+  FEdit.Link(FForm.FString);
+  FLabel.Link(FForm.FString).AddValidator(MustNotBeEmpty);
+end;
+
+procedure TestOLStringToLabelValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestOLStringToLabelValidation.TestValidationFail;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  FEdit.Text := ''; // Fail validation via Edit
+  WaitForTimers;
+
+  CheckEquals('', FLabel.Caption, 'Label caption should update via Edit');
+  CheckNotEquals(OriginalColor, FLabel.Font.Color, 'Label color should change on validation fail');
+  CheckEquals(clRed, FLabel.Font.Color, 'Label should be red on validation fail');
+end;
+
+procedure TestOLStringToLabelValidation.TestValidationPass;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  // First, fail validation
+  FEdit.Text := '';
+  WaitForTimers;
+
+  // Now, pass validation
+  FEdit.Text := 'Back to valid';
+  WaitForTimers;
+
+  CheckEquals('Back to valid', FLabel.Caption, 'Label caption should update via Edit');
   CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
 end;
 
@@ -1171,8 +1321,12 @@ begin
   FForm := TestForm.CreateNew(nil, 0);
   FLabel := TLabel.Create(FForm);
   FLabel.Parent := FForm;
+  FPicker := TDateTimePicker.Create(FForm);
+  FPicker.Parent := FForm;
   FForm.FDateTime := Now + 1; // Future datetime
-  Links.Link(FLabel, FForm.FDateTime).AddValidator(MustBeFutureDateTime);
+
+  FPicker.Link(FForm.FDateTime);
+  FLabel.Link(FForm.FDateTime).AddValidator(MustBeFutureDateTime);
 end;
 
 procedure TestOLDateTimeToLabelValidation.TearDown;
@@ -1187,7 +1341,8 @@ var
 begin
   OriginalColor := FLabel.Font.Color;
 
-  FForm.FDateTime := Now - 1; // Past datetime
+  FPicker.DateTime := Now - 1; // Past datetime via Picker
+  FPicker.OnChange(FPicker);
   WaitForTimers;
 
   CheckNotEquals(OriginalColor, FLabel.Font.Color, 'Label color should change on validation fail');
@@ -1201,15 +1356,196 @@ begin
   OriginalColor := FLabel.Font.Color;
 
   // First, fail validation
-  FForm.FDateTime := Now - 1;
+  FPicker.DateTime := Now - 1;
+  FPicker.OnChange(FPicker);
   WaitForTimers;
 
   // Now, pass validation
-  FForm.FDateTime := Now + 2;
+  FPicker.DateTime := Now + 2;
+  FPicker.OnChange(FPicker);
   WaitForTimers;
 
   CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
 end;
+
+{$IF CompilerVersion >= 34.0}
+{ TestOLIntegerToLabelValidation }
+
+function TestOLIntegerToLabelValidation.MustBePositive(val: OLInteger): TOLValidationResult;
+begin
+  if val.IfNull(0) > 0 then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('Value must be positive');
+end;
+
+procedure TestOLIntegerToLabelValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FLabel := TLabel.Create(FForm);
+  FLabel.Parent := FForm;
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FForm.FInt := 10;
+
+  FEdit.Link(FForm.FInt);
+  FLabel.Link(FForm.FInt).AddValidator(MustBePositive);
+end;
+
+procedure TestOLIntegerToLabelValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestOLIntegerToLabelValidation.TestValidationFail;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+  FEdit.Text := '-5'; // Fail validation via Edit
+  WaitForTimers;
+
+  CheckEquals('-5', FLabel.Caption, 'Label caption should update via Edit');
+  CheckEquals(clRed, FLabel.Font.Color, 'Label should be red on validation fail');
+end;
+
+procedure TestOLIntegerToLabelValidation.TestValidationPass;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  // First, fail validation
+  FEdit.Text := '-5';
+  WaitForTimers;
+
+  // Now, pass validation
+  FEdit.Text := '100';
+  WaitForTimers;
+
+  CheckEquals('100', FLabel.Caption, 'Label caption should update via Edit');
+  CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
+end;
+
+{ TestOLDoubleToLabelValidation }
+
+function TestOLDoubleToLabelValidation.MustBePositiveDouble(val: OLDouble): TOLValidationResult;
+begin
+  if val.IfNull(0) > 0 then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('Value must be positive');
+end;
+
+procedure TestOLDoubleToLabelValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FLabel := TLabel.Create(FForm);
+  FLabel.Parent := FForm;
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FForm.FDouble := 10.5;
+
+  FEdit.Link(FForm.FDouble);
+  FLabel.Link(FForm.FDouble).AddValidator(MustBePositiveDouble);
+end;
+
+procedure TestOLDoubleToLabelValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestOLDoubleToLabelValidation.TestValidationFail;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+  FEdit.Text := FloatToStr(-1.1);// Fail validation via Edit
+  WaitForTimers;
+
+  CheckTrue(Pos('-1', FLabel.Caption) > 0, 'Label caption should update via Edit');
+  CheckEquals(clRed, FLabel.Font.Color, 'Label should be red on validation fail');
+end;
+
+procedure TestOLDoubleToLabelValidation.TestValidationPass;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  // First, fail validation
+  FEdit.Text := FloatToStr(-1.1);
+  WaitForTimers;
+
+  // Now, pass validation
+  FEdit.Text := FloatToStr(20.0);
+  WaitForTimers;
+
+  CheckTrue(Pos('20', FLabel.Caption) > 0, 'Label caption should update via Edit');
+  CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
+end;
+
+{ TestOLCurrencyToLabelValidation }
+
+function TestOLCurrencyToLabelValidation.MustBePositiveCurrency(val: OLCurrency): TOLValidationResult;
+begin
+  if val.IfNull(0) > 0 then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('Value must be positive');
+end;
+
+procedure TestOLCurrencyToLabelValidation.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FLabel := TLabel.Create(FForm);
+  FLabel.Parent := FForm;
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FForm.FCurrency := 100.0;
+
+  FEdit.Link(FForm.FCurrency);
+  FLabel.Link(FForm.FCurrency).AddValidator(MustBePositiveCurrency);
+end;
+
+procedure TestOLCurrencyToLabelValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestOLCurrencyToLabelValidation.TestValidationFail;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+  FEdit.Text := FloatToStr(-0.5); // Fail validation via Edit
+  WaitForTimers;
+
+  CheckTrue(Pos('-0', FLabel.Caption) > 0, 'Label caption should update via Edit');
+  CheckEquals(clRed, FLabel.Font.Color, 'Label should be red on validation fail');
+end;
+
+procedure TestOLCurrencyToLabelValidation.TestValidationPass;
+var
+  OriginalColor: TColor;
+begin
+  OriginalColor := FLabel.Font.Color;
+
+  // First, fail validation
+  FEdit.Text := FloatToStr(-0.5);
+  WaitForTimers;
+
+  // Now, pass validation
+  FEdit.Text := FloatToStr(50.0);
+  WaitForTimers;
+
+  CheckTrue(Pos('50', FLabel.Caption) > 0, 'Label caption should update via Edit');
+  CheckEquals(OriginalColor, FLabel.Font.Color, 'Label color should revert on validation pass');
+end;
+{$IFEND}
 
 
 { TestCheckBoxToOLBooleanValidation }
@@ -2048,6 +2384,74 @@ begin
   FForm.ShowValidationState;
   CheckEquals('Only 42 is allowed', FEdit.Hint, 'Should show the new error');
 end;
+
+{ TestDateTimePickerLinkingPrecedence }
+
+procedure TestDateTimePickerLinkingPrecedence.SetUp;
+begin
+  FForm := TestForm.CreateNew(nil, 0);
+  FPicker := TDateTimePicker.Create(FForm);
+  FPicker.Parent := FForm;
+end;
+
+procedure TestDateTimePickerLinkingPrecedence.TearDown;
+begin
+  FForm.Free;
+end;
+
+procedure TestDateTimePickerLinkingPrecedence.TestOLDatePrecedence;
+var
+  SpecificDate: TDate;
+begin
+  SpecificDate := EncodeDate(2020, 1, 1);
+  FForm.FDate := SpecificDate;
+
+  // Picker has today's date by default
+  FPicker.Date := Date + 1; // Set it to tomorrow
+
+  // Link it
+  FPicker.Link(FForm.FDate);
+
+  // The picker should now have the date from the variable
+  CheckEquals(SpecificDate, FPicker.Date, 'Picker date should match OLDate variable after linking');
+  CheckEquals(SpecificDate, TDate(FForm.FDate), 'OLDate variable should have kept its value');
+end;
+
+procedure TestDateTimePickerLinkingPrecedence.TestOLDateTimePrecedence;
+var
+  SpecificDateTime: TDateTime;
+begin
+  SpecificDateTime := EncodeDate(2020, 1, 1) + EncodeTime(12, 0, 0, 0);
+  FForm.FDateTime := SpecificDateTime;
+
+  // Picker has today's date by default
+  FPicker.DateTime := Now + 1; // Set it to tomorrow
+
+  // Link it
+  FPicker.Link(FForm.FDateTime);
+
+  // The picker should now have the date from the variable
+  CheckEquals(SpecificDateTime, FPicker.DateTime, 'Picker datetime should match OLDateTime variable after linking');
+  CheckEquals(SpecificDateTime, TDateTime(FForm.FDateTime), 'OLDateTime variable should have kept its value');
+end;
+
+procedure TestDateTimePickerLinkingPrecedence.TestOLDateNullPrecedence;
+begin
+  FForm.FDate := Null;
+
+  // Picker has today's date by default
+  FPicker.Date := Date;
+  FPicker.Format := 'yyyy-mm-dd'; // Not the null format
+
+  // Link it
+  FPicker.Link(FForm.FDate);
+
+  // The picker should now have the NULL_FORMAT and its DateTime shouldn't matter as much,
+  // but importantly, d should still be Null
+  CheckTrue(FForm.FDate.IsNull, 'OLDate variable should still be Null after linking');
+  CheckEqualsString(NULL_FORMAT, FPicker.Format, 'Picker should have switched to NULL_FORMAT');
+end;
+
 {$IFEND}
 
  initialization
@@ -2063,8 +2467,13 @@ end;
   RegisterTest(TestCheckBoxToOLBooleanValidation.Suite);
   RegisterTest(TestDateTimePickerToOLDateValidation.Suite);
   RegisterTest(TestDateTimePickerToOLDateTimeValidation.Suite);
+  RegisterTest(TestOLIntegerToLabelValidation.Suite);
+  RegisterTest(TestOLDoubleToLabelValidation.Suite);
+  RegisterTest(TestOLCurrencyToLabelValidation.Suite);
   RegisterTest(TestOLDateToLabelValidation.Suite);
+  RegisterTest(TestOLStringToLabelValidation.Suite);
   RegisterTest(TestOLDateTimeToLabelValidation.Suite);
+  RegisterTest(TestDateTimePickerLinkingPrecedence.Suite);
   {$IFEND}
   RegisterTest(TestOLLinkManager.Suite);
   RegisterTest(TestMemorySafety.Suite);
