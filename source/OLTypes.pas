@@ -22,8 +22,6 @@ type
 
 
 type
-
-
   TOLValidationResult = OLValidationTypes.TOLValidationResult;
 
   TOLIntegerValidationFunction = OLValidationTypes.TOLIntegerValidationFunction;
@@ -93,6 +91,7 @@ type
   const
     csCaseSensitive = OLStringType.csCaseSensitive;
     csCaseInsensitive = OLStringType.csCaseInsensitive;
+    NULL_FORMAT = OLTypesToEdits.NULL_FORMAT;
 
 function OLType(b: System.Boolean): OLBoolean; overload;
 function OLType(c: System.Currency): OLCurrency; overload;
@@ -3875,9 +3874,9 @@ begin
 
    try
      {$IF CompilerVersion >= 34.0}
-     Links.Link(Self, s);
+     Result := Links.Link(Self, s);
      {$ELSE}
-     Links.Link(Self, s);
+     Result := Links.Link(Self, s);
      {$IFEND}
    except
      on E: Exception do

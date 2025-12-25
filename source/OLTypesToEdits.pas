@@ -1227,7 +1227,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult);  override;
     function ValueIsValid(s: OLString): TOLValidationResult;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
@@ -1706,6 +1706,9 @@ type
 
    function Links(): TOLLinkManager;
 
+const
+  NULL_FORMAT = '- - -';
+
 implementation
 
 uses
@@ -1717,7 +1720,6 @@ uses
   SmartToDate;
 
 const
-  NULL_FORMAT = '- - -';
   CALCULATION_ASSIGN_ERROR = 'Calculation cannot be set when OLPointer property is other then nil.';
   OLPOINTER_ASSIGN_ERROR = 'OLPointer cannot be set when Calculation property is other then nil.';
 
@@ -3818,6 +3820,7 @@ end;
 
 procedure TDateTimePickerToOLDate.NewOnChange(Sender: TObject);
 begin
+  if FUpdatingFromRefresh then Exit;
   FUpdatingFromControl := True;
   try
     {$IF CompilerVersion >= 34.0}
@@ -3967,6 +3970,10 @@ begin
         edit.Format := NULL_FORMAT;
     end;
   end;
+
+  {$IF CompilerVersion >= 34.0}
+  ShowValidationState(ValueIsValid(OLPointer^));
+  {$IFEND}
 end;
 
 procedure TDateTimePickerToOLDate.SetEdit(const Value: TDateTimePicker);
@@ -3999,8 +4006,15 @@ begin
     FOriginalStyleElements := Value.StyleElements;
     {$IFEND}
 
-    if Value.Parent <> nil then
-      Value.HandleNeeded;
+    FUpdatingFromRefresh := True;
+    try
+      if Value.Parent <> nil then
+        Value.HandleNeeded;
+
+      RefreshControl;
+    finally
+      FUpdatingFromRefresh := False;
+    end;
   end;
 end;
 
@@ -4235,6 +4249,7 @@ end;
 
 procedure TDateTimePickerToOLDateTime.NewOnChange(Sender: TObject);
 begin
+  if FUpdatingFromRefresh then Exit;
   FUpdatingFromControl := True;
   try
     {$IF CompilerVersion >= 34.0}
@@ -4384,6 +4399,10 @@ begin
         edit.Format := NULL_FORMAT;
     end;
   end;
+
+  {$IF CompilerVersion >= 34.0}
+  ShowValidationState(ValueIsValid(OLPointer^));
+  {$IFEND}
 end;
 
 procedure TDateTimePickerToOLDateTime.SetEdit(const Value: TDateTimePicker);
@@ -4409,15 +4428,19 @@ begin
     FOriginalWindowProc := Value.WindowProc;
     Value.WindowProc := NewWindowProc;
 
-    if Value.Parent <> nil then
-      Value.HandleNeeded;
-
-    FOriginalHint := Value.Hint;
-    FOriginalShowHint := Value.ShowHint;
-
     {$IF CompilerVersion >= 23.0}
     FOriginalStyleElements := Value.StyleElements;
     {$IFEND}
+
+    FUpdatingFromRefresh := True;
+    try
+      if Value.Parent <> nil then
+        Value.HandleNeeded;
+
+      RefreshControl;
+    finally
+      FUpdatingFromRefresh := False;
+    end;
   end;
 end;
 
@@ -5048,6 +5071,11 @@ begin
     s := (OLPointer^).ToString();
     if Lbl.Caption <> s then
       Lbl.Caption := s;
+
+    {$IF CompilerVersion >= 34.0}
+    vr := ValueIsValid(OLPointer^);
+    ShowValidationState(vr);
+    {$IFEND}
   end;
 
   if Assigned(Calculation) then
