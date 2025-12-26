@@ -877,7 +877,7 @@ type
     /// <summary>
     ///   Gets or sets the millisecond component of the date/time.
     /// </summary>
-    property Test: Integer read GetMilliSecond write SetMilliSecond; //MilliSecond
+    property MilliSecond: Integer read GetMilliSecond write SetMilliSecond;
 
     /// <summary>
     ///   Converts the date/time to a string representation.
@@ -2418,9 +2418,21 @@ type
      /// </summary>
      procedure SetJSON(const JsonFieldName: string; const Value: OLString);
      /// <summary>
+     ///   Gets the XML value for the specified XPath.
+     /// </summary>
+     function GetXML(const XPath: string): OLString;
+     /// <summary>
+     ///   Sets the XML value for the specified XPath.
+     /// </summary>
+     procedure SetXML(const XPath: string; const Value: OLString);
+     /// <summary>
      ///   Gets or sets the JSON value for the specified field name.
      /// </summary>
      property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
+     /// <summary>
+     ///   Gets or sets the XML value for the specified XPath.
+     /// </summary>
+     property XML[const XPath: string]: OLString read GetXML write SetXML;
      {$IFEND}
 
      const Empty = '';
@@ -8406,6 +8418,32 @@ begin
   Result := ol.JSON[JsonFieldName];
 end;
 
+procedure TOLStringHelper.SetJSON(const JsonFieldName: string; const Value: OLString);
+var
+  ol: OLString;
+begin
+  ol := Self;
+  ol.JSON[JsonFieldName] := Value;
+  Self := ol;
+end;
+
+function TOLStringHelper.GetXML(const XPath: string): OLString;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.XML[XPath];
+end;
+
+procedure TOLStringHelper.SetXML(const XPath: string; const Value: OLString);
+var
+  ol: OLString;
+begin
+  ol := Self;
+  ol.XML[XPath] := Value;
+  Self := ol;
+end;
+
 function TOLStringHelper.IndexOf(Value: Char): Integer;
 begin
   Result := StringHelperFunctions.Instance_IndexOf(Self, Value);
@@ -8681,15 +8719,6 @@ function TOLStringHelper.Replace(const OldValue: string; const NewValue:
     string; ReplaceFlags: TReplaceFlags): string;
 begin
   Result := StringHelperFunctions.Instance_Replace(Self, OldValue, NewValue, ReplaceFlags);
-end;
-
-procedure TOLStringHelper.SetJSON(const JsonFieldName: string; const Value: OLString);
-var
-  ol: OLString;
-begin
-  ol := Self;
-  ol.JSON[JsonFieldName] := Value;
-  Self := ol;
 end;
 
 function TOLStringHelper.Split(const Separator: array of Char): TArray<string>;

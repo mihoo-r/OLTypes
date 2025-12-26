@@ -72,6 +72,8 @@ type
     {$IF CompilerVersion >= 27.0}
     function GetJSON(const JsonFieldName: string): OLString;
     procedure SetJSON(const JsonFieldName: string; const Value: OLString);
+    function GetXML(const XPath: string): OLString;
+    procedure SetXML(const XPath: string; const Value: OLString);
     {$IFEND}
     function GetHtmlUnicodeText: OLString;
     procedure SetHtmlUnicodeText(const Value: OLString);
@@ -802,6 +804,7 @@ type
     ///   if s.JSON['User.name'] = 'Jane' then Showmessage('OK');
     /// </example>
     property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
+    property XML[const XPath: string]: OLString read GetXML write SetXML;
     {$IFEND}
 
     /// <summary>
@@ -835,6 +838,9 @@ uses
   {$IF CompilerVersion >= 23.0} System.ZLib, {$ELSE} ZLib, {$IFEND}
   IdHTTP,
   {$IF CompilerVersion >= 27.0} System.JSON, {$IFEND}
+  {$IF CompilerVersion >= 27.0}
+    {$IF CompilerVersion >= 23.0} Xml.XMLDoc, Xml.XMLIntf, Xml.xmldom, {$ELSE} XMLDoc, XMLIntf, xmldom, {$IFEND}
+  {$IFEND}
   {$IF CompilerVersion = 22.0} RegularExpressions; {$IFEND} //XE
   {$IF CompilerVersion >= 23.0} System.RegularExpressions; {$IFEND} //XE2 +
 
@@ -1339,7 +1345,6 @@ var
   JSONObject: TJSONObject;
   OutPut: OLString;
   sOutPut: string;
-  Name: string;
 begin
   if IsNull then
     Exit(Null);
@@ -1353,13 +1358,125 @@ begin
       JSONObject := JSONValue as TJSONObject;
 
       if JSONObject.TryGetValue<string>(JsonFieldName, sOutPut) then
-      OutPut := sOutPut;
+        OutPut := sOutPut;
     end;
   finally
     JSONValue.Free;
   end;
 
   Result := OutPut;
+end;
+
+function OLString.GetXML(const XPath: string): OLString;
+var
+  XMLDoc: IXMLDocument;
+  Parts: TArray<string>;
+  CurrNode, ChildNode: IXMLNode;
+  i, j, Index, MatchCount: Integer;
+  Part, NodeName, AttrName: string;
+  Match: TMatch;
+  HasElementChildren: Boolean;
+begin
+  if IsNull then
+    Exit(Null);
+
+  Result := Null;
+  try
+    XMLDoc := NewXMLDocument;
+    XMLDoc.LoadFromXML(Self.FValue);
+    XMLDoc.Active := True;
+    
+    CurrNode := nil;
+    Parts := XPath.Split(['/']);
+    
+    for i := 0 to High(Parts) do
+    begin
+      Part := Parts[i];
+      if Part = '' then Continue;
+
+      // Attribute check
+      if Part.StartsWith('@') then
+      begin
+        AttrName := Part.Substring(1);
+        if Assigned(CurrNode) and CurrNode.HasAttribute(AttrName) then
+          Result := VarToStr(CurrNode.Attributes[AttrName])
+        else
+          Result := Null;
+        Exit;
+      end;
+
+      // Extract Name and Index
+      NodeName := Part;
+      Index := 0;
+      Match := TRegEx.Match(Part, '^(.+)\[(\d+)\]$');
+      if Match.Success then
+      begin
+        NodeName := Match.Groups[1].Value;
+        Index := Match.Groups[2].Value.ToInteger;
+      end;
+
+      if i = 0 then
+      begin
+        // Root element
+        if (XMLDoc.DocumentElement <> nil) and (XMLDoc.DocumentElement.NodeName = NodeName) then
+        begin
+          if Index = 0 then
+            CurrNode := XMLDoc.DocumentElement
+          else
+            Exit(Null);
+        end
+        else
+          Exit(Null);
+      end
+      else
+      begin
+        // Child elements
+        MatchCount := 0;
+        ChildNode := nil;
+        for j := 0 to CurrNode.ChildNodes.Count - 1 do
+        begin
+          if CurrNode.ChildNodes[j].NodeName = NodeName then
+          begin
+            if MatchCount = Index then
+            begin
+              ChildNode := CurrNode.ChildNodes[j];
+              Break;
+            end;
+            Inc(MatchCount);
+          end;
+        end;
+
+        if Assigned(ChildNode) then
+          CurrNode := ChildNode
+        else
+          Exit(Null);
+      end;
+    end;
+
+    if Assigned(CurrNode) then
+    begin
+      HasElementChildren := False;
+      for j := 0 to CurrNode.ChildNodes.Count - 1 do
+      begin
+        if CurrNode.ChildNodes[j].NodeType = ntElement then
+        begin
+          HasElementChildren := True;
+          Break;
+        end;
+      end;
+
+      if HasElementChildren then
+      begin
+        Result := '';
+        for j := 0 to CurrNode.ChildNodes.Count - 1 do
+          Result := Result.Value + CurrNode.ChildNodes[j].XML;
+      end
+      else
+        Result := CurrNode.Text;
+    end;
+  except
+    Result := Null;
+  end;
 end;
 {$IFEND}
 
@@ -2859,6 +2976,112 @@ begin
   finally
     JSONValue.Free;
   end;
+end;
+
+procedure OLString.SetXML(const XPath: string; const Value: OLString);
+var
+  XMLDoc: IXMLDocument;
+  Parts: TArray<string>;
+  CurrNode, ChildNode: IXMLNode;
+  i, j, Index, MatchCount: Integer;
+  Part, NodeName, AttrName: string;
+  Match: TMatch;
+
+  function FindOrCreateChild(Parent: IXMLNode; const Name: string; TargetIndex: Integer): IXMLNode;
+  var
+    k, count: Integer;
+  begin
+    Result := nil;
+    count := 0;
+    for k := 0 to Parent.ChildNodes.Count - 1 do
+    begin
+      if Parent.ChildNodes[k].NodeName = Name then
+      begin
+        if count = TargetIndex then
+        begin
+          Result := Parent.ChildNodes[k];
+          Exit;
+        end;
+        Inc(count);
+      end;
+    end;
+
+    while count <= TargetIndex do
+    begin
+      Result := Parent.AddChild(Name);
+      Inc(count);
+    end;
+  end;
+
+begin
+  XMLDoc := NewXMLDocument;
+  try
+    if not IsNull and (Self.FValue <> '') then
+      XMLDoc.LoadFromXML(Self.FValue);
+    XMLDoc.Active := True;
+  except
+    XMLDoc := NewXMLDocument;
+    XMLDoc.Active := True;
+  end;
+
+  Parts := XPath.Split(['/']);
+  CurrNode := nil;
+
+  for i := 0 to High(Parts) do
+  begin
+    Part := Parts[i];
+    if Part = '' then Continue;
+
+    // Attribute check
+    if Part.StartsWith('@') then
+    begin
+      AttrName := Part.Substring(1);
+      if Assigned(CurrNode) then
+        CurrNode.Attributes[AttrName] := Value.Value;
+      Break;
+    end;
+
+    // Element name and Index
+    NodeName := Part;
+    Index := 0;
+    Match := TRegEx.Match(Part, '^(.+)\[(\d+)\]$');
+    if Match.Success then
+    begin
+      NodeName := Match.Groups[1].Value;
+      Index := Match.Groups[2].Value.ToInteger;
+    end;
+
+    if i = 0 then
+    begin
+      if XMLDoc.DocumentElement = nil then
+        CurrNode := XMLDoc.AddChild(NodeName)
+      else if XMLDoc.DocumentElement.NodeName = NodeName then
+        CurrNode := XMLDoc.DocumentElement
+      else
+      begin
+        XMLDoc.ChildNodes.Clear;
+        CurrNode := XMLDoc.AddChild(NodeName);
+      end;
+    end
+    else
+    begin
+      CurrNode := FindOrCreateChild(CurrNode, NodeName, Index);
+    end;
+
+    // Set value if last element part
+    if (i = High(Parts)) and not Part.StartsWith('@') then
+    begin
+      if Value.IsNull then
+        CurrNode.Text := ''
+      else
+        CurrNode.Text := Value.Value;
+    end;
+  end;
+
+  XMLDoc.Options := XMLDoc.Options + [doNodeAutoIndent];
+  Self.FValue := XMLDoc.XML.Text;
+  Self.ValuePresent := True;
+  TurnDefaultValueFlagOff();
 end;
 {$IFEND}
 
