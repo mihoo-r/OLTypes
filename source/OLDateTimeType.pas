@@ -1466,12 +1466,19 @@ function OLDateTime.ToString(const Format: string): string;
 var
   OutPut: string;
 begin
-  if Self.ValuePresent then
-    OutPut := FormatDateTime(Format, Self.FValue)
+  if not Self.ValuePresent then
+    Result := ''
   else
-    OutPut := '';
-
-  Result := OutPut;
+  begin
+    if Format = '' then
+      raise EArgumentException.Create('Format string cannot be empty');
+    try
+      Result := FormatDateTime(Format, Self.FValue);
+    except
+      on E: EConvertError do
+        raise EArgumentException.CreateFmt('Invalid format string: %s', [Format]);
+    end;
+  end;
 end;
 
 function OLDateTime.ToString: string;

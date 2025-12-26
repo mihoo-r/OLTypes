@@ -104,7 +104,7 @@ function OLType(i: System.Int64): OLInt64; overload;
 function OLType(s: System.string): OLString; overload;
 
 const
-  // today, yesterday, tomorow
+  // today, yesterday, tomorrow
   ssTD = SmartToDate.ssTD;
   ssTM = SmartToDate.ssTM;
   ssYD = SmartToDate.ssYD;
@@ -1387,7 +1387,7 @@ type
      /// <summary>
      ///   Sets the date to tomorrow's date.
      /// </summary>
-     procedure SetTomorow();
+     procedure SetTomorrow();
      /// <summary>
      ///   Sets the date to yesterday's date.
      /// </summary>
@@ -6270,12 +6270,12 @@ begin
   Self := ol;
 end;
 
-procedure TOLDateHelper.SetTomorow();
+procedure TOLDateHelper.SetTomorrow();
 var
   ol: OLDate;
 begin
   ol := Self;
-  ol.SetTomorow();
+  ol.SetTomorrow();
   Self := ol;
 end;
 

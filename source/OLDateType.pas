@@ -122,7 +122,7 @@ type
     /// <summary>
     ///   Sets the date to tomorrow.
     /// </summary>
-    procedure SetTomorow();
+    procedure SetTomorrow();
     /// <summary>
     ///   Sets the date to yesterday.
     /// </summary>
@@ -754,7 +754,7 @@ begin
   {$IFEND}
 end;
 
-procedure OLDate.SetTomorow;
+procedure OLDate.SetTomorrow;
 begin
   Self.FValue := OLDateTime.Tomorrow().DateOf();
   {$IF CompilerVersion >= 34.0}

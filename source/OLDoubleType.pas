@@ -71,6 +71,10 @@ type
     /// </summary>
     function HasValue(): OLBoolean;
     /// <summary>
+    ///   Converts the double to a string with specified formatting.
+    /// </summary>
+    function ToStrF(Format: TFloatFormat; Precision, Digits: Integer): string;
+    /// <summary>
     ///   Converts the double to a string.
     /// </summary>
     function ToString(): string; overload;
@@ -654,7 +658,16 @@ end;
 function OLDouble.ToString(const Digits: integer; const Format: TFloatFormat =
     ffFixed; const Precision: integer = 16): string;
 begin
-  Result := FloatToStrF(Self, Format, Precision, Digits);
+  if not ValuePresent then
+    Result := ''
+  else
+  begin
+    if Digits < 0 then
+      raise EArgumentOutOfRangeException.Create('Digits must be >= 0');
+    if Precision < 0 then
+      raise EArgumentOutOfRangeException.Create('Precision must be >= 0');
+    Result := FloatToStrF(FValue, Format, Precision, Digits);
+  end;
 end;
 
 function OLDouble.ToString(ThousandSeparator, DecimalSeparator: Char; Format: string): string;
@@ -662,16 +675,23 @@ var
   fs: TFormatSettings;
   Output: string;
 begin
-  if ValuePresent then
+  if not ValuePresent then
+    Result := ''
+  else
   begin
+    if ThousandSeparator = DecimalSeparator then
+      raise EArgumentException.Create('ThousandSeparator and DecimalSeparator must differ');
+    if Format = '' then
+      raise EArgumentException.Create('Format string cannot be empty');
     fs.ThousandSeparator := ThousandSeparator;
     fs.DecimalSeparator := DecimalSeparator;
-    Output := FormatFloat(Format, FValue, fs)
-  end
-  else
-    Output := '';
-
-  Result := Output;
+    try
+      Result := FormatFloat(Format, FValue, fs);
+    except
+      on E: EConvertError do
+        raise EArgumentException.CreateFmt('Invalid format string: %s', [Format]);
+    end;
+  end;
 end;
 
 function OLDouble.ToString: string;
@@ -697,6 +717,21 @@ var
 begin
   d := Self;
   Result := System.Round(d);
+end;
+
+function OLDouble.ToStrF(Format: TFloatFormat; Precision, Digits: Integer):
+    string;
+var
+  Output: string;
+begin
+  if Digits < 0 then
+    raise EArgumentOutOfRangeException.Create('Digits must be >= 0');
+  if ValuePresent then
+    Output := FloatToStrF(FValue, Format, Precision, Digits)
+  else
+    Output := EmptyStr;
+
+  Result := Output;
 end;
 
 class operator OLDouble.Implicit(const a: Integer): OLDouble;

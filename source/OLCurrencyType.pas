@@ -592,6 +592,8 @@ function OLCurrency.ToStrF(Format: TFloatFormat; Digits: Integer): string;
 var
   Output: string;
 begin
+  if Digits < 0 then
+    raise EArgumentOutOfRangeException.Create('Digits must be >= 0');
   if ValuePresent then
     Output := CurrToStrF(FValue, Format, Digits)
   else
@@ -607,9 +609,18 @@ var
 begin
   if ValuePresent then
   begin
+    if ThousandSeparator = DecimalSeparator then
+      raise EArgumentException.Create('ThousandSeparator and DecimalSeparator must differ');
+    if Format = '' then
+      raise EArgumentException.Create('Format string cannot be empty');
     fs.ThousandSeparator := ThousandSeparator;
     fs.DecimalSeparator := DecimalSeparator;
-    Output := FormatFloat(Format, FValue, fs)
+    try
+      Output := FormatFloat(Format, FValue, fs);
+    except
+      on E: EConvertError do
+        raise EArgumentException.CreateFmt('Invalid format string: %s', [Format]);
+    end;
   end
   else
     Output := '';

@@ -3401,7 +3401,10 @@ end;
 
 function OLString.ToString: string;
 begin
-  Result := Self.IfNull('');
+  if ValuePresent then
+    Result := Self.FValue
+  else
+    Result := '';
 end;
 
 function OLString.TryToCurr: OLBoolean;
