@@ -5,7 +5,7 @@ interface
 uses
   TestFramework, Windows, Forms, Dialogs, Controls, Classes, SysUtils, Variants,
   {$IF CompilerVersion >= 23.0}
-    Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
+    Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, System.Rtti,
   {$ELSE}
     StdCtrls, Spin, ComCtrls,
   {$IFEND}
@@ -303,6 +303,15 @@ type
     procedure TestMultipleValidatorsFirstFail;
     procedure TestMultipleValidatorsSecondFail;
     procedure TestSetValidationFunctionClearsOthers;
+  end;
+
+  // RTTI-based test to ensure polymorphism is correct (no shadowing)
+  TestLinkPolymorphism = class(TTestCase)
+  private
+    procedure CheckMethodIsOverridden(AClass: TClass; const AMethodName: string);
+  published
+    procedure TestShowValidationStateIsOverridden;
+    procedure TestNeedsTimerIsOverridden;
   end;
   {$IFEND}
 
@@ -2452,6 +2461,57 @@ begin
   CheckEqualsString(NULL_FORMAT, FPicker.Format, 'Picker should have switched to NULL_FORMAT');
 end;
 
+procedure TestLinkPolymorphism.CheckMethodIsOverridden(AClass: TClass; const AMethodName: string);
+var
+  ctx: TRttiContext;
+  t: TRttiType;
+  m: TRttiMethod;
+begin
+  ctx := TRttiContext.Create;
+  try
+    t := ctx.GetType(AClass);
+    m := t.GetMethod(AMethodName);
+
+    if Assigned(m) then
+    begin
+      // If the method is not virtual, it means it was redefined without 'override'
+      if m.DispatchKind = dkVtable then
+      begin
+        // OK
+      end
+      else if m.DispatchKind = dkDynamic then
+      begin
+        // OK
+      end
+      else
+        Fail(Format('Method %s in class %s shadows a virtual method without "override"', [AMethodName, AClass.ClassName]));
+    end;
+  finally
+    ctx.Free;
+  end;
+end;
+
+procedure TestLinkPolymorphism.TestShowValidationStateIsOverridden;
+begin
+  CheckMethodIsOverridden(TEditToOLDouble, 'ShowValidationState');
+  CheckMethodIsOverridden(TEditToOLCurrency, 'ShowValidationState');
+  CheckMethodIsOverridden(TMemoToOLString, 'ShowValidationState');
+  CheckMethodIsOverridden(TOLIntegerToLabel, 'ShowValidationState');
+  CheckMethodIsOverridden(TOLDoubleToLabel, 'ShowValidationState');
+  CheckMethodIsOverridden(TOLCurrencyToLabel, 'ShowValidationState');
+  CheckMethodIsOverridden(TOLStringToLabel, 'ShowValidationState');
+end;
+
+procedure TestLinkPolymorphism.TestNeedsTimerIsOverridden;
+begin
+  CheckMethodIsOverridden(TOLIntegerToLabel, 'NeedsTimer');
+  CheckMethodIsOverridden(TOLStringToLabel, 'NeedsTimer');
+  CheckMethodIsOverridden(TOLDoubleToLabel, 'NeedsTimer');
+  CheckMethodIsOverridden(TOLCurrencyToLabel, 'NeedsTimer');
+  CheckMethodIsOverridden(TOLDateToLabel, 'NeedsTimer');
+  CheckMethodIsOverridden(TOLDateTimeToLabel, 'NeedsTimer');
+end;
+
 {$IFEND}
 
  initialization
@@ -2485,6 +2545,7 @@ end;
   RegisterTest(TestCheckBoxIsValid.Suite);
   RegisterTest(TestFormShowValidationState.Suite);
   RegisterTest(TestMultiValidator.Suite);
+  RegisterTest(TestLinkPolymorphism.Suite);
   {$IFEND}
 
  end.
