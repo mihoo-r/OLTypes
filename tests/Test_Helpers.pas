@@ -1104,7 +1104,7 @@ begin
   CheckEquals(14, dt.Hour);
   CheckEquals(30, dt.Minute);
   CheckEquals(45, dt.Second);
-  CheckEquals(500, dt.test);
+  CheckEquals(500, dt.MilliSecond);
 
   dt.Year := 2024;
   CheckEquals(2024, dt.Year);

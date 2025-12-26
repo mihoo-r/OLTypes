@@ -2612,7 +2612,7 @@ procedure OLDateTest.TomorrowDate;
 var
   d: OLDate;
 begin
-  d.SetTomorow();
+  d.SetTomorrow();
   Check(d = Tomorrow());
 
   Check(OLDate.Tomorrow = Tomorrow());
