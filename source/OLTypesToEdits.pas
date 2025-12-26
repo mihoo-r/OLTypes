@@ -442,7 +442,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDouble;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(d: OLDouble): TOLValidationResult;
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
@@ -523,7 +523,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLCurrency;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(c: OLCurrency): TOLValidationResult;
     {$IFEND}
     property Edit: TEdit read FEdit write SetEdit;
@@ -752,7 +752,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(s: OLString): TOLValidationResult;
     {$IFEND}
     property Edit: TMemo read FEdit write SetEdit;
@@ -1044,7 +1044,7 @@ type
     {$IF CompilerVersion >= 23.0}
     FOriginalStyleElements: TStyleElements;
     {$IFEND}
-    function NeedsTimer: Boolean;
+
     procedure SetLabel(const Value: TLabel);
     procedure SetOLPointer(const Value: POLInteger);
     procedure SetCalculation(const Value: TFunctionReturningOLInteger);
@@ -1058,6 +1058,7 @@ type
     destructor Destroy; override;
     procedure OnOLChange(Sender: TObject);
     procedure RefreshControl; override;
+    function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
     /// <param name="Value">The validation function to add.</param>
@@ -1097,7 +1098,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(i: OLInteger): TOLValidationResult;
     property ValidationFunction: TOLIntegerValidationFunction read GetValidationFunction write SetValidationFunction;
     {$IFEND}
@@ -1227,7 +1228,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
-    procedure ShowValidationState(vr: TOLValidationResult);  override;
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(s: OLString): TOLValidationResult;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
@@ -1308,7 +1309,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(d: OLDouble): TOLValidationResult;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
@@ -1389,7 +1390,7 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
-    procedure ShowValidationState(vr: TOLValidationResult);
+    procedure ShowValidationState(vr: TOLValidationResult); override;
     function ValueIsValid(c: OLCurrency): TOLValidationResult;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
