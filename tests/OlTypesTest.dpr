@@ -37,6 +37,7 @@ uses
   TestOLDictionaries in 'TestOLDictionaries.pas',
   Test_OLValidation in 'Test_OLValidation.pas',
   Test_FluentValidation in 'Test_FluentValidation.pas',
+  Test_OLStringXML in 'Test_OLStringXML.pas',
   OLDictionaries in '..\source\OLDictionaries.pas',
   OLArrays in '..\source\OLArrays.pas',
   OLInt64Type in '..\source\OLInt64Type.pas';
