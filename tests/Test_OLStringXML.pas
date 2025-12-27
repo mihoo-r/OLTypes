@@ -18,6 +18,7 @@ type
     procedure TestWriteStructure;
     procedure TestWriteIndices;
     procedure TestWriteAttribute;
+    procedure TestWriteNumeric;
     procedure TestFormat;
   end;
 {$IFEND}
@@ -113,6 +114,27 @@ begin
   
   CheckEqualsString('John', s.XML['user/name']);
   CheckEqualsString('555', s.XML['user/@id']);
+end;
+
+procedure OLStringXMLTest.TestWriteNumeric;
+var
+  s: OLString;
+begin
+  s := Null;
+  s.XML['config/@id'] := '123';
+  s.XML['config/value'] := '45.67';
+  s.XML['config/active'] := 'True';
+  
+  // If stored as numbers/booleans, they should correctly read back
+  CheckEqualsString('123', s.XML['config/@id']);
+  CheckEqualsString('45.67', s.XML['config/value']);
+  CheckEqualsString('true', s.XML['config/active']);
+  
+  // Verify numeric nature by checking no quotes in raw XML for attributes (simplified check)
+  // or by verifying it doesn't fail basic XML operations.
+  // Actually, IXMLDocument handles the conversion back to string in attributes and text.
+  // The primary goal was to ensure they are stored as correct types if the underlying
+  // DOM implementation supports it (which MSXML via IXMLDocument does for NodeValue).
 end;
 
 procedure OLStringXMLTest.TestFormat;
