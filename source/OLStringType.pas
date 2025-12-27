@@ -834,7 +834,12 @@ type
 implementation
 
 uses
-  Clipbrd, WinInet, DateUtils, Math, EncdDecd,IdSSLOpenSSL,
+  {$IF CompilerVersion >= 23.0}
+    Vcl.Clipbrd,
+  {$ELSE}
+    Clipbrd,
+  {$IFEND}
+  WinInet, DateUtils, Math, EncdDecd,IdSSLOpenSSL,
   {$IF CompilerVersion >= 23.0} System.ZLib, {$ELSE} ZLib, {$IFEND}
   IdHTTP,
   {$IF CompilerVersion >= 27.0} System.JSON, {$IFEND}
@@ -1387,7 +1392,10 @@ begin
     XMLDoc.Active := True;
     
     CurrNode := nil;
-    Parts := XPath.Split(['/']);
+    if XPath.StartsWith('/') then
+      Parts := XPath.Substring(1).Split(['/'])
+    else
+      Parts := XPath.Split(['/']);
     
     for i := 0 to High(Parts) do
     begin
@@ -3024,7 +3032,10 @@ begin
     XMLDoc.Active := True;
   end;
 
-  Parts := XPath.Split(['/']);
+  if XPath.StartsWith('/') then
+    Parts := XPath.Substring(1).Split(['/'])
+  else
+    Parts := XPath.Split(['/']);
   CurrNode := nil;
 
   for i := 0 to High(Parts) do
@@ -3037,7 +3048,18 @@ begin
     begin
       AttrName := Part.Substring(1);
       if Assigned(CurrNode) then
-        CurrNode.Attributes[AttrName] := Value.Value;
+        if Value.IsNull then
+          CurrNode.Attributes[AttrName] := Null
+        else if Value.TryToInt64 then
+          CurrNode.Attributes[AttrName] := Value.ToInt64()
+        else if Value.TryToFloat then
+          CurrNode.Attributes[AttrName] := Value.ToFloat()
+        else if (Value.UpperCase() = 'TRUE') then
+          CurrNode.Attributes[AttrName] := True
+        else if (Value.UpperCase() = 'FALSE') then
+          CurrNode.Attributes[AttrName] := False
+        else
+          CurrNode.Attributes[AttrName] := Value.Value;
       Break;
     end;
 
@@ -3072,9 +3094,17 @@ begin
     if (i = High(Parts)) and not Part.StartsWith('@') then
     begin
       if Value.IsNull then
-        CurrNode.Text := ''
+        CurrNode.NodeValue := Null
+      else if Value.TryToInt64 then
+        CurrNode.NodeValue := Value.ToInt64()
+      else if Value.TryToFloat then
+        CurrNode.NodeValue := Value.ToFloat()
+      else if (Value.UpperCase() = 'TRUE') then
+        CurrNode.NodeValue := True
+      else if (Value.UpperCase() = 'FALSE') then
+        CurrNode.NodeValue := False
       else
-        CurrNode.Text := Value.Value;
+        CurrNode.NodeValue := Value.Value;
     end;
   end;
 

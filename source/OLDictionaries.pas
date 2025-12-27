@@ -44,14 +44,22 @@ type
     class operator Assign(var Dest: OLGenericDictionary<K, V>; const Src: OLGenericDictionary<K, V>);
     {$IFEND}
 
+    /// <summary>Clears the dictionary.</summary>
     procedure Clear;
+    /// <summary>Adds a key-value pair.</summary>
     procedure Add(const Key: K; const Value: V);
+    /// <summary>Removes a key-value pair.</summary>
     function Remove(const Key: K): OLBoolean;
+    /// <summary>Tries to get a value.</summary>
     function TryGetValue(const Key: K; out Value: V): OLBoolean;
+    /// <summary>Checks if key exists.</summary>
     function ContainsKey(const Key: K): OLBoolean;
+    /// <summary>Returns count of items.</summary>
     function Count: Integer;
 
+    /// <summary>Returns an enumerator for the collection.</summary>
     function GetEnumerator: TDictionary<K, V>.TPairEnumerator;
+    /// <summary>Returns an array of key-value pairs.</summary>
     function ToArray: TArray<TPair<K, V>>;
 
 

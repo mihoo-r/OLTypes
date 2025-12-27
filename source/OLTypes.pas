@@ -15,13 +15,17 @@ uses
     Vcl.Forms, Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Controls
   {$ELSE} SysUtils, Classes, Generics.Collections, Rtti,
     Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls
-  {$IFEND}, OLValidation, OLValidationTypes, OLTypesToEdits;
+  {$IFEND}, OLValidation, OLValidationTypes, OLTypesToEdits, OLColorType,
+  OLThreadRunner;
 
 type
   TRttiFieldHack = class(TRttiField);
 
 
 type
+  OLColor = OLColorType.OLColor;
+  TOLThreadRuner = OLThreadRunner.TOLThreadRuner;
+
   TOLValidationResult = OLValidationTypes.TOLValidationResult;
 
   TOLIntegerValidationFunction = OLValidationTypes.TOLIntegerValidationFunction;
@@ -2493,148 +2497,242 @@ type
       class function UpperCase(const S: string): string; overload; static; inline;
       class function UpperCase(const S: string; LocaleOptions: TLocaleOptions):
           string; overload; static; inline;
+      /// <summary>Compares this string to another string.</summary>
       function CompareTo(const strB: string): Integer;
+      /// <summary>Checks if the string contains the specified value.</summary>
       function Contains(const Value: string): Boolean;
+      /// <summary>Creates a copy of the string.</summary>
       class function Copy(const Str: string): string; static; inline;
+      /// <summary>Copies characters from this string to a destination array.</summary>
       procedure CopyTo(SourceIndex: Integer; var destination: array of Char;
           DestinationIndex: Integer; Count: Integer);
+      /// <summary>Counts the occurrences of a character in the string.</summary>
       function CountChar(const C: Char): Integer;
+      /// <summary>Removes quotes from the string.</summary>
       function DeQuotedString: string; overload;
+      /// <summary>Removes specified quote characters from the string.</summary>
       function DeQuotedString(const QuoteChar: Char): string; overload;
+      /// <summary>Checks if the string ends with the specified text (case-insensitive).</summary>
       class function EndsText(const ASubText, AText: string): Boolean; overload; static;
+      /// <summary>Checks if the string ends with the specified value.</summary>
       function EndsWith(const Value: string): Boolean; overload; inline;
+      /// <summary>Checks if the string ends with the specified value, with optional case sensitivity.</summary>
       function EndsWith(const Value: string; IgnoreCase: Boolean): Boolean; overload;
+      /// <summary>Checks if the string equals another string.</summary>
       function Equals(const Value: string): Boolean; overload;
       class function Equals(const a: string; const b: string): Boolean; overload;
           static;
       class function Format(const Format: string; const args: array of const):
           string; overload; static;
+      /// <summary>Returns the hash code for the string.</summary>
       function GetHashCode: Integer;
+      /// <summary>Returns the index of the first occurrence of a character.</summary>
       function IndexOf(Value: Char): Integer; overload;
+      /// <summary>Returns the index of the first occurrence of a substring.</summary>
       function IndexOf(const Value: string): Integer; overload; inline;
+      /// <summary>Returns the index of the first occurrence of a character, starting from a specified index.</summary>
       function IndexOf(Value: Char; StartIndex: Integer): Integer; overload;
+      /// <summary>Returns the index of the first occurrence of a substring, starting from a specified index.</summary>
       function IndexOf(const Value: string; StartIndex: Integer): Integer; overload;
+      /// <summary>Returns the index of the first occurrence of a character, starting from a specified index and checking a count of characters.</summary>
       function IndexOf(Value: Char; StartIndex: Integer; Count: Integer): Integer;
           overload;
+      /// <summary>Returns the index of the first occurrence of a substring, starting from a specified index and checking a count of characters.</summary>
       function IndexOf(const Value: string; StartIndex: Integer; Count: Integer):
           Integer; overload;
+      /// <summary>Returns the index of the first occurrence of any character in the array.</summary>
       function IndexOfAny(const AnyOf: array of Char): Integer; overload;
+      /// <summary>Returns the index of the first occurrence of any character in the array, starting from a specified index.</summary>
       function IndexOfAny(const AnyOf: array of Char; StartIndex: Integer): Integer;
           overload;
+      /// <summary>Returns the index of the first occurrence of any character in the array, starting from a specified index and checking a count of characters.</summary>
       function IndexOfAny(const AnyOf: array of Char; StartIndex: Integer; Count:
           Integer): Integer; overload;
-      /// <summary>Index of any given chars, excluding those that are between quotes</summary>
+      /// <summary>Index of any given chars, excluding those that are between quotes.</summary>
       function IndexOfAnyUnquoted(const AnyOf: array of Char; StartQuote, EndQuote:
           Char): Integer; overload;
+      /// <summary>Index of any given chars, excluding those that are between quotes, starting from a specified index.</summary>
       function IndexOfAnyUnquoted(const AnyOf: array of Char; StartQuote, EndQuote:
           Char; StartIndex: Integer): Integer; overload;
+      /// <summary>Index of any given chars, excluding those that are between quotes, starting from a specified index and count.</summary>
       function IndexOfAnyUnquoted(const AnyOf: array of Char; StartQuote, EndQuote:
           Char; StartIndex: Integer; Count: Integer): Integer; overload;
+      /// <summary>Inserts a string at a specified index.</summary>
       function Insert(StartIndex: Integer; const Value: string): string;
+      /// <summary>Checks if the character at the specified index is a delimiter.</summary>
       function IsDelimiter(const Delimiters: string; Index: Integer): Boolean;
+      /// <summary>Checks if the string is empty.</summary>
       function IsEmpty: Boolean; inline;
+      /// <summary>Checks if the string is null or empty.</summary>
       class function IsNullOrEmpty(const Value: string): Boolean; static; inline;
+      /// <summary>Checks if the string is null, empty, or consists only of white-space characters.</summary>
       class function IsNullOrWhiteSpace(const Value: string): Boolean; static;
+      /// <summary>Concatenates elements of an array, using the specified separator between each element.</summary>
       class function Join(const Separator: string; const Values: array of const):
           string; overload; static;
+      /// <summary>Concatenates elements of a string array, using the specified separator between each element.</summary>
       class function Join(const Separator: string; const Values: array of string):
           string; overload; static;
+      /// <summary>Concatenates elements of a string collection, using the specified separator between each element.</summary>
       class function Join(const Separator: string; const Values:
           IEnumerator<string>): string; overload; static;
+      /// <summary>Concatenates elements of a string collection, using the specified separator between each element.</summary>
       class function Join(const Separator: string; const Values:
           IEnumerable<string>): string; overload; static; inline;
+      /// <summary>Concatenates elements of a string array, using the specified separator between each element, starting from a specified index and count.</summary>
       class function Join(const Separator: string; const Values: array of string;
           StartIndex: Integer; Count: Integer): string; overload; static;
+      /// <summary>Returns the index of the last delimiter character.</summary>
       function LastDelimiter(const Delims: string): Integer; overload;
+      /// <summary>Returns the index of the last delimiter character using a set of characters.</summary>
       function LastDelimiter(const Delims: TSysCharSet): Integer; overload;
+      /// <summary>Returns the index of the last occurrence of a character.</summary>
       function LastIndexOf(Value: Char): Integer; overload;
+      /// <summary>Returns the index of the last occurrence of a substring.</summary>
       function LastIndexOf(const Value: string): Integer; overload;
+      /// <summary>Returns the index of the last occurrence of a character, searching backward from a specified index.</summary>
       function LastIndexOf(Value: Char; StartIndex: Integer): Integer; overload;
+      /// <summary>Returns the index of the last occurrence of a substring, searching backward from a specified index.</summary>
       function LastIndexOf(const Value: string; StartIndex: Integer): Integer;
           overload;
+      /// <summary>Returns the index of the last occurrence of a character, searching backward from a specified index and checking a count of characters.</summary>
       function LastIndexOf(Value: Char; StartIndex: Integer; Count: Integer):
           Integer; overload;
+      /// <summary>Returns the index of the last occurrence of a substring, searching backward from a specified index and checking a count of characters.</summary>
       function LastIndexOf(const Value: string; StartIndex: Integer; Count: Integer):
           Integer; overload;
+      /// <summary>Returns the index of the last occurrence of any character in the array.</summary>
       function LastIndexOfAny(const AnyOf: array of Char): Integer; overload;
+      /// <summary>Returns the index of the last occurrence of any character in the array, searching backward from a specified index.</summary>
       function LastIndexOfAny(const AnyOf: array of Char; StartIndex: Integer):
           Integer; overload;
+      /// <summary>Returns the index of the last occurrence of any character in the array, searching backward from a specified index and checking a count of characters.</summary>
       function LastIndexOfAny(const AnyOf: array of Char; StartIndex: Integer; Count:
           Integer): Integer; overload;
+      /// <summary>Right-aligns the characters in this instance, padding with spaces on the left, for a specified total length.</summary>
       function PadLeft(TotalWidth: Integer): string; overload; inline;
+      /// <summary>Right-aligns the characters in this instance, padding with a specified character on the left, for a specified total length.</summary>
       function PadLeft(TotalWidth: Integer; PaddingChar: Char): string; overload;
           inline;
+      /// <summary>Left-aligns the characters in this instance, padding with spaces on the right, for a specified total length.</summary>
       function PadRight(TotalWidth: Integer): string; overload; inline;
+      /// <summary>Left-aligns the characters in this instance, padding with a specified character on the right, for a specified total length.</summary>
       function PadRight(TotalWidth: Integer; PaddingChar: Char): string; overload;
           inline;
+      /// <summary>Returns a quoted string.</summary>
       function QuotedString: string; overload;
+      /// <summary>Returns a quoted string using a specified quote character.</summary>
       function QuotedString(const QuoteChar: Char): string; overload;
+      /// <summary>Removes characters from the string starting at a specified index.</summary>
       function Remove(StartIndex: Integer): string; overload; inline;
+      /// <summary>Removes a specified number of characters from the string starting at a specified index.</summary>
       function Remove(StartIndex: Integer; Count: Integer): string; overload; inline;
+      /// <summary>Replaces all occurrences of a character with another character.</summary>
       function Replace(OldChar: Char; NewChar: Char): string; overload;
+      /// <summary>Replaces all occurrences of a character with another character, utilizing replace flags.</summary>
       function Replace(OldChar: Char; NewChar: Char; ReplaceFlags: TReplaceFlags):
           string; overload;
+      /// <summary>Replaces all occurrences of a substring with another string, utilizing replace flags.</summary>
       function Replace(const OldValue: string; const NewValue: string; ReplaceFlags:
           TReplaceFlags): string; overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator.</summary>
       function Split(const Separator: array of Char): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator, limiting the number of substrings.</summary>
       function Split(const Separator: array of Char; Count: Integer): TArray<string>;
           overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator, with options.</summary>
       function Split(const Separator: array of Char; Options: TStringSplitOptions):
           TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator, limiting the number of substrings, with options.</summary>
       function Split(const Separator: array of Char; Count: Integer; Options:
           TStringSplitOptions): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator.</summary>
       function Split(const Separator: array of string): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator, limiting the number of substrings.</summary>
       function Split(const Separator: array of string; Count: Integer):
           TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator, with options.</summary>
       function Split(const Separator: array of string; Options: TStringSplitOptions):
           TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator, limiting the number of substrings, with options.</summary>
       function Split(const Separator: array of string; Count: Integer; Options:
           TStringSplitOptions): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on characters separatorIn quotes.</summary>
+      /// <summary>Splits the string into an array of substrings based on characters separator in quotes.</summary>
       function Split(const Separator: array of Char; Quote: Char): TArray<string>;
           overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator in quotes defined by start and end characters.</summary>
       function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char):
           TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator in quotes, with options.</summary>
       function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char;
           Options: TStringSplitOptions): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator in quotes, limiting the count.</summary>
       function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char;
           Count: Integer): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on characters separator in quotes, limiting the count, with options.</summary>
       function Split(const Separator: array of Char; QuoteStart, QuoteEnd: Char;
           Count: Integer; Options: TStringSplitOptions): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator in quotes.</summary>
       function Split(const Separator: array of string; Quote: Char): TArray<string>;
           overload;
+      /// <summary>Splits the string into an array of substrings based on string separator in quotes defined by start and end characters.</summary>
       function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char):
           TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator in quotes, with options.</summary>
       function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char;
           Options: TStringSplitOptions): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator in quotes, limiting the count.</summary>
       function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char;
           Count: Integer): TArray<string>; overload;
+      /// <summary>Splits the string into an array of substrings based on string separator in quotes, limiting the count, with options.</summary>
       function Split(const Separator: array of string; QuoteStart, QuoteEnd: Char;
           Count: Integer; Options: TStringSplitOptions): TArray<string>; overload;
+      /// <summary>Checks if the string starts with the specified text.</summary>
       class function StartsText(const ASubText, AText: string): Boolean; overload;
           static;
+      /// <summary>Checks if the string starts with the specified value.</summary>
       function StartsWith(const Value: string): Boolean; overload; inline;
+      /// <summary>Checks if the string starts with the specified value, with optional case sensitivity.</summary>
       function StartsWith(const Value: string; IgnoreCase: Boolean): Boolean;
           overload;
+      /// <summary>Converts the string to a Boolean value.</summary>
       function ToBoolean: Boolean; overload; inline;
+      /// <summary>Converts the string to an Integer value.</summary>
       function ToInteger: Integer; overload; inline;
       /// <summary>Converts the string to an Int64 value</summary>
       function ToSingle: Single; overload; inline;
+      /// <summary>Converts the string to a Double value.</summary>
       function ToDouble: Double; overload; inline;
+      /// <summary>Converts the string to an Extended value.</summary>
       function ToExtended: Extended; overload; inline;
+      /// <summary>Converts the string to a character array.</summary>
       function ToCharArray: TArray<Char>; overload;
+      /// <summary>Converts a substring to a character array.</summary>
       function ToCharArray(StartIndex: Integer; Length: Integer): TArray<Char>;
           overload;
+      /// <summary>Returns a copy of this string converted to lowercase.</summary>
       function ToLower: string; overload; inline;
+      /// <summary>Returns a copy of this string converted to lowercase using specified locale.</summary>
       function ToLower(LocaleID: TLocaleID): string; overload;
+      /// <summary>Returns a copy of this string converted to lowercase using invariant culture.</summary>
       function ToLowerInvariant: string; inline;
+      /// <summary>Returns a copy of this string converted to uppercase.</summary>
       function ToUpper: string; overload; inline;
+      /// <summary>Returns a copy of this string converted to uppercase using specified locale.</summary>
       function ToUpper(LocaleID: TLocaleID): string; overload;
+      /// <summary>Returns a copy of this string converted to uppercase using invariant culture.</summary>
       function ToUpperInvariant: string; inline;
+      /// <summary>Trims the specified characters from the string.</summary>
       function Trim(const TrimChars: array of Char): string; overload;
+      /// <summary>Trims the specified characters from the beginning of the string.</summary>
       function TrimLeft(const TrimChars: array of Char): string; overload;
+      /// <summary>Trims the specified characters from the end of the string.</summary>
       function TrimRight(const TrimChars: array of Char): string; overload;
+      /// <summary>Trims the specified characters from the end of the string (deprecated, use TrimRight).</summary>
       function TrimEnd(const TrimChars: array of Char): string; deprecated
           'Use TrimRight';
+      /// <summary>Trims the specified characters from the beginning of the string (deprecated, use TrimLeft).</summary>
       function TrimStart(const TrimChars: array of Char): string; deprecated
           'Use TrimLeft';
 

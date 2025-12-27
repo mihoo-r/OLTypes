@@ -195,10 +195,15 @@ type
     class function Yellow(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Yellowgreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
 
+    /// <summary>Returns the complementary color (opposite on the color wheel).</summary>
     function Complementary(): OLColor;
+    /// <summary>Returns a brighter version of the color.</summary>
     function Brighter(BrightnessDelta: Integer = 20): OLColor;
+    /// <summary>Returns a darker version of the color.</summary>
     function Darker(BrightnessDelta: Integer = -20): OLColor;
+    /// <summary>Returns a more vivid (saturated) version of the color.</summary>
     function Vividier(SaturationDelta: Integer = 20): OLColor;
+    /// <summary>Returns a duller (less saturated) version of the color.</summary>
     function Duller(SaturationDelta: Integer = -20): OLColor;
 
     property R: Byte read GetR write SetR;

@@ -32,10 +32,14 @@ type
   private
     FControl: TControl;
   public
+    /// <summary>Creates a new instance of the control link.</summary>
     constructor Create; reintroduce;
+    /// <summary>Updates the associated control with the value from the OL variable.</summary>
     procedure RefreshControl; virtual; abstract;
+    /// <summary>Determines if the control requires a timer for periodic updates.</summary>
     function NeedsTimer: Boolean; virtual;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Displays the validation result (e.g., error styling/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); virtual;
     {$IFEND}
     property Control: TControl read FControl write FControl;
@@ -82,13 +86,20 @@ type
     procedure NewOnExit(Sender: TObject);
 
   public
+    /// <summary>Creates a new instance of the edit link.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for changes in the OL variable value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the Edit control with the value from the OL variable.</summary>
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Adds a validation function to the list of validators.</summary>
     function AddValidator(const Value: TOLValidationFunction<T>): TOLEditLink<T>;
+    /// <summary>Displays the validation result on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the value is valid according to the rules.</summary>
     function ValueIsValid(const v: T): TOLValidationResult; virtual;
     property ValidationFunction: TOLValidationFunction<T> read GetValidationFunction write SetValidationFunction;
     {$IFEND}
@@ -171,10 +182,15 @@ type
     procedure SetValueAfterValidation(i: OLInteger);
     {$IFEND}
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for changes in the SpinEdit control.</summary>
     procedure NewOnChange(Sender: TObject);
+    /// <summary>Event handler for changes in the OLInteger value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the SpinEdit from the OLInteger value.</summary>
     procedure RefreshControl; override;
 
     {$IF CompilerVersion >= 34.0}
@@ -655,10 +671,15 @@ type
     procedure SetValueAfterValidation(s: OLString);
     {$IFEND}
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for the OnChange event of the Memo.</summary>
     procedure NewOnChange(Sender: TObject);
+    /// <summary>Event handler for changes in the OLString value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the Memo from the OLString value.</summary>
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -752,7 +773,9 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TMemoToOLString;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the string value is valid according to the rules.</summary>
     function ValueIsValid(s: OLString): TOLValidationResult;
     {$IFEND}
     property Edit: TMemo read FEdit write SetEdit;
@@ -797,12 +820,19 @@ type
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for the OnChange event of the DateTimePicker.</summary>
     procedure NewOnChange(Sender: TObject);
+    /// <summary>Event handler for the OnEnter event of the DateTimePicker.</summary>
     procedure NewOnEnter(Sender: TObject);
+    /// <summary>Event handler for the OnKeyPress event of the DateTimePicker.</summary>
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
+    /// <summary>Event handler for changes in the OLDate value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the DateTimePicker from the OLDate value.</summary>
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -873,7 +903,9 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function IsWeekend(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDate;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the date value is valid according to the rules.</summary>
     function ValueIsValid(d: OLDate): TOLValidationResult;
     {$IFEND}
     property Edit: TDateTimePicker read FEdit write SetEdit;
@@ -918,12 +950,19 @@ type
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for the OnChange event of the DateTimePicker.</summary>
     procedure NewOnChange(Sender: TObject);
+    /// <summary>Event handler for the OnEnter event of the DateTimePicker.</summary>
     procedure NewOnEnter(Sender: TObject);
+    /// <summary>Event handler for the OnKeyPress event of the DateTimePicker.</summary>
     procedure NewOnKeyPress(Sender: TObject; var Key: Char);
+    /// <summary>Event handler for changes in the OLDateTime value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the DateTimePicker from the OLDateTime value.</summary>
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -968,7 +1007,9 @@ type
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Future(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TDateTimePickerToOLDateTime;
 
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the datetime value is valid according to the rules.</summary>
     function ValueIsValid(dt: OLDateTime): TOLValidationResult;
     {$IFEND}
     property Edit: TDateTimePicker read FEdit write SetEdit;
@@ -1003,10 +1044,15 @@ type
     procedure SetValueAfterValidation(b: OLBoolean);
     {$IFEND}
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for the OnClick event of the checkbox.</summary>
     procedure NewOnClick(Sender: TObject);
+    /// <summary>Event handler for changes in the OLBoolean value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the checkbox state from the OLBoolean value.</summary>
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -1019,7 +1065,9 @@ type
     /// <returns>Returns Self for fluent API chaining.</returns>
     function RequireValue(const AColor: TColor = clDefault; const ErrorMessage:
         string = ''): TCheckBoxToOLBoolean;
+    /// <summary>Checks if the boolean value is valid according to the rules.</summary>
     function ValueIsValid(b: OLBoolean): TOLValidationResult;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
     {$IFEND}
     property Edit: TCheckBox read FEdit write SetEdit;
@@ -1054,10 +1102,15 @@ type
     procedure SetValidationFunction(const Value: TOLIntegerValidationFunction);
     {$IFEND}
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for changes in the OLInteger value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the Label from the OLInteger value.</summary>
     procedure RefreshControl; override;
+    /// <summary>Indicates if the control needs a timer for updates (e.g. for animations or periodic checks).</summary>
     function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -1098,7 +1151,9 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLIntegerToLabel;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the integer value is valid according to the rules.</summary>
     function ValueIsValid(i: OLInteger): TOLValidationResult;
     property ValidationFunction: TOLIntegerValidationFunction read GetValidationFunction write SetValidationFunction;
     {$IFEND}
@@ -1132,9 +1187,13 @@ type
     procedure SetValidationFunction(const Value: TOLStringValidationFunction);
     {$IFEND}
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Updates the Label from the OLString value.</summary>
     procedure RefreshControl; override;
+    /// <summary>Indicates if the control needs a timer for updates.</summary>
     function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -1228,7 +1287,9 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function NIP(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLStringToLabel;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the string value is valid according to the rules.</summary>
     function ValueIsValid(s: OLString): TOLValidationResult;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
@@ -1265,10 +1326,15 @@ type
     procedure SetValidationFunction(const Value: TOLDoubleValidationFunction);
     {$IFEND}
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for changes in the OLDouble value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the Label from the OLDouble value.</summary>
     procedure RefreshControl; override;
+    /// <summary>Indicates if the control needs a timer for updates.</summary>
     function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -1309,7 +1375,9 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDoubleToLabel;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the double value is valid according to the rules.</summary>
     function ValueIsValid(d: OLDouble): TOLValidationResult;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
@@ -1346,10 +1414,15 @@ type
     procedure SetValidationFunction(const Value: TOLCurrencyValidationFunction);
     {$IFEND}
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for changes in the OLCurrency value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the Label from the OLCurrency value.</summary>
     procedure RefreshControl; override;
+    /// <summary>Indicates if the control needs a timer for updates.</summary>
     function NeedsTimer: Boolean; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -1390,7 +1463,9 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function Negative(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLCurrencyToLabel;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the currency value is valid according to the rules.</summary>
     function ValueIsValid(c: OLCurrency): TOLValidationResult;
     {$IFEND}
     property Lbl: TLabel read FLabel write SetLabel;
@@ -1425,9 +1500,13 @@ type
     procedure SetCalculation(const Value: TFunctionReturningOLDate);
     procedure SetValueOnErrorInCalculation(const Value: OLString);
   public
+    /// <summary>Creates a new instance of the link component.</summary>
     constructor Create;
+    /// <summary>Destroys the instance and releases resources.</summary>
     destructor Destroy; override;
+    /// <summary>Event handler for changes in the OLDate value.</summary>
     procedure OnOLChange(Sender: TObject);
+    /// <summary>Updates the Label from the OLDate value.</summary>
     procedure RefreshControl; override;
     {$IF CompilerVersion >= 34.0}
     /// <summary>Adds a manual validation function to the list of validators.</summary>
@@ -1498,9 +1577,12 @@ type
     /// <param name="ErrorMessage">Custom error message.</param>
     /// <returns>Returns Self for fluent API chaining.</returns>
     function IsWeekend(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TOLDateToLabel;
+    /// <summary>Displays the validation state (e.g. error color/message) on the control.</summary>
     procedure ShowValidationState(vr: TOLValidationResult); override;
+    /// <summary>Checks if the date value is valid according to the rules.</summary>
     function ValueIsValid(d: OLDate): TOLValidationResult;
     {$IFEND}
+    /// <summary>Indicates if the control needs a timer for updates.</summary>
     function NeedsTimer: Boolean; override;
     property Lbl: TLabel read FLabel write SetLabel;
     property OLPointer: POLDate read FOLPointer write SetOLPointer;
@@ -1613,98 +1695,140 @@ type
         overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TSpinEdit control to an OLInteger variable.</summary>
     function Link(const Edit: TSpinEdit; var i: OLInteger): TSpinEditToOLInteger; overload;
     {$ELSE}
+    /// <summary>Links a TSpinEdit control to an OLInteger variable.</summary>
     function Link(const Edit: TSpinEdit; var i: OLInteger): TSpinEditToOLInteger; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TTrackBar control to an OLInteger variable.</summary>
     function Link(const Edit: TTrackBar; var i: OLInteger): TTrackBarToOLInteger; overload;
     {$ELSE}
+    /// <summary>Links a TTrackBar control to an OLInteger variable.</summary>
     function Link(const Edit: TTrackBar; var i: OLInteger): TTrackBarToOLInteger; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TScrollBar control to an OLInteger variable.</summary>
     function Link(const Edit: TScrollBar; var i: OLInteger): TScrollBarToOLInteger; overload;
     {$ELSE}
+    /// <summary>Links a TScrollBar control to an OLInteger variable.</summary>
     function Link(const Edit: TScrollBar; var i: OLInteger): TScrollBarToOLInteger; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TEdit control to an OLDouble variable.</summary>
     function Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLDouble; overload;
     {$ELSE}
+    /// <summary>Links a TEdit control to an OLDouble variable.</summary>
     function Link(const Edit: TEdit; var d: OLDouble; const Format: string = DOUBLE_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLDouble; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TEdit control to an OLCurrency variable.</summary>
     function Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLCurrency; overload;
     {$ELSE}
+    /// <summary>Links a TEdit control to an OLCurrency variable.</summary>
     function Link(const Edit: TEdit; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT; const Alignment: TAlignment=taRightJustify): TEditToOLCurrency; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TEdit control to an OLString variable.</summary>
     function Link(const Edit: TEdit; var s: OLString): TEditToOLString; overload;
     {$ELSE}
+    /// <summary>Links a TEdit control to an OLString variable.</summary>
     function Link(const Edit: TEdit; var s: OLString): TEditToOLString; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TMemo control to an OLString variable.</summary>
     function Link(const Edit: TMemo; var s: OLString): TMemoToOLString; overload;
     {$ELSE}
+    /// <summary>Links a TMemo control to an OLString variable.</summary>
     function Link(const Edit: TMemo; var s: OLString): TMemoToOLString; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TDateTimePicker control to an OLDate variable.</summary>
     function Link(const Edit: TDateTimePicker; var d: OLDate): TDateTimePickerToOLDate; overload;
     {$ELSE}
+    /// <summary>Links a TDateTimePicker control to an OLDate variable.</summary>
     function Link(const Edit: TDateTimePicker; var d: OLDate): TDateTimePickerToOLDate; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TDateTimePicker control to an OLDateTime variable.</summary>
     function Link(const Edit: TDateTimePicker; var d: OLDateTime): TDateTimePickerToOLDateTime; overload;
     {$ELSE}
+    /// <summary>Links a TDateTimePicker control to an OLDateTime variable.</summary>
     function Link(const Edit: TDateTimePicker; var d: OLDateTime): TDateTimePickerToOLDateTime; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TCheckBox control to an OLBoolean variable.</summary>
     function Link(const Edit: TCheckBox; var b: OLBoolean; AllowGrayed: Boolean = False): TCheckBoxToOLBoolean; overload;
     {$ELSE}
+    /// <summary>Links a TCheckBox control to an OLBoolean variable.</summary>
     function Link(const Edit: TCheckBox; var b: OLBoolean; AllowGrayed: Boolean = False): TCheckBoxToOLBoolean; overload;
     {$IFEND}
 
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TLabel control to an OLInteger variable.</summary>
     function Link(const Lbl: TLabel; var i: OLInteger): TOLIntegerToLabel; overload;
     {$ELSE}
+    /// <summary>Links a TLabel control to an OLInteger variable.</summary>
     function Link(const Lbl: TLabel; var i: OLInteger): TOLIntegerToLabel; overload;
     {$IFEND}
+    /// <summary>Links a TLabel control to a function returning an OLInteger.</summary>
     function Link(const Lbl: TLabel; const f: TFunctionReturningOLInteger; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLIntegerToLabel; overload;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TLabel control to an OLString variable.</summary>
     function Link(const Lbl: TLabel; var s: OLString): TOLStringToLabel; overload;
     {$ELSE}
+    /// <summary>Links a TLabel control to an OLString variable.</summary>
     function Link(const Lbl: TLabel; var s: OLString): TOLStringToLabel; overload;
     {$IFEND}
+    /// <summary>Links a TLabel control to a function returning an OLString.</summary>
     function Link(const Lbl: TLabel; const f: TFunctionReturningOLString; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLStringToLabel; overload;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TLabel control to an OLDouble variable.</summary>
     function Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT): TOLDoubleToLabel; overload;
     {$ELSE}
+    /// <summary>Links a TLabel control to an OLDouble variable.</summary>
     function Link(const Lbl: TLabel; var d: OLDouble; const Format: string = DOUBLE_FORMAT): TOLDoubleToLabel; overload;
     {$IFEND}
+    /// <summary>Links a TLabel control to a function returning an OLDouble.</summary>
     function Link(const Lbl: TLabel; const f: TFunctionReturningOLDouble; const Format: string = DOUBLE_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLDoubleToLabel; overload;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TLabel control to an OLCurrency variable.</summary>
     function Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT): TOLCurrencyToLabel; overload;
     {$ELSE}
+    /// <summary>Links a TLabel control to an OLCurrency variable.</summary>
     function Link(const Lbl: TLabel; var curr: OLCurrency; const Format: string = CURRENCY_FORMAT): TOLCurrencyToLabel; overload;
     {$IFEND}
+    /// <summary>Links a TLabel control to a function returning an OLCurrency.</summary>
     function Link(const Lbl: TLabel; const f: TFunctionReturningOLCurrency; const Format: string = CURRENCY_FORMAT; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLCurrencyToLabel; overload;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TLabel control to an OLDate variable.</summary>
     function Link(const Lbl: TLabel; var d: OLDate): TOLDateToLabel; overload;
     {$ELSE}
+    /// <summary>Links a TLabel control to an OLDate variable.</summary>
     function Link(const Lbl: TLabel; var d: OLDate): TOLDateToLabel; overload;
     {$IFEND}
+    /// <summary>Links a TLabel control to a function returning an OLDate.</summary>
     function Link(const Lbl: TLabel; const f: TFunctionReturningOLDate; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLDateToLabel; overload;
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TLabel control to an OLDateTime variable.</summary>
     function Link(const Lbl: TLabel; var d: OLDateTime): TOLDateTimeToLabel; overload;
     {$ELSE}
+    /// <summary>Links a TLabel control to an OLDateTime variable.</summary>
     function Link(const Lbl: TLabel; var d: OLDateTime): TOLDateTimeToLabel; overload;
     {$IFEND}
+    /// <summary>Links a TLabel control to a function returning an OLDateTime.</summary>
     function Link(const Lbl: TLabel; const f: TFunctionReturningOLDateTime; const ValueOnErrorInCalculation: string = ERROR_STRING): TOLDateTimeToLabel; overload;
 
+    /// <summary>Refreshes the values of all controls linked in the specified form (or all forms if nil).</summary>
     procedure RefreshControls(FormToRefresh: TForm = nil);
+    /// <summary>Removes all links associated with the specified form (or all forms if nil).</summary>
     procedure RemoveLinks(DestroyedForm: TForm = nil);
+    /// <summary>Retrieves the link component associated with a specific control.</summary>
     function GetLinkForControl(AControl: TControl): TOLControlLink;
   end;
 
+   /// <summary>Returns the global singleton instance of the TOLLinkManager.</summary>
    function Links(): TOLLinkManager;
 
 const
