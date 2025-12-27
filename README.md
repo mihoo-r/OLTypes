@@ -39,7 +39,7 @@ If you wish for the library to be globally available for all new projects, you s
 
 **Feel free to open OLTypesTest.dpr to run the tests and see the new types in action before you start using them yourself.**
 
-You may also want to **[check the Wiki](https://bitbucket.org/mihoor/oltypes/wiki/Home)** or more detailed [documentation](https://bitbucket.org/mihoor/oltypes/src/master/doc/index.md)
+You may also want to **[check the Wiki](https://github.com/mihoo-r/OLTypes/wiki)** or more detailed [documentation](https://github.com/mihoo-r/OLTypes/blob/master/doc/index.md)
 
 ### Contribution guidelines ###
 
