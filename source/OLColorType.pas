@@ -2,8 +2,14 @@ unit OLColorType;
 
 interface
 
+{$IF CompilerVersion >= 23.0}
 uses
   Vcl.Graphics, System.Math;
+{$ELSE}
+uses
+  Graphics, Math;
+{$IFEND}
+
 
 type
   TRGB = record
@@ -41,16 +47,23 @@ type
     class operator Implicit(const a: TColor): OLColor;
     class operator Implicit(const a: OLColor): TColor;
 
+    {$IF CompilerVersion >= 23.0}
     class function Aliceblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Antiquewhite(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Aqua(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Aquamarine(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Azure(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Beige(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Bisque(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Black(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Blanchedalmond(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Blue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Blueviolet(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Brown(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Burlywood(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
@@ -89,13 +102,17 @@ type
     class function Firebrick(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Floralwhite(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Forestgreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Fuchsia(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Gainsboro(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Ghostwhite(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Gold(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Goldenrod(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Gray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Green(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Greenyellow(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Grey(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Honeydew(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
@@ -123,6 +140,7 @@ type
     class function Lightslategrey(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Lightsteelblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Lightyellow(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function LtGray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function MedGray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function DkGray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
@@ -130,10 +148,13 @@ type
     class function LegacySkyBlue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Cream(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Lime(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Limegreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Linen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Magenta(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Maroon(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Mediumaquamarine(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Mediumblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Mediumorchid(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
@@ -148,9 +169,13 @@ type
     class function Mistyrose(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Moccasin(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Navajowhite(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Navy(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Oldlace(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Olive(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Olivedrab(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Orange(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Orangered(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
@@ -165,8 +190,10 @@ type
     class function Pink(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Plum(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Powderblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Purple(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Red(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Rosybrown(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Royalblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Saddlebrown(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
@@ -175,7 +202,9 @@ type
     class function Seagreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Seashell(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Sienna(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Silver(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Skyblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Slateblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Slategray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
@@ -184,16 +213,23 @@ type
     class function Springgreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Steelblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Tan(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Teal(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Thistle(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Tomato(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Turquoise(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Violet(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
     class function Wheat(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function White(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Whitesmoke(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
     class function Yellow(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IF CompilerVersion >= 23.0}
     class function Yellowgreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; static;
+    {$IFEND}
 
     /// <summary>Returns the complementary color (opposite on the color wheel).</summary>
     function Complementary(): OLColor;
@@ -218,8 +254,11 @@ type
 
 implementation
 
+{$IF CompilerVersion >= 23.0}
 uses
   System.UITypes;
+{$IFEND}
+
 
 function OLColor.Brighter(BrightnessDelta: Integer = 20): OLColor;
 begin
@@ -325,8 +364,9 @@ end;
 
 class function OLColor.Red(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Red, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clRed, SaturationDelta, BrightnessDelta);
 end;
+
 
 class function OLColor.RGBtoHSV(const RGB: TRGB): THSV;
 var
@@ -499,6 +539,7 @@ begin
   Result := ChangeColorsSaturationAndBrightness(Color, SaturationDelta, 0);
 end;
 
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Aliceblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Aliceblue, SaturationDelta, BrightnessDelta);
@@ -508,12 +549,16 @@ class function OLColor.Antiquewhite(SaturationDelta: Integer = 0; BrightnessDelt
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Antiquewhite, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Aqua(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Aqua, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clAqua, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Aquamarine(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Aquamarine, SaturationDelta, BrightnessDelta);
@@ -533,22 +578,30 @@ class function OLColor.Bisque(SaturationDelta: Integer = 0; BrightnessDelta: Int
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Bisque, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Black(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Black, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clBlack, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Blanchedalmond(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Blanchedalmond, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Blue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Blue, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clBlue, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Blueviolet(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Blueviolet, SaturationDelta, BrightnessDelta);
@@ -738,12 +791,16 @@ class function OLColor.Forestgreen(SaturationDelta: Integer = 0; BrightnessDelta
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Forestgreen, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Fuchsia(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Fuchsia, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clFuchsia, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Gainsboro(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Gainsboro, SaturationDelta, BrightnessDelta);
@@ -763,12 +820,16 @@ class function OLColor.Goldenrod(SaturationDelta: Integer = 0; BrightnessDelta: 
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Goldenrod, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Gray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Gray, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clGray, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Greenyellow(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Greenyellow, SaturationDelta, BrightnessDelta);
@@ -903,42 +964,46 @@ class function OLColor.Lightyellow(SaturationDelta: Integer = 0; BrightnessDelta
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Lightyellow, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.LtGray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.LtGray, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clLtGray, SaturationDelta, BrightnessDelta);
 end;
 
 class function OLColor.MedGray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.MedGray, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clMedGray, SaturationDelta, BrightnessDelta);
 end;
 
 class function OLColor.DkGray(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.DkGray, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clDkGray, SaturationDelta, BrightnessDelta);
 end;
 
 class function OLColor.MoneyGreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.MoneyGreen, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clMoneyGreen, SaturationDelta, BrightnessDelta);
 end;
 
 class function OLColor.LegacySkyBlue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.LegacySkyBlue, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clSkyBlue, SaturationDelta, BrightnessDelta);
 end;
 
 class function OLColor.Cream(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Cream, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clCream, SaturationDelta, BrightnessDelta);
 end;
 
 class function OLColor.Lime(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Lime, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clLime, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Limegreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Limegreen, SaturationDelta, BrightnessDelta);
@@ -953,12 +1018,16 @@ class function OLColor.Magenta(SaturationDelta: Integer = 0; BrightnessDelta: In
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Magenta, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Maroon(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Maroon, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clMaroon, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Mediumaquamarine(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Mediumaquamarine, SaturationDelta, BrightnessDelta);
@@ -1028,22 +1097,30 @@ class function OLColor.Navajowhite(SaturationDelta: Integer = 0; BrightnessDelta
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Navajowhite, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Navy(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Navy, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clNavy, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Oldlace(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Oldlace, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Olive(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Olive, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clOlive, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Olivedrab(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Olivedrab, SaturationDelta, BrightnessDelta);
@@ -1113,13 +1190,17 @@ class function OLColor.Powderblue(SaturationDelta: Integer = 0; BrightnessDelta:
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Powderblue, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Purple(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Purple, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clPurple, SaturationDelta, BrightnessDelta);
 end;
+
 //class function OLColor.Red(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor; begin Result := ChangeColorsSaturationAndBrightness(TColors.Red, SaturationDelta, BrightnessDelta); end;
 
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Rosybrown(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Rosybrown, SaturationDelta, BrightnessDelta);
@@ -1159,12 +1240,16 @@ class function OLColor.Sienna(SaturationDelta: Integer = 0; BrightnessDelta: Int
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Sienna, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Silver(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Silver, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clSilver, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Skyblue(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Skyblue, SaturationDelta, BrightnessDelta);
@@ -1204,12 +1289,16 @@ class function OLColor.Tan(SaturationDelta: Integer = 0; BrightnessDelta: Intege
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Tan, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Teal(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Teal, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clTeal, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Thistle(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Thistle, SaturationDelta, BrightnessDelta);
@@ -1234,26 +1323,36 @@ class function OLColor.Wheat(SaturationDelta: Integer = 0; BrightnessDelta: Inte
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Wheat, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.White(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.White, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clWhite, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Whitesmoke(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Whitesmoke, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 class function OLColor.Yellow(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
-  Result := ChangeColorsSaturationAndBrightness(TColors.Yellow, SaturationDelta, BrightnessDelta);
+  Result := ChangeColorsSaturationAndBrightness(clYellow, SaturationDelta, BrightnessDelta);
 end;
 
+
+{$IF CompilerVersion >= 23.0}
 class function OLColor.Yellowgreen(SaturationDelta: Integer = 0; BrightnessDelta: Integer = 0): OLColor;
 begin
   Result := ChangeColorsSaturationAndBrightness(TColors.Yellowgreen, SaturationDelta, BrightnessDelta);
 end;
+{$IFEND}
+
 
 end.
 
