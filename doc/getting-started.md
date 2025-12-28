@@ -18,9 +18,21 @@ uses
   OLTypes;
 ```
 
-Once added, all library tools become immediately available. This includes:
-*   **OL Types**: Null-safe versions of primitive types.
-*   **Native Helpers**: Powerful extensions for standard Delphi types (string, Integer, TDateTime) via record helpers.
+Once added, all library tools become immediately available.
+```pascal
+var
+  s: OLString;
+begin
+  s := 'Hello Hello Hello Hello World!';
+
+  while s.OccurrencesCount('Hello ') > 1 do
+    s := s.ReplacedFirst('Hello ', '');
+
+  ShowMessage(s.Pos('world', csCaseInsensitive).ToString()); // 7
+  ShowMessage(s.UpperCase()); // HELLO WORLD!
+end;
+```
+
 
 By using these types, you no longer need to manually manage different utility units like `SysUtils`, `StrUtils`, or `DateUtils` for basic operations. All these methods are directly accessible on the types themselves.
 
