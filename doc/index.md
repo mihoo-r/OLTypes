@@ -21,12 +21,15 @@ Welcome to the **OLTypes** documentation. This library is a comprehensive set of
 
 ## Compatibility
 
-OLTypes has been tested and is fully compatible with:
+OLTypes is compatible with various Delphi versions. It has been specifically tested with:
 *   Delphi 12 (Athens)
+*   Delphi XE
+
+It should also be compatible with:
 *   Delphi 11 (Alexandria)
 *   Delphi 10 (Seattle/Berlin/Tokyo/Sydney)
-*   Delphi XE series
 *   Delphi 2010 (Partial support for some features)
+
 
 ---
 
