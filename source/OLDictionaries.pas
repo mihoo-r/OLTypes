@@ -14,7 +14,7 @@ uses
   Generics.Collections,
   Generics.Defaults,
   {$IFEND}
-  // Twoje typy
+  // Your types
   OLBooleanType,
   OLCurrencyType,
   OLDateTimeType,
@@ -26,8 +26,8 @@ uses
 
 type
   /// <summary>
-  /// Wewnetrzny generyczny wrapper na TDictionary.
-  /// Nie uzywaj bezposrednio - uzywaj dedykowanych wrapperow.
+  /// Internal generic wrapper for TDictionary.
+  /// Do not use directly - use dedicated wrappers.
   /// </summary>
   OLGenericDictionary<K, V> = record
   private

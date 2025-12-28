@@ -211,18 +211,22 @@ type
     /// <summary>
     ///   Returns the number of complete years between this date and the specified date.
     /// </summary>
+    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function YearsBetween(const AThen: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete months between this date and the specified date.
     /// </summary>
+    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MonthsBetween(const AThen: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete weeks between this date and the specified date.
     /// </summary>
+    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function WeeksBetween(const AThen: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete days between this date and the specified date.
     /// </summary>
+    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function DaysBetween(const AThen: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete days between this date and the begining of 1900.
@@ -237,14 +241,17 @@ type
     /// <summary>
     ///   Returns the approximate number of years between this date and the specified date.
     /// </summary>
+    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function YearSpan(const AThen: OLDate): OLDouble;
     /// <summary>
     ///   Returns the approximate number of months between this date and the specified date.
     /// </summary>
+    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MonthSpan(const AThen: OLDate): OLDouble;
     /// <summary>
     ///   Returns the approximate number of weeks between this date and the specified date.
     /// </summary>
+    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function WeekSpan(const AThen: OLDate): OLDouble;
 
     /// <summary>

@@ -113,6 +113,7 @@ type
     ///   A parameter value of one rounds to the nearest ten.
     ///   A parameter value of two rounds to the nearest hundred, and so on
     /// </summary>
+    /// <param name="Digits">Indicates the precision of the rounding. Positive values round to the left of the decimal point (tens, hundreds, etc.).</param>
     function Round(const Digits: OLInteger): OLInteger;
     /// <summary>
     ///   Checks if the integer is between the specified values (inclusive).

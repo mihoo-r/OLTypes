@@ -373,34 +373,42 @@ type
     /// <summary>
     ///   Returns the number of complete years between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function YearsBetween(const AThen: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete months between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MonthsBetween(const AThen: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete weeks between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function WeeksBetween(const AThen: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete days between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function DaysBetween(const AThen: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete hours between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function HoursBetween(const AThen: OLDateTime): Int64;
     /// <summary>
     ///   Returns the number of complete minutes between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MinutesBetween(const AThen: OLDateTime): Int64;
     /// <summary>
     ///   Returns the number of complete seconds between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function SecondsBetween(const AThen: OLDateTime): Int64;
     /// <summary>
     ///   Returns the number of complete milliseconds between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MilliSecondsBetween(const AThen: OLDateTime): Int64;
 
     /// <summary>
@@ -415,34 +423,42 @@ type
     /// <summary>
     ///   Returns the approximate number of years between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function YearSpan(const AThen: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of months between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MonthSpan(const AThen: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of weeks between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function WeekSpan(const AThen: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of days between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function DaySpan(const AThen: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of hours between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function HourSpan(const AThen: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of minutes between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MinuteSpan(const AThen: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of seconds between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function SecondSpan(const AThen: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of milliseconds between this datetime and the specified datetime.
     /// </summary>
+    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
     function MilliSecondSpan(const AThen: OLDateTime): OLDouble;
 
 

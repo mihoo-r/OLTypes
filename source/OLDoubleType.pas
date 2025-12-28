@@ -98,6 +98,7 @@ type
     /// <summary>
     ///   Rounds the double to the specified power of ten.
     /// </summary>
+    /// <param name="PowerOfTen">The power of ten to which the value is rounded. For negative values, rounding is performed on the fractional part (to the right of the decimal point).</param>
     function Round(const PowerOfTen: integer): OLDouble; overload;
     /// <summary>
     ///   Rounds the double to the nearest integer.
@@ -115,6 +116,7 @@ type
     ///   Rounds the double using symmetric arithmetic rounding to the specified power of ten.
     ///   Unlike Round, SimpleRoundTo always rounds 0.5 away from zero.
     /// </summary>
+    /// <param name="PowerOfTen">The power of ten to which the value is rounded. For negative values, rounding is performed on the fractional part (to the right of the decimal point).</param>
     function SimpleRoundTo(const PowerOfTen: Integer = -2): OLDouble;
 
     /// <summary>
