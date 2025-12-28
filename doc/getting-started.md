@@ -6,6 +6,7 @@
 If you are using [Boss](https://github.com/HashLoad/boss) (Dependency Manager for Delphi), you can install the library by running inside your project's folder:
 
 ```bash
+boss init # if not previously executed for the project
 boss install github.com/mihoo-r/OLTypes
 ```
 
