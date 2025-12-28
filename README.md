@@ -30,12 +30,23 @@ OLTypes library is distributed under **[the MIT License](https://www.wikiwand.co
 
 ### How do I get set up? ###
 
+#### Using Boss (Recommended)
+If you are using [Boss](https://github.com/HashLoad/boss) (Dependency Manager for Delphi), you can install the library by running inside your project's folder:
+
+```bash
+boss install github.com/mihoo-r/OLTypes
+```
+
+That will download the latest stable version of OLTypes and add its folder to your project's Search Path. Then your project will see OLTypes when you add it to uses.
+
+#### Manual Installation
 * Download library and unpack it.
 * Add all units from the source folder directly to your project, **OR** add the path to the source folder to your project's **Search path** (Project -> Options -> Delphi Compiler -> Search path).
 * Add OLTypes to the uses section in your program
 
 If you wish for the library to be globally available for all new projects, you should add the source folder to your **Library path** instead.
 (Menu Tools -> Options -> Environment Options -> Delphi Options -> Library -> Library path).
+
 
 **Feel free to open OLTypesTest.dpr to run the tests and see the new types in action before you start using them yourself.**
 

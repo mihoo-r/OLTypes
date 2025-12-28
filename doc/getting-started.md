@@ -2,12 +2,23 @@
 
 ## Installation
 
+### Using Boss (Recommended)
+If you are using [Boss](https://github.com/HashLoad/boss) (Dependency Manager for Delphi), you can install the library by running inside your project's folder:
+
+```bash
+boss install github.com/mihoo-r/OLTypes
+```
+
+That will download the latest stable version of OLTypes and add its folder to your project's Search Path. Then your project will see OLTypes when you add it to uses.
+
+### Manual Installation
 1.  **Download and Unpack**: Download the library and unpack it into your preferred directory.
 2.  **Project Integration**:
     *   Add all units from the `source` folder directly to your project.
     *   **OR** add the path to the `source` folder to your project's **Search path** (*Project -> Options -> Delphi Compiler -> Search path*).
 3.  **Global Installation (Optional)**: 
     If you want the library available for all new projects, add the source folder to your **Library path** (*Tools -> Options -> Environment Options -> Delphi Options -> Library -> Library path*).
+
 
 ## Basic Usage
 
