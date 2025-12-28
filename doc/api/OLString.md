@@ -7,7 +7,7 @@
 ### Basic
 | Property | Type | Description |
 | :--- | :--- | :--- |
-
+| `OnChange` | `TNotifyEvent` | (Delphi 10.4+) Event triggered when the value changes. |
 | `Chars[Index]` | `Char` | (Default property) Gets or sets the character at 1-based index. |
 
 ### Structured Access
@@ -134,11 +134,13 @@ Standard Delphi strings crash if you try to call methods on an uninitialized sta
 
 ```delphi
 var
-  s: OLString; // Uninitialized (Null)
+  s: OLString;
 begin
-  // This will NOT crash. It will simply return Null.
+  s := Null;
+  
+  // This will NOT crash. It will simply pass Null along the chain 
+  // and return an empty string because ToString on Null is empty.
   Writeln('Result: ' + s.Trimmed.UpperCase.Reverse.ToString); 
-  // Result: "" (Empty string because ToString on Null is empty)
 end;
 ```
 

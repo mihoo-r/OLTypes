@@ -7,7 +7,6 @@
 ### Basic
 | Property | Type | Description |
 | :--- | :--- | :--- |
-
 | `OnChange` | `TNotifyEvent` | (Delphi 10.4+) Event triggered when the value changes. |
 
 ---

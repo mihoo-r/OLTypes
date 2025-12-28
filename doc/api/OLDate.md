@@ -47,7 +47,7 @@
 ### Logic & Math
 | Method | Description |
 | :--- | :--- |
-| `YearsBetween()`, `MonthsBetween()`, `DaysBetween()`| Returns count of complete units. |
+| `YearsBetween()`, `MonthsBetween()`, `DaysBetween()`| Returns count of complete units. If the parameter is earlier than `Self`, a non-negative number is returned. |
 | `DaysSince1900()` | Returns days passed since 1900-01-01. |
 | `Max(other)`, `Min(other)` | Returns the later or earlier of two dates. |
 
@@ -81,10 +81,10 @@ var
 begin
   d1 := '2020-01-10';
   d2 := '2020-02-09';
-  Writeln(d1.MonthsBetween(d2).ToString); // '0' (not a full month yet)
-  
+  Writeln(d2.MonthsBetween(d1).ToString); // '0' (not a full month yet)
+
   d2 := '2020-02-10';
-  Writeln(d1.MonthsBetween(d2).ToString); // '1'
+  Writeln(d2.MonthsBetween(d1).ToString); // '1'
 end;
 ```
 

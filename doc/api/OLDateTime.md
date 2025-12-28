@@ -18,7 +18,6 @@
 ### Basic
 | Property | Type | Description |
 | :--- | :--- | :--- |
-
 | `OnChange` | `TNotifyEvent` | (Delphi 10.4+) Event triggered when the value changes. |
 
 ---
@@ -53,8 +52,8 @@
 ### Logic & Math
 | Method | Description |
 | :--- | :--- |
-| `YearsBetween()`, `MonthsBetween()`, etc. | Returns the number of complete units between two datetimes. |
-| `YearSpan()`, `MonthSpan()`, etc. | Returns approximate fractional units (as Double). |
+| `YearsBetween()`, `MonthsBetween()`, etc. | Returns the number of complete units between two datetimes. If the parameter is earlier than `Self`, a non-negative number is returned. |
+| `YearSpan()`, `MonthSpan()`, etc. | Returns approximate fractional units (as Double). If the parameter is earlier than `Self`, a non-negative number is returned. |
 | `Max(other)`, `Min(other)` | Returns the latest or earliest of two values. |
 | `IfNull(b)` | Returns `b` if the current value is `Null`. |
 
@@ -87,9 +86,9 @@ var
 begin
   start := '2023-01-01 10:00';
   finish := start.IncHour(24).IncMinute(30);
-  
-  Writeln('Days between: ' + start.DaysBetween(finish).ToString); // 1
-  Writeln('Hours between: ' + IntToStr(start.HoursBetween(finish))); // 24
+
+  Writeln('Days between: ' + finish.DaysBetween(start).ToString); // 1
+  Writeln('Hours between: ' + IntToStr(finish.HoursBetween(start))); // 24
 end;
 ```
 
