@@ -66,7 +66,7 @@ begin
 
   // JSON operations (Path-based)
   SuperS.JSON['Name'] := 'Admin';               // Creates {"Name":"Admin"}
-  SuperS.JSON['Address.City'] := 'Pętkowo';     // Creates nested object
+  SuperS.JSON['Address.City'] := 'Pętkowo';     // {"Name":"Admin","Address":{"City":"Pętkowo"}}
   
   s := SuperS;                                  // Implicit cast back to native string
 end;
