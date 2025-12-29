@@ -1154,48 +1154,110 @@ procedure OLString.GetFromUrl(const URL: string; Timeout: LongWord = 0);
 var
   NetHandle: HINTERNET;
   UrlHandle: HINTERNET;
-  Buffer: array[0..1024] of AnsiChar;
+  Buffer: array[0..4095] of Byte;
   BytesRead: dWord;
-  TextFromUrl: string;
+  RawData: TBytes;
+  TotalBytes: Integer;
   dwTimeOut: DWORD;
+  szContentType: array[0..255] of Char;
+  dwBufLen: DWORD;
+  CharsetName: string;
+  Encoding: TEncoding;
+  HeaderParsed: Boolean;
+
+  function ExtractCharset(const Text: string): string;
+  var
+    P: Integer;
+    LTxt: string;
+  begin
+    Result := '';
+    LTxt := System.SysUtils.LowerCase(Text);
+    P := System.Pos('charset=', LTxt);
+    if P > 0 then
+    begin
+      Result := Copy(Text, P + 8, MaxInt);
+      // Clean up string from common HTML/HTTP delimiters
+      P := System.Pos(';', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos('"', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos('''', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos('>', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos(' ', Result); if P > 0 then Delete(Result, P, MaxInt);
+      Result := Trim(Result);
+    end;
+  end;
+
 begin
-  TextFromUrl := '';
+  TotalBytes := 0;
+  SetLength(RawData, 0);
+  Encoding := nil;
+  CharsetName := '';
 
   NetHandle := InternetOpen('OLString', INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-
   if Timeout > 0 then
   begin
-    dwTimeOut := Timeout; // Timeout in milliseconds
-    InternetSetOption(NetHandle, INTERNET_OPTION_CONNECT_TIMEOUT,
-                      @dwTimeOut, SizeOf(dwTimeOut));
+    dwTimeOut := Timeout;
+    InternetSetOption(NetHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @dwTimeOut, SizeOf(dwTimeOut));
   end;
 
   if Assigned(NetHandle) then
-  begin
+  try
     UrlHandle := InternetOpenUrl(NetHandle, PChar(URL), nil, 0, INTERNET_FLAG_RELOAD, 0);
-
     if Assigned(UrlHandle) then
-      { UrlHandle valid? Proceed with download }
-    begin
-      FillChar(Buffer, SizeOf(Buffer), 0);
+    try
+      // 1. Try to get charset from HTTP Header
+      dwBufLen := SizeOf(szContentType);
+      if HttpQueryInfo(UrlHandle, HTTP_QUERY_CONTENT_TYPE, @szContentType, dwBufLen, dwBufLen) then
+        CharsetName := ExtractCharset(szContentType);
+
+      // 2. Download all bytes
       repeat
-        TextFromUrl := TextFromUrl + Buffer;
-        FillChar(Buffer, SizeOf(Buffer), 0);
-        InternetReadFile(UrlHandle, @Buffer, SizeOf(Buffer), BytesRead);
+        if InternetReadFile(UrlHandle, @Buffer, SizeOf(Buffer), BytesRead) and (BytesRead > 0) then
+        begin
+          SetLength(RawData, TotalBytes + BytesRead);
+          Move(Buffer[0], RawData[TotalBytes], BytesRead);
+          Inc(TotalBytes, BytesRead);
+        end;
       until BytesRead = 0;
+
+      if TotalBytes > 0 then
+      begin
+        // 3. Check for UTF-8 BOM (EF BB BF)
+        if (TotalBytes >= 3) and (RawData[0] = $EF) and (RawData[1] = $BB) and (RawData[2] = $BF) then
+        begin
+          Encoding := TEncoding.UTF8;
+          // Result string without the 3 BOM bytes
+          Self := Encoding.GetString(RawData, 3, TotalBytes - 3);
+          Exit;
+        end;
+
+        // 4. If no header, search in HTML body (first 2KB)
+        if CharsetName = '' then
+          CharsetName := ExtractCharset(TEncoding.ANSI.GetString(RawData, 0, Min(TotalBytes, 2048)));
+
+        // 5. Apply encoding
+        if CharsetName <> '' then
+        try
+          Encoding := TEncoding.GetEncoding(CharsetName);
+        except
+          Encoding := TEncoding.UTF8;
+        end;
+
+        if Encoding = nil then
+          Encoding := TEncoding.UTF8; // Final fallback
+
+        Self := Encoding.GetString(RawData);
+      end
+      else
+        Self := '';
+
+    finally
       InternetCloseHandle(UrlHandle);
     end
     else
-      { UrlHandle is not valid. Raise an exception. }
       raise Exception.CreateFmt('Cannot open URL %s', [URL]);
-
+  finally
     InternetCloseHandle(NetHandle);
-  end
-  else
-    { NetHandle is not valid. Raise an exception }
-    raise Exception.Create('Unable to initialize Wininet');
-
-  Self := TextFromUrl;
+  end;
 end;
 
 

@@ -16,7 +16,7 @@ uses
   {$ELSE} SysUtils, Classes, Generics.Collections, Rtti,
     Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls
   {$IFEND}, OLValidation, OLValidationTypes, OLTypesToEdits, OLColorType,
-  OLThreadRunner;
+  OLThreadRunner, TypInfo;
 
 type
   TRttiFieldHack = class(TRttiField);
@@ -2635,6 +2635,7 @@ type
       /// <summary>Replaces all occurrences of a substring with another string, utilizing replace flags.</summary>
       function Replace(const OldValue: string; const NewValue: string; ReplaceFlags:
           TReplaceFlags): string; overload;
+    function Replaced(const AFromText, AToText: string): string;
       /// <summary>Splits the string into an array of substrings based on characters separator.</summary>
       function Split(const Separator: array of Char): TArray<string>; overload;
       /// <summary>Splits the string into an array of substrings based on characters separator, limiting the number of substrings.</summary>
@@ -3064,7 +3065,8 @@ type
    /// </summary>
    TOLFormHelper = class helper for TForm
    private
-     function IsFieldOfRecord(const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
+     function IsFieldOfRecord(const ctx: TRttiContext; ATypeInfo: PTypeInfo;
+         DataPtr: Pointer; ParamPtr: Pointer): Boolean;
      procedure CollectAllControls(AControl: TControl; var Controls: TList<TControl>);
    public
      {$IF CompilerVersion >= 34.0}
@@ -3085,7 +3087,7 @@ type
 
 implementation
 
-uses TypInfo, Math,
+uses Math,
     {$IF CompilerVersion >= 23.0}
         System.Character, IntegerHelperFunctions, StringHelperFunctions,
         BooleanHelperFunctions, CurrencyHelperFunctions, DoubleHelperFunctions, Int64HelperFunctions;
@@ -3160,19 +3162,18 @@ end;
 
 { TOLFormHelper }
 
-function TOLFormHelper.IsFieldOfRecord(
-  const ctx: TRttiContext; const RecValue: TValue; ParamPtr: Pointer): Boolean;
+function TOLFormHelper.IsFieldOfRecord(const ctx: TRttiContext; ATypeInfo: PTypeInfo; DataPtr: Pointer; ParamPtr: Pointer): Boolean;
 var
+  RType: TRttiType;
   RecType: TRttiStructuredType;
   f: TRttiField;
-  FieldValue: TValue;
-  RType: TRttiType;
+  FieldAddr: Pointer;
   TK: TTypeKind;
 begin
   Result := False;
 
-  // Get RTTI type of the record
-  RType := ctx.GetType(RecValue.TypeInfo);
+  // Get RTTI type and ensure it is a structured type (record)
+  RType := ctx.GetType(ATypeInfo);
   if not (RType is TRttiStructuredType) then
     Exit;
 
@@ -3180,25 +3181,24 @@ begin
 
   for f in RecType.GetFields do
   begin
-    // 1. Compare direct field address
-    if GetFieldAddressHack(f, RecValue.GetReferenceToRawData) = ParamPtr then
+    // Calculate the actual memory address of the field
+    FieldAddr := Pointer(NativeInt(DataPtr) + f.Offset);
+
+    // 1. Check if the pointer matches the field address
+    if FieldAddr = ParamPtr then
       Exit(True);
 
-    FieldValue := f.GetValue(RecValue.GetReferenceToRawData);
-
-    // 2. Check field type (RTTI)
+    // 2. Check for nested records
     TK := f.FieldType.TypeKind;
 
     {$IF CompilerVersion >= 34.0}
-    // Delphi 10.4+ � handle Managed Records
     if (TK = tkRecord) or (TK = tkMRecord) then
     {$ELSE}
-    // Delphi XE..10.3 � only standard records
     if TK = tkRecord then
     {$IFEND}
     begin
-      // Recurse into nested record fields
-      if IsFieldOfRecord(ctx, FieldValue, ParamPtr) then
+      // Recurse using the actual field address to keep pointer consistency
+      if IsFieldOfRecord(ctx, f.FieldType.Handle, FieldAddr, ParamPtr) then
         Exit(True);
     end;
   end;
@@ -3210,8 +3210,8 @@ var
   ctx: TRttiContext;
   t: TRttiType;
   f: TRttiField;
-  FieldValue: TValue;
   ParamPtr: Pointer;
+  FieldAddr: Pointer;
   TK: TTypeKind;
 begin
   Result := False;
@@ -3223,13 +3223,14 @@ begin
 
   for f in t.GetFields do
   begin
+    // Calculate the absolute memory address of the field within the object instance
+    FieldAddr := Pointer(NativeInt(Self) + f.Offset);
+
     // 1. Compare direct field address
-    if GetFieldAddressHack(f, Self) = ParamPtr then
+    if FieldAddr = ParamPtr then
       Exit(True);
 
-    FieldValue := f.GetValue(Self);
-
-    // 2. Recurse into record fields
+    // 2. Recurse into record fields if necessary
     TK := f.FieldType.TypeKind;
 
     {$IF CompilerVersion >= 34.0}
@@ -3238,7 +3239,9 @@ begin
     if TK = tkRecord then
     {$IFEND}
     begin
-      if IsFieldOfRecord(ctx, FieldValue, ParamPtr) then
+      // Use the corrected function passing the exact memory address (FieldAddr)
+      // to avoid data copying via TValue
+      if IsFieldOfRecord(ctx, f.FieldType.Handle, FieldAddr, ParamPtr) then
         Exit(True);
     end;
   end;
@@ -8067,6 +8070,14 @@ var
 begin
   ol := Self;
   Result := ol.ReplacedFirst(AFromText, AToText);
+end;
+
+function TOLStringHelper.Replaced(const AFromText, AToText: string): string;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.Replaced(AFromText, AToText);
 end;
 
 function TOLStringHelper.ReplacedFirstText(const AFromText, AToText: string): string;
