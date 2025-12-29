@@ -2563,6 +2563,12 @@ type
       function IsDelimiter(const Delimiters: string; Index: Integer): Boolean;
       /// <summary>Checks if the string is empty.</summary>
       function IsEmpty: Boolean; inline;
+      /// <summary>Checks if the string contains JSON.</summary>
+      function IsJSON: OLBoolean;
+      /// <summary>Checks if the string contains XML.</summary>
+      function IsXML: OLBoolean;
+      /// <summary>Returns the string in a formatted (indented) way if it is JSON or XML.</summary>
+      function PrettyPrint: OLString;
       /// <summary>Checks if the string is null or empty.</summary>
       class function IsNullOrEmpty(const Value: string): Boolean; static; inline;
       /// <summary>Checks if the string is null, empty, or consists only of white-space characters.</summary>
@@ -8638,6 +8644,30 @@ end;
 function TOLStringHelper.IsEmpty: Boolean;
 begin
   Result := StringHelperFunctions.Instance_IsEmpty(Self);
+end;
+
+function TOLStringHelper.IsJSON: OLBoolean;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.IsJSON;
+end;
+
+function TOLStringHelper.IsXML: OLBoolean;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.IsXML;
+end;
+
+function TOLStringHelper.PrettyPrint: OLString;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.PrettyPrint;
 end;
 
 class function TOLStringHelper.IsNullOrEmpty(const Value: string): Boolean;

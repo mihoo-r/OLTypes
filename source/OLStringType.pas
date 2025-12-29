@@ -74,6 +74,8 @@ type
     procedure SetJSON(const JsonFieldName: string; const Value: OLString);
     function GetXML(const XPath: string): OLString;
     procedure SetXML(const XPath: string; const Value: OLString);
+    function JSONPrettyPrint: OLString;
+    function XMLPrettyPrint: OLString;
     {$IFEND}
     function GetHtmlUnicodeText: OLString;
     procedure SetHtmlUnicodeText(const Value: OLString);
@@ -128,6 +130,19 @@ type
     ///   Checks if the string is neither null nor empty.
     /// </summary>
     function NotNullNorEmpty(): OLBoolean;
+
+    /// <summary>
+    ///   Checks if the string contains JSON.
+    /// </summary>
+    function IsJSON: OLBoolean;
+    /// <summary>
+    ///   Checks if the string contains XML.
+    /// </summary>
+    function IsXML: OLBoolean;
+    /// <summary>
+    ///   Returns the string in a formatted (indented) way if it is JSON or XML.
+    /// </summary>
+    function PrettyPrint: OLString;
 
     /// <summary>
     ///   Gets the starting position of the line at the specified index.
@@ -869,7 +884,7 @@ type
   end;
 
 var
-  HtmlUnicodeTranslation: array [0..315] of THtmlUnicodeTranslation;
+  HtmlUnicodeTranslation: array [0..351] of THtmlUnicodeTranslation;
   UrlTranslation: array[0..160] of TUrlTranslation;
 
   EmptyStrAsDefaultValue: Boolean;
@@ -1407,6 +1422,44 @@ begin
   end;
 
   Result := OutPut;
+end;
+
+function OLString.IsJSON: OLBoolean;
+var
+  s: string;
+begin
+  if IsNull then Exit(Null);
+  s := System.SysUtils.Trim(FValue);
+  if s.Length < 2 then Exit(False);
+
+  Result := (((s[1] = '{') and (s[s.Length] = '}')) or
+             ((s[1] = '[') and (s[s.Length] = ']')));
+end;
+
+function OLString.IsXML: OLBoolean;
+var
+  s: string;
+begin
+  if IsNull then Exit(Null);
+  s := System.SysUtils.Trim(FValue);
+  if s.Length < 2 then Exit(False);
+
+  Result := (s[1] = '<') and (s[s.Length] = '>');
+end;
+
+function OLString.PrettyPrint: OLString;
+begin
+  if IsNull then Exit(Null);
+  {$IF CompilerVersion >= 27.0}
+  if IsJSON then
+    Result := JSONPrettyPrint
+  else if IsXML then
+    Result := XMLPrettyPrint
+  else
+    Result := Self;
+  {$ELSE}
+  Result := Self;
+  {$IFEND}
 end;
 
 {$IF CompilerVersion >= 27.0}
@@ -3174,10 +3227,111 @@ begin
     end;
   end;
 
-  XMLDoc.Options := XMLDoc.Options + [doNodeAutoIndent];
   Self.FValue := XMLDoc.XML.Text;
   Self.ValuePresent := True;
   TurnDefaultValueFlagOff();
+end;
+
+function OLString.JSONPrettyPrint: OLString;
+var
+  i, IndentLevel: Integer;
+  c: Char;
+  InString, Escape: Boolean;
+  OutPut: string;
+  s: string;
+
+  procedure AddIndent;
+  begin
+    OutPut := OutPut + StringOfChar(' ', IndentLevel * 2);
+  end;
+
+  procedure AddNewLine;
+  begin
+    OutPut := OutPut + sLineBreak;
+  end;
+
+begin
+  if IsNull then Exit(Null);
+  s := System.SysUtils.Trim(FValue);
+  if s = '' then Exit('');
+
+  OutPut := '';
+  IndentLevel := 0;
+  InString := False;
+  Escape := False;
+
+  for i := 1 to s.Length do
+  begin
+    c := s[i];
+
+    if InString then
+    begin
+      OutPut := OutPut + c;
+      if Escape then
+        Escape := False
+      else if c = '\' then
+        Escape := True
+      else if c = '"' then
+        InString := False;
+    end
+    else
+    begin
+      case c of
+        '{', '[':
+          begin
+            OutPut := OutPut + c;
+            AddNewLine;
+            Inc(IndentLevel);
+            AddIndent;
+          end;
+        '}', ']':
+          begin
+            AddNewLine;
+            Dec(IndentLevel);
+            if IndentLevel < 0 then IndentLevel := 0;
+            AddIndent;
+            OutPut := OutPut + c;
+          end;
+        ',':
+          begin
+            OutPut := OutPut + c;
+            AddNewLine;
+            AddIndent;
+          end;
+        ':':
+          begin
+            OutPut := OutPut + c + ' ';
+          end;
+        ' ', #9, #10, #13: ; // Skip whitespace
+        '"':
+          begin
+            InString := True;
+            OutPut := OutPut + c;
+          end;
+        else
+          OutPut := OutPut + c;
+      end;
+    end;
+  end;
+  Result := OutPut;
+end;
+
+function OLString.XMLPrettyPrint: OLString;
+var
+  XMLDoc: IXMLDocument;
+begin
+  if IsNull then Exit(Null);
+  if FValue = '' then Exit('');
+
+  try
+    XMLDoc := NewXMLDocument;
+    XMLDoc.LoadFromXML(FValue);
+    XMLDoc.Options := XMLDoc.Options + [doNodeAutoIndent];
+    Result := XMLDoc.XML.Text;
+    Result := Result.Replaced(#9, '  ');
+  except
+    Result := Self;
+  end;
 end;
 {$IFEND}
 
@@ -4736,6 +4890,42 @@ initialization
   HtmlUnicodeTranslation[313].UnicodeChar := '♣';	HtmlUnicodeTranslation[313].NumericalCode := '&#9827;';	HtmlUnicodeTranslation[313].LiteralCode := '&clubs;';
   HtmlUnicodeTranslation[314].UnicodeChar := '♥';	HtmlUnicodeTranslation[314].NumericalCode := '&#9829;';	HtmlUnicodeTranslation[314].LiteralCode := '&hearts;';
   HtmlUnicodeTranslation[315].UnicodeChar := '♦';	HtmlUnicodeTranslation[315].NumericalCode := '&#9830;';	HtmlUnicodeTranslation[315].LiteralCode := '&diams;';
+  HtmlUnicodeTranslation[316].UnicodeChar := '''';	HtmlUnicodeTranslation[316].NumericalCode := '&#x27;';
+  HtmlUnicodeTranslation[317].UnicodeChar := '%';	HtmlUnicodeTranslation[317].NumericalCode := '&#x25;';
+  HtmlUnicodeTranslation[318].UnicodeChar := '!';	HtmlUnicodeTranslation[318].NumericalCode := '&#x21;';
+  HtmlUnicodeTranslation[319].UnicodeChar := '"';	HtmlUnicodeTranslation[319].NumericalCode := '&#x22;';
+  HtmlUnicodeTranslation[320].UnicodeChar := '#';	HtmlUnicodeTranslation[320].NumericalCode := '&#x23;';
+  HtmlUnicodeTranslation[321].UnicodeChar := '$';	HtmlUnicodeTranslation[321].NumericalCode := '&#x24;';
+  HtmlUnicodeTranslation[322].UnicodeChar := ' ';	HtmlUnicodeTranslation[322].NumericalCode := '&#x20;';
+  HtmlUnicodeTranslation[323].UnicodeChar := '&';	HtmlUnicodeTranslation[323].NumericalCode := '&#x26;';
+  HtmlUnicodeTranslation[324].UnicodeChar := '(';	HtmlUnicodeTranslation[324].NumericalCode := '&#x28;';
+  HtmlUnicodeTranslation[325].UnicodeChar := ')';	HtmlUnicodeTranslation[325].NumericalCode := '&#x29;';
+  HtmlUnicodeTranslation[326].UnicodeChar := '*';	HtmlUnicodeTranslation[326].NumericalCode := '&#x2A;';
+  HtmlUnicodeTranslation[327].UnicodeChar := '+';	HtmlUnicodeTranslation[327].NumericalCode := '&#x2B;';
+  HtmlUnicodeTranslation[328].UnicodeChar := ',';	HtmlUnicodeTranslation[328].NumericalCode := '&#x2C;';
+  HtmlUnicodeTranslation[329].UnicodeChar := '-';	HtmlUnicodeTranslation[329].NumericalCode := '&#x2D;';
+  HtmlUnicodeTranslation[330].UnicodeChar := '.';	HtmlUnicodeTranslation[330].NumericalCode := '&#x2E;';
+  HtmlUnicodeTranslation[331].UnicodeChar := '/';	HtmlUnicodeTranslation[331].NumericalCode := '&#x2F;';
+  HtmlUnicodeTranslation[332].UnicodeChar := ':';	HtmlUnicodeTranslation[332].NumericalCode := '&#x3A;';
+  HtmlUnicodeTranslation[333].UnicodeChar := '<';	HtmlUnicodeTranslation[333].NumericalCode := '&#x3C;';
+  HtmlUnicodeTranslation[334].UnicodeChar := '=';	HtmlUnicodeTranslation[334].NumericalCode := '&#x3D;';
+  HtmlUnicodeTranslation[335].UnicodeChar := '>';	HtmlUnicodeTranslation[335].NumericalCode := '&#x3E;';
+  HtmlUnicodeTranslation[336].UnicodeChar := '?';	HtmlUnicodeTranslation[336].NumericalCode := '&#x3F;';
+  HtmlUnicodeTranslation[337].UnicodeChar := '@';	HtmlUnicodeTranslation[337].NumericalCode := '&#x40;';
+  HtmlUnicodeTranslation[338].UnicodeChar := '[';	HtmlUnicodeTranslation[338].NumericalCode := '&#x5B;';
+  HtmlUnicodeTranslation[339].UnicodeChar := '\';	HtmlUnicodeTranslation[339].NumericalCode := '&#x5C;';
+  HtmlUnicodeTranslation[340].UnicodeChar := ']';	HtmlUnicodeTranslation[340].NumericalCode := '&#x5D;';
+  HtmlUnicodeTranslation[341].UnicodeChar := '^';	HtmlUnicodeTranslation[341].NumericalCode := '&#x5E;';
+  HtmlUnicodeTranslation[342].UnicodeChar := '_';	HtmlUnicodeTranslation[342].NumericalCode := '&#x5F;';
+  HtmlUnicodeTranslation[343].UnicodeChar := '`';	HtmlUnicodeTranslation[343].NumericalCode := '&#x60;';
+  HtmlUnicodeTranslation[344].UnicodeChar := '{';	HtmlUnicodeTranslation[344].NumericalCode := '&#x7B;';
+  HtmlUnicodeTranslation[345].UnicodeChar := '|';	HtmlUnicodeTranslation[345].NumericalCode := '&#x7C;';
+  HtmlUnicodeTranslation[346].UnicodeChar := '}';	HtmlUnicodeTranslation[346].NumericalCode := '&#x7D;';
+  HtmlUnicodeTranslation[347].UnicodeChar := '~';	HtmlUnicodeTranslation[347].NumericalCode := '&#x7E;';
+  HtmlUnicodeTranslation[348].UnicodeChar := ' ';	HtmlUnicodeTranslation[348].NumericalCode := '&#x7F;';
+  HtmlUnicodeTranslation[349].UnicodeChar := ' ';	HtmlUnicodeTranslation[349].NumericalCode := '&#x81;';
+  HtmlUnicodeTranslation[350].UnicodeChar := ' ';	HtmlUnicodeTranslation[350].NumericalCode := '&#x8F;';
+  HtmlUnicodeTranslation[351].UnicodeChar := ' ';	HtmlUnicodeTranslation[351].NumericalCode := '&#x9D;';
 
 
   UrlTranslation[0].UnicodeChar := '%'; UrlTranslation[0].Translation := '%25'; //Must be first
