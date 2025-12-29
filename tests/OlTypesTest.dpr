@@ -24,6 +24,7 @@ uses
   Test_NullPropagation in 'Test_NullPropagation.pas',
   TestOLArrays in 'TestOLArrays.pas',
   Test_OLTypesToEdits in 'Test_OLTypesToEdits.pas',
+  Test_RecordLink in 'Test_RecordLink.pas',
   OLBooleanType in '..\source\OLBooleanType.pas',
   OLCurrencyType in '..\source\OLCurrencyType.pas',
   OLDateTimeType in '..\source\OLDateTimeType.pas',
