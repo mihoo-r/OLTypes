@@ -1171,7 +1171,7 @@ var
     LTxt: string;
   begin
     Result := '';
-    LTxt := System.SysUtils.LowerCase(Text);
+    LTxt := SysUtils.LowerCase(Text);
     P := System.Pos('charset=', LTxt);
     if P > 0 then
     begin
@@ -1232,7 +1232,11 @@ begin
 
         // 4. If no header, search in HTML body (first 2KB)
         if CharsetName = '' then
+        {$IF CompilerVersion >= 24.0} // Delphi XE3+
           CharsetName := ExtractCharset(TEncoding.ANSI.GetString(RawData, 0, Min(TotalBytes, 2048)));
+        {$ELSE} // Versions older than Delphi XE3
+          CharsetName := ExtractCharset(TEncoding.Default.GetString(RawData, 0, Min(TotalBytes, 2048)));
+        {$IFEND}
 
         // 5. Apply encoding
         if CharsetName <> '' then
@@ -1452,13 +1456,13 @@ begin
     XMLDoc := NewXMLDocument;
     XMLDoc.LoadFromXML(Self.FValue);
     XMLDoc.Active := True;
-    
+
     CurrNode := nil;
     if XPath.StartsWith('/') then
       Parts := XPath.Substring(1).Split(['/'])
     else
       Parts := XPath.Split(['/']);
-    
+
     for i := 0 to High(Parts) do
     begin
       Part := Parts[i];
