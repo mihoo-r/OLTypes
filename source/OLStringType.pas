@@ -3319,6 +3319,101 @@ end;
 function OLString.XMLPrettyPrint: OLString;
 var
   XMLDoc: IXMLDocument;
+  sb: TStringBuilder;
+
+  function GetIndent(Level: Integer): string;
+  begin
+    Result := StringOfChar(' ', Level * 2);
+  end;
+
+  procedure ProcessNode(Node: IXMLNode; Level: Integer; sb: TStringBuilder);
+  var
+    i: Integer;
+    Child: IXMLNode;
+    HasElemChildren: Boolean;
+  begin
+    // Add indentation
+    sb.Append(GetIndent(Level));
+
+    // Open tag
+    sb.Append('<');
+    sb.Append(Node.NodeName);
+
+    // Attributes
+    if Node.AttributeNodes <> nil then
+    begin
+      for i := 0 to Node.AttributeNodes.Count - 1 do
+      begin
+        sb.Append(' ');
+        sb.Append(Node.AttributeNodes[i].NodeName);
+        sb.Append('="');
+        sb.Append(VarToStr(Node.AttributeNodes[i].NodeValue));
+        sb.Append('"');
+      end;
+    end;
+
+    // Check for children
+    if Node.ChildNodes.Count = 0 then
+    begin
+      sb.Append('/>');
+      sb.Append(sLineBreak);
+      Exit;
+    end;
+
+    // Check if children are only text
+    HasElemChildren := False;
+    for i := 0 to Node.ChildNodes.Count - 1 do
+    begin
+      if Node.ChildNodes[i].NodeType = ntElement then
+      begin
+        HasElemChildren := True;
+        Break;
+      end;
+    end;
+
+    if not HasElemChildren then
+    begin
+      // Text content only
+      sb.Append('>');
+      
+      // Get text content
+      if not VarIsNull(Node.NodeValue) then
+        sb.Append(VarToStr(Node.NodeValue));
+        
+      // Also check child text nodes which some DOMs use exclusively
+      for i := 0 to Node.ChildNodes.Count - 1 do
+      begin
+        if (Node.ChildNodes[i].NodeType = ntText) or (Node.ChildNodes[i].NodeType = ntCData) then
+        begin
+           if not VarIsNull(Node.ChildNodes[i].NodeValue) then
+             sb.Append(VarToStr(Node.ChildNodes[i].NodeValue));
+        end;
+      end;
+
+      sb.Append('</');
+      sb.Append(Node.NodeName);
+      sb.Append('>');
+      sb.Append(sLineBreak);
+    end
+    else
+    begin
+      // Has element children
+      sb.Append('>');
+      sb.Append(sLineBreak);
+      for i := 0 to Node.ChildNodes.Count - 1 do
+      begin
+        Child := Node.ChildNodes[i];
+        if Child.NodeType = ntElement then
+          ProcessNode(Child, Level + 1, sb);
+      end;
+      sb.Append(GetIndent(Level));
+      sb.Append('</');
+      sb.Append(Node.NodeName);
+      sb.Append('>');
+      sb.Append(sLineBreak);
+    end;
+  end;
+
 begin
   if IsNull then Exit(Null);
   if FValue = '' then Exit('');
@@ -3326,9 +3421,21 @@ begin
   try
     XMLDoc := NewXMLDocument;
     XMLDoc.LoadFromXML(FValue);
-    XMLDoc.Options := XMLDoc.Options + [doNodeAutoIndent];
-    Result := XMLDoc.XML.Text;
-    Result := Result.Replaced(#9, '  ');
+    XMLDoc.Active := True;
+
+    sb := TStringBuilder.Create;
+    try
+      if XMLDoc.DocumentElement <> nil then
+        ProcessNode(XMLDoc.DocumentElement, 0, sb);
+
+      // Trim last line break
+      if sb.Length >= System.Length(sLineBreak) then
+        sb.Length := sb.Length - System.Length(sLineBreak);
+
+      Result := sb.ToString;
+    finally
+      sb.Free;
+    end;
   except
     Result := Self;
   end;

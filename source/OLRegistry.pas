@@ -13,6 +13,7 @@ type
   public
     class property Settings[const SettingsName: string]: OLString read
         GetSettingsName write SetSettingsName;
+    class procedure ClearSettings; static;
   end;
 
 implementation
@@ -37,6 +38,14 @@ end;
 class procedure TOLRegistry.SetSettingsName(const SettingsName: string; const Value: OLString);
 begin
   reg.WriteString(SettingsName, Value.ToString());
+end;
+
+class procedure TOLRegistry.ClearSettings;
+begin
+  reg.CloseKey;
+  reg.DeleteKey(TOLRegistry.KeyName());
+  // Re-open key so subsequent saves work
+  reg.OpenKey(TOLRegistry.KeyName(), True);
 end;
 
 initialization

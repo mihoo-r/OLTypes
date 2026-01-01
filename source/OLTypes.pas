@@ -87,6 +87,31 @@ type
   OLStrCurrDictionary = OLDictionaries.OLStrCurrDictionary;
   OLIntDateDictionary = OLDictionaries.OLIntDateDictionary;
   OLStrDblDictionary = OLDictionaries.OLStrDblDictionary;
+  OLDictionary<K, V> = record
+  private
+    FEngine: OLDictionaries.OLGenericDictionary<K, V>;
+    function GetValue(const Key: K): V;
+    procedure SetValue(const Key: K; const Value: V);
+    function GetKeys: TArray<K>;
+  public
+    {$IF CompilerVersion >= 31.0}
+    class operator Assign(var Dest: OLDictionary<K, V>; const [ref] Src: OLDictionary<K, V>);
+    {$ELSE}
+    class operator Assign(var Dest: OLDictionary<K, V>; const Src: OLDictionary<K, V>);
+    {$IFEND}
+
+    procedure Clear;
+    procedure Add(const Key: K; const Value: V);
+    function Remove(const Key: K): OLBoolean;
+    function TryGetValue(const Key: K; out Value: V): OLBoolean;
+    function ContainsKey(const Key: K): OLBoolean;
+    function Count: Integer;
+    function GetEnumerator: TDictionary<K, V>.TPairEnumerator;
+    function ToArray: TArray<TPair<K, V>>;
+
+    property Values[const Key: K]: V read GetValue write SetValue; default;
+    property Keys: TArray<K> read GetKeys;
+  end;
   {$IFEND}
 
   TStringPatternFind = OLStringType.TStringPatternFind;
@@ -9121,5 +9146,73 @@ end;
 {$IFEND}
 
 {$IFEND}     //CompilerVersion >= 24.0
+
+{$IF CompilerVersion >= 34.0}
+{ OLDictionary<K, V> }
+
+{$IF CompilerVersion >= 31.0}
+class operator OLDictionary<K, V>.Assign(var Dest: OLDictionary<K, V>; const [ref] Src: OLDictionary<K, V>);
+{$ELSE}
+class operator OLDictionary<K, V>.Assign(var Dest: OLDictionary<K, V>; const Src: OLDictionary<K, V>);
+{$IFEND}
+begin
+  Dest.FEngine := Src.FEngine;
+end;
+
+procedure OLDictionary<K, V>.Clear;
+begin
+  FEngine.Clear;
+end;
+
+procedure OLDictionary<K, V>.Add(const Key: K; const Value: V);
+begin
+  FEngine.Add(Key, Value);
+end;
+
+function OLDictionary<K, V>.Remove(const Key: K): OLBoolean;
+begin
+  Result := FEngine.Remove(Key);
+end;
+
+function OLDictionary<K, V>.TryGetValue(const Key: K; out Value: V): OLBoolean;
+begin
+  Result := FEngine.TryGetValue(Key, Value);
+end;
+
+function OLDictionary<K, V>.ContainsKey(const Key: K): OLBoolean;
+begin
+  Result := FEngine.ContainsKey(Key);
+end;
+
+function OLDictionary<K, V>.Count: Integer;
+begin
+  Result := FEngine.Count;
+end;
+
+function OLDictionary<K, V>.GetEnumerator: TDictionary<K, V>.TPairEnumerator;
+begin
+  Result := FEngine.GetEnumerator;
+end;
+
+function OLDictionary<K, V>.ToArray: TArray<TPair<K, V>>;
+begin
+  Result := FEngine.ToArray;
+end;
+
+function OLDictionary<K, V>.GetValue(const Key: K): V;
+begin
+  Result := FEngine.Values[Key];
+end;
+
+procedure OLDictionary<K, V>.SetValue(const Key: K; const Value: V);
+begin
+  FEngine.Values[Key] := Value;
+end;
+
+function OLDictionary<K, V>.GetKeys: TArray<K>;
+begin
+  Result := FEngine.Keys;
+end;
+{$IFEND}
 
 end.
