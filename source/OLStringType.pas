@@ -48,7 +48,7 @@ type
     {$ELSE}
     FHasValue: string;
     {$IFEND}
-    DefaultValueFlag: string;
+
 
     ValBeforeParams: string;
     Parameters: array of OLStringParamPair;
@@ -74,9 +74,9 @@ type
     procedure SetJSON(const JsonFieldName: string; const Value: OLString);
     function GetXML(const XPath: string): OLString;
     procedure SetXML(const XPath: string; const Value: OLString);
+    {$IFEND}
     function JSONPrettyPrint: OLString;
     function XMLPrettyPrint: OLString;
-    {$IFEND}
     function GetHtmlUnicodeText: OLString;
     procedure SetHtmlUnicodeText(const Value: OLString);
     function GetBase64: OLString;
@@ -91,8 +91,6 @@ type
 
     function GetCharAtIndex(const Index: integer): Char;
     procedure SetCharAtIndex(const Index: integer; const Value: Char);
-    procedure TurnDefaultValueFlagOff();
-
     /// <summary>
     ///   Gets or sets the string value.
     /// </summary>
@@ -782,10 +780,7 @@ type
     function CSVFieldByName(const FieldName: OLString; const RowIndex: Integer = 1):
         OLString;
 
-    /// <summary>
-    ///   Sets the default value behavior to use empty string for null.
-    /// </summary>
-    class procedure SetNullAsDefault(); static;
+
 
     /// <summary>
     ///   Gets or sets the Base64 encoded representation of the string.
@@ -858,9 +853,7 @@ uses
   {$IF CompilerVersion >= 23.0} System.ZLib, {$ELSE} ZLib, {$IFEND}
   IdHTTP,
   {$IF CompilerVersion >= 27.0} System.JSON, {$IFEND}
-  {$IF CompilerVersion >= 27.0}
-    {$IF CompilerVersion >= 23.0} Xml.XMLDoc, Xml.XMLIntf, Xml.xmldom, {$ELSE} XMLDoc, XMLIntf, xmldom, {$IFEND}
-  {$IFEND}
+  {$IF CompilerVersion >= 23.0} Xml.XMLDoc, Xml.XMLIntf, Xml.xmldom, {$ELSE} XMLDoc, XMLIntf, xmldom, {$IFEND}
   {$IF CompilerVersion = 22.0} RegularExpressions; {$IFEND} //XE
   {$IF CompilerVersion >= 23.0} System.RegularExpressions; {$IFEND} //XE2 +
 
@@ -887,8 +880,7 @@ var
   HtmlUnicodeTranslation: array [0..351] of THtmlUnicodeTranslation;
   UrlTranslation: array[0..160] of TUrlTranslation;
 
-  EmptyStrAsDefaultValue: Boolean;
-  AllowToSetEmptyStrAsDefaultValue: Boolean;
+
 
 class operator OLString.Add(const a, b: OLString): OLString;
 var
@@ -936,8 +928,6 @@ end;
 
 class operator OLString.Equal(const a, b: OLString): Boolean;
 begin
-  AllowToSetEmptyStrAsDefaultValue := False;
-
   Result :=  ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
@@ -1283,9 +1273,9 @@ end;
 function OLString.GetHasValue: OLBoolean;
 begin
   {$IF CompilerVersion >= 34.0}
-  Result := FHasValue or ((DefaultValueFlag = EmptyStr) and EmptyStrAsDefaultValue);
+  Result := FHasValue;
   {$ELSE}
-  Result := (FHasValue = ' ') or ((DefaultValueFlag = EmptyStr) and EmptyStrAsDefaultValue);
+  Result := (FHasValue = '');
   {$IFEND}
 end;
 
@@ -1429,11 +1419,11 @@ var
   s: string;
 begin
   if IsNull then Exit(Null);
-  s := System.SysUtils.Trim(FValue);
-  if s.Length < 2 then Exit(False);
+  s := SysUtils.Trim(FValue);
+  if System.Length(s) < 2 then Exit(False);
 
-  Result := (((s[1] = '{') and (s[s.Length] = '}')) or
-             ((s[1] = '[') and (s[s.Length] = ']')));
+  Result := (((s[1] = '{') and (s[System.Length(s)] = '}')) or
+             ((s[1] = '[') and (s[System.Length(s)] = ']')));
 end;
 
 function OLString.IsXML: OLBoolean;
@@ -1441,25 +1431,32 @@ var
   s: string;
 begin
   if IsNull then Exit(Null);
-  s := System.SysUtils.Trim(FValue);
-  if s.Length < 2 then Exit(False);
+  s := SysUtils.Trim(FValue);
+  if System.Length(s) < 2 then Exit(False);
 
-  Result := (s[1] = '<') and (s[s.Length] = '>');
+  Result := (s[1] = '<') and (s[System.Length(s)] = '>');
 end;
 
 function OLString.PrettyPrint: OLString;
 begin
   if IsNull then Exit(Null);
-  {$IF CompilerVersion >= 27.0}
+//  {$IF CompilerVersion >= 27.0}
+//  if IsJSON then
+//    Result := JSONPrettyPrint
+//  else if IsXML then
+//    Result := XMLPrettyPrint
+//  else
+//    Result := Self;
+//  {$ELSE}
+//  Result := Self;
+//  {$IFEND}
+
   if IsJSON then
     Result := JSONPrettyPrint
   else if IsXML then
     Result := XMLPrettyPrint
   else
     Result := Self;
-  {$ELSE}
-  Result := Self;
-  {$IFEND}
 end;
 
 {$IF CompilerVersion >= 27.0}
@@ -1672,15 +1669,11 @@ end;
 
 class operator OLString.GreaterThan(const a, b: OLString): Boolean;
 begin
-  AllowToSetEmptyStrAsDefaultValue := False;
-
   Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLString.GreaterThanOrEqual(const a, b: OLString): Boolean;
 begin
-  AllowToSetEmptyStrAsDefaultValue := False;
-
   Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
@@ -1734,8 +1727,6 @@ begin
   OutPut.Value := a;
   OutPut.ValuePresent := True;
 
-  AllowToSetEmptyStrAsDefaultValue := False;
-
   Result := OutPut;
 end;
 
@@ -1749,8 +1740,6 @@ begin
     raise Exception.Create('Null cannot be used as string value')
   else
     OutPut := a.FValue;
-
-  AllowToSetEmptyStrAsDefaultValue := False;
 
   Result := OutPut;
 end;
@@ -1793,8 +1782,6 @@ begin
     OutPut.Value := VarToStr(a);
     OutPut.ValuePresent := True;
   end;
-
-  AllowToSetEmptyStrAsDefaultValue := False;
 
   Result := OutPut;
 end;
@@ -1961,15 +1948,11 @@ end;
 
 class operator OLString.LessThan(const a, b: OLString): Boolean;
 begin
-  AllowToSetEmptyStrAsDefaultValue := False;
-
   Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLString.LessThanOrEqual(const a, b: OLString): Boolean;
 begin
-  AllowToSetEmptyStrAsDefaultValue := False;
-
   Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
@@ -2356,8 +2339,6 @@ end;
 
 class operator OLString.NotEqual(const a, b: OLString): Boolean;
 begin
-  AllowToSetEmptyStrAsDefaultValue := False;
-
   Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
@@ -2781,14 +2762,14 @@ begin
   {$IF CompilerVersion >= 34.0}
   FHasValue := Value;
   {$ELSE}
-  FHasValue := Value.IfThen(' ', '');
+  FHasValue := Value.IfThen('', ' ');
   {$IFEND}
 end;
 
 {$IF CompilerVersion >= 34.0}
 class operator OLString.Initialize(out Dest: OLString);
 begin
-  Dest.FHasValue := False;
+  Dest.FHasValue := true;
   Dest.FOnChange := nil;
 end;
 
@@ -2800,7 +2781,6 @@ class operator OLString.Assign(var Dest: OLString; const Src: OLString);
 begin
   Dest.FValue := Src.FValue;
   Dest.FHasValue := Src.FHasValue;
-  Dest.DefaultValueFlag := Src.DefaultValueFlag;
   Dest.ValBeforeParams := Src.ValBeforeParams;
   Dest.Parameters := Src.Parameters;
 
@@ -2888,13 +2868,7 @@ begin
   Self.FValue := OldVal;
 end;
 
-class procedure OLString.SetNullAsDefault;
-begin
-  if not AllowToSetEmptyStrAsDefaultValue then
-    raise Exception.Create('The default value of OLString type cannot be changed after a variable of this type had been used.');
 
-  EmptyStrAsDefaultValue := False;
-end;
 
 procedure OLString.SetParam(const ParamName: string; const Value: OLString);
 var
@@ -3229,8 +3203,10 @@ begin
 
   Self.FValue := XMLDoc.XML.Text;
   Self.ValuePresent := True;
-  TurnDefaultValueFlagOff();
 end;
+
+
+{$IFEND}
 
 function OLString.JSONPrettyPrint: OLString;
 var
@@ -3252,7 +3228,7 @@ var
 
 begin
   if IsNull then Exit(Null);
-  s := System.SysUtils.Trim(FValue);
+  s := SysUtils.Trim(FValue);
   if s = '' then Exit('');
 
   OutPut := '';
@@ -3260,7 +3236,7 @@ begin
   InString := False;
   Escape := False;
 
-  for i := 1 to s.Length do
+  for i := 1 to System.Length(s) do
   begin
     c := s[i];
 
@@ -3375,11 +3351,11 @@ var
     begin
       // Text content only
       sb.Append('>');
-      
+
       // Get text content
       if not VarIsNull(Node.NodeValue) then
         sb.Append(VarToStr(Node.NodeValue));
-        
+
       // Also check child text nodes which some DOMs use exclusively
       for i := 0 to Node.ChildNodes.Count - 1 do
       begin
@@ -3440,7 +3416,6 @@ begin
     Result := Self;
   end;
 end;
-{$IFEND}
 
 procedure OLString.SetUrlEncodedText(const Value: OLString);
 var
@@ -3558,7 +3533,6 @@ end;
 procedure OLString.SetValue(const Value: string);
 begin
   Self.FValue := Value;
-  Self.TurnDefaultValueFlagOff();
   {$IF CompilerVersion >= 34.0}
   if Assigned(FOnChange) then
     FOnChange(nil);
@@ -3997,11 +3971,6 @@ begin
     Exit(Null);
 
   Result := SysUtils.TryStrToInt64(Self, i);
-end;
-
-procedure OLString.TurnDefaultValueFlagOff;
-begin
-  Self.DefaultValueFlag := NonEmptyStr;
 end;
 
 function OLString.TryToInt64: OLBoolean;
@@ -4596,7 +4565,7 @@ begin
   else
     OutPut := Null;
 
-  AllowToSetEmptyStrAsDefaultValue := False;
+
 
   Result := OutPut;
 end;
@@ -5195,8 +5164,4 @@ initialization
   UrlTranslation[157].UnicodeChar := 'ý'; UrlTranslation[157].Translation := '%C3%BD';
   UrlTranslation[158].UnicodeChar := 'þ'; UrlTranslation[158].Translation := '%C3%BE';
   UrlTranslation[159].UnicodeChar := 'ÿ'; UrlTranslation[159].Translation := '%C3%BF';
-
-  EmptyStrAsDefaultValue := true;
-  AllowToSetEmptyStrAsDefaultValue := true;
-
 end.

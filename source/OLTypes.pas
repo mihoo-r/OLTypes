@@ -2421,11 +2421,6 @@ type
      /// </summary>
      class function RandomFrom(const AValues: array of string): string; static;
      /// <summary>
-     ///   Sets null as the default value for strings.
-     /// </summary>
-     class procedure SetNullAsDefault(); static;
-
-     /// <summary>
      ///   Gets or sets the HTML Unicode text representation of the string.
      /// </summary>
      property HtmlUnicodeText: string read GetHtmlUnicodeText write SetHtmlUnicodeText;
@@ -8542,11 +8537,6 @@ end;
 class function TOLStringHelper.RandomFrom(const AValues: array of string): string;
 begin
   Result := OLString.RandomFrom(AValues);
-end;
-
-class procedure TOLStringHelper.SetNullAsDefault();
-begin
-  OLString.SetNullAsDefault();
 end;
 
 {$IF CompilerVersion >= 27.0}
