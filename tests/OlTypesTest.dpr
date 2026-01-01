@@ -22,6 +22,7 @@ uses
   Test_OlTypes in 'Test_OlTypes.pas',
   Test_Helpers in 'Test_Helpers.pas',
   Test_NullPropagation in 'Test_NullPropagation.pas',
+  TestOLRegistry in 'TestOLRegistry.pas',
   TestOLArrays in 'TestOLArrays.pas',
   Test_OLTypesToEdits in 'Test_OLTypesToEdits.pas',
   Test_RecordLink in 'Test_RecordLink.pas',
@@ -40,9 +41,11 @@ uses
   Test_FluentValidation in 'Test_FluentValidation.pas',
   Test_OLStringXML in 'Test_OLStringXML.pas',
   Test_PrettyPrint in 'Test_PrettyPrint.pas',
+  TestOLDictionaryWrapper in 'TestOLDictionaryWrapper.pas',
   OLDictionaries in '..\source\OLDictionaries.pas',
   OLArrays in '..\source\OLArrays.pas',
-  OLInt64Type in '..\source\OLInt64Type.pas';
+  OLInt64Type in '..\source\OLInt64Type.pas',
+  OLRegistry in '..\source\OLRegistry.pas';
 
 {$R *.RES}
 
