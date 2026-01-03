@@ -3,7 +3,7 @@ unit OLInt64Type;
 interface
 
 uses
-  variants, SysUtils, OLBooleanType, OLDoubleType, OLIntegerType;
+  variants, SysUtils, OLBooleanType, OLDoubleType, OLIntegerType, OLCurrencyType;
 
 type
   /// <summary>
@@ -11,7 +11,7 @@ type
   /// </summary>
   OLInt64 = record
   private
-    Value: Int64;
+    FValue: Int64;
     {$IF CompilerVersion >= 34.0}
     FHasValue: Boolean;
     {$ELSE}
@@ -104,6 +104,10 @@ type
     /// </summary>
     function IfNull(i: OLInt64): OLInt64;
     /// <summary>
+    ///   Returns the Int64 value, or a replacement value if null.
+    /// </summary>
+    function AsInt64(const NullReplacement: Int64 = 0): Int64;
+    /// <summary>
     ///   Rounds the Int64 to the specified number of digits.
     ///   A parameter value of one rounds to the nearest ten.
     ///   A parameter value of two rounds to the nearest hundred, and so on
@@ -125,6 +129,11 @@ type
     ///   Returns the Int64 with the value replaced if it matches FromValue.
     /// </summary>
     function Replaced(FromValue: OLInt64; ToValue: OLInt64): OLInt64;
+
+    /// <summary>
+    ///   Decrements the Int64 by the specified value.
+    /// </summary>
+    procedure Dec(const Decrement: Int64 = 1);
 
     /// <summary>
     ///   Converts the Int64 to a string representation in the specified base.
@@ -176,16 +185,36 @@ type
     procedure SetRandomPrime(MaxValue:Int64 = MaxInt); overload;
 
     class operator Add(a, b: OLInt64): OLInt64;
-    class operator Subtract(a, b: OLInt64): OLInt64;
+    class operator Add(const a: OLInt64; const b: integer): OLInt64;
+    class operator Add(const a: integer; const b: OLInt64): OLInt64;
+    class operator Add(const a: OLInt64; const b: OLInteger): OLInt64;
+    class operator Add(const a: OLInteger; const b: OLInt64): OLInt64;
+    class operator Subtract(const a, b: OLInt64): OLInt64;
+    class operator Subtract(const a: OLInt64; const b: OLCurrency): OLCurrency;
+    class operator Subtract(const a: OLCurrency; const b: OLInt64): OLCurrency;
+    class operator Subtract(const a: OLInt64; const b: Integer): OLCurrency;
+    class operator Subtract(const a: Integer; const b: OLInt64): OLCurrency;
+    class operator Subtract(const a: OLInt64; const b: OLInteger): OLCurrency;
+    class operator Subtract(const a: OLInteger; const b: OLInt64): OLCurrency;
     class operator Multiply(a, b: OLInt64): OLInt64;
+    class operator BitwiseAnd(const a, b: OLInt64): OLInt64;
+    class operator BitwiseOr(const a, b: OLInt64): OLInt64;
+    class operator BitwiseXor(const a, b: OLInt64): OLInt64;
+    class operator LogicalNot(const a: OLInt64): OLInt64;
+    class operator Multiply(a: OLInteger; b: OLInt64): OLInt64;
+    class operator Multiply(a: OLInt64; b: OLInteger): OLInt64;
+    class operator Multiply(a: OLCurrency; b: OLInt64): OLCurrency;
+    class operator Multiply(a: OLInt64; b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLInt64; const b: integer): OLInt64;
+    class operator Multiply(const a: integer; const b: OLInt64): OLInt64;
     class operator IntDivide(a, b: OLInt64): OLInt64;
     class operator Divide(a, b: OLInt64): OLDouble;
     class operator Divide(a: Extended; b: OLInt64): OLDouble;
     class operator Divide(a: OLInt64; b: Extended): OLDouble;
     class operator Divide(a: OLDouble; b: OLInt64): OLDouble;
     class operator Divide(a: OLInt64; b: OLDouble): OLDouble;
+    class operator Divide(a: OLInt64; b: OLCurrency): OLDouble;
     class operator Modulus(a, b: OLInt64): OLInt64;
-    class operator BitwiseXor(a, b: OLInt64): OLInt64;
 
     class operator Implicit(a: Int64): OLInt64;
     class operator Implicit(a: OLInt64): Int64;
@@ -272,33 +301,28 @@ end;
 function OLInt64.Abs(): OLInt64;
 begin
   if Self.ValuePresent then
-    Result := System.Abs(Self.Value)
+    Result := System.Abs(Self.FValue)
   else
     Result := Null;
 end;
 
-class operator OLInt64.Add(a, b: OLInt64): OLInt64;
+function OLInt64.AsInt64(const NullReplacement: Int64 = 0): Int64;
+begin
+  Result := IfNull(NullReplacement);
+end;
 
+class operator OLInt64.Add(a, b: OLInt64): OLInt64;
 var
   returnrec: OLInt64;
 begin
-  returnrec.Value := a.Value + b.Value;
+  returnrec.FValue := a.FValue + b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
 function OLInt64.Between(BottomIncluded, TopIncluded: OLInt64): OLBoolean;
 begin
-  Result := (Value <= TopIncluded) and (Value >= BottomIncluded);
-end;
-
-class operator OLInt64.BitwiseXor(a, b: OLInt64): OLInt64;
-var
-  returnrec: OLInt64;
-begin
-  returnrec.Value := a.Value xor b.Value;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
-  Result := returnrec;
+  Result := (FValue <= TopIncluded) and (FValue >= BottomIncluded);
 end;
 
 function OLInt64.ToNumeralSystem(const Base: Integer): string;
@@ -310,7 +334,7 @@ class operator OLInt64.Implicit(a: Int64): OLInt64;
 var
   OutPut: OLInt64;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -321,7 +345,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Int64 value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -329,13 +353,19 @@ class operator OLInt64.Implicit(a: OLInt64): Extended;
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Extended value');
-  Result := a.Value;
+  Result := a.FValue;
 end;
 
 class operator OLInt64.Dec(a: OLInt64): OLInt64;
 begin
-  System.Dec(&a.Value);
+  System.Dec(a.FValue);
   Result := a;
+end;
+
+procedure OLInt64.Dec(const Decrement: Int64 = 1);
+begin
+  if ValuePresent then
+    System.Dec(FValue, Decrement);
 end;
 
 function OLInt64.Decreased(DecreasedBy: Int64): OLInt64;
@@ -350,7 +380,7 @@ begin
   if not b.ValuePresent then
     OutPut := Null
   else
-    OutPut := a / b.Value;
+    OutPut := a / b.FValue;
 
   Result := OutPut;
 end;
@@ -362,14 +392,14 @@ begin
   if not a.ValuePresent then
     OutPut := Null
   else
-    OutPut := a.Value / b;
+    OutPut := a.FValue / b;
 
   Result := OutPut;
 end;
 
 class operator OLInt64.Equal(a: OLInt64; b: Extended): Boolean;
 begin
-  Result := (a.Value = b) and a.ValuePresent;
+  Result := (a.FValue = b) and a.ValuePresent;
 end;
 
 class operator OLInt64.Divide(a, b: OLInt64): OLDouble;
@@ -379,7 +409,7 @@ begin
   if (not a.ValuePresent) or (not b.ValuePresent) then
     OutPut := Null
   else
-    OutPut := a.Value / b.Value;
+    OutPut := a.FValue / b.FValue;
 
   Result := OutPut;
 end;
@@ -389,12 +419,12 @@ begin
   if not Self.ValuePresent then
     Result := Null
   else
-    Result := (Self.Value mod i) = 0;
+    Result := (Self.FValue mod i) = 0;
 end;
 
 class operator OLInt64.Equal(a, b: OLInt64): Boolean;
 begin
-  Result := ((a.Value = b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue = b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 procedure OLInt64.ForLoop(InitialValue, ToValue: Int64; Proc: TProc);
@@ -464,12 +494,12 @@ end;
 
 class operator OLInt64.GreaterThan(a, b: OLInt64): Boolean;
 begin
-  Result := (a.Value > b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue > b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLInt64.GreaterThanOrEqual(a, b: OLInt64): Boolean;
 begin
-  Result := ((a.Value >= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue >= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLInt64.IfNull(i: OLInt64): OLInt64;
@@ -490,7 +520,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Double value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -505,7 +535,7 @@ begin
   begin
     if TryStrToInt64(a, i) then
     begin
-      OutPut.Value := i;
+      OutPut.FValue := i;
       OutPut.ValuePresent := true;
     end
     else
@@ -519,7 +549,7 @@ end;
 
 class operator OLInt64.Inc(a: OLInt64): OLInt64;
 begin
-  System.Inc(&a.Value);
+  System.Inc(&a.FValue);
   Result := a;
 end;
 
@@ -535,7 +565,7 @@ begin
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
 
   if (returnrec.ValuePresent) then
-    returnrec.Value := a.Value div b.Value;
+    returnrec.FValue := a.FValue div b.FValue;
 
   Result := returnrec;
 end;
@@ -547,12 +577,12 @@ end;
 
 class operator OLInt64.LessThan(a, b: OLInt64): Boolean;
 begin
-  Result := (a.Value < b.Value) and a.ValuePresent and b.ValuePresent;
+  Result := (a.FValue < b.FValue) and a.ValuePresent and b.ValuePresent;
 end;
 
 class operator OLInt64.LessThanOrEqual(a, b: OLInt64): Boolean;
 begin
-  Result := ((a.Value <= b.Value) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+  Result := ((a.FValue <= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
 function OLInt64.Max(i: OLInt64): OLInt64;
@@ -560,7 +590,7 @@ begin
   if (not ValuePresent) or (i = Null) then
     Result := Null
   else
-    Result := Math.Max(Value, i);
+    Result := Math.Max(FValue, i);
 end;
 
 function OLInt64.Min(i: OLInt64): OLInt64;
@@ -568,24 +598,23 @@ begin
   if (not ValuePresent) or (i = Null) then
     Result := Null
   else
-    Result := Math.Min(Value, i);
+    Result := Math.Min(FValue, i);
 end;
 
 class operator OLInt64.Modulus(a, b: OLInt64): OLInt64;
 var
   returnrec: OLInt64;
 begin
-  returnrec.Value := a.Value mod b.Value;
+  returnrec.FValue := a.FValue mod b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
 
 class operator OLInt64.Multiply(a, b: OLInt64): OLInt64;
-
 var
   returnrec: OLInt64;
 begin
-  returnrec.Value := a.Value * b.Value;
+  returnrec.FValue := a.FValue * b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
@@ -594,19 +623,63 @@ class operator OLInt64.Negative(a: OLInt64): OLInt64;
 var
   b: OLInt64;
 begin
-  b.Value := -a.Value;
+  b.FValue := -a.FValue;
   b.ValuePresent := a.ValuePresent;
   Result := b;
 end;
 
+class operator OLInt64.BitwiseAnd(const a, b: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if not (a.ValuePresent and b.ValuePresent) then
+    Exit(Null);
+  returnrec.FValue := a.FValue and b.FValue;
+  returnrec.ValuePresent := True;
+  Result := returnrec;
+end;
+
+class operator OLInt64.BitwiseOr(const a, b: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if not (a.ValuePresent and b.ValuePresent) then
+    Exit(Null);
+  returnrec.FValue := a.FValue or b.FValue;
+  returnrec.ValuePresent := True;
+  Result := returnrec;
+end;
+
+class operator OLInt64.BitwiseXor(const a, b: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if not (a.ValuePresent and b.ValuePresent) then
+    Exit(Null);
+  returnrec.FValue := a.FValue xor b.FValue;
+  returnrec.ValuePresent := True;
+  Result := returnrec;
+end;
+
+class operator OLInt64.LogicalNot(const a: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if not a.ValuePresent then
+    Exit(Null);
+  returnrec.FValue := not a.FValue;
+  returnrec.ValuePresent := True;
+  Result := returnrec;
+end;
+
 class operator OLInt64.NotEqual(a: OLInt64; b: Extended): Boolean;
 begin
-  Result := (a.Value <> b) and a.ValuePresent;
+  Result := (a.FValue <> b) and a.ValuePresent;
 end;
 
 function OLInt64.Power(Exponent: Int64): Double;
 begin
-  Result := Math.IntPower(Value, Exponent);
+  Result := Math.IntPower(FValue, Exponent);
 end;
 
 function OLInt64.IsNegative: OLBoolean;
@@ -614,7 +687,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value < 0;
+    Result := FValue < 0;
 end;
 
 function OLInt64.IsNonNegative: OLBoolean;
@@ -622,19 +695,19 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value >= 0;
+    Result := FValue >= 0;
 end;
 
 class operator OLInt64.NotEqual(a, b: OLInt64): Boolean;
 begin
-  Result := ((a.Value <> b.Value) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
+  Result := ((a.FValue <> b.FValue) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 
 function OLInt64.Power(Exponent: LongWord): OLInt64;
 var
   returnrec: OLInt64;
 begin
-  returnrec.Value := Math.Floor(Math.IntPower(Value, Exponent));
+  returnrec.FValue := Math.Floor(Math.IntPower(FValue, Exponent));
   returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
@@ -692,7 +765,7 @@ begin
   if not ValuePresent then
     Result := Null
   else
-    Result := Value > 0;
+    Result := FValue > 0;
 end;
 
 function OLInt64.IsPrime: OLBoolean;
@@ -703,21 +776,21 @@ begin
   if not Self.ValuePresent then
     Exit(Null);
 
-  if Value <= 1 then
+  if FValue <= 1 then
     Exit(False);
 
-  if Value <= 3 then
+  if FValue <= 3 then
     Exit(True);
 
-  if (Value mod 2 = 0) or (Value mod 3 = 0) then
+  if (FValue mod 2 = 0) or (FValue mod 3 = 0) then
     Exit(False);
 
   i := 5;
-  Limit := Trunc(Sqrt(Value));
+  Limit := Trunc(Sqrt(FValue));
 
   while i <= Limit do
   begin
-    if (Value mod i = 0) or (Value mod (i + 2) = 0) then
+    if (FValue mod i = 0) or (FValue mod (i + 2) = 0) then
       Exit(False);
     Inc(i, 6);
   end;
@@ -768,25 +841,25 @@ end;
 
 procedure OLInt64.SetRandom(MaxValue: Int64);
 begin
-  Self.Value := OLInt64.Random(MaxValue);
+  Self.FValue := OLInt64.Random(MaxValue);
   Self.ValuePresent := True;
 end;
 
 procedure OLInt64.SetRandom(MinValue, MaxValue: Int64);
 begin
-  Self.Value := OLInt64.Random(MinValue, MaxValue);
+  Self.FValue := OLInt64.Random(MinValue, MaxValue);
   Self.ValuePresent := True;
 end;
 
 procedure OLInt64.SetRandomPrime(MaxValue: Int64);
 begin
-  Self.Value := OLInt64.RandomPrime(MaxValue);
+  Self.FValue := OLInt64.RandomPrime(MaxValue);
   Self.ValuePresent := True;
 end;
 
 procedure OLInt64.SetRandomPrime(MinValue, MaxValue: Int64);
 begin
-  Self.Value := OLInt64.RandomPrime(MinValue, MaxValue);
+  Self.FValue := OLInt64.RandomPrime(MinValue, MaxValue);
   Self.ValuePresent := True;
 end;
 
@@ -794,17 +867,17 @@ function OLInt64.Sqr: OLInt64;
 var
   returnrec: OLInt64;
 begin
-  returnrec.Value := Value * Value;
+  returnrec.FValue := FValue * FValue;
   returnrec.ValuePresent := ValuePresent;
   Result := returnrec;
 end;
 
-class operator OLInt64.Subtract(a, b: OLInt64): OLInt64;
+class operator OLInt64.Subtract(const a, b: OLInt64): OLInt64;
 
 var
   returnrec: OLInt64;
 begin
-  returnrec.Value := a.Value - b.Value;
+  returnrec.FValue := a.FValue - b.FValue;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
 end;
@@ -826,7 +899,7 @@ var
   Output: string;
 begin
   if ValuePresent then
-    Output := IntToStr(Value)
+    Output := IntToStr(FValue)
   else
     Output := '';
 
@@ -865,7 +938,7 @@ var
   OutPut: Variant;
 begin
   if a.ValuePresent then
-    OutPut := a.Value
+    OutPut := a.FValue
   else
     OutPut := Null;
 
@@ -874,13 +947,13 @@ end;
 
 class operator OLInt64.GreaterThan(a: OLInt64; b: Extended): Boolean;
 begin
-  Result := (a.Value > b) and a.ValuePresent;
+  Result := (a.FValue > b) and a.ValuePresent;
 end;
 
 class operator OLInt64.GreaterThanOrEqual(a: OLInt64;
   b: Extended): Boolean;
 begin
-  Result := (a.Value >= b) and a.ValuePresent;
+  Result := (a.FValue >= b) and a.ValuePresent;
 end;
 
 function OLInt64.HasValue: OLBoolean;
@@ -888,14 +961,60 @@ begin
   Result := ValuePresent;
 end;
 
+class operator OLInt64.Add(const a: OLInt64; const b: integer): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  returnrec.FValue := a.FValue + b;
+  returnrec.ValuePresent := a.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInt64.Add(const a: integer; const b: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  returnrec.FValue := a + b.FValue ;
+  returnrec.ValuePresent := b.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInt64.Add(const a: OLInt64; const b: OLInteger): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if a.IsNull or b.IsNull then
+    returnrec := Null
+  else
+  begin
+    returnrec.FValue := a.FValue + b.AsInteger();
+    returnrec.ValuePresent := True;
+  end;
+  Result := returnrec;
+end;
+
+class operator OLInt64.Add(const a: OLInteger; const b: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if a.IsNull or b.IsNull then
+    returnrec := Null
+  else
+  begin
+    returnrec.FValue := a.AsInteger() + b.AsInt64();
+    returnrec.ValuePresent := True;
+  end;
+  Result := returnrec;
+end;
+
 class operator OLInt64.LessThan(a: OLInt64; b: Extended): Boolean;
 begin
-  Result := (a.Value < b) and a.ValuePresent;
+  Result := (a.FValue < b) and a.ValuePresent;
 end;
 
 class operator OLInt64.LessThanOrEqual(a: OLInt64; b: Extended): Boolean;
 begin
-  Result := (a.Value <= b) and a.ValuePresent;
+  Result := (a.FValue <= b) and a.ValuePresent;
 end;
 
 class operator OLInt64.Implicit(a: OLInt64): OLDouble;
@@ -903,7 +1022,7 @@ var
   OutPut: OLDouble;
 begin
   if a.ValuePresent then
-    OutPut := a.Value
+    OutPut := a.FValue
   else
     OutPut := Null;
 
@@ -918,7 +1037,7 @@ begin
     OutPut := Null
   else
   begin
-    OutPut.Value := a;
+    OutPut.FValue := a;
     OutPut.ValuePresent := true;
   end;
 
@@ -932,7 +1051,7 @@ begin
   if a.IsNull() then
     OutPut := Null
   else
-    OutPut := a.Value;
+    OutPut := a.FValue;
 
   Result := OutPut;
 end;
@@ -941,7 +1060,7 @@ class operator OLInt64.Implicit(a: Integer): OLInt64;
 var
   OutPut: OLInt64;
 begin
-  OutPut.Value := a;
+  OutPut.FValue := a;
   OutPut.ValuePresent := true;
   Result := OutPut;
 end;
@@ -952,7 +1071,7 @@ var
 begin
   if not a.ValuePresent then
     raise Exception.Create('Null cannot be used as Integer value');
-  OutPut := a.Value;
+  OutPut := a.FValue;
   Result := OutPut;
 end;
 
@@ -963,7 +1082,7 @@ begin
   if (a.IsNull()) or (not b.ValuePresent) then
     OutPut := Null
   else
-    OutPut := a / b.Value;
+    OutPut := a / b.FValue;
 
   Result := OutPut;
 end;
@@ -975,7 +1094,183 @@ begin
   if (not a.ValuePresent) or (b.IsNull) then
     OutPut := Null
   else
-    OutPut := a.Value / b;
+    OutPut := a.FValue / b;
+
+  Result := OutPut;
+end;
+
+class operator OLInt64.Divide(a: OLInt64; b: OLCurrency): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if (not a.ValuePresent) or (b.IsNull) then
+    OutPut := Null
+  else
+    OutPut := a.FValue / b.AsCurrency();
+
+  Result := OutPut;
+end;
+
+class operator OLInt64.Multiply(a: OLInteger; b: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if (a.IsNull) or (b.IsNull) then
+    returnrec := Null
+  else
+  begin
+    returnrec.FValue := a * b.FValue;
+    returnrec.ValuePresent := true;
+  end;
+
+  Result := returnrec;
+end;
+
+class operator OLInt64.Multiply(a: OLInt64; b: OLInteger): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  if (a.IsNull) or (b.IsNull) then
+    returnrec := Null
+  else
+  begin
+    returnrec.FValue := a.FValue * b;
+    returnrec.ValuePresent := true;
+  end;
+
+  Result := returnrec;
+end;
+
+class operator OLInt64.Multiply(a: OLCurrency; b: OLInt64): OLCurrency;
+var
+  returnrec: OLCurrency;
+begin
+  if (a.IsNull) or (b.IsNull) then
+    returnrec := Null
+  else
+  begin
+    returnrec := a * b.FValue;
+  end;
+
+  Result := returnrec;
+end;
+
+class operator OLInt64.Multiply(a: OLInt64; b: OLCurrency): OLCurrency;
+var
+  returnrec: OLCurrency;
+begin
+  if (a.IsNull) or (b.IsNull) then
+    returnrec := Null
+  else
+  begin
+    returnrec := a.FValue * b;
+  end;
+
+  Result := returnrec;
+end;
+
+class operator OLInt64.Multiply(const a: OLInt64; const b: integer): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  returnrec.FValue := a.FValue * b;
+  returnrec.ValuePresent := a.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInt64.Multiply(const a: integer; const b: OLInt64): OLInt64;
+var
+  returnrec: OLInt64;
+begin
+  returnrec.FValue := a * b.FValue ;
+  returnrec.ValuePresent := b.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInt64.Subtract(const a: OLInt64; const b: OLCurrency):
+    OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if a.IsNull() or b.IsNull() then
+    OutPut := Null
+  else
+  begin
+    OutPut := a.AsInt64() - b.AsCurrency();
+  end;
+
+  Result := OutPut;
+end;
+
+class operator OLInt64.Subtract(const a: OLCurrency; const b: OLInt64):
+    OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if a.IsNull() or b.IsNull() then
+    OutPut := Null
+  else
+  begin
+    OutPut := a.AsCurrency() - b.AsInt64();
+  end;
+
+  Result := OutPut;
+end;
+
+class operator OLInt64.Subtract(const a: OLInt64; const b: Integer): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if a.IsNull() then
+    OutPut := Null
+  else
+  begin
+    OutPut := a.AsInt64() - b;
+  end;
+
+  Result := OutPut;
+end;
+
+class operator OLInt64.Subtract(const a: Integer; const b: OLInt64): OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if b.IsNull() then
+    OutPut := Null
+  else
+  begin
+    OutPut := a - b.AsInt64();
+  end;
+
+  Result := OutPut;
+end;
+
+class operator OLInt64.Subtract(const a: OLInt64; const b: OLInteger):
+    OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if a.IsNull() or b.IsNull() then
+    OutPut := Null
+  else
+  begin
+    OutPut := a.AsInt64() - b.AsInteger();
+  end;
+
+  Result := OutPut;
+end;
+
+class operator OLInt64.Subtract(const a: OLInteger; const b: OLInt64):
+    OLCurrency;
+var
+  OutPut: OLCurrency;
+begin
+  if a.IsNull() or b.IsNull() then
+    OutPut := Null
+  else
+  begin
+    OutPut := a.AsInteger() - b.AsInt64();
+  end;
 
   Result := OutPut;
 end;

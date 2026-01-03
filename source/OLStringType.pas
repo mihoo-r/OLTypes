@@ -751,6 +751,11 @@ type
     /// </summary>
     class function RandomString(const Length: integer): OLString; static;
 
+    /// <summary>
+    ///   Joins the array of strings into a single string using the specified separator.
+    /// </summary>
+    class function Join(const Separator: string; const Values: TStringDynArray): OLString; static;
+
     class operator Add(const a, b: OLString): OLString;
 
     class operator Implicit(const a: string): OLString;
@@ -3592,6 +3597,25 @@ begin
   end;
 
   Result := OutPut;
+end;
+
+class function OLString.Join(const Separator: string; const Values: TStringDynArray): OLString;
+{$IF CompilerVersion < 24.0}
+var
+  i: Integer;
+{$IFEND}
+begin
+  {$IF CompilerVersion >= 24.0}
+  Result := string.Join(Separator, Values);
+  {$ELSE}
+  Result := '';
+  for i := Low(Values) to High(Values) do
+  begin
+    if i > Low(Values) then
+      Result := Result + Separator;
+    Result := Result + Values[i];
+  end;
+  {$IFEND}
 end;
 
 function OLString.StartsStr(const ASubString: string): OLBoolean;

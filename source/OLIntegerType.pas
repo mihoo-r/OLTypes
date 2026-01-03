@@ -133,6 +133,11 @@ type
     function Replaced(const FromValue: OLInteger; const ToValue: OLInteger): OLInteger;
 
     /// <summary>
+    ///   Decrements the integer by the specified value.
+    /// </summary>
+    procedure Dec(const Decrement: Integer = 1);
+
+    /// <summary>
     ///   Converts the integer to a string representation in the specified base.
     /// </summary>
     function ToNumeralSystem(const Base: Integer): string;
@@ -197,7 +202,10 @@ type
     class operator Divide(const a: OLDouble; const b: OLInteger): OLDouble;
     class operator Divide(const a: OLInteger; const b: OLDouble): OLDouble;
     class operator Modulus(const a, b: OLInteger): OLInteger;
+    class operator BitwiseAnd(const a, b: OLInteger): OLInteger;
+    class operator BitwiseOr(const a, b: OLInteger): OLInteger;
     class operator BitwiseXor(const a, b: OLInteger): OLInteger;
+    class operator LogicalNot(const a: OLInteger): OLInteger;
 
     class operator Implicit(const a: integer): OLInteger;
     class operator Implicit(const a: OLInteger): integer;
@@ -289,7 +297,6 @@ end;
 
 function OLInteger.AsInteger(const NullReplacement: Integer): Integer;
 begin
-
   Result := IfNull(NullReplacement);
 end;
 
@@ -306,13 +313,47 @@ begin
   Result := OutPut;
 end;
 
+class operator OLInteger.BitwiseAnd(const a, b: OLInteger): OLInteger;
+var
+  returnrec: OLInteger;
+begin
+  if not (a.ValuePresent and b.ValuePresent) then
+    Exit(Null);
+  returnrec.FValue := a.FValue and b.FValue;
+  returnrec.ValuePresent := True;
+  Result := returnrec;
+end;
+
+class operator OLInteger.BitwiseOr(const a, b: OLInteger): OLInteger;
+var
+  returnrec: OLInteger;
+begin
+  if not (a.ValuePresent and b.ValuePresent) then
+    Exit(Null);
+  returnrec.FValue := a.FValue or b.FValue;
+  returnrec.ValuePresent := True;
+  Result := returnrec;
+end;
+
 class operator OLInteger.BitwiseXor(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
 begin
-
+  if not (a.ValuePresent and b.ValuePresent) then
+    Exit(Null);
   returnrec.FValue := a.FValue xor b.FValue;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
+  returnrec.ValuePresent := True;
+  Result := returnrec;
+end;
+
+class operator OLInteger.LogicalNot(const a: OLInteger): OLInteger;
+var
+  returnrec: OLInteger;
+begin
+  if not a.ValuePresent then
+    Exit(Null);
+  returnrec.FValue := not a.FValue;
+  returnrec.ValuePresent := True;
   Result := returnrec;
 end;
 
@@ -580,6 +621,12 @@ begin
   Result := Self - DecreasedBy;
 end;
 
+procedure OLInteger.Dec(const Decrement: Integer = 1);
+begin
+  if ValuePresent then
+    System.Dec(FValue, Decrement);
+end;
+
 class operator OLInteger.IntDivide(const a, b: OLInteger): OLInteger;
 var
   returnrec: OLInteger;
@@ -740,8 +787,7 @@ end;
 class operator OLInteger.NotEqual(const a: OLInteger; const b: Extended):
     Boolean;
 begin
-
-  Result := (a.FValue <> b) and a.ValuePresent;
+  Result := ((a.FValue <> b) or a.IsNull);
 end;
 
 function OLInteger.Power(const Exponent: integer): Double;
@@ -770,7 +816,6 @@ end;
 
 class operator OLInteger.NotEqual(const a, b: OLInteger): Boolean;
 begin
-
   Result := ((a.FValue <> b.FValue) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
 end;
 

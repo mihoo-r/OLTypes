@@ -94,6 +94,10 @@ type
     ///   Returns the current double if it has a value, otherwise returns the provided default value.
     /// </summary>
     function IfNull(const d: OLDouble): OLDouble;
+    /// <summary>
+    ///   Returns the double value, or a replacement value if null.
+    /// </summary>
+    function AsDouble(const NullReplacement: Double = 0): Double;
 
     /// <summary>
     ///   Rounds the double to the specified power of ten.
@@ -232,6 +236,11 @@ var
 begin
   d := Self;
   Result := Math.Ceil(d);
+end;
+
+function OLDouble.AsDouble(const NullReplacement: Double): Double;
+begin
+  Result := IfNull(NullReplacement);
 end;
 
 class operator OLDouble.Implicit(const a: Double): OLDouble;
