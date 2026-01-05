@@ -12,8 +12,7 @@ uses
   OLCurrencyType,
   OLDateTimeType,
   OLDateType,
-  OLDoubleType,
-  OLInt64Type;
+  OLDoubleType;
 
 type
   TTestOLIntegerArray = class(TTestCase)

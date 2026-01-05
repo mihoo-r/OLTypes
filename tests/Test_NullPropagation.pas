@@ -7,7 +7,6 @@ uses
   OLIntegerType,
   OLDoubleType,
   OLCurrencyType,
-  OLInt64Type,
   OLBooleanType,
   SysUtils,
   Variants;

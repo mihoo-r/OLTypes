@@ -44,7 +44,6 @@ uses
   TestOLDictionaryWrapper in 'TestOLDictionaryWrapper.pas',
   OLDictionaries in '..\source\OLDictionaries.pas',
   OLArrays in '..\source\OLArrays.pas',
-  OLInt64Type in '..\source\OLInt64Type.pas',
   OLRegistry in '..\source\OLRegistry.pas';
 
 {$R *.RES}
