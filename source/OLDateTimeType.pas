@@ -1479,8 +1479,6 @@ begin
 end;
 
 function OLDateTime.ToString(const Format: string): string;
-var
-  OutPut: string;
 begin
   if not Self.ValuePresent then
     Result := ''

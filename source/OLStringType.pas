@@ -11,7 +11,7 @@ uses
   FMX.Graphics, FMX.TextLayout,
   {$ENDIF}
   OLBooleanType, OLCurrencyType,
-  OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType, OLInt64Type,
+  OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType,
   SmartToDate, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
@@ -1173,7 +1173,6 @@ var
   dwBufLen: DWORD;
   CharsetName: string;
   Encoding: TEncoding;
-  HeaderParsed: Boolean;
 
   function ExtractCharset(const Text: string): string;
   var

@@ -4,7 +4,7 @@ interface
 
 uses 
   OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-  OLIntegerType, OLInt64Type, OLStringType,
+  OLIntegerType, OLStringType,
   OLValidation, OLValidationTypes, {$IF CompilerVersion >= 23.0} System.Generics.Collections, {$ELSE} Generics.Collections, {$IFEND}
   {$IF CompilerVersion >= 23.0}
   Vcl.StdCtrls, System.SysUtils, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.Forms,

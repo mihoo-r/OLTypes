@@ -14,7 +14,7 @@ uses
   {$IFEND}
   // Your original type modules
   OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-  OLIntegerType, OLInt64Type, OLStringType;
+  OLIntegerType, OLStringType;
 
 type
   // ===========================================================================

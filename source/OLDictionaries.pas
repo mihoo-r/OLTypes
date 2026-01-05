@@ -21,7 +21,6 @@ uses
   OLDateType,
   OLDoubleType,
   OLIntegerType,
-  OLInt64Type,
   OLStringType;
 
 type

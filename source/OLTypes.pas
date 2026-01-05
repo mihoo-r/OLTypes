@@ -4,7 +4,7 @@ interface
 
 uses
   OLBooleanType, OLCurrencyType, OLDateTimeType, OLDateType, OLDoubleType,
-  OLIntegerType, OLInt64Type, OLStringType, SmartToDate, OLArrays, OLDictionaries,
+  OLIntegerType, OLStringType, SmartToDate, OLArrays, OLDictionaries,
   {$IFDEF VCL}
   Vcl.Graphics,
   {$ENDIF}
@@ -44,7 +44,7 @@ type
   OLDate = OLDateType.OLDate;
   OLDouble = OLDoubleType.OLDouble;
   OLInteger = OLIntegerType.OLInteger;
-  OLInt64 = OLInt64Type.OLInt64;
+  OLInt64 = OLIntegerType.OLInt64;
   OLString = OLStringType.OLString;
 
   POLBoolean = OLBooleanType.POLBoolean;
@@ -54,7 +54,7 @@ type
   POLDate = OLDateType.POLDate;
   POLDouble = OLDoubleType.POLDouble;
   POLInteger = OLIntegerType.POLInteger;
-  POLInt64 = OLInt64Type.POLInt64;
+  POLInt64 = OLIntegerType.POLInt64;
   POLString = OLStringType.POLString;
 
   TOLBooleanDynArray = OLArrays.TOLBooleanDynArray;
