@@ -3,7 +3,7 @@ unit OLIntegerType;
 interface
 
 uses
-  variants, SysUtils, OLBooleanType, OLDoubleType, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
+  variants, SysUtils, OLBooleanType, OLDoubleType, Math, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
 
 type
   /// <summary>
@@ -11,7 +11,7 @@ type
   /// </summary>
   OLInteger = record
   private
-    FValue: integer;
+    FValue: Int64;
     {$IF CompilerVersion >= 34.0}
     FOnChange: TNotifyEvent;
     FHasValue: Boolean;
@@ -39,7 +39,7 @@ type
     /// <summary>
     ///   Checks if the integer is divisible by the specified value.
     /// </summary>
-    function IsDividableBy(const i: integer): OLBoolean;
+    function IsDividableBy(const i: Int64): OLBoolean;
     /// <summary>
     ///   Checks if the integer is odd.
     /// </summary>
@@ -59,7 +59,7 @@ type
     /// <summary>
     ///   Returns the integer raised to the specified exponent as a Double.
     /// </summary>
-    function Power(const Exponent: integer): Double; overload;
+    function Power(const Exponent: Int64): Double; overload;
     /// <summary>
     ///   Checks if the integer is positive (> 0).
     /// </summary>
@@ -87,11 +87,11 @@ type
     /// <summary>
     ///   Checks if the integer is null (has no value).
     /// </summary>
-    function IsNull(): OLBoolean;
+    function IsNull(): OLBoolean; inline;
     /// <summary>
     ///   Checks if the integer has a value (is not null).
     /// </summary>
-    function HasValue(): OLBoolean;
+    function HasValue(): OLBoolean; inline;
     /// <summary>
     ///   Converts the integer to a string.
     /// </summary>
@@ -109,6 +109,10 @@ type
     /// </summary>
     function AsInteger(const NullReplacement: Integer = 0): Integer;
     /// <summary>
+    ///   Returns the Int64 value, or a replacement value if null.
+    /// </summary>
+    function AsInt64(const NullReplacement: Int64 = 0): Int64;
+    /// <summary>
     ///   Rounds the integer to the specified number of digits.
     ///   A parameter value of one rounds to the nearest ten.
     ///   A parameter value of two rounds to the nearest hundred, and so on
@@ -122,20 +126,15 @@ type
     /// <summary>
     ///   Returns the integer increased by the specified amount.
     /// </summary>
-    function Increased(const IncreasedBy: integer = 1): OLInteger;
+    function Increased(const IncreasedBy: Int64 = 1): OLInteger;
     /// <summary>
     ///   Returns the integer decreased by the specified amount.
     /// </summary>
-    function Decreased(const DecreasedBy: integer = 1): OLInteger;
+    function Decreased(const DecreasedBy: Int64 = 1): OLInteger;
     /// <summary>
     ///   Returns the integer with the value replaced if it matches FromValue.
     /// </summary>
     function Replaced(const FromValue: OLInteger; const ToValue: OLInteger): OLInteger;
-
-    /// <summary>
-    ///   Decrements the integer by the specified value.
-    /// </summary>
-    procedure Dec(const Decrement: Integer = 1);
 
     /// <summary>
     ///   Converts the integer to a string representation in the specified base.
@@ -145,7 +144,7 @@ type
     /// <summary>
     ///   Executes a procedure for each value from InitialValue to ToValue.
     /// </summary>
-    procedure ForLoop(const InitialValue: integer; const ToValue: integer; const Proc: TProc);
+    procedure ForLoop(const InitialValue: Int64; const ToValue: Int64; const Proc: TProc);
     /// <summary>
     ///   Checks if the integer is a prime number.
     /// </summary>
@@ -153,86 +152,106 @@ type
     /// <summary>
     ///   Generates a random integer between MinValue and MaxValue.
     /// </summary>
-    class function Random(const MinValue: Integer; const MaxValue:Integer): OLInteger;  overload; static;
+    class function Random(const MinValue: Int64; const MaxValue: Int64): OLInteger;  overload; static;
     /// <summary>
     ///   Generates a random prime number between MinValue and MaxValue.
     /// </summary>
-    class function RandomPrime(const MinValue: Integer; const MaxValue:Integer): OLInteger; overload; static;
+    class function RandomPrime(const MinValue: Int64; const MaxValue: Int64): OLInteger; overload; static;
 
     /// <summary>
     ///   Generates a random integer up to MaxValue.
     /// </summary>
-    class function Random(const MaxValue:Integer = MaxInt): OLInteger;  overload; static;
+    class function Random(const MaxValue: Int64 = MaxInt): OLInteger;  overload; static;
     /// <summary>
     ///   Generates a random prime number up to MaxValue.
     /// </summary>
-    class function RandomPrime(const MaxValue:Integer = MaxInt): OLInteger; overload; static;
+    class function RandomPrime(const MaxValue: Int64 = MaxInt): OLInteger; overload; static;
 
     /// <summary>
     ///   Sets the integer to a random value between MinValue and MaxValue.
     /// </summary>
-    procedure SetRandom(const MinValue: Integer; const MaxValue:Integer); overload;
+    procedure SetRandom(const MinValue: Int64; const MaxValue: Int64); overload;
     /// <summary>
     ///   Sets the integer to a random value up to MaxValue.
     /// </summary>
-    procedure SetRandom(const MaxValue:Integer = MaxInt); overload;
+    procedure SetRandom(const MaxValue: Int64 = MaxInt); overload;
 
     /// <summary>
     ///   Sets the integer to a random prime value between MinValue and MaxValue.
     /// </summary>
-    procedure SetRandomPrime(const MinValue: Integer; const MaxValue:Integer); overload;
+    procedure SetRandomPrime(const MinValue: Int64; const MaxValue: Int64); overload;
     /// <summary>
     ///   Sets the integer to a random prime value up to MaxValue.
     /// </summary>
-    procedure SetRandomPrime(const MaxValue:Integer = MaxInt); overload;
+    procedure SetRandomPrime(const MaxValue: Int64 = MaxInt); overload;
 
-    class operator Add(const a, b: OLInteger): OLInteger;
-    class operator Subtract(const a, b: OLInteger): OLInteger;
-    class operator Multiply(const a, b: OLInteger): OLInteger;
-    class operator Multiply(const a: Integer; const b: OLInteger): OLInteger;
-    class operator Multiply(const a: OLInteger; const b: Integer): OLInteger;
-    class operator Multiply(const a: Extended; const b: OLInteger): OLDouble;
-    class operator Multiply(const a: OLInteger; const b: Extended): OLDouble;
-    class operator Multiply(const a: OLDouble; const b: OLInteger): OLDouble;
-    class operator Multiply(const a: OLInteger; const b: OLDouble): OLDouble;
-    class operator IntDivide(const a, b: OLInteger): OLInteger;
-    class operator Divide(const a, b: OLInteger): OLDouble;
-    class operator Divide(const a: Extended; const b: OLInteger): OLDouble;
-    class operator Divide(const a: OLInteger; const b: Extended): OLDouble;
-    class operator Divide(const a: OLDouble; const b: OLInteger): OLDouble;
-    class operator Divide(const a: OLInteger; const b: OLDouble): OLDouble;
-    class operator Modulus(const a, b: OLInteger): OLInteger;
-    class operator BitwiseAnd(const a, b: OLInteger): OLInteger;
-    class operator BitwiseOr(const a, b: OLInteger): OLInteger;
-    class operator BitwiseXor(const a, b: OLInteger): OLInteger;
-    class operator LogicalNot(const a: OLInteger): OLInteger;
+    class operator Add(const a, b: OLInteger): OLInteger; inline;
+    class operator Add(const a: Int64; const b: OLInteger): OLInteger; inline;
+    class operator Add(const a: OLInteger; const b: Int64): OLInteger; inline;
+    //class operator Add(const a: Extended; const b: OLInteger): OLDouble; inline;
+    //class operator Add(const a: OLInteger; const b: Extended): OLDouble; inline;
+    class operator Add(const a: OLDouble; const b: OLInteger): OLDouble; inline;
+    class operator Add(const a: OLInteger; const b: OLDouble): OLDouble; inline;
 
-    class operator Implicit(const a: integer): OLInteger;
-    class operator Implicit(const a: OLInteger): integer;
-    class operator Implicit(const a: OLInteger): Double;
+    class operator Subtract(const a, b: OLInteger): OLInteger; inline;
+    class operator Subtract(const a: Int64; const b: OLInteger): OLInteger; inline;
+    class operator Subtract(const a: OLInteger; const b: Int64): OLInteger; inline;
+    //class operator Subtract(const a: Extended; const b: OLInteger): Extended; inline;
+    //class operator Subtract(const a: OLInteger; const b: Extended): Extended; inline;
+    class operator Subtract(const a: OLDouble; const b: OLInteger): OLDouble; inline;
+    class operator Subtract(const a: OLInteger; const b: OLDouble): OLDouble; inline;
+
+    class operator Multiply(const a, b: OLInteger): OLInteger; inline;
+    class operator Multiply(const a: Int64; const b: OLInteger): OLInteger; inline;
+    class operator Multiply(const a: OLInteger; const b: Int64): OLInteger; inline;
+    //class operator Multiply(const a: Extended; const b: OLInteger): OLDouble; inline;
+    //class operator Multiply(const a: OLInteger; const b: Extended): OLDouble; inline;
+    class operator Multiply(const a: OLDouble; const b: OLInteger): OLDouble; inline;
+    class operator Multiply(const a: OLInteger; const b: OLDouble): OLDouble; inline;
+
+    class operator IntDivide(const a, b: OLInteger): OLInteger; inline;
+
+    class operator Divide(const a, b: OLInteger): OLDouble; inline;
+//    class operator Divide(const a: Extended; const b: OLInteger): OLDouble; inline;
+//    class operator Divide(const a: OLInteger; const b: Extended): OLDouble; inline;
+    class operator Divide(const a: OLDouble; const b: OLInteger): OLDouble; inline;
+    class operator Divide(const a: OLInteger; const b: OLDouble): OLDouble; inline;
+
+    class operator Modulus(const a, b: OLInteger): OLInteger; inline;
+
+    class operator BitwiseAnd(const a, b: OLInteger): OLInteger; inline;
+    class operator BitwiseOr(const a, b: OLInteger): OLInteger; inline;
+    class operator BitwiseXor(const a, b: OLInteger): OLInteger; inline;
+    class operator LogicalNot(const a: OLInteger): OLInteger; inline;
+
+
+    class operator Implicit(const a: Int64): OLInteger; inline;
+
+    class operator Implicit(const a: OLInteger): Int64; inline;
+
     class operator Implicit(const a: Variant): OLInteger;
     class operator Implicit(const a: OLInteger): Variant;
-    class operator Implicit(const a: OLInteger): OLDouble;
-    class operator Implicit(const a: OLInteger): Extended;
+
+    class operator Implicit(const a: OLInteger): OLDouble; inline;
 
 
-    class operator Inc(a: OLInteger): OLInteger;
-    class operator Dec(a: OLInteger): OLInteger;
-    class operator Negative(const a: OLInteger): OLInteger;
+    class operator Inc(a: OLInteger): OLInteger; inline;
+    class operator Dec(a: OLInteger): OLInteger; inline;
+    class operator Negative(const a: OLInteger): OLInteger; inline;
 
-    class operator Equal(const a, b: OLInteger): Boolean; overload;
-    class operator NotEqual(const a, b: OLInteger): Boolean;  overload;
-    class operator GreaterThan(const a, b: OLInteger): Boolean;  overload;
-    class operator GreaterThanOrEqual(const a, b: OLInteger): Boolean;  overload;
-    class operator LessThan(const a, b: OLInteger): Boolean;  overload;
-    class operator LessThanOrEqual(const a, b: OLInteger): Boolean;  overload;
+    class operator Equal(const a, b: OLInteger): Boolean; overload; inline;
+    class operator NotEqual(const a, b: OLInteger): Boolean;  overload; inline;
+    class operator GreaterThan(const a, b: OLInteger): Boolean;  overload; inline;
+    class operator GreaterThanOrEqual(const a, b: OLInteger): Boolean;  overload; inline;
+    class operator LessThan(const a, b: OLInteger): Boolean;  overload; inline;
+    class operator LessThanOrEqual(const a, b: OLInteger): Boolean;  overload; inline;
 
-    class operator Equal(const a: OLInteger; const b: Extended): Boolean;  overload;
-    class operator NotEqual(const a: OLInteger; const b: Extended): Boolean;  overload;
-    class operator GreaterThan(const a: OLInteger; const b: Extended): Boolean;  overload;
-    class operator GreaterThanOrEqual(const a: OLInteger; const b: Extended): Boolean;  overload;
-    class operator LessThan(const a: OLInteger; const b: Extended): Boolean;  overload;
-    class operator LessThanOrEqual(const a: OLInteger; const b: Extended): Boolean;  overload;
+    class operator Equal(const a: OLInteger; const b: Extended): Boolean;  overload; inline;
+    class operator NotEqual(const a: OLInteger; const b: Extended): Boolean;  overload; inline;
+    class operator GreaterThan(const a: OLInteger; const b: Extended): Boolean;  overload; inline;
+    class operator GreaterThanOrEqual(const a: OLInteger; const b: Extended): Boolean;  overload; inline;
+    class operator LessThan(const a: OLInteger; const b: Extended): Boolean;  overload; inline;
+    class operator LessThanOrEqual(const a: OLInteger; const b: Extended): Boolean;  overload; inline;
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLInteger);
@@ -267,10 +286,13 @@ type
 
   POLInteger = ^OLInteger;
 
+  OLInt64 = OLInteger;
+  POLInt64 = POLInteger;
+
 implementation
 
 uses
-  Math, NumeralSystemConvert;
+  NumeralSystemConvert;
 
 const
   NonEmptyStr = ' ';
@@ -296,6 +318,22 @@ begin
 end;
 
 function OLInteger.AsInteger(const NullReplacement: Integer): Integer;
+var
+  val: Int64;
+begin
+  if not ValuePresent then
+    Result := NullReplacement
+  else
+  begin
+    val := FValue;
+    if (val < Low(Integer)) or (val > High(Integer)) then
+      raise ERangeError.CreateFmt('Value %d is out of Integer range', [val])
+    else
+      Result := val;
+  end;
+end;
+
+function OLInteger.AsInt64(const NullReplacement: Int64): Int64;
 begin
   Result := IfNull(NullReplacement);
 end;
@@ -363,29 +401,16 @@ begin
   Result := ConvertNumeralSystem(Self, Base);
 end;
 
-class operator OLInteger.Implicit(const a: integer): OLInteger;
-var
-  OutPut: OLInteger;
+class operator OLInteger.Implicit(const a: Int64): OLInteger;
 begin
-  OutPut.FValue := a;
-  OutPut.ValuePresent := true;
-  Result := OutPut;
+  Result.FValue := a;
+  Result.ValuePresent := True;
 end;
 
-class operator OLInteger.Implicit(const a: OLInteger): integer;
-var
-  OutPut: integer;
+class operator OLInteger.Implicit(const a: OLInteger): Int64;
 begin
   if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as integer value');
-  OutPut := a.FValue;
-  Result := OutPut;
-end;
-
-class operator OLInteger.Implicit(const a: OLInteger): Extended;
-begin
-  if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as Extended value');
+    raise Exception.Create('Null cannot be used as Int64 value');
   Result := a.FValue;
 end;
 
@@ -396,33 +421,33 @@ begin
   Result := a;
 end;
 
-class operator OLInteger.Divide(const a: Extended; const b: OLInteger):
-    OLDouble;
-var
-  OutPut: OLDouble;
-begin
-
-  if not b.ValuePresent then
-    OutPut := Null
-  else
-    OutPut := a / b.FValue;
-
-  Result := OutPut;
-end;
-
-class operator OLInteger.Divide(const a: OLInteger; const b: Extended):
-    OLDouble;
-var
-  OutPut: OLDouble;
-begin
-
-  if not a.ValuePresent then
-    OutPut := Null
-  else
-    OutPut := a.FValue / b;
-
-  Result := OutPut;
-end;
+//class operator OLInteger.Divide(const a: Extended; const b: OLInteger):
+//    OLDouble;
+//var
+//  OutPut: OLDouble;
+//begin
+//
+//  if not b.ValuePresent then
+//    OutPut := Null
+//  else
+//    OutPut := a / b.FValue;
+//
+//  Result := OutPut;
+//end;
+//
+//class operator OLInteger.Divide(const a: OLInteger; const b: Extended):
+//    OLDouble;
+//var
+//  OutPut: OLDouble;
+//begin
+//
+//  if not a.ValuePresent then
+//    OutPut := Null
+//  else
+//    OutPut := a.FValue / b;
+//
+//  Result := OutPut;
+//end;
 
 class operator OLInteger.Equal(const a: OLInteger; const b: Extended):
     Boolean;
@@ -444,7 +469,7 @@ begin
   Result := OutPut;
 end;
 
-function OLInteger.IsDividableBy(const i: integer): OLBoolean;
+function OLInteger.IsDividableBy(const i: Int64): OLBoolean;
 begin
   if not Self.ValuePresent then
     Result := Null
@@ -458,26 +483,30 @@ begin
   Result := ((a.FValue = b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-procedure OLInteger.ForLoop(const InitialValue: integer; const ToValue:
-    integer; const Proc: TProc);
+procedure OLInteger.ForLoop(const InitialValue: Int64; const ToValue:
+    Int64; const Proc: TProc);
 var
-  iterator: integer;
+  iterator: Int64;
 begin
 
   if InitialValue < ToValue then
   begin
-    for iterator := InitialValue to ToValue do
+    iterator := InitialValue;
+    while iterator <= ToValue do
     begin
       Self := iterator;
       Proc();
+      Inc(iterator);
     end;
   end
   else
   begin
-    for iterator := InitialValue downto ToValue do
+    iterator := InitialValue;
+    while iterator >= ToValue do
     begin
       Self := iterator;
       Proc();
+      Dec(iterator);
     end;
   end;
 end;
@@ -552,27 +581,16 @@ begin
   Result := Output;
 end;
 
-class operator OLInteger.Implicit(const a: OLInteger): Double;
-var
-  OutPut: Double;
-begin
-
-  if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as Double value');
-  OutPut := a.FValue;
-  Result := OutPut;
-end;
-
 class operator OLInteger.Implicit(const a: Variant): OLInteger;
 var
   OutPut: OLInteger;
-  i: integer;
+  i: Int64;
 begin
   if VarIsNull(a) then
     OutPut.ValuePresent := false
   else
   begin
-    if TryStrToInt(a, i) then
+    if TryStrToInt64(a, i) then
     begin
       OutPut.FValue := i;
       OutPut.ValuePresent := true;
@@ -593,11 +611,46 @@ begin
   Result := a;
 end;
 
-function OLInteger.Increased(const IncreasedBy: integer = 1): OLInteger;
+function OLInteger.Increased(const IncreasedBy: Int64 = 1): OLInteger;
 begin
-
   Result := Self + IncreasedBy;
 end;
+
+// --- IMPLEMENTACJA CURRENCY ------------------------------------------------
+
+//class operator OLInteger.Add(const a: Extended; const b: OLInteger): OLDouble;
+//begin
+//  if not b.ValuePresent then
+//    Result := Null
+//  else
+//    Result := a + b.FValue;
+//end;
+
+//class operator OLInteger.Add(const a: OLInteger; const b: Extended): OLDouble;
+//begin
+//  if not a.ValuePresent then
+//    Result := Null
+//  else
+//    Result := a.FValue + b;
+//end;
+
+//class operator OLInteger.Subtract(const a: Extended; const b: OLInteger):
+//    Extended;
+//begin
+//  if not b.ValuePresent then
+//    result := Null
+//  else
+//    Result := a - b.FValue;
+//end;
+//
+//class operator OLInteger.Subtract(const a: OLInteger; const b: Extended):
+//    Extended;
+//begin
+//  if not a.ValuePresent then
+//    result := Null
+//  else
+//    Result := a.FValue - b;
+//end;
 
 {$IF CompilerVersion >= 34.0}
 class operator OLInteger.Initialize(out Dest: OLInteger);
@@ -615,16 +668,10 @@ begin
 end;
 {$IFEND}
 
-function OLInteger.Decreased(const DecreasedBy: integer = 1): OLInteger;
+function OLInteger.Decreased(const DecreasedBy: Int64 = 1): OLInteger;
 begin
 
   Result := Self - DecreasedBy;
-end;
-
-procedure OLInteger.Dec(const Decrement: Integer = 1);
-begin
-  if ValuePresent then
-    System.Dec(FValue, Decrement);
 end;
 
 class operator OLInteger.IntDivide(const a, b: OLInteger): OLInteger;
@@ -660,7 +707,7 @@ end;
 
 function OLInteger.Max(const i: OLInteger): OLInteger;
 begin
-  
+
   if (not ValuePresent) or (i = Null) then
     Result := Null
   else
@@ -686,33 +733,32 @@ begin
   Result := returnrec;
 end;
 
-class operator OLInteger.Multiply(const a: Extended;
-  const b: OLInteger): OLDouble;
-var
-  OutPut: OLDouble;
-begin
-
-  if b.IsNull then
-    OutPut := Null
-  else
-    OutPut := a * b.FValue;
-
-  Result := OutPut;
-end;
-
-class operator OLInteger.Multiply(const a: OLInteger;
-  const b: Extended): OLDouble;
-var
-  OutPut: OLDouble;
-begin
-
-  if not a.ValuePresent then
-    OutPut := Null
-  else
-    OutPut := a.FValue * b;
-
-  Result := OutPut;
-end;
+//class operator OLInteger.Multiply(const a: Extended;
+//  const b: OLInteger): OLDouble;
+//var
+//  OutPut: OLDouble;
+//begin
+//  if b.IsNull then
+//    OutPut := Null
+//  else
+//    OutPut := a * b.FValue;
+//
+//  Result := OutPut;
+//end;
+//
+//class operator OLInteger.Multiply(const a: OLInteger;
+//  const b: Extended): OLDouble;
+//var
+//  OutPut: OLDouble;
+//begin
+//
+//  if not a.ValuePresent then
+//    OutPut := Null
+//  else
+//    OutPut := a.FValue * b;
+//
+//  Result := OutPut;
+//end;
 
 class operator OLInteger.Multiply(const a: OLDouble;
   const b: OLInteger): OLDouble;
@@ -742,19 +788,18 @@ begin
   Result := OutPut;
 end;
 
-class operator OLInteger.Multiply(const a: OLInteger;
-  const b: Integer): OLInteger;
+class operator OLInteger.Multiply(const a: OLInteger; const b: Int64):
+    OLInteger;
 var
   returnrec: OLInteger;
 begin
-
-  returnrec.FValue := a.FValue * b;
+   returnrec.FValue := a.FValue * b;
   returnrec.ValuePresent := a.ValuePresent;
   Result := returnrec;
 end;
 
-class operator OLInteger.Multiply(const a: Integer;
-  const b: OLInteger): OLInteger;
+class operator OLInteger.Multiply(const a: Int64; const b: OLInteger):
+    OLInteger;
 var
   returnrec: OLInteger;
 begin
@@ -790,7 +835,7 @@ begin
   Result := ((a.FValue <> b) or a.IsNull);
 end;
 
-function OLInteger.Power(const Exponent: integer): Double;
+function OLInteger.Power(const Exponent: Int64): Double;
 begin
 
   Result := Math.IntPower(FValue, Exponent);
@@ -830,14 +875,37 @@ begin
 end;
 
 
-class function OLInteger.Random(const MinValue: Integer; const
-    MaxValue:Integer): OLInteger;
+class function OLInteger.Random(const MinValue: Int64; const
+    MaxValue: Int64): OLInteger;
+var
+  sqr: Integer;
+  OutPut: OLInteger;
+  MaxIntGap: Int64;
 begin
-  Result := MinValue + system.Random(MaxValue - MinValue + 1);
+  MaxIntGap := (MaxValue - MinValue - MaxInt);
+
+  if MaxIntGap > 0 then
+  begin
+    sqr := Ceil(Sqrt(MaxIntGap));
+
+    OutPut := system.Random(sqr);
+    OutPut := OutPut * system.Random(sqr);
+
+    OutPut := OutPut + System.Random(MaxInt);
+
+    OutPut := OutPut + MinValue;
+  end
+  else
+  begin
+    OutPut := MinValue;
+    OutPut := OutPut + system.Random(MaxValue - MinValue + 1)
+  end;
+
+  Result := OutPut;
 end;
 
-class function OLInteger.RandomPrime(const MinValue: Integer; const
-    MaxValue:Integer): OLInteger;
+class function OLInteger.RandomPrime(const MinValue: Int64; const
+    MaxValue: Int64): OLInteger;
 var
   new: OLInteger;
 begin
@@ -868,8 +936,8 @@ end;
 
 function OLInteger.IsPrime: OLBoolean;
 var
-  i: Integer;
-  Limit: Integer;
+  i: Int64;
+  Limit: Int64;
 begin
   if not Self.ValuePresent then
     Exit(Null);
@@ -935,29 +1003,29 @@ begin
   Self := ConvertNumeralSystem(Value, 8);
 end;
 
-procedure OLInteger.SetRandom(const MaxValue:Integer = MaxInt);
+procedure OLInteger.SetRandom(const MaxValue: Int64 = MaxInt);
 begin
 
   Self.FValue := OLInteger.Random(MaxValue);
   Self.ValuePresent := True;
 end;
 
-procedure OLInteger.SetRandom(const MinValue: Integer; const MaxValue:Integer);
+procedure OLInteger.SetRandom(const MinValue: Int64; const MaxValue: Int64);
 begin
 
   Self.FValue := OLInteger.Random(MinValue, MaxValue);
   Self.ValuePresent := True;
 end;
 
-procedure OLInteger.SetRandomPrime(const MaxValue:Integer = MaxInt);
+procedure OLInteger.SetRandomPrime(const MaxValue: Int64 = MaxInt);
 begin
 
   Self.FValue := OLInteger.RandomPrime(MaxValue);
   Self.ValuePresent := True;
 end;
 
-procedure OLInteger.SetRandomPrime(const MinValue: Integer; const
-    MaxValue:Integer);
+procedure OLInteger.SetRandomPrime(const MinValue: Int64; const
+    MaxValue: Int64);
 begin
 
   Self.FValue := OLInteger.RandomPrime(MinValue, MaxValue);
@@ -1010,12 +1078,12 @@ begin
   Result := Output;
 end;
 
-class function OLInteger.Random(const MaxValue:Integer = MaxInt): OLInteger;
+class function OLInteger.Random(const MaxValue: Int64 = MaxInt): OLInteger;
 begin
   Result := OLInteger.Random(0, MaxValue);
 end;
 
-class function OLInteger.RandomPrime(const MaxValue:Integer = MaxInt):
+class function OLInteger.RandomPrime(const MaxValue: Int64 = MaxInt):
     OLInteger;
 begin
   Result := OLInteger.RandomPrime(0, MaxValue);
@@ -1072,6 +1140,49 @@ begin
   Result := ValuePresent;
 end;
 
+class operator OLInteger.Add(const a: Int64; const b: OLInteger): OLInteger;
+var
+  returnrec: OLInteger;
+begin
+  returnrec.FValue := a + b.FValue;
+  returnrec.ValuePresent := b.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInteger.Add(const a: OLInteger; const b: Int64): OLInteger;
+var
+  returnrec: OLInteger;
+begin
+   returnrec.FValue := a.FValue + b;
+  returnrec.ValuePresent := a.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInteger.Add(const a: OLDouble; const b: OLInteger): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+
+  if (a.IsNull()) or (not b.ValuePresent) then
+    OutPut := Null
+  else
+    OutPut := a + b.FValue;
+
+  Result := OutPut;
+end;
+
+class operator OLInteger.Add(const a: OLInteger; const b: OLDouble): OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if (not a.ValuePresent) or (b.IsNull) then
+    OutPut := Null
+  else
+    OutPut := a.FValue + b;
+
+  Result := OutPut;
+end;
+
 class operator OLInteger.LessThan(const a: OLInteger; const b: Extended):
     Boolean;
 begin
@@ -1090,7 +1201,6 @@ class operator OLInteger.Implicit(const a: OLInteger): OLDouble;
 var
   OutPut: OLDouble;
 begin
-
   if a.ValuePresent then
     OutPut := a.FValue
   else
@@ -1124,6 +1234,53 @@ begin
     OutPut := Null
   else
     OutPut := a.FValue / b;
+
+  Result := OutPut;
+end;
+
+class operator OLInteger.Subtract(const a: Int64; const b: OLInteger):
+    OLInteger;
+var
+  returnrec: OLInteger;
+begin
+  returnrec.FValue := a - b.FValue;
+  returnrec.ValuePresent := b.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInteger.Subtract(const a: OLInteger; const b: Int64):
+    OLInteger;
+var
+  returnrec: OLInteger;
+begin
+   returnrec.FValue := a.FValue - b;
+  returnrec.ValuePresent := a.ValuePresent;
+  Result := returnrec;
+end;
+
+class operator OLInteger.Subtract(const a: OLDouble; const b: OLInteger):
+    OLDouble;
+var
+  OutPut: OLDouble;
+begin
+  if (a.IsNull()) or (not b.ValuePresent) then
+    OutPut := Null
+  else
+    OutPut := a - b.FValue;
+
+  Result := OutPut;
+end;
+
+class operator OLInteger.Subtract(const a: OLInteger; const b: OLDouble):
+    OLDouble;
+var
+  OutPut: OLDouble;
+begin
+
+  if (not a.ValuePresent) or (b.IsNull) then
+    OutPut := Null
+  else
+    OutPut := a.FValue - b;
 
   Result := OutPut;
 end;

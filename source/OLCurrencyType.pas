@@ -1,4 +1,4 @@
-unit OLCurrencyType;
+﻿unit OLCurrencyType;
 
 interface
 
@@ -26,7 +26,7 @@ type
     /// </summary>
     property ValuePresent: OLBoolean read GetHasValue write SetHasValue;
   public
-    /// <summary>
+/// <summary>
     ///   Returns the square of the currency value.
     /// </summary>
     function Sqr(): OLCurrency;
@@ -91,9 +91,9 @@ type
     /// </summary>
     function IfNull(const i: OLCurrency): OLCurrency;
     /// <summary>
-    ///   Returns the Int64 value, or a replacement value if null.
+    ///   Returns the Double value, or a replacement value if null.
     /// </summary>
-    function AsCurrency(const NullReplacement: Currency = 0): Currency;
+    function AsCurrency(NullReplacement: Currency = 0): Currency;
     /// <summary>
     ///   Rounds the currency to the nearest integer.
     /// </summary>
@@ -118,49 +118,184 @@ type
     /// <param name="PowerOfTen">The power of ten to which the value is rounded. For negative values, rounding is performed on the fractional part (to the right of the decimal point).</param>
     function SimpleRoundTo(const PowerOfTen: Integer = -2): OLCurrency;
 
+    {$REGION 'Operator Overloads - OLCurrency vs OLCurrency'}
     class operator Add(const a, b: OLCurrency): OLCurrency;
-    class operator Add(const a: OLCurrency; const b: OLInteger): OLCurrency;
-    class operator Add(const a: OLInteger; const b: OLCurrency): OLCurrency;
     class operator Subtract(const a, b: OLCurrency): OLCurrency;
-    class operator Subtract(const a: OLCurrency; const b: OLInteger): OLCurrency;
-    class operator Subtract(const a: OLInteger; const b: OLCurrency): OLCurrency;
-    class operator Subtract(const a: OLCurrency; const b: integer): OLCurrency;
-    class operator Subtract(const a: integer; const b: OLCurrency): OLCurrency;
     class operator Multiply(const a, b: OLCurrency): OLCurrency;
-    class operator Multiply(const a: OLCurrency; b: OLInteger): OLCurrency;
-    class operator Multiply(const a: OLCurrency; const b: Int64): OLCurrency;
-    class operator Multiply(const a: Int64; const b: OLCurrency): OLCurrency;
-    class operator Multiply(const a: OLCurrency; b: Extended): OLCurrency;
-    class operator Multiply(const a: OLCurrency; b: Double): OLCurrency;
-    class operator Multiply(const a: OLCurrency; b: OLDouble): OLCurrency;
     class operator Divide(const a, b: OLCurrency): OLDouble;
-    class operator Divide(const a: OLDouble; const b: OLCurrency): OLDouble;
-    class operator Divide(const a: OLCurrency; const b: OLDouble): OLDouble;
-    class operator Divide(const a: Extended; const b: OLCurrency): OLDouble;
-    class operator Divide(const a: OLCurrency; const b: Extended): OLDouble;
-    class operator Divide(const a: OLCurrency; b: OLInteger): OLCurrency;
     class operator Negative(const a: OLCurrency): OLCurrency;
-
-    class operator Implicit(const a: Integer): OLCurrency;
-    class operator Implicit(const a: Extended): OLCurrency;
-    class operator Implicit(const a: OLCurrency): Extended;
-    class operator Implicit(const a: Double): OLCurrency;
-    class operator Implicit(const a: OLCurrency): Double;
-    class operator Implicit(const a: Real): OLCurrency;
-    class operator Implicit(const a: OLCurrency): Real;
-    class operator Implicit(const a: OLDouble): OLCurrency;
-    class operator Implicit(const a: OLCurrency): OLDouble;
-    class operator Implicit(const a: Variant): OLCurrency;
-    class operator Implicit(const a: OLCurrency): Variant;
-    class operator Implicit(const a: OLCurrency): Currency;
-
     class operator Equal(const a, b: OLCurrency): Boolean; overload;
     class operator NotEqual(const a, b: OLCurrency): Boolean; overload;
     class operator GreaterThan(const a, b: OLCurrency): Boolean; overload;
     class operator GreaterThanOrEqual(const a, b: OLCurrency): Boolean; overload;
     class operator LessThan(const a, b: OLCurrency): Boolean; overload;
     class operator LessThanOrEqual(const a, b: OLCurrency): Boolean; overload;
+    {$ENDREGION}
 
+    {$REGION 'Operator Overloads - Integer'}
+    // Implicit/Explicit
+    class operator Implicit(const a: Integer): OLCurrency;
+    class operator Explicit(const a: OLCurrency): Integer; // Conversion to Integer can be lossy
+    // Math (Bidirectional)
+    class operator Add(const a: OLCurrency; const b: Integer): OLCurrency;
+    class operator Add(const a: Integer; const b: OLCurrency): OLCurrency;
+    class operator Subtract(const a: OLCurrency; const b: Integer): OLCurrency;
+    class operator Subtract(const a: Integer; const b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLCurrency; const b: Integer): OLCurrency;
+    class operator Multiply(const a: Integer; const b: OLCurrency): OLCurrency;
+    class operator Divide(const a: OLCurrency; const b: Integer): OLDouble;
+    class operator Divide(const a: Integer; const b: OLCurrency): OLDouble;
+    // Compare
+    class operator Equal(const a: OLCurrency; const b: Integer): Boolean;
+    class operator NotEqual(const a: OLCurrency; const b: Integer): Boolean;
+    class operator GreaterThan(const a: OLCurrency; const b: Integer): Boolean;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Integer): Boolean;
+    class operator LessThan(const a: OLCurrency; const b: Integer): Boolean;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: Integer): Boolean;
+
+    class operator Equal(const a: Integer; const b: OLCurrency): Boolean;
+    class operator NotEqual(const a: Integer; const b: OLCurrency): Boolean;
+    class operator GreaterThan(const a: Integer; const b: OLCurrency): Boolean;
+    class operator GreaterThanOrEqual(const a: Integer; const b: OLCurrency): Boolean;
+    class operator LessThan(const a: Integer; const b: OLCurrency): Boolean;
+    class operator LessThanOrEqual(const a: Integer; const b: OLCurrency): Boolean;
+    {$ENDREGION}
+
+    {$REGION 'Operator Overloads - Double'}
+    // Implicit/Explicit
+    class operator Implicit(const a: Double): OLCurrency;
+    class operator Implicit(const a: OLCurrency): Double; // Kept Implicit as per original file style for floats
+    // Math (Bidirectional)
+    class operator Add(const a: OLCurrency; const b: Double): OLCurrency;
+    class operator Add(const a: Double; const b: OLCurrency): OLCurrency;
+    class operator Subtract(const a: OLCurrency; const b: Double): OLCurrency;
+    class operator Subtract(const a: Double; const b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLCurrency; const b: Double): OLCurrency;
+    class operator Multiply(const a: Double; const b: OLCurrency): OLCurrency;
+    class operator Divide(const a: OLCurrency; const b: Double): OLDouble;
+    class operator Divide(const a: Double; const b: OLCurrency): OLDouble;
+    // Compare
+    class operator Equal(const a: OLCurrency; const b: Double): Boolean;
+    class operator NotEqual(const a: OLCurrency; const b: Double): Boolean;
+    class operator GreaterThan(const a: OLCurrency; const b: Double): Boolean;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Double): Boolean;
+    class operator LessThan(const a: OLCurrency; const b: Double): Boolean;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: Double): Boolean;
+
+    class operator Equal(const a: Double; const b: OLCurrency): Boolean;
+    class operator NotEqual(const a: Double; const b: OLCurrency): Boolean;
+    class operator GreaterThan(const a: Double; const b: OLCurrency): Boolean;
+    class operator GreaterThanOrEqual(const a: Double; const b: OLCurrency): Boolean;
+    class operator LessThan(const a: Double; const b: OLCurrency): Boolean;
+    class operator LessThanOrEqual(const a: Double; const b: OLCurrency): Boolean;
+    {$ENDREGION}
+
+    {$REGION 'Operator Overloads - OLDouble'}
+    // Implicit/Explicit
+    class operator Implicit(const a: OLDouble): OLCurrency;
+    class operator Implicit(const a: OLCurrency): OLDouble; // Kept Implicit as per original file style for floats
+    // Math (Bidirectional)
+    class operator Add(const a: OLCurrency; const b: OLDouble): OLCurrency;
+    class operator Add(const a: OLDouble; const b: OLCurrency): OLCurrency;
+    class operator Subtract(const a: OLCurrency; const b: OLDouble): OLCurrency;
+    class operator Subtract(const a: OLDouble; const b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLCurrency; const b: OLDouble): OLCurrency;
+    class operator Multiply(const a: OLDouble; const b: OLCurrency): OLCurrency;
+    class operator Divide(const a: OLCurrency; const b: OLDouble): OLDouble;
+    class operator Divide(const a: OLDouble; const b: OLCurrency): OLDouble;
+    // Compare
+    class operator Equal(const a: OLCurrency; const b: OLDouble): Boolean;
+    class operator NotEqual(const a: OLCurrency; const b: OLDouble): Boolean;
+    class operator GreaterThan(const a: OLCurrency; const b: OLDouble): Boolean;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: OLDouble):
+        Boolean;
+    class operator LessThan(const a: OLCurrency; const b: OLDouble): Boolean;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: OLDouble): Boolean;
+
+    class operator Equal(const a: OLDouble; const b: OLCurrency): Boolean;
+    class operator NotEqual(const a: OLDouble; const b: OLCurrency): Boolean;
+    class operator GreaterThan(const a: OLDouble; const b: OLCurrency): Boolean;
+    class operator GreaterThanOrEqual(const a: OLDouble; const b: OLCurrency):
+        Boolean;
+    class operator LessThan(const a: OLDouble; const b: OLCurrency): Boolean;
+    class operator LessThanOrEqual(const a: OLDouble; const b: OLCurrency): Boolean;
+    {$ENDREGION}
+
+    {$REGION 'Operator Overloads - OLInteger'}
+    // Implicit/Explicit
+    class operator Implicit(const a: OLInteger): OLCurrency;
+    class operator Implicit(const a: OLCurrency): OLInteger;
+    // Math (Bidirectional)
+    class operator Add(const a: OLCurrency; const b: OLInteger): OLCurrency;
+    class operator Add(const a: OLInteger; const b: OLCurrency): OLCurrency;
+    class operator Subtract(const a: OLCurrency; const b: OLInteger): OLCurrency;
+    class operator Subtract(const a: OLInteger; const b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLCurrency; const b: OLInteger): OLCurrency;
+    class operator Multiply(const a: OLInteger; const b: OLCurrency): OLCurrency;
+    class operator Divide(const a: OLCurrency; const b: OLInteger): OLDouble;
+    class operator Divide(const a: OLInteger; const b: OLCurrency): OLDouble;
+    // Compare
+    class operator Equal(const a: OLCurrency; const b: OLInteger): Boolean;
+    class operator NotEqual(const a: OLCurrency; const b: OLInteger): Boolean;
+    class operator GreaterThan(const a: OLCurrency; const b: OLInteger): Boolean;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: OLInteger):
+        Boolean;
+    class operator LessThan(const a: OLCurrency; const b: OLInteger): Boolean;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: OLInteger):
+        Boolean;
+
+    class operator Equal(const a: OLInteger; const b: OLCurrency): Boolean;
+    class operator NotEqual(const a: OLInteger; const b: OLCurrency): Boolean;
+    class operator GreaterThan(const a: OLInteger; const b: OLCurrency): Boolean;
+    class operator GreaterThanOrEqual(const a: OLInteger; const b: OLCurrency):
+        Boolean;
+    class operator LessThan(const a: OLInteger; const b: OLCurrency): Boolean;
+    class operator LessThanOrEqual(const a: OLInteger; const b: OLCurrency):
+        Boolean;
+    {$ENDREGION}
+
+    {$REGION 'Operator Overloads - Extended'}
+    // Implicit/Explicit
+    class operator Implicit(const a: Extended): OLCurrency;
+    class operator Implicit(const a: OLCurrency): Extended;
+    // Math (Bidirectional)
+    class operator Add(const a: OLCurrency; const b: Extended): OLCurrency;
+    class operator Add(const a: Extended; const b: OLCurrency): OLCurrency;
+    class operator Subtract(const a: OLCurrency; const b: Extended): OLCurrency;
+    class operator Subtract(const a: Extended; const b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLCurrency; const b: Extended): OLCurrency;
+    class operator Multiply(const a: Extended; const b: OLCurrency): OLCurrency;
+    class operator Divide(const a: OLCurrency; const b: Extended): OLDouble;
+    class operator Divide(const a: Extended; const b: OLCurrency): OLDouble;
+    // Compare
+    class operator Equal(const a: OLCurrency; const b: Extended): Boolean;
+    class operator NotEqual(const a: OLCurrency; const b: Extended): Boolean;
+    class operator GreaterThan(const a: OLCurrency; const b: Extended): Boolean;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Extended): Boolean;
+    class operator LessThan(const a: OLCurrency; const b: Extended): Boolean;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: Extended): Boolean;
+
+    class operator Equal(const a: Extended; const b: OLCurrency): Boolean;
+    class operator NotEqual(const a: Extended; const b: OLCurrency): Boolean;
+    class operator GreaterThan(const a: Extended; const b: OLCurrency): Boolean;
+    class operator GreaterThanOrEqual(const a: Extended; const b: OLCurrency): Boolean;
+    class operator LessThan(const a: Extended; const b: OLCurrency): Boolean;
+    class operator LessThanOrEqual(const a: Extended; const b: OLCurrency): Boolean;
+    {$ENDREGION}
+
+    {$REGION 'Operator Overloads - Currency (Native)'}
+    // Implicit/Explicit
+    class operator Implicit(const a: OLCurrency): Currency;
+    // Math (Bidirectional)
+    class operator Add(const a: OLCurrency; const b: Currency): OLCurrency;
+    class operator Add(const a: Currency; const b: OLCurrency): OLCurrency;
+    class operator Subtract(const a: OLCurrency; const b: Currency): OLCurrency;
+    class operator Subtract(const a: Currency; const b: OLCurrency): OLCurrency;
+    class operator Multiply(const a: OLCurrency; const b: Currency): OLCurrency;
+    class operator Multiply(const a: Currency; const b: OLCurrency): OLCurrency;
+    class operator Divide(const a: OLCurrency; const b: Currency): OLDouble;
+    class operator Divide(const a: Currency; const b: OLCurrency): OLDouble;
+    // Compare
     class operator Equal(const a: OLCurrency; const b: Currency): Boolean; overload;
     class operator NotEqual(const a: OLCurrency; const b: Currency): Boolean; overload;
     class operator GreaterThan(const a: OLCurrency; const b: Currency): Boolean; overload;
@@ -168,27 +303,48 @@ type
     class operator LessThan(const a: OLCurrency; const b: Currency): Boolean; overload;
     class operator LessThanOrEqual(const a: OLCurrency; const b: Currency): Boolean; overload;
 
+    class operator Equal(const a: Currency; const b: OLCurrency): Boolean; overload;
+    class operator NotEqual(const a: Currency; const b: OLCurrency): Boolean; overload;
+    class operator GreaterThan(const a: Currency; const b: OLCurrency): Boolean; overload;
+    class operator GreaterThanOrEqual(const a: Currency; const b: OLCurrency): Boolean; overload;
+    class operator LessThan(const a: Currency; const b: OLCurrency): Boolean; overload;
+    class operator LessThanOrEqual(const a: Currency; const b: OLCurrency): Boolean; overload;
+    {$ENDREGION}
+
+    {$REGION 'Operator Overloads - Variant'}
+    class operator Implicit(const a: Variant): OLCurrency;
+    class operator Implicit(const a: OLCurrency): Variant;
+
     class operator Equal(const a: OLCurrency; const b: Variant): Boolean; overload;
-    class operator NotEqual(const a: OLCurrency; const b: Variant): Boolean; overload;
+    class operator Equal(const b: Variant; const a: OLCurrency): Boolean; overload;
 
-    class operator Equal(const a: OLCurrency; const b: Extended): Boolean; overload;
-    class operator NotEqual(const a: OLCurrency; const b: Extended): Boolean; overload;
-    class operator GreaterThan(const a: OLCurrency; const b: Extended): Boolean; overload;
-    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Extended): Boolean; overload;
-    class operator LessThan(const a: OLCurrency; const b: Extended): Boolean; overload;
-    class operator LessThanOrEqual(const a: OLCurrency; const b: Extended): Boolean; overload;
+    class operator NotEqual(const a: OLCurrency; const b: Variant): Boolean;
+        overload;
+    class operator NotEqual(const b: Variant; const a: OLCurrency): Boolean;
+        overload;
 
-    class operator Equal(const a: OLCurrency; const b: Double): Boolean; overload;
-    class operator Equal(const a: OLCurrency; const b: OLDouble): Boolean; overload;
+    class operator GreaterThan(const a: OLCurrency; const b: Variant): Boolean;
+        overload;
+    class operator GreaterThan(const b: Variant; const a: OLCurrency): Boolean;
+        overload;
+    class operator GreaterThanOrEqual(const a: OLCurrency; const b: Variant): Boolean;
+        overload;
+    class operator GreaterThanOrEqual(const b: Variant; const a: OLCurrency): Boolean;
+        overload;
 
-    class operator Equal(const a: OLCurrency; const b: integer): Boolean; overload;
+    class operator LessThan(const a: OLCurrency; const b: Variant): Boolean;
+        overload;
+    class operator LessThan(const b: Variant; const a: OLCurrency): Boolean;
+        overload;
+    class operator LessThanOrEqual(const a: OLCurrency; const b: Variant): Boolean;
+        overload;
+    class operator LessThanOrEqual(const b: Variant; const a: OLCurrency): Boolean;
+        overload;
+    {$ENDREGION}
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLCurrency);
     class operator Assign(var Dest: OLCurrency; const [ref] Src: OLCurrency);
-    /// <summary>
-    ///   Event handler for value changes.
-    /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     {$IFEND}
   end;
@@ -204,6 +360,9 @@ uses
 const
   NonEmptyStr = ' ';
 
+// ... (Keep generic helpers: Abs, Between, Ceil, Floor, Sqr, Power, Round, SimpleRoundTo, IsPositive/Negative etc.) ...
+// I will list the Operator Implementations below.
+
 function OLCurrency.Abs(): OLCurrency;
 begin
   if Self.ValuePresent then
@@ -212,142 +371,33 @@ begin
     Result := Null;
 end;
 
-function OLCurrency.AsCurrency(const NullReplacement: Currency = 0): Currency;
+function OLCurrency.AsCurrency(NullReplacement: Currency = 0): Currency;
 begin
   Result := IfNull(NullReplacement);
 end;
 
-class operator OLCurrency.Add(const a, b: OLCurrency): OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.FValue := a.FValue + b.FValue;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
-  Result := returnrec;
-end;
-
-function OLCurrency.Between(const BottomIncluded, TopIncluded: OLCurrency):
-    OLBoolean;
-var
-  OutPut: OLBoolean;
+function OLCurrency.Between(const BottomIncluded, TopIncluded: OLCurrency): OLBoolean;
 begin
   if HasValue() then
-    OutPut := ((FValue <= TopIncluded) and (FValue >= BottomIncluded))
+    Result := ((FValue <= TopIncluded) and (FValue >= BottomIncluded))
   else
-    OutPut := Null;
-
-  Result := OutPut;
+    Result := Null;
 end;
 
 function OLCurrency.Ceil: OLInteger;
-var
-  OutPut: OLInteger;
 begin
   if HasValue then
-    OutPut := Math.Ceil(Self)
+    Result := Math.Ceil(Self)
   else
-    OutPut := null;
-
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Implicit(const a: Extended): OLCurrency;
-var
-  OutPut: OLCurrency;
-begin
-  OutPut.FValue := a;
-  OutPut.ValuePresent := true;
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Implicit(const a: OLCurrency): Extended;
-var
-  OutPut: Extended;
-begin
-  if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as Extended value');
-  OutPut := a.FValue;
-  Result := OutPut;
-end;
-
-
-class operator OLCurrency.Divide(const a: OLDouble; const b: OLCurrency):
-    OLDouble;
-var
-  OutPut: OLDouble;
-begin
-  if (a.IsNull()) or (not b.ValuePresent) then
-    OutPut := Null
-  else
-    OutPut := a / b.FValue;
-
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Divide(const a: OLCurrency; const b: OLDouble):
-    OLDouble;
-var
-  OutPut: OLDouble;
-begin
-  if (not a.ValuePresent) or (b.IsNull()) then
-    OutPut := Null
-  else
-    OutPut := a.FValue / b;
-
-
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Equal(const a: OLCurrency; const b: Extended):
-    Boolean;
-begin
-  Result := (System.Abs(a.FValue - b) < 1e-10) and a.ValuePresent;
-end;
-
-class operator OLCurrency.Equal(const a: OLCurrency; const b: Currency): Boolean;
-begin
-  Result := (a.FValue = b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.Equal(const a: OLCurrency; const b: Variant): Boolean;
-begin
-  Result := ((a.FValue = b) and (a.ValuePresent and (b <> Null))) or (a.IsNull() and (b = Null));
-end;
-
-class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Variant): Boolean;
-begin
-  Result := not (a = b);
+    Result := null;
 end;
 
 function OLCurrency.Floor: OLInteger;
-var
-  OutPut: OLInteger;
 begin
   if HasValue then
-    OutPut := Math.Floor(Self)
+    Result := Math.Floor(Self)
   else
-    OutPut := null;
-
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Divide(const a, b: OLCurrency): OLDouble;
-var
-  OutPut: OLDouble;
-begin
-  if (not a.ValuePresent) or (not b.ValuePresent) then
-    OutPut := Null
-  else
-    OutPut := a.FValue / b.FValue;
-
-
-  Result := OutPut;
-end;
-
-
-class operator OLCurrency.Equal(const a, b: OLCurrency): Boolean;
-begin
-  Result := ((a.FValue = b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+    Result := null;
 end;
 
 function OLCurrency.GetHasValue: OLBoolean;
@@ -357,6 +407,214 @@ begin
   {$ELSE}
   Result := FHasValue = ' ';
   {$IFEND}
+end;
+
+procedure OLCurrency.SetHasValue(const Value: OLBoolean);
+begin
+  {$IF CompilerVersion >= 34.0}
+  FHasValue := Value;
+  {$ELSE}
+  FHasValue := Value.IfThen(' ', '');
+  {$IFEND}
+end;
+
+function OLCurrency.HasValue: OLBoolean;
+begin
+  Result := ValuePresent;
+end;
+
+function OLCurrency.IsNull: OLBoolean;
+begin
+  Result := not ValuePresent;
+end;
+
+function OLCurrency.IfNull(const i: OLCurrency): OLCurrency;
+begin
+  if ValuePresent then
+    Result := Self
+  else
+    Result := i;
+end;
+
+function OLCurrency.Max(const i: OLCurrency): OLCurrency;
+begin
+  if (not ValuePresent) or (i.IsNull) then
+    Result := Null
+  else
+    Result := Math.Max(FValue, i.FValue);
+end;
+
+function OLCurrency.Min(const i: OLCurrency): OLCurrency;
+begin
+  if (not ValuePresent) or (i.IsNull) then
+    Result := Null
+  else
+    Result := Math.Min(FValue, i.FValue);
+end;
+
+function OLCurrency.Power(const Exponent: integer): OLCurrency;
+begin
+  Result.ValuePresent := Self.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := Math.IntPower(FValue, Exponent);
+end;
+
+function OLCurrency.Round: OLInteger;
+begin
+  if HasValue then
+    Result := System.Trunc(Math.RoundTo(Self, 0))
+  else
+    Result := null;
+end;
+
+function OLCurrency.Round(const PowerOfTen: integer): OLCurrency;
+begin
+  if HasValue then
+    Result := Math.RoundTo(Self, PowerOfTen)
+  else
+    Result := null;
+end;
+
+function OLCurrency.SimpleRoundTo(const PowerOfTen: Integer = -2): OLCurrency;
+begin
+  if HasValue then
+    Result := Math.SimpleRoundTo(Self, PowerOfTen)
+  else
+    Result := null;
+end;
+
+function OLCurrency.Sqr: OLCurrency;
+begin
+  Result.ValuePresent := ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := FValue * FValue;
+end;
+
+function OLCurrency.IsPositive: OLBoolean;
+begin
+  if not ValuePresent then Result := Null else Result := FValue > 0;
+end;
+
+function OLCurrency.IsNegative: OLBoolean;
+begin
+  if not ValuePresent then Result := Null else Result := FValue < 0;
+end;
+
+function OLCurrency.IsNonNegative: OLBoolean;
+begin
+  if not ValuePresent then Result := Null else Result := FValue >= 0;
+end;
+
+function OLCurrency.ToString: string;
+begin
+  Result := ToStrF(ffCurrency, 2);
+end;
+
+function OLCurrency.ToSQLString: string;
+var
+  fs: TFormatSettings;
+begin
+  fs.ThousandSeparator := #0;
+  fs.DecimalSeparator := '.';
+  if HasValue then
+    Result := CurrToStrF(Self, ffNumber, 4, fs)
+  else
+    Result := 'NULL';
+end;
+
+function OLCurrency.ToStrF(Format: TFloatFormat; Digits: Integer): string;
+begin
+  if Digits < 0 then
+    raise EArgumentOutOfRangeException.Create('Digits must be >= 0');
+  if ValuePresent then
+    Result := CurrToStrF(FValue, Format, Digits)
+  else
+    Result := EmptyStr;
+end;
+
+function OLCurrency.ToString(ThousandSeparator, DecimalSeparator: Char; Format: string): string;
+var
+  fs: TFormatSettings;
+begin
+  if ValuePresent then
+  begin
+    if ThousandSeparator = DecimalSeparator then
+      raise EArgumentException.Create('ThousandSeparator and DecimalSeparator must differ');
+    if Format = '' then
+      raise EArgumentException.Create('Format string cannot be empty');
+    fs.ThousandSeparator := ThousandSeparator;
+    fs.DecimalSeparator := DecimalSeparator;
+    try
+      Result := FormatFloat(Format, FValue, fs);
+    except
+      on E: EConvertError do
+        raise EArgumentException.CreateFmt('Invalid format string: %s', [Format]);
+    end;
+  end
+  else
+    Result := '';
+end;
+
+{$IF CompilerVersion >= 34.0}
+class operator OLCurrency.Initialize(out Dest: OLCurrency);
+begin
+  Dest.FHasValue := False;
+  Dest.FOnChange := nil;
+end;
+
+class operator OLCurrency.Assign(var Dest: OLCurrency; const [ref] Src: OLCurrency);
+begin
+  Dest.FValue := Src.FValue;
+  Dest.FHasValue := Src.FHasValue;
+  if Assigned(Dest.FOnChange) then Dest.FOnChange(nil);
+end;
+{$IFEND}
+
+{ ============================================================================ }
+{                               OPERATOR IMPLEMENTATIONS                       }
+{ ============================================================================ }
+
+{$REGION 'OLCurrency vs OLCurrency'}
+class operator OLCurrency.Add(const a, b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent and b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue + b.FValue;
+end;
+
+class operator OLCurrency.Subtract(const a, b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent and b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue - b.FValue;
+end;
+
+class operator OLCurrency.Multiply(const a, b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent and b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue * b.FValue;
+end;
+
+class operator OLCurrency.Divide(const a, b: OLCurrency): OLDouble;
+begin
+  if (not a.ValuePresent) or (not b.ValuePresent) then
+    Result := Null
+  else
+    Result := a.FValue / b.FValue;
+end;
+
+class operator OLCurrency.Negative(const a: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then Result.FValue := -a.FValue;
+end;
+
+class operator OLCurrency.Equal(const a, b: OLCurrency): Boolean;
+begin
+  Result := ((a.FValue = b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
+end;
+
+class operator OLCurrency.NotEqual(const a, b: OLCurrency): Boolean;
+begin
+  Result := not (a = b);
 end;
 
 class operator OLCurrency.GreaterThan(const a, b: OLCurrency): Boolean;
@@ -369,68 +627,6 @@ begin
   Result := ((a.FValue >= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
 
-function OLCurrency.IfNull(const i: OLCurrency): OLCurrency;
-var
-  Output: OLCurrency;
-begin
-  if ValuePresent then
-    Output := Self
-  else
-    Output := i;
-
-  Result := Output;
-end;
-
-class operator OLCurrency.Implicit(const a: OLCurrency): Variant;
-var
-  OutPut: Variant;
-begin
-  if a.ValuePresent then
-    OutPut := a.FValue
-  else
-    OutPut := Null;
-
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Implicit(const a: OLCurrency): Double;
-var
-  OutPut: Double;
-begin
-  if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as Double value');
-  OutPut := a.FValue;
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Implicit(const a: Variant): OLCurrency;
-var
-  OutPut: OLCurrency;
-  i: Currency;
-begin
-  if VarIsNull(a) then
-    OutPut.ValuePresent := false
-  else
-  begin
-    if TryStrToCurr(a, i) then
-    begin
-      OutPut.FValue := i;
-      OutPut.ValuePresent := true;
-    end
-    else
-    begin
-      raise Exception.Create('Value ''' + VarToStr(a) + ''' cannot be assigned to variable of OLCurrency type.');
-    end;
-  end;
-
-  Result := OutPut;
-end;
-
-function OLCurrency.IsNull: OLBoolean;
-begin
-  Result := not ValuePresent;
-end;
-
 class operator OLCurrency.LessThan(const a, b: OLCurrency): Boolean;
 begin
   Result := (a.FValue < b.FValue) and a.ValuePresent and b.ValuePresent;
@@ -440,564 +636,1071 @@ class operator OLCurrency.LessThanOrEqual(const a, b: OLCurrency): Boolean;
 begin
   Result := ((a.FValue <= b.FValue) and (a.ValuePresent and b.ValuePresent)) or (a.IsNull() and b.IsNull());
 end;
+{$ENDREGION}
 
-function OLCurrency.Max(const i: OLCurrency): OLCurrency;
-begin
-  if (not ValuePresent) or (i = Null) then
-    Result := Null
-  else
-    Result := Math.Max(FValue, i);
-end;
-
-function OLCurrency.Min(const i: OLCurrency): OLCurrency;
-begin
-  if (not ValuePresent) or (i = Null) then
-    Result := Null
-  else
-    Result := Math.Min(FValue, i);
-end;
-
-
-class operator OLCurrency.Multiply(const a: OLCurrency; b: Extended): OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.FValue := a.FValue * b;
-  returnrec.ValuePresent := a.ValuePresent;
-  Result := returnrec;
-end;
-
-class operator OLCurrency.Multiply(const a: OLCurrency; b: OLInteger): OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.FValue := a.FValue * b.AsInteger();
-  returnrec.ValuePresent := a.ValuePresent and b.HasValue();
-  Result := returnrec;
-end;
-
-class operator OLCurrency.Multiply(const a, b: OLCurrency): OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.FValue := a.FValue * b.FValue;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
-  Result := returnrec;
-end;
-
-class operator OLCurrency.Negative(const a: OLCurrency): OLCurrency;
-var
-  b: OLCurrency;
-begin
-  b.FValue := -a.FValue;
-  b.ValuePresent := a.ValuePresent;
-  Result := b;
-end;
-
-class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Extended):
-    Boolean;
-begin
-  Result := (System.Abs(a.FValue - b) > 1e-10) and a.ValuePresent;
-end;
-
-class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Currency): Boolean;
-begin
-  Result := (a.FValue <> b) and a.ValuePresent;
-end;
-
-function OLCurrency.IsNegative: OLBoolean;
-begin
-  if not ValuePresent then
-    Result := Null
-  else
-    Result := FValue < 0;
-end;
-
-function OLCurrency.IsNonNegative: OLBoolean;
-begin
-  if not ValuePresent then
-    Result := Null
-  else
-    Result := FValue >= 0;
-end;
-
-class operator OLCurrency.NotEqual(const a, b: OLCurrency): Boolean;
-begin
-  Result := ((a.FValue <> b.FValue) and a.ValuePresent and b.ValuePresent) or (a.ValuePresent <> b.ValuePresent);
-end;
-
-function OLCurrency.Power(const Exponent: integer): OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.ValuePresent := self.ValuePresent;
-  if returnrec.ValuePresent then
-    returnrec.FValue := Math.IntPower(FValue, Exponent);
-  Result := returnrec;
-end;
-
-
-function OLCurrency.Round: OLInteger;
-var
-  OutPut: OLInteger;
-begin
-  if HasValue then
-    OutPut := System.Trunc(Math.RoundTo(Self, 0))
-  else
-    OutPut := null;
-
-  Result := OutPut;
-end;
-
-function OLCurrency.IsPositive: OLBoolean;
-begin
-  if not ValuePresent then
-    Result := Null
-  else
-    Result := FValue > 0;
-end;
-
-
-procedure OLCurrency.SetHasValue(const Value: OLBoolean);
-begin
-  {$IF CompilerVersion >= 34.0}
-  FHasValue := Value;
-  {$ELSE}
-  FHasValue := Value.IfThen(' ', '');
-  {$IFEND}
-end;
-
-{$IF CompilerVersion >= 34.0}
-class operator OLCurrency.Initialize(out Dest: OLCurrency);
-begin
-  Dest.FHasValue := False;
-  Dest.FOnChange := nil;
-end;
-{$IFEND}
-
-{$IF CompilerVersion >= 34.0}
-class operator OLCurrency.Assign(var Dest: OLCurrency; const [ref] Src: OLCurrency);
-begin
-  Dest.FValue := Src.FValue;
-  Dest.FHasValue := Src.FHasValue;
-
-  if Assigned(Dest.FOnChange) then
-    Dest.FOnChange(nil);
-end;
-{$IFEND}
-
-function OLCurrency.Sqr: OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.FValue := FValue * FValue;
-  returnrec.ValuePresent := ValuePresent;
-  Result := returnrec;
-end;
-
-class operator OLCurrency.Subtract(const a, b: OLCurrency): OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.FValue := a.FValue - b.FValue;
-  returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
-  Result := returnrec;
-end;
-
-function OLCurrency.ToString: string;
-begin
-  Result := ToStrF(ffCurrency, 2);
-end;
-
-function OLCurrency.ToSQLString: string;
-var
-  fs: TFormatSettings;
-  OutPut: string;
-begin
-  fs.ThousandSeparator := #0;
-  fs.DecimalSeparator := '.';
-
-  if HasValue then
-    OutPut := CurrToStrF(Self, ffNumber, 4, fs)
-  else
-    OutPut := 'NULL';
-
-  Result := OutPut;
-end;
-
-function OLCurrency.ToStrF(Format: TFloatFormat; Digits: Integer): string;
-var
-  Output: string;
-begin
-  if Digits < 0 then
-    raise EArgumentOutOfRangeException.Create('Digits must be >= 0');
-  if ValuePresent then
-    Output := CurrToStrF(FValue, Format, Digits)
-  else
-    Output := EmptyStr;
-
-  Result := Output;
-end;
-
-function OLCurrency.ToString(ThousandSeparator, DecimalSeparator: Char; Format: string): string;
-var
-  fs: TFormatSettings;
-  Output: string;
-begin
-  if ValuePresent then
-  begin
-    if ThousandSeparator = DecimalSeparator then
-      raise EArgumentException.Create('ThousandSeparator and DecimalSeparator must differ');
-    if Format = '' then
-      raise EArgumentException.Create('Format string cannot be empty');
-    fs.ThousandSeparator := ThousandSeparator;
-    fs.DecimalSeparator := DecimalSeparator;
-    try
-      Output := FormatFloat(Format, FValue, fs);
-    except
-      on E: EConvertError do
-        raise EArgumentException.CreateFmt('Invalid format string: %s', [Format]);
-    end;
-  end
-  else
-    Output := '';
-
-  Result := Output;
-end;
-
-function OLCurrency.Round(const PowerOfTen: integer): OLCurrency;
-var
-  OutPut: OLCurrency;
-begin
-  if HasValue then
-    OutPut := Math.RoundTo(Self, PowerOfTen)
-  else
-    OutPut := null;
-
-  Result := OutPut;
-end;
-
-function OLCurrency.SimpleRoundTo(const PowerOfTen: Integer = -2): OLCurrency;
-var
-  OutPut: OLCurrency;
-begin
-  if HasValue then
-    OutPut := Math.SimpleRoundTo(Self, PowerOfTen)
-  else
-    OutPut := null;
-
-  Result := OutPut;
-end;
-
-
-class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Extended):
-    Boolean;
-begin
-  Result := (a.FValue > b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Currency): Boolean;
-begin
-  Result := (a.FValue > b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
-begin
-  Result := (a.FValue >= b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b:
-    Extended): Boolean;
-begin
-  Result := (a.FValue >= b) and a.ValuePresent;
-end;
-
-function OLCurrency.HasValue: OLBoolean;
-begin
-  Result := ValuePresent;
-end;
-
-class operator OLCurrency.Add(const a: OLCurrency; const b: OLInteger):
-    OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  if a.IsNull() or b.IsNull() then
-    returnrec := Null
-  else
-  begin
-    returnrec.FValue := a.FValue + b;
-    returnrec.ValuePresent := True;
-  end;
-
-  Result := returnrec;
-end;
-
-class operator OLCurrency.Add(const a: OLInteger; const b: OLCurrency):
-    OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  if a.IsNull() or b.IsNull() then
-    returnrec := Null
-  else
-  begin
-    returnrec.FValue := a + b.FValue;
-    returnrec.ValuePresent := True;
-  end;
-
-  Result := returnrec;
-end;
-
-class operator OLCurrency.LessThan(const a: OLCurrency; const b: Extended):
-    Boolean;
-begin
-  Result := (a.FValue < b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.LessThan(const a: OLCurrency; const b: Currency): Boolean;
-begin
-  Result := (a.FValue < b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
-begin
-  Result := (a.FValue <= b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b:
-    Extended): Boolean;
-begin
-  Result := (a.FValue <= b) and a.ValuePresent;
-end;
-
-class operator OLCurrency.Implicit(const a: OLCurrency): Currency;
-var
-  OutPut: Extended;
-begin
-  if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as Currency value');
-  OutPut := a.FValue;
-  Result := OutPut;
-end;
-
+{$REGION 'Integer'}
 class operator OLCurrency.Implicit(const a: Integer): OLCurrency;
-var
-  OutPut: OLCurrency;
 begin
-  OutPut.FValue := a;
-  OutPut.ValuePresent := true;
-  Result := OutPut;
+  Result.FValue := a;
+  Result.ValuePresent := True;
 end;
 
-class operator OLCurrency.Implicit(const a: OLCurrency): Real;
-var
-  OutPut: Real;
+class operator OLCurrency.Explicit(const a: OLCurrency): Integer;
 begin
   if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as Real value');
-  OutPut := a.FValue;
-  Result := OutPut;
+    raise Exception.Create('Null OLCurrency cannot be converted to Integer');
+  Result := System.Round(a.FValue);
 end;
 
-class operator OLCurrency.Implicit(const a: Real): OLCurrency;
-var
-  OutPut: OLCurrency;
+class operator OLCurrency.Add(const a: OLCurrency; const b: Integer): OLCurrency;
 begin
-  OutPut.FValue := a;
-  OutPut.ValuePresent := true;
-  Result := OutPut;
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue + b;
 end;
 
-class operator OLCurrency.Implicit(const a: OLCurrency): OLDouble;
-var
-  OutPut: OLDouble;
+class operator OLCurrency.Add(const a: Integer; const b: OLCurrency): OLCurrency;
 begin
-  if a.IsNull then
-    OutPut := Null
-  else
-    OutPut := a.FValue;
-
-  Result := OutPut;
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a + b.FValue;
 end;
 
-class operator OLCurrency.Implicit(const a: OLDouble): OLCurrency;
-var
-  OutPut: OLCurrency;
+class operator OLCurrency.Subtract(const a: OLCurrency; const b: Integer): OLCurrency;
 begin
-  OutPut.ValuePresent := a.HasValue;
-  if a.HasValue then
-    OutPut.FValue := a;
-
-  Result := OutPut;
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue - b;
 end;
 
+class operator OLCurrency.Subtract(const a: Integer; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a - b.FValue;
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; const b: Integer): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue * b;
+end;
+
+class operator OLCurrency.Multiply(const a: Integer; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a * b.FValue;
+end;
+
+class operator OLCurrency.Divide(const a: OLCurrency; const b: Integer): OLDouble;
+begin
+  if not a.ValuePresent then Result := Null else Result := a.FValue / b;
+end;
+
+class operator OLCurrency.Divide(const a: Integer; const b: OLCurrency): OLDouble;
+begin
+  if not b.ValuePresent then Result := Null else Result := a / b.FValue;
+end;
+
+class operator OLCurrency.Equal(const a: OLCurrency; const b: Integer): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue = b);
+end;
+
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Integer): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue <> b);
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Integer): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue > b);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Integer): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue >= b);
+end;
+
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: Integer): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue < b);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Integer): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue <= b);
+end;
+{$ENDREGION}
+
+{$REGION 'Double'}
 class operator OLCurrency.Implicit(const a: Double): OLCurrency;
-var
-  OutPut: OLCurrency;
 begin
-  OutPut.FValue := a;
-  OutPut.ValuePresent := true;
-  Result := OutPut;
+  Result.FValue := a;
+  Result.ValuePresent := True;
 end;
 
-class operator OLCurrency.Divide(const a: Extended; const b: OLCurrency):
-    OLDouble;
-var
-  OutPut: OLDouble;
+class operator OLCurrency.Implicit(const a: OLCurrency): Double;
 begin
-  if (not b.ValuePresent) then
-    OutPut := Null
+  if not a.ValuePresent then raise Exception.Create('Null OLCurrency cannot be used as Double value');
+  Result := a.FValue;
+end;
+
+class operator OLCurrency.Add(const a: OLCurrency; const b: Double): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a.FValue + b;
+end;
+
+class operator OLCurrency.Add(const a: Double; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a + b.FValue;
+end;
+
+class operator OLCurrency.Subtract(const a: OLCurrency; const b: Double): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a.FValue - b;
+end;
+
+class operator OLCurrency.Subtract(const a: Double; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a - b.FValue;
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; const b: Double): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a.FValue * b;
+end;
+
+class operator OLCurrency.Multiply(const a: Double; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a * b.FValue;
+end;
+
+class operator OLCurrency.Divide(const a: OLCurrency; const b: Double): OLDouble;
+begin
+  if not a.ValuePresent then
+    Result := Null
   else
-    OutPut := a / b.FValue;
-
-  Result := OutPut;
+    Result := a.FValue / b;
 end;
 
-class operator OLCurrency.Divide(const a: OLCurrency; const b: Extended):
-    OLDouble;
-var
-  OutPut: OLDouble;
+class operator OLCurrency.Divide(const a: Double; const b: OLCurrency): OLDouble;
 begin
-  if (not a.ValuePresent) then
-    OutPut := Null
-  else
-    OutPut := a.FValue / b;
-
-
-  Result := OutPut;
-end;
-
-class operator OLCurrency.Divide(const a: OLCurrency; b: OLInteger): OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  returnrec.FValue := a.FValue / b.AsInteger();
-  returnrec.ValuePresent := a.ValuePresent and b.HasValue();
-  Result := returnrec;
+  if not b.ValuePresent then Result := Null else Result := a / b.FValue;
 end;
 
 class operator OLCurrency.Equal(const a: OLCurrency; const b: Double): Boolean;
 begin
-  Result := (System.Abs(a.FValue - b) < 1e-10) and a.ValuePresent;
+  Result := a.ValuePresent and (SameValue(a.FValue, b));
 end;
 
-class operator OLCurrency.Equal(const a: OLCurrency; const b: integer): Boolean;
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Double): Boolean;
 begin
-  Result := (a.FValue = b) and a.ValuePresent;
+  Result := a.ValuePresent and (not SameValue(a.FValue, b));
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Double): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue > b);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Double): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue >= b);
+end;
+
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: Double): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue < b);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Double): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue <= b);
+end;
+{$ENDREGION}
+
+{$REGION 'Extended'}
+class operator OLCurrency.Implicit(const a: Extended): OLCurrency;
+begin
+  Result.FValue := a;
+  Result.ValuePresent := True;
+end;
+
+class operator OLCurrency.Implicit(const a: OLCurrency): Extended;
+begin
+  if not a.ValuePresent then raise Exception.Create('Null OLCurrency cannot be used as Extended value');
+  Result := a.FValue;
+end;
+
+class operator OLCurrency.Add(const a: OLCurrency; const b: Extended): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a.FValue + b;
+end;
+
+class operator OLCurrency.Add(const a: Extended; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a + b.FValue;
+end;
+
+class operator OLCurrency.Subtract(const a: OLCurrency; const b: Extended): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a.FValue - b;
+end;
+
+class operator OLCurrency.Subtract(const a: Extended; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a - b.FValue;
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; const b: Extended): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then
+    Result.FValue := a.FValue * b;
+end;
+
+class operator OLCurrency.Multiply(const a: Extended; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a * b.FValue;
+end;
+
+class operator OLCurrency.Divide(const a: OLCurrency; const b: Extended): OLDouble;
+begin
+  if not a.ValuePresent then Result := Null else Result := a.FValue / b;
+end;
+
+class operator OLCurrency.Divide(const a: Extended; const b: OLCurrency): OLDouble;
+begin
+  if not b.ValuePresent then Result := Null else Result := a / b.FValue;
+end;
+
+class operator OLCurrency.Equal(const a: OLCurrency; const b: Extended): Boolean;
+begin
+  Result := a.ValuePresent and (SameValue(a.FValue, b));
+end;
+
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Extended): Boolean;
+begin
+  Result := a.ValuePresent and (not SameValue(a.FValue, b));
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Extended): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue > b);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Extended): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue >= b);
+end;
+
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: Extended): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue < b);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Extended): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue <= b);
+end;
+{$ENDREGION}
+
+{$REGION 'Currency'}
+class operator OLCurrency.Implicit(const a: OLCurrency): Currency;
+begin
+  if not a.ValuePresent then raise Exception.Create('Null OLCurrency cannot be used as Currency value');
+  Result := a.FValue;
+end;
+
+class operator OLCurrency.Add(const a: OLCurrency; const b: Currency): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue + b;
+end;
+
+class operator OLCurrency.Add(const a: Currency; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a + b.FValue;
+end;
+
+class operator OLCurrency.Add(const a: OLCurrency; const b: OLDouble):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent and b.HasValue;
+  if Result.ValuePresent then Result.FValue := a.FValue + b.AsDouble();
+end;
+
+class operator OLCurrency.Add(const a: OLDouble; const b: OLCurrency):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.HasValue and b.HasValue;
+  if Result.ValuePresent then
+    Result.FValue := a.AsDouble + b.FValue;
+end;
+
+class operator OLCurrency.Add(const a: OLCurrency; const b: OLInteger):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent and b.HasValue;
+  if Result.ValuePresent then Result.FValue := a.FValue + b.AsInt64();
+end;
+
+class operator OLCurrency.Add(const a: OLInteger; const b: OLCurrency):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.HasValue and b.HasValue;
+  if Result.ValuePresent then
+    Result.FValue := a.AsInt64() + b.FValue;
+end;
+
+class operator OLCurrency.Subtract(const a: OLCurrency; const b: Currency): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue - b;
+end;
+
+class operator OLCurrency.Subtract(const a: Currency; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a - b.FValue;
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; const b: Currency): OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a.FValue * b;
+end;
+
+class operator OLCurrency.Multiply(const a: Currency; const b: OLCurrency): OLCurrency;
+begin
+  Result.ValuePresent := b.ValuePresent;
+  if Result.ValuePresent then Result.FValue := a * b.FValue;
+end;
+
+class operator OLCurrency.Divide(const a: OLCurrency; const b: Currency): OLDouble;
+begin
+  if not a.ValuePresent then Result := Null else Result := a.FValue / b;
+end;
+
+class operator OLCurrency.Divide(const a: Currency; const b: OLCurrency): OLDouble;
+begin
+  if not b.ValuePresent then Result := Null else Result := a / b.FValue;
+end;
+
+class operator OLCurrency.Divide(const a: OLCurrency; const b: OLDouble):
+    OLDouble;
+begin
+  if a.ValuePresent and b.HasValue then
+    Result := a.FValue / b.AsDouble()
+  else
+    Result := Null;
+end;
+
+class operator OLCurrency.Divide(const a: OLDouble; const b: OLCurrency):
+    OLDouble;
+begin
+  if a.HasValue and b.HasValue then
+    Result := a.AsDouble() / b.FValue
+  else
+    Result := Null;
+end;
+
+class operator OLCurrency.Divide(const a: OLCurrency; const b: OLInteger):
+    OLDouble;
+begin
+  if a.IsNull or b.IsNull then
+    Result := Null
+  else
+    Result := a.FValue / b.AsInt64();
+end;
+
+class operator OLCurrency.Divide(const a: OLInteger; const b: OLCurrency):
+    OLDouble;
+begin
+  if a.IsNull or b.IsNull then
+    Result := Null
+  else
+    Result := a.AsInt64() / b.FValue;
+end;
+
+class operator OLCurrency.Equal(const a: OLCurrency; const b: Currency): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue = b);
 end;
 
 class operator OLCurrency.Equal(const a: OLCurrency; const b: OLDouble):
     Boolean;
 begin
-  Result := (System.Abs(a.FValue - b) < 1e-10) and a.ValuePresent and b.HasValue();
+  Result := a.ValuePresent and b.HasValue() and (SameValue(a.FValue, b.AsDouble()));
 end;
 
-class operator OLCurrency.Multiply(const a: OLCurrency; b: Double): OLCurrency;
-var
-  returnrec: OLCurrency;
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  returnrec.FValue := a.FValue * b;
-  returnrec.ValuePresent := a.ValuePresent;
-  Result := returnrec;
+  Result := a.ValuePresent and (a.FValue <> b);
 end;
 
-class operator OLCurrency.Multiply(const a: OLCurrency; b: OLDouble): OLCurrency;
-var
-  OutPut: OLDouble;
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Currency): Boolean;
 begin
-  if (not a.ValuePresent) or (b.IsNull()) then
-    OutPut := Null
+  Result := a.ValuePresent and (a.FValue > b);
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: OLDouble):
+    Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue > b.AsDouble());
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue >= b);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b:
+    OLDouble): Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue >= b.AsDouble());
+end;
+
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: Currency): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue < b);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b: Currency): Boolean;
+begin
+  Result := a.ValuePresent and (a.FValue <= b);
+end;
+{$ENDREGION}
+
+{$REGION 'OL Types & Variant'}
+class operator OLCurrency.Implicit(const a: OLDouble): OLCurrency;
+begin
+  if a.IsNull then
+    Result := Null
   else
-    OutPut := a.FValue * b;
-
-
-  Result := OutPut;
+  begin
+    Result.FValue := a.AsDouble();
+    Result.ValuePresent := true;
+  end;
 end;
 
-class operator OLCurrency.Multiply(const a: OLCurrency; const b: Int64):
-    OLCurrency;
-var
-  returnrec: OLCurrency;
+class operator OLCurrency.Implicit(const a: OLCurrency): OLDouble;
 begin
-  returnrec.FValue := a.FValue * b;
-  returnrec.ValuePresent := a.ValuePresent;
-  Result := returnrec;
+  if a.IsNull then
+    Result := Null
+  else
+    Result := a.FValue;
 end;
 
-class operator OLCurrency.Multiply(const a: Int64; const b: OLCurrency):
+class operator OLCurrency.Multiply(const a: OLCurrency; const b: OLInteger):
     OLCurrency;
-var
-  returnrec: OLCurrency;
 begin
-  returnrec.FValue := a * b.FValue;
-  returnrec.ValuePresent := b.ValuePresent;
-  Result := returnrec;
+  Result.ValuePresent := a.ValuePresent and b.HasValue;
+  if Result.ValuePresent then Result.FValue := a.FValue * b.AsInt64();
+end;
+
+class operator OLCurrency.Multiply(const a: OLCurrency; const b: OLDouble):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent and b.HasValue;
+  if Result.ValuePresent then
+    Result.FValue := a.FValue * b.AsDouble();
+end;
+
+class operator OLCurrency.Implicit(const a: Variant): OLCurrency;
+var
+  i: Currency;
+begin
+  if VarIsNull(a) then
+    Result.ValuePresent := false
+  else if TryStrToCurr(a, i) then
+  begin
+    Result.FValue := i;
+    Result.ValuePresent := true;
+  end
+  else
+    raise Exception.Create('Value ''' + VarToStr(a) + ''' cannot be assigned to variable of OLCurrency type.');
+end;
+
+class operator OLCurrency.Implicit(const a: OLCurrency): Variant;
+begin
+  if a.ValuePresent then Result := a.FValue else Result := Null;
+end;
+
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: OLDouble):
+    Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue < b.AsDouble());
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b:
+    OLDouble): Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue <= b.AsDouble());
+end;
+
+class operator OLCurrency.Multiply(const a: OLDouble; const b: OLCurrency):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.HasValue and b.HasValue;
+  if Result.ValuePresent then
+    Result.FValue := a.AsDouble * b.FValue;
+end;
+
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: OLDouble):
+    Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (not SameValue(a.FValue, b.AsDouble()));
+end;
+
+class operator OLCurrency.Subtract(const a: OLCurrency; const b: OLDouble):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.ValuePresent and b.HasValue;
+  if Result.ValuePresent then Result.FValue := a.FValue - b.AsDouble();
+end;
+
+class operator OLCurrency.Subtract(const a: OLDouble; const b: OLCurrency):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.HasValue and b.HasValue;
+  if Result.ValuePresent then
+    Result.FValue := a.AsDouble - b.FValue;
+end;
+
+{$ENDREGION}
+
+class operator OLCurrency.Equal(const a: Extended; const b: OLCurrency): Boolean;
+begin
+  // Porównujemy 'a' z wartością wewnątrz 'b'.
+  // Jeśli b jest NULL, wynik to False (chyba że uznasz, że a=0 a b=Null to co innego, ale standardowo Null != Value)
+  Result := b.ValuePresent and SameValue(a, b.FValue);
+end;
+
+class operator OLCurrency.NotEqual(const a: Extended; const b: OLCurrency): Boolean;
+begin
+  // Tutaj uwaga: Jeśli b jest NULL, to a <> b jest Prawdą.
+  Result := (not b.ValuePresent) or (not SameValue(a, b.FValue));
+end;
+
+class operator OLCurrency.GreaterThan(const a: Extended; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a > b.FValue);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: Extended; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a >= b.FValue);
+end;
+
+class operator OLCurrency.LessThan(const a: Extended; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a < b.FValue);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: Extended; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a <= b.FValue);
+end;
+
+{$REGION 'Integer - Reversed Comparison'}
+
+class operator OLCurrency.Equal(const a: Integer; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a = b.FValue);
+end;
+
+class operator OLCurrency.NotEqual(const a: Integer; const b: OLCurrency): Boolean;
+begin
+  // Zgodnie z Twoją logiką: jeśli b jest Null, wynik to False.
+  Result := b.ValuePresent and (a <> b.FValue);
+end;
+
+class operator OLCurrency.GreaterThan(const a: Integer; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a > b.FValue);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: Integer; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a >= b.FValue);
+end;
+
+class operator OLCurrency.LessThan(const a: Integer; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a < b.FValue);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: Integer; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a <= b.FValue);
+end;
+
+{$ENDREGION}
+
+{$REGION 'Double - Reversed Comparison'}
+
+class operator OLCurrency.Equal(const a: Double; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and SameValue(a, b.FValue);
+end;
+
+class operator OLCurrency.NotEqual(const a: Double; const b: OLCurrency): Boolean;
+begin
+  // Używamy 'not SameValue', ale zachowujemy warunek ValuePresent = True
+  Result := b.ValuePresent and (not SameValue(a, b.FValue));
+end;
+
+class operator OLCurrency.GreaterThan(const a: Double; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a > b.FValue);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: Double; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a >= b.FValue);
+end;
+
+class operator OLCurrency.LessThan(const a: Double; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a < b.FValue);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: Double; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a <= b.FValue);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Currency - Reversed Comparison'}
+
+class operator OLCurrency.Equal(const a: Currency; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a = b.FValue);
+end;
+
+class operator OLCurrency.Equal(const a: OLDouble; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (SameValue(a.AsDouble(), b.FValue));
+end;
+
+class operator OLCurrency.Equal(const a: OLCurrency; const b: Variant): Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) and a.IsNull then
+    Exit(True);
+
+  if (not VarIsNull(b)) and a.IsNull then
+    Exit(False);
+
+  if VarIsNull(b) and a.HasValue then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurency.');
+  end;
+
+  Result := a.FValue = c;
+end;
+
+class operator OLCurrency.Equal(const b: Variant; const a: OLCurrency): Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) and a.IsNull then
+    Exit(True);
+
+  if (not VarIsNull(b)) and a.IsNull then
+    Exit(False);
+
+  if VarIsNull(b) and a.HasValue then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurency.');
+  end;
+
+  Result := a.FValue = c;
+end;
+
+class operator OLCurrency.Equal(const a: OLCurrency; const b: OLInteger):
+    Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (SameValue(a.FValue, b.AsInt64()));
+end;
+
+class operator OLCurrency.Equal(const a: OLInteger; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (SameValue(a.AsInt64(), b.FValue));
+end;
+
+class operator OLCurrency.NotEqual(const a: Currency; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a <> b.FValue);
+end;
+
+class operator OLCurrency.GreaterThan(const a: Currency; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a > b.FValue);
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLDouble; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsDouble() > b.FValue);
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: Variant):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := a.FValue > c;
+end;
+
+class operator OLCurrency.GreaterThan(const b: Variant; const a: OLCurrency):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := c > a.FValue;
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLCurrency; const b: OLInteger):
+    Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue > b.AsInt64());
+end;
+
+class operator OLCurrency.GreaterThan(const a: OLInteger; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsInt64() > b.FValue);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: Currency; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a >= b.FValue);
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLDouble; const b:
+    OLCurrency): Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsDouble() >= b.FValue);
+end;
+
+class operator OLCurrency.LessThan(const a: Currency; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a < b.FValue);
+end;
+
+class operator OLCurrency.LessThan(const a: OLDouble; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsDouble() < b.FValue);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: Currency; const b: OLCurrency): Boolean;
+begin
+  Result := b.ValuePresent and (a <= b.FValue);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLDouble; const b:
+    OLCurrency): Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsDouble() <= b.FValue);
+end;
+
+class operator OLCurrency.NotEqual(const a: OLDouble; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (not SameValue(a.AsDouble(), b.FValue));
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b: Variant):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := a.FValue >= c;
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const b: Variant; const a: OLCurrency):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := c >= a.FValue;
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLCurrency; const b:
+    OLInteger): Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue >= b.AsInt64());
+end;
+
+class operator OLCurrency.GreaterThanOrEqual(const a: OLInteger; const b:
+    OLCurrency): Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsInt64() >= b.FValue);
+end;
+
+class operator OLCurrency.Implicit(const a: OLInteger): OLCurrency;
+begin
+  if a.IsNull then
+    Result := Null
+  else
+  begin
+    Result.FValue := a.AsInteger();
+    Result.ValuePresent := true;
+  end;
+end;
+
+class operator OLCurrency.Implicit(const a: OLCurrency): OLInteger;
+begin
+  if a.IsNull then
+    Result := Null
+  else
+    Result := a.FValue;
+end;
+
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: Variant):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := a.FValue < c;
+end;
+
+class operator OLCurrency.LessThan(const b: Variant; const a: OLCurrency):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := c < a.FValue;
+end;
+
+class operator OLCurrency.LessThan(const a: OLCurrency; const b: OLInteger):
+    Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue < b.AsInt64());
+end;
+
+class operator OLCurrency.LessThan(const a: OLInteger; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsInt64() < b.FValue);
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b:
+    Variant): Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := a.FValue <= c;
+end;
+
+class operator OLCurrency.LessThanOrEqual(const b: Variant; const a:
+    OLCurrency): Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) or a.IsNull then
+    Exit(False);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurrency.');
+  end;
+
+  Result := c <= a.FValue;
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLCurrency; const b:
+    OLInteger): Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (a.FValue <= b.AsInt64());
+end;
+
+class operator OLCurrency.LessThanOrEqual(const a: OLInteger; const b:
+    OLCurrency): Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (a.AsInt64() <= b.FValue);
+end;
+
+class operator OLCurrency.Multiply(const a: OLInteger; const b: OLCurrency):
+    OLCurrency;
+begin
+  Result.ValuePresent := a.HasValue and b.HasValue;
+  if Result.ValuePresent then
+    Result.FValue := a.AsInt64() * b.FValue;
+end;
+
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: Variant):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) and a.IsNull then
+    Exit(False);
+
+  if (not VarIsNull(b)) and a.IsNull then
+    Exit(True);
+
+  if VarIsNull(b) and a.HasValue then
+    Exit(True);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurency.');
+  end;
+
+  Result := a.FValue <> c;
+end;
+
+class operator OLCurrency.NotEqual(const b: Variant; const a: OLCurrency):
+    Boolean;
+var
+  c: Currency;
+begin
+  if VarIsNull(b) and a.IsNull then
+    Exit(False);
+
+  if (not VarIsNull(b)) and a.IsNull then
+    Exit(True);
+
+  if VarIsNull(b) and a.HasValue then
+    Exit(True);
+
+  try
+    c := VarAsType(b, varCurrency)
+  except
+    raise Exception.Create('Value ' + VarToStr(b) + ' cannot be used as OLCurency.');
+  end;
+
+  Result := a.FValue <> c;
+end;
+
+class operator OLCurrency.NotEqual(const a: OLCurrency; const b: OLInteger):
+    Boolean;
+begin
+  Result := a.ValuePresent and b.HasValue() and (not SameValue(a.FValue, b.AsInt64()));
+end;
+
+class operator OLCurrency.NotEqual(const a: OLInteger; const b: OLCurrency):
+    Boolean;
+begin
+  Result := a.HasValue() and b.ValuePresent and (not SameValue(a.AsInt64(), b.FValue));
 end;
 
 class operator OLCurrency.Subtract(const a: OLCurrency; const b: OLInteger):
     OLCurrency;
-var
-  returnrec: OLCurrency;
 begin
-  if a.IsNull() or b.IsNull() then
-    returnrec := Null
-  else
-  begin
-    returnrec.FValue := a.FValue - b;
-    returnrec.ValuePresent := True;
-  end;
-
-  Result := returnrec;
+  Result.ValuePresent := a.ValuePresent and b.HasValue;
+  if Result.ValuePresent then Result.FValue := a.FValue - b.AsInt64();
 end;
 
 class operator OLCurrency.Subtract(const a: OLInteger; const b: OLCurrency):
     OLCurrency;
-var
-  returnrec: OLCurrency;
 begin
-  if a.IsNull() or b.IsNull() then
-    returnrec := Null
-  else
-  begin
-    returnrec.FValue := a - b.FValue;
-    returnrec.ValuePresent := True;
-  end;
-
-  Result := returnrec;
+  Result.ValuePresent := a.HasValue and b.HasValue;
+  if Result.ValuePresent then
+    Result.FValue := a.AsInt64() - b.FValue;
 end;
 
-class operator OLCurrency.Subtract(const a: OLCurrency; const b: integer):
-    OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  if a.IsNull() then
-    returnrec := Null
-  else
-  begin
-    returnrec.FValue := a.FValue - b;
-    returnrec.ValuePresent := True;
-  end;
-
-  Result := returnrec;
-end;
-
-class operator OLCurrency.Subtract(const a: integer; const b: OLCurrency):
-    OLCurrency;
-var
-  returnrec: OLCurrency;
-begin
-  if b.IsNull() then
-    returnrec := Null
-  else
-  begin
-    returnrec.FValue := a - b.FValue;
-    returnrec.ValuePresent := True;
-  end;
-
-  Result := returnrec;
-end;
+{$ENDREGION}
 
 end.
-

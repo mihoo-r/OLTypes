@@ -95,10 +95,9 @@ type
     /// </summary>
     function IfNull(const d: OLDouble): OLDouble;
     /// <summary>
-    ///   Returns the double value, or a replacement value if null.
+    ///   Returns the Double value, or a replacement value if null.
     /// </summary>
-    function AsDouble(const NullReplacement: Double = 0): Double;
-
+    function AsDouble(NullReplacement: Double = 0): Double;
     /// <summary>
     ///   Rounds the double to the specified power of ten.
     /// </summary>
@@ -169,8 +168,6 @@ type
     class operator Multiply(const a, b: OLDouble): OLDouble;
     class operator Divide(const a, b: OLDouble): OLDouble;
 
-    class operator Implicit(const a: Double): OLDouble;
-    class operator Implicit(const a: OLDouble): Double;
     class operator Implicit(const a: Variant): OLDouble;
     class operator Implicit(const a: OLDouble): Variant;
     class operator Implicit(const a: Integer): OLDouble;
@@ -221,6 +218,11 @@ begin
     Result := Null;
 end;
 
+function OLDouble.AsDouble(NullReplacement: Double = 0): Double;
+begin
+  Result := IfNull(NullReplacement);
+end;
+
 class operator OLDouble.Add(const a, b: OLDouble): OLDouble;
 var
   returnrec: OLDouble;
@@ -236,30 +238,6 @@ var
 begin
   d := Self;
   Result := Math.Ceil(d);
-end;
-
-function OLDouble.AsDouble(const NullReplacement: Double): Double;
-begin
-  Result := IfNull(NullReplacement);
-end;
-
-class operator OLDouble.Implicit(const a: Double): OLDouble;
-var
-  OutPut: OLDouble;
-begin
-  OutPut.FValue := a;
-  OutPut.ValuePresent := true;
-  Result := OutPut;
-end;
-
-class operator OLDouble.Implicit(const a: OLDouble): Double;
-var
-  OutPut: Double;
-begin
-  if not a.ValuePresent then
-    raise Exception.Create('Null cannot be used as double value');
-  OutPut := a.FValue;
-  Result := OutPut;
 end;
 
 class operator OLDouble.Dec(const a: OLDouble): OLDouble;
