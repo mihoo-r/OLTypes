@@ -2824,6 +2824,17 @@ type
          /// </summary>
          procedure ShowValidationState;
          {$IFEND}
+       {$IF CompilerVersion >= 34.0}
+       /// <summary>
+       ///   Links the edit control to an OLDate variable for two-way data binding with validation.
+       /// </summary>
+       function Link(var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate; overload;
+       {$ELSE}
+       /// <summary>
+       ///   Links the edit control to an OLDate variable for two-way data binding.
+       /// </summary>
+       function Link(var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate; overload;
+       {$IFEND}
      end;
 
    /// <summary>
@@ -3508,6 +3519,35 @@ begin
   end;
 
 {$IF CompilerVersion >= 34.0}
+function TOLEditHelper.Link(var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate;
+{$ELSE}
+function TOLEditHelper.Link(var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate;
+{$IFEND}
+var
+  Form: TForm;
+begin
+   if not Assigned(Self) then
+     raise Exception.Create('Control is nil.');
+   Form := Self.Owner as TForm;
+   if not Assigned(Form) then
+     raise Exception.Create('Control must be owned by a TForm.');
+
+   if not Form.IsMyField(d) then
+     raise Exception.Create('OLType must be a field of the owning TForm.');
+
+   try
+     {$IF CompilerVersion >= 34.0}
+     Result := Links.Link(Self, d, Alignment);
+     {$ELSE}
+     Result := Links.Link(Self, d, Alignment);
+     {$IFEND}
+   except
+     on E: Exception do
+       raise Exception.Create('Link failed for TEdit: ' + E.Message);
+    end;
+  end;
+
+{$IF CompilerVersion >= 34.0}
 function TOLEditHelper.IsValid: Boolean;
 var
   Link: TOLControlLink;
@@ -3517,6 +3557,7 @@ var
   s: OLString;
   fs: TFormatSettings;
   CleanS: string;
+  dVal: TDate;
 begin
   Link := Links.GetLinkForControl(Self);
   if not Assigned(Link) then
@@ -3555,6 +3596,13 @@ begin
   else if Link is TEditToOLString then
   begin
     Result := TEditToOLString(Link).ValueIsValid(OLString(TEditToOLString(Link).Edit.Text)).Valid;
+  end
+  else if Link is TEditToOLDate then
+  begin
+    if TrySmartStrToDate(TEditToOLDate(Link).Edit.Text, dVal) then
+      Result := TEditToOLDate(Link).ValueIsValid(dVal).Valid
+    else
+      Result := False;
   end
   else
     Result := True; // Fallback

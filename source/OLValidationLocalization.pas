@@ -57,6 +57,8 @@ type
     FutureDate: OLStrStrDictionary;
     AfterDate: OLStrStrDictionary;
     BeforeDate: OLStrStrDictionary;
+    MinDate: OLStrStrDictionary;
+    MaxDate: OLStrStrDictionary;
     BetweenDate: OLStrStrDictionary;
     Today: OLStrStrDictionary;
     MinAge: OLStrStrDictionary;
@@ -158,6 +160,8 @@ begin
   ValidationMessages.FutureDate['EN'] := 'Date must be in the future.';
   ValidationMessages.AfterDate['EN'] := 'Date must be after %s.';
   ValidationMessages.BeforeDate['EN'] := 'Date must be before %s.';
+  ValidationMessages.MinDate['EN'] := 'Date must be on or after %s.';
+  ValidationMessages.MaxDate['EN'] := 'Date must be on or before %s.';
   ValidationMessages.BetweenDate['EN'] := 'Date must be between %s and %s.';
   ValidationMessages.Today['EN'] := 'Date must be today.';
   ValidationMessages.MinAge['EN'] := 'You must be at least %d years old.';
@@ -209,6 +213,8 @@ begin
   ValidationMessages.FutureDate['PL'] := 'Data musi być z przyszłości.';
   ValidationMessages.AfterDate['PL'] := 'Data musi być po %s.';
   ValidationMessages.BeforeDate['PL'] := 'Data musi być przed %s.';
+  ValidationMessages.MinDate['PL'] := 'Minimalna data to %s.';
+  ValidationMessages.MaxDate['PL'] := 'Maksymalna data to %s.';
   ValidationMessages.BetweenDate['PL'] := 'Data musi mieścić się w zakresie od %s do %s.';
   ValidationMessages.Today['PL'] := 'Data musi być dzisiejsza.';
   ValidationMessages.MinAge['PL'] := 'Musisz mieć co najmniej %d lat.';
@@ -260,6 +266,8 @@ begin
   ValidationMessages.FutureDate['ES'] := 'La fecha debe ser posterior.';
   ValidationMessages.AfterDate['ES'] := 'La fecha debe ser después de %s.';
   ValidationMessages.BeforeDate['ES'] := 'La fecha debe ser antes de %s.';
+  ValidationMessages.MinDate['ES'] := 'La fecha mínima es %s.';
+  ValidationMessages.MaxDate['ES'] := 'La fecha máxima es %s.';
   ValidationMessages.BetweenDate['ES'] := 'La fecha debe estar entre %s y %s.';
   ValidationMessages.Today['ES'] := 'La fecha debe ser hoy.';
   ValidationMessages.MinAge['ES'] := 'Debes tener al menos %d años.';
@@ -311,6 +319,8 @@ begin
   ValidationMessages.FutureDate['DE'] := 'Datum muss in der Zukunft liegen.';
   ValidationMessages.AfterDate['DE'] := 'Datum muss nach %s liegen.';
   ValidationMessages.BeforeDate['DE'] := 'Datum muss vor %s liegen.';
+  ValidationMessages.MinDate['DE'] := 'Das Datum muss mindestens %s sein.';
+  ValidationMessages.MaxDate['DE'] := 'Das Datum darf %s nicht überschreiten.';
   ValidationMessages.BetweenDate['DE'] := 'Datum muss zwischen %s und %s liegen.';
   ValidationMessages.Today['DE'] := 'Datum muss heute sein.';
   ValidationMessages.MinAge['DE'] := 'Sie müssen mindestens %d Jahre alt sein.';
@@ -362,6 +372,8 @@ begin
   ValidationMessages.FutureDate['FR'] := 'La date doit être future.';
   ValidationMessages.AfterDate['FR'] := 'La date doit être après %s.';
   ValidationMessages.BeforeDate['FR'] := 'La date doit être avant %s.';
+  ValidationMessages.MinDate['FR'] := 'La date doit être au moins le %s.';
+  ValidationMessages.MaxDate['FR'] := 'La date ne peut pas dépasser le %s.';
   ValidationMessages.BetweenDate['FR'] := 'La date doit être comprise entre %s et %s.';
   ValidationMessages.Today['FR'] := 'La date doit être aujourd''hui.';
   ValidationMessages.MinAge['FR'] := 'Vous devez avoir au moins %d ans.';
@@ -413,6 +425,8 @@ begin
   ValidationMessages.FutureDate['IT'] := 'La data deve essere nel futuro.';
   ValidationMessages.AfterDate['IT'] := 'La data deve essere dopo il %s.';
   ValidationMessages.BeforeDate['IT'] := 'La data deve essere prima del %s.';
+  ValidationMessages.MinDate['IT'] := 'La data deve essere almeno il %s.';
+  ValidationMessages.MaxDate['IT'] := 'La data non può superare il %s.';
   ValidationMessages.BetweenDate['IT'] := 'La data deve essere compresa tra il %s e il %s.';
   ValidationMessages.Today['IT'] := 'La data deve essere oggi.';
   ValidationMessages.MinAge['IT'] := 'Devi avere almeno %d anni.';
@@ -464,6 +478,8 @@ begin
   ValidationMessages.FutureDate['ZH'] := '日期必须是未来的。';
   ValidationMessages.AfterDate['ZH'] := '日期必须在 %s 之后。';
   ValidationMessages.BeforeDate['ZH'] := '日期必须在 %s 之前。';
+  ValidationMessages.MinDate['ZH'] := '日期必须至少为 %s。';
+  ValidationMessages.MaxDate['ZH'] := '日期不能超过 %s。';
   ValidationMessages.BetweenDate['ZH'] := '日期必须在 %s 到 %s 之间。';
   ValidationMessages.Today['ZH'] := '日期必须是今天。';
   ValidationMessages.MinAge['ZH'] := '您必须年满 %d 岁。';
@@ -515,6 +531,8 @@ begin
   ValidationMessages.FutureDate['JA'] := '日付は未来である必要があります。';
   ValidationMessages.AfterDate['JA'] := '日付は %s より後である必要があります。';
   ValidationMessages.BeforeDate['JA'] := '日付は %s より前である必要があります。';
+  ValidationMessages.MinDate['JA'] := '日付は %s 以降である必要があります。';
+  ValidationMessages.MaxDate['JA'] := '日付は %s 以前である必要があります。';
   ValidationMessages.BetweenDate['JA'] := '日付は %s から %s の間である必要があります。';
   ValidationMessages.Today['JA'] := '日付は今日である必要があります。';
   ValidationMessages.MinAge['JA'] := '%d 歳以上である必要があります。';
@@ -566,6 +584,8 @@ begin
   ValidationMessages.FutureDate['PT'] := 'A data deve ser no futuro.';
   ValidationMessages.AfterDate['PT'] := 'A data deve ser posterior a %s.';
   ValidationMessages.BeforeDate['PT'] := 'A data deve ser anterior a %s.';
+  ValidationMessages.MinDate['PT'] := 'A data deve ser pelo menos %s.';
+  ValidationMessages.MaxDate['PT'] := 'A data não pode exceder %s.';
   ValidationMessages.BetweenDate['PT'] := 'A data deve estar entre %s e %s.';
   ValidationMessages.Today['PT'] := 'A data deve ser hoje.';
   ValidationMessages.MinAge['PT'] := 'Você deve ter pelo menos %d anos.';

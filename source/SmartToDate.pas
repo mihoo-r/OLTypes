@@ -4,30 +4,32 @@ interface
 
 function TrySmartStrToDate(s: string; var d: TDate): Boolean;
 function SmartStrToDate(s: string): TDate;
+function IsSmartCodePrefix(const s: string): Boolean;
+function IsSmartCode(const s: string): Boolean;
 
 const
   // today, yesterday, tomorow
-  ssTD = 't'; ssTD2 = 'td';
-  ssTM = 'm'; ssTM2 = 'tm';
-  ssYD = 'y'; ssYD2 = 'yd';
+  ssTD = 't';
+  ssTM = 'n'; //as in Next day
+  ssYD = 'y';
 
   // Start/End of the Month/Year
-  ssSY = 'sy'; ssSY2 = 'ss';
-  ssEY = 'ey'; ssEY2 = 'ee';
-  ssSM = 's'; ssSM2 = 'sm';
-  ssEM = 'e'; ssEM2 = 'em';
+  ssSY = 'sy';
+  ssEY = 'ey';
+  ssSM = 'sm';
+  ssEM = 'em';
 
   // Start/End of the Next Month/Year
-  ssSNY = 'dd'; ssSNY2 = 'sny';
-  ssENY = 'rr'; ssENY2 = 'eny';
-  ssSNM = 'd'; ssSNM2 = 'snm';
-  ssENM = 'r'; ssENM2 = 'enm';
+  ssSNY = 'sny';
+  ssENY = 'eny';
+  ssSNM = 'snm';
+  ssENM = 'enm';
 
   // Start/End of the Prior Month/Year
-  ssSPY = 'aa'; ssSPY2 = 'spy';
-  ssEPY = 'ww'; ssEPY2 = 'epy';
-  ssSPM = 'a'; ssSPM2 = 'spm';
-  ssEPM = 'w'; ssEPM2 = 'epm';
+  ssSPY = 'spy';
+  ssEPY = 'epy';
+  ssSPM = 'spm';
+  ssEPM = 'epm';
 
 implementation
 
@@ -70,77 +72,77 @@ end;
 
 procedure AlfaSmartToDate(s: string; var d: TDate; var OutPut: Boolean);
 begin
-  if (s = ssTD) or (s = ssTD2) then
+  if (s = ssTD) then
   begin
     d := Date;
     OutPut := true;
   end;
-  if (s = ssYD) or (s = ssYD2) then
+  if (s = ssYD) then
   begin
     d := IncDay(Date, -1);
     OutPut := true;
   end;
-  if (s = ssTM) or (s = ssTM2) then
+  if (s = ssTM) then
   begin
     d := IncDay(Date, 1);
     OutPut := true;
   end;
-  if (s = ssEY) or (s = ssEY2) then
+  if (s = ssEY) then
   begin
     d := Floor(EndOfTheYear(Date));
     OutPut := true;
   end;
-  if (s = ssEM) or (s = ssEM2) then
+  if (s = ssEM) then
   begin
     d := Floor(EndOfTheMonth(Date));
     OutPut := true;
   end;
-  if (s = ssSY) or (s=ssSY2) then
+  if (s = ssSY) then
   begin
     d := StartOfTheYear(Date);
     OutPut := true;
   end;
-  if (s = ssSM) or (s = ssSM2) then
+  if (s = ssSM) then
   begin
     d := StartOfTheMonth(Date);
     OutPut := true;
   end;
-  if (s = ssENY) or (s = ssENY2)then
+  if (s = ssENY) then
   begin
     d := Floor(EndOfTheYear(IncYear(Date, 1)));
     OutPut := true;
   end;
-  if (s = ssENM) or (s = ssENM2) then
+  if (s = ssENM) then
   begin
     d := Floor(EndOfTheMonth(IncMonth(Date, 1)));
     OutPut := true;
   end;
-  if (s = ssSNY) or (s = ssSNY2) then
+  if (s = ssSNY) then
   begin
     d := StartOfTheYear(IncYear(Date, 1));
     OutPut := true;
   end;
-  if (s = ssSNM) or (s = ssSNM2) then
+  if (s = ssSNM) then
   begin
     d := StartOfTheMonth(IncMonth(Date, 1));
     OutPut := true;
   end;
-  if (s = ssEPY) or (s = ssEPY2) then
+  if (s = ssEPY) then
   begin
     d := Floor(EndOfTheYear(IncYear(Date, -1)));
     OutPut := true;
   end;
-  if (s = ssEPM) or (s = ssEPM2) then
+  if (s = ssEPM) then
   begin
     d := Floor(EndOfTheMonth(IncMonth(Date, -1)));
     OutPut := true;
   end;
-  if (s = ssSPY) or (s = ssSPY2) then
+  if (s = ssSPY) then
   begin
     d := StartOfTheYear(IncYear(Date, -1));
     OutPut := true;
   end;
-  if (s = ssSPM) or (s = ssSPM2) then
+  if (s = ssSPM) then
   begin
     d := StartOfTheMonth(IncMonth(Date, -1));
     OutPut := true;
@@ -206,6 +208,34 @@ begin
     raise Exception.Create(QuotedStr(s) +' cannot be decoded as date.');
 
   Result := d;
+end;
+
+function IsSmartCodePrefix(const s: string): Boolean;
+var
+  ls: string;
+begin
+  ls := LowerCase(s);
+  Result := StartsStr(ls, ssTD) or StartsStr(ls, ssTM) or StartsStr(ls, ssYD) or
+            StartsStr(ls, ssSY) or StartsStr(ls, ssEY) or
+            StartsStr(ls, ssSM) or StartsStr(ls, ssEM) or
+            StartsStr(ls, ssSNY) or StartsStr(ls, ssENY) or
+            StartsStr(ls, ssSNM) or StartsStr(ls, ssENM) or
+            StartsStr(ls, ssSPY) or StartsStr(ls, ssEPY) or
+            StartsStr(ls, ssSPM) or StartsStr(ls, ssEPM);
+end;
+
+function IsSmartCode(const s: string): Boolean;
+var
+  ls: string;
+begin
+  ls := LowerCase(s);
+  Result := (ls = ssTD) or (ls = ssTM) or (ls = ssYD) or
+            (ls = ssSY) or (ls = ssEY) or
+            (ls = ssSM) or (ls = ssEM) or
+            (ls = ssSNY) or (ls = ssENY) or
+            (ls = ssSNM) or (ls = ssENM) or
+            (ls = ssSPY) or (ls = ssEPY) or
+            (ls = ssSPM) or (ls = ssEPM);
 end;
 
 end.

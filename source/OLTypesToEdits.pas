@@ -15,6 +15,11 @@ uses
   {$IFEND}
 
 type
+  EOLTypesException = class(Exception);
+  EControlAlreadyLinked = class(EOLTypesException);
+  EOLPointerNil = class(EOLTypesException);
+
+type
   POLInteger = ^OLInteger;
   POLString = ^OLString;
   POLDouble = ^OLDouble;
@@ -243,6 +248,40 @@ type
     property ValidationFunction: TOLIntegerValidationFunction read GetValidationFunction write SetValidationFunction;
     {$IFEND}
 
+  end;
+
+  TEditToOLDate = class(TOLEditLink<OLDate>)
+  private
+    FOriginalOnKeyDown: TKeyEvent;
+    FOriginalOnKeyPress: TKeyPressEvent;
+  protected
+    function ValToString(const v: OLDate): string; override;
+    function StringToVal(const s: string; out v: OLDate): Boolean; override;
+    function GetNull: OLDate; override;
+    function TreatEmptyAsNull: Boolean; override;
+    function IsPartialEntry(const s: string): Boolean; override;
+    procedure NewOnChange(Sender: TObject);
+    procedure NewOnExit(Sender: TObject);
+    procedure NewOnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure NewOnKeyPress(Sender: TObject; var Key: Char);
+    procedure SetEdit(const Value: TEdit); override;
+  public
+    {$IF CompilerVersion >= 34.0}
+    function AddValidator(const Value: TOLDateValidationFunction): TEditToOLDate;
+    function RequireValue(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function Min(const MinDate: TDate; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function Max(const MaxDate: TDate; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function Between(const MinDate, MaxDate: TDate; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function After(const AfterDate: TDate; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function Before(const BeforeDate: TDate; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function Past(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function Future(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function Today(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function MinAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function MaxAge(const Age: Integer; const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function IsWeekday(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    function IsWeekend(const AColor: TColor = clDefault; const ErrorMessage: string = ''): TEditToOLDate;
+    {$IFEND}
   end;
 
   TScrollBarToOLInteger = class(TOLControlLink)
@@ -1025,6 +1064,7 @@ type
     FEdit: TCheckBox;
     FEditOnClick: TEditOnClick;
     FOLPointer: POLBoolean;
+    FUpdatingFromControl: Boolean;
     {$IF CompilerVersion >= 34.0}
     FValidators: TList<TOLBooleanValidationFunction>;
     {$IFEND}
@@ -1737,6 +1777,13 @@ type
     function Link(const Edit: TEdit; var s: OLString): TEditToOLString; overload;
     {$IFEND}
     {$IF CompilerVersion >= 34.0}
+    /// <summary>Links a TEdit control to an OLDate variable.</summary>
+    function Link(const Edit: TEdit; var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate; overload;
+    {$ELSE}
+    /// <summary>Links a TEdit control to an OLDate variable.</summary>
+    function Link(const Edit: TEdit; var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate; overload;
+    {$IFEND}
+    {$IF CompilerVersion >= 34.0}
     /// <summary>Links a TMemo control to an OLString variable.</summary>
     function Link(const Edit: TMemo; var s: OLString): TMemoToOLString; overload;
     {$ELSE}
@@ -1842,7 +1889,7 @@ uses
   {$ELSE}
   Variants,
   {$IFEND}
-  SmartToDate;
+  SmartToDate, DateUtils;
 
 const
   CALCULATION_ASSIGN_ERROR = 'Calculation cannot be set when OLPointer property is other then nil.';
@@ -2131,7 +2178,7 @@ end;
 procedure TOLEditLink<T>.SetOLPointer(const Value: Pointer);
 begin
   if Value = nil then
-    raise Exception.Create('OLPointer cannot be nil.');
+    raise EOLPointerNil.Create('OLPointer cannot be nil.');
   FOLPointer := Value;
 end;
 
@@ -4081,7 +4128,8 @@ begin
       begin
         FUpdatingFromRefresh := True;
         try
-          Edit.DateTime := d;
+          if d.Year > 1752 then
+            Edit.DateTime := d;
         finally
           FUpdatingFromRefresh := False;
         end;
@@ -4733,7 +4781,12 @@ begin
   if Assigned(FEdit) then
   begin
     if Assigned(FEditOnClick) then
-      FEdit.OnClick := FEditOnClick;
+    begin
+      var Method: TMethod;
+      Method := TMethod(FEdit.OnClick);
+      if (Method.Code = @TCheckBoxToOLBoolean.NewOnClick) and (Method.Data = Pointer(Self)) then
+        FEdit.OnClick := FEditOnClick;
+    end;
   end;
   if Assigned(FWarningLabel) then
     FWarningLabel.Free;
@@ -4850,22 +4903,29 @@ end;
 procedure TCheckBoxToOLBoolean.NewOnClick(Sender: TObject);
 var b: OLBoolean;
 begin
-  if FAllowGrayed then
-  begin
-    case Edit.State of
-      cbUnchecked: b := False;
-      cbChecked: b := True;
-      cbGrayed: b := Null;
-    end;
-  end
-  else
-    b := Edit.Checked;
+  if FUpdatingFromControl then Exit;
 
-  {$IF CompilerVersion >= 34.0}
-  SetValueAfterValidation(b);
-  {$ELSE}
-  OLPointer^ := Edit.Checked;
-  {$IFEND}
+  FUpdatingFromControl := True;
+  try
+    if FAllowGrayed then
+    begin
+      case Edit.State of
+        cbUnchecked: b := False;
+        cbChecked: b := True;
+        cbGrayed: b := Null;
+      end;
+    end
+    else
+      b := Edit.Checked;
+
+    {$IF CompilerVersion >= 34.0}
+    SetValueAfterValidation(b);
+    {$ELSE}
+    OLPointer^ := Edit.Checked;
+    {$IFEND}
+  finally
+    FUpdatingFromControl := False;
+  end;
 
   if Assigned(FEditOnClick) then
     FEditOnClick(Edit);
@@ -4875,29 +4935,36 @@ procedure TCheckBoxToOLBoolean.RefreshControl;
 var
   vr: TOLValidationResult;
 begin
-  if FAllowGrayed then
-  begin
-    if (OLPointer^).IsNull then
+  if not Assigned(FOLPointer) or not Assigned(FEdit) then Exit;
+
+  FUpdatingFromControl := True;
+  try
+    if FAllowGrayed then
     begin
-      if Edit.State <> cbGrayed then
-        Edit.State := cbGrayed;
+      if (OLPointer^).IsNull then
+      begin
+        if Edit.State <> cbGrayed then
+          Edit.State := cbGrayed;
+      end
+      else
+      begin
+        if Edit.Checked <> OLPointer^ then
+          Edit.Checked := OLPointer^;
+      end;
     end
     else
     begin
-      if Edit.Checked <> OLPointer^ then
-        Edit.Checked := OLPointer^;
+      if Edit.Checked <> (OLPointer^).IfNull(False) then
+        Edit.Checked := (OLPointer^).IfNull(False);
     end;
-  end
-  else
-  begin
-    if Edit.Checked <> (OLPointer^).IfNull(False) then
-      Edit.Checked := (OLPointer^).IfNull(False);
-  end;
 
-  {$IF CompilerVersion >= 34.0}
-  vr := ValueIsValid(OLPointer^);
-  ShowValidationState(vr);
-  {$IFEND}
+    {$IF CompilerVersion >= 34.0}
+    vr := ValueIsValid(OLPointer^);
+    ShowValidationState(vr);
+    {$IFEND}
+  finally
+    FUpdatingFromControl := False;
+  end;
 end;
 
 procedure TCheckBoxToOLBoolean.SetEdit(const Value: TCheckBox);
@@ -7031,6 +7098,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TEditToOLInteger.Create;
   Result.Edit := Edit;
   Result.FOLPointer := @i;
@@ -7062,6 +7132,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TTrackBarToOLInteger.Create;
   Result.Edit := Edit;
   Result.FOLPointer := @i;
@@ -7091,6 +7164,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TScrollBarToOLInteger.Create;
   Result.Edit := Edit;
   Result.FOLPointer := @i;
@@ -7120,6 +7196,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TEditToOLDouble.Create;
   Result.FFormat := Format;
   Result.Edit := Edit;
@@ -7152,6 +7231,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TEditToOLCurrency.Create;
   Result.FFormat := Format;
   Result.Edit := Edit;
@@ -7184,6 +7266,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TEditToOLString.Create;
   Result.Edit := Edit;
   Result.FOLPointer := @s;
@@ -7213,6 +7298,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TMemoToOLString.Create;
   Result.Edit := Edit;
   Result.FOLPointer := @s;
@@ -7242,6 +7330,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   if Edit.Format = '' then
   begin
     Edit.Format := DelphiDateTimeFormatToWindowsFormat(FormatSettings.ShortDateFormat);
@@ -7339,6 +7430,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   if Edit.Format  = '' then
   begin
     if Edit.Kind = dtkTime then
@@ -7377,6 +7471,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TCheckBoxToOLBoolean.Create;
   Result.AllowGrayed := AllowGrayed;
   Result.Edit := Edit;
@@ -7599,6 +7696,9 @@ var
   Observer: TObject;
   ValueMulticaster: TOLValueMulticaster;
 begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
   Result := TSpinEditToOLInteger.Create;
   Result.Edit := Edit;
   Result.FOLPointer := @i;
@@ -7827,6 +7927,468 @@ begin
   end;
 
   inherited Notification(AComponent, Operation);
+end;
+
+{ TEditToOLDate }
+
+function TEditToOLDate.ValToString(const v: OLDate): string;
+begin
+  Result := v.ToString();
+end;
+
+function TEditToOLDate.StringToVal(const s: string; out v: OLDate): Boolean;
+var
+  dt: TDate;
+begin
+  Result := TrySmartStrToDate(s, dt);
+  if Result then
+    v := dt;
+end;
+
+function TEditToOLDate.GetNull: OLDate;
+begin
+  Result := Null;
+end;
+
+function TEditToOLDate.TreatEmptyAsNull: Boolean;
+begin
+  Result := True;
+end;
+
+function TEditToOLDate.IsPartialEntry(const s: string): Boolean;
+var
+  i: Integer;
+  StartsParam: string;
+  Dummy: OLDate;
+begin
+  if IsSmartCodePrefix(s) then
+    Exit(True);
+
+  // Check valid date characters (Digits, separators)
+  for i := 1 to Length(s) do
+    if not (CharInSet(s[i], ['0'..'9']) or (s[i] = FormatSettings.DateSeparator) or (s[i] = '-') or (s[i] = '.') or (s[i] = '/')) then
+       Exit(False);
+
+  if Length(s) < 8 then
+    Result := True
+  else
+  begin
+    // If it parses as a valid date, allow update (not partial).
+    // If it fails parsing, treat as partial to avoid revert.
+    Result := not StringToVal(s, Dummy);
+  end;
+end;
+
+procedure TEditToOLDate.SetEdit(const Value: TEdit);
+begin
+  inherited SetEdit(Value);
+  if Assigned(Value) then
+  begin
+    FOriginalOnKeyDown := Value.OnKeyDown;
+    Value.OnKeyDown := NewOnKeyDown;
+    FOriginalOnKeyPress := Value.OnKeyPress;
+    Value.OnKeyPress := NewOnKeyPress;
+    Value.OnChange := NewOnChange;
+    Value.OnExit := NewOnExit;
+  end;
+end;
+
+procedure TEditToOLDate.NewOnChange(Sender: TObject);
+var
+  d: TDate;
+begin
+  inherited NewOnChange(Sender);
+
+  if Assigned(Edit) and (Edit.Text <> '') then
+  begin
+    // Check if the current text matches any smart code exactly
+    if IsSmartCode(Edit.Text) then
+    begin
+      // Try to parse it (it should succeed if IsSmartCode is true and SmartStrToDate handles it)
+      if TrySmartStrToDate(Edit.Text, d) then
+      begin
+        FUpdatingFromControl := True;
+        try
+          FOLPointer^ := d;
+          {$IF CompilerVersion >= 34.0}
+          ShowValidationState(ValueIsValid(d));
+          {$IFEND}
+          Edit.Text := ValToString(FOLPointer^);
+          Edit.SelStart := Length(Edit.Text);
+        finally
+          FUpdatingFromControl := False;
+        end;
+      end;
+    end
+    else
+    begin
+       // If standard parsing succeeds (usually for full dates due to IsPartialEntry check),
+       // AND length is >= 8 (standard ISO/local date len or 8 digits), ensure formatted string matches standard.
+       // This addresses: "właściwie wystarczy 8 znaków zamiast 10, jeżeli to jest 8 cyfr..."
+       if (Length(Edit.Text) >= 8) and TrySmartStrToDate(Edit.Text, d) then
+       begin
+          // We don't want to reformat "2026-01-01" to "01-01-2026" WHILE user is typing if they prefer ISO.
+          // But user specifically asked for update.
+          // Let's assume reformatting to standard format is desired once complete.
+          FUpdatingFromControl := True;
+          try
+            FOLPointer^ := d;
+            {$IF CompilerVersion >= 34.0}
+            ShowValidationState(ValueIsValid(d));
+            {$IFEND}
+            // Only update text if it's different to avoid cursor jumping mess if possible,
+            // though SelectAll or SelStart might be needed.
+            // User compliant: "Data jest aktualizowana, ale TEdit nie..."
+            if Edit.Text <> ValToString(FOLPointer^) then
+            begin
+               Edit.Text := ValToString(d);
+               //Edit.Text := ValToString(FOLPointer^);
+               Edit.SelStart := Length(Edit.Text); // Keep cursor at end
+            end;
+          finally
+            FUpdatingFromControl := False;
+          end;
+       end;
+    end;
+  end;
+end;
+
+procedure TEditToOLDate.NewOnExit(Sender: TObject);
+var
+  d: TDate;
+begin
+  if Assigned(Edit) and TrySmartStrToDate(Edit.Text, d) then
+  begin
+    FUpdatingFromControl := True;
+    try
+      FOLPointer^ := d;
+      {$IF CompilerVersion >= 34.0}
+      ShowValidationState(ValueIsValid(d));
+      {$IFEND}
+
+      Edit.Text := ValToString(FOLPointer^);
+      Edit.SelStart := Length(Edit.Text); // Keep cursor at end
+    finally
+      FUpdatingFromControl := False;
+    end;
+  end;
+
+  inherited NewOnExit(Sender);
+  // Reformat to standard format on exit
+  RefreshControl;
+end;
+
+procedure TEditToOLDate.NewOnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  d: OLDate;
+begin
+  if (ssCtrl in Shift) and Assigned(FOLPointer) then
+  begin
+    d := FOLPointer^;
+    if d.IsNull then d := Date; // Start from today if null
+
+    if Key = VK_UP then // Add 1 day
+    begin
+      d := IncDay(d, 1);
+      Key := 0;
+    end
+    else if Key = VK_DOWN then // Subtract 1 day
+    begin
+      d := IncDay(d, -1);
+      Key := 0;
+    end
+    else if Key = VK_LEFT then // Check Left Logic
+    begin
+      // Align to start of month. If already start of month, go to start of previous month.
+      if d = StartOfTheMonth(d) then
+        d := StartOfTheMonth(IncMonth(d, -1))
+      else
+        d := StartOfTheMonth(d);
+      Key := 0;
+    end
+    else if Key = VK_RIGHT then // Check Right Logic
+    begin
+      // Align to end of month. If already end of month, go to end of next month.
+      if d = EndOfTheMonth(d) then
+        d := EndOfTheMonth(IncMonth(d, 1))
+      else
+        d := EndOfTheMonth(d);
+      Key := 0;
+    end;
+
+    if Key = 0 then // Handled
+    begin
+      FUpdatingFromControl := True;
+      try
+        FOLPointer^ := d;
+        {$IF CompilerVersion >= 34.0}
+        ShowValidationState(ValueIsValid(d));
+        {$IFEND}
+        Edit.Text := ValToString(FOLPointer^);
+        Edit.SelStart := Length(Edit.Text);
+      finally
+        FUpdatingFromControl := False;
+      end;
+    end;
+  end;
+
+  if (Key = VK_RETURN) then
+  begin
+    NewOnExit(Sender);
+    Edit.SelectAll;
+    Key := 0; // Consume Enter
+  end;
+
+  if Assigned(FOriginalOnKeyDown) then
+     FOriginalOnKeyDown(Sender, Key, Shift);
+end;
+
+procedure TEditToOLDate.NewOnKeyPress(Sender: TObject; var Key: Char);
+var
+  NewText: string;
+begin
+  // Allow control keys (like Backspace #8)
+  if Key < #32 then
+  begin
+    if Assigned(FOriginalOnKeyPress) then
+      FOriginalOnKeyPress(Sender, Key);
+    Exit;
+  end;
+
+  // Allow digits and date separator
+  if (CharInSet(Key, ['0'..'9'])) or (Key = FormatSettings.DateSeparator) then
+  begin
+    if Assigned(FOriginalOnKeyPress) then
+      FOriginalOnKeyPress(Sender, Key);
+    Exit;
+  end;
+
+  // Check smart code construction
+  // We construct the potential new text to check if it's a valid prefix
+  NewText := Edit.Text;
+  if Edit.SelLength > 0 then
+    Delete(NewText, Edit.SelStart + 1, Edit.SelLength);
+  Insert(Key, NewText, Edit.SelStart + 1);
+
+  if not IsSmartCodePrefix(NewText) then
+  begin
+    // If the input would be blocked, but the Key itself is a valid start of a smart code,
+    // (e.g., user is typing 't' or 'n' or 's' while a date is already present),
+    // we assume they want to replace the current value with a smart code.
+    if IsSmartCodePrefix(Key) then
+    begin
+      Edit.SelectAll;
+      // Do not block Key; it will now replace the selected text.
+    end
+    else
+    begin
+      Key := #0; // Block invalid char
+    end;
+  end;
+
+  if (Key <> #0) and Assigned(FOriginalOnKeyPress) then
+     FOriginalOnKeyPress(Sender, Key);
+end;
+
+{$IF CompilerVersion >= 34.0}
+function TEditToOLDate.AddValidator(const Value: TOLDateValidationFunction): TEditToOLDate;
+var
+  vr: TOLValidationResult;
+begin
+  Result := Self;
+  if Assigned(Value) then
+    FValidators.Add(function(val: OLDate): TOLValidationResult
+      begin
+        Result := Value(val);
+      end);
+
+  vr := ValueIsValid(FOLPointer^);
+  ShowValidationState(vr);
+end;
+
+function TEditToOLDate.RequireValue(const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+begin
+  AddValidator(OLValid.IsRequired(AColor, ErrorMessage));
+  Result := Self;
+end;
+
+function TEditToOLDate.Min(const MinDate: TDate; const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.Min(MinDate, AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.Max(const MaxDate: TDate; const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.Max(MaxDate, AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.Between(const MinDate, MaxDate: TDate; const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.Between(MinDate, MaxDate, AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.After(const AfterDate: TDate; const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.After(AfterDate, AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.Before(const BeforeDate: TDate; const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.Before(BeforeDate, AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.Past(const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.Past(AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.Future(const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.Future(AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.Today(const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.Today(AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.MinAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.MinAge(Age, AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.MaxAge(const Age: Integer; const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.MaxAge(Age, AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.IsWeekday(const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.IsWeekday(AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+
+function TEditToOLDate.IsWeekend(const AColor: TColor; const ErrorMessage: string): TEditToOLDate;
+var
+  vFunc: TOLDateValidationFunction;
+begin
+  vFunc := OLValid.IsWeekend(AColor, ErrorMessage);
+  AddValidator(function(val: OLDate): TOLValidationResult
+    begin
+      Result := vFunc(val);
+    end);
+  Result := Self;
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 34.0}
+function TOLLinkManager.Link(const Edit: TEdit; var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate;
+{$ELSE}
+function TOLLinkManager.Link(const Edit: TEdit; var d: OLDate; const Alignment: TAlignment=taRightJustify): TEditToOLDate;
+{$IFEND}
+var
+  Observer: TObject;
+  ValueMulticaster: TOLValueMulticaster;
+begin
+  if GetLinkForControl(Edit) <> nil then
+    raise EControlAlreadyLinked.Create('Control is already linked.');
+
+  Result := TEditToOLDate.Create;
+  Result.Edit := Edit;
+  Result.FOLPointer := @d;
+  {$IF CompilerVersion >= 34.0}
+  // Get or create multicaster for this OLDate
+  if not FValueMulticasters.TryGetValue(@d, Observer) then
+  begin
+    ValueMulticaster := TOLValueMulticaster.Create;
+    FValueMulticasters.Add(@d, ValueMulticaster);
+  end
+  else
+    ValueMulticaster := Observer as TOLValueMulticaster;
+  d.OnChange := ValueMulticaster.OnOLChange;  // Always set multicaster's handler on OLDate
+  ValueMulticaster.AddLink(Result);  // Register this link with the multicaster
+  {$IFEND}
+  AddLink(Edit, Result);
+
+  Edit.Alignment := Alignment;
+
+  Result.RefreshControl();
 end;
 
 initialization

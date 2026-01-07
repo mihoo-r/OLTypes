@@ -436,12 +436,22 @@ begin
 
     target := Int(a.FValue); // Use date part for OLDate
     case a.FType of
-      svtMin, svtAfter: if Value <= target then
+      svtMin: if Value < target then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MinDate, 'Date cannot be earlier than %s.'), [DateToStr(target)]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg, a.FColor));
+        end;
+      svtAfter: if Value <= target then
         begin
           if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.AfterDate, 'Date must be after %s.'), [DateToStr(target)]) else Msg := a.FMessage;
           Exit(TOLValidationResult.Error(Msg, a.FColor));
         end;
-      svtMax, svtBefore: if Value >= target then
+      svtMax: if Value > target then
+        begin
+          if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.MaxDate, 'Date cannot be later than %s.'), [DateToStr(target)]) else Msg := a.FMessage;
+          Exit(TOLValidationResult.Error(Msg, a.FColor));
+        end;
+      svtBefore: if Value >= target then
         begin
           if a.FMessage = '' then Msg := Format(GetLocalizedMessage(ValidationMessages.BeforeDate, 'Date must be before %s.'), [DateToStr(target)]) else Msg := a.FMessage;
           Exit(TOLValidationResult.Error(Msg, a.FColor));
