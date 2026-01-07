@@ -173,6 +173,7 @@ begin
   CheckEquals(False, FCheckBox.Checked, 'Null should be Checked=False when AllowGrayed=False');
   CheckNotEquals(Ord(cbGrayed), Ord(FCheckBox.State), 'State should NOT be cbGrayed when AllowGrayed=False');
   
+  FControlLinks.RemoveLinks(FForm);
   // Test case 2: AllowGrayed = True (passed via Link)
   Link := FControlLinks.Link(FCheckBox, FBoolean, True);
   FBoolean := Null;
@@ -180,6 +181,7 @@ begin
   CheckEquals(Ord(cbGrayed), Ord(FCheckBox.State), 'Null should be cbGrayed when AllowGrayed=True (passed)');
   
   // Test case 3: Auto-detection (Link called without parameter, but TCheckBox has AllowGrayed=True)
+  FControlLinks.RemoveLinks(FForm);
   FCheckBox.AllowGrayed := True;
   Link := FControlLinks.Link(FCheckBox, FBoolean); // default is False, but should auto-detect True
   FBoolean := Null;

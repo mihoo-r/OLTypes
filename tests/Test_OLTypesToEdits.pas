@@ -138,7 +138,38 @@ type
     procedure TestValueChangeTriggersPickerUpdate;
   end;
 
+  // Test class for TEditToOLDate binding
+  TestEditToOLDate = class(TTestCase)
+  private
+    FEdit: TEdit;
+    FForm: TestForm;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestEditToValueSync;
+    procedure TestValueToEditSync;
+    procedure TestNullHandling;
+  end;
+
   {$IF CompilerVersion >= 34.0}
+  // Test class for TEditToOLDate validation
+  TestEditToOLDateValidation = class(TTestCase)
+  private
+    FEdit: TEdit;
+    FForm: TestForm;
+    function MustBeFutureDate(d: OLDate): TOLValidationResult;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestAfterValidator;
+    procedure TestMinValidator;
+    procedure TestBeforeValidator;
+    procedure TestMaxValidator;
+    procedure TestInvalidUpdate;
+  end;
+
   // Test class for TDateTimePickerToOLDate validation
   TestDateTimePickerToOLDateValidation = class(TTestCase)
   private
@@ -167,6 +198,21 @@ type
     procedure TestValidationFail;
     procedure TestValidationPass;
     procedure TestValueNotUpdatedOnFail;
+  end;
+
+  // Test class for preventing double linking
+  TestDoubleLinkPrevention = class(TTestCase)
+  private
+    FEdit: TEdit;
+    FCheckBox: TCheckBox;
+    FForm: TestForm;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestDoubleLinkEditToInteger;
+    procedure TestDoubleLinkEditToString;
+    procedure TestDoubleLinkCheckBox;
   end;
 
   // Test class for TOLDateToLabel validation
@@ -553,6 +599,53 @@ begin
   CheckTrue(FForm.FInt.IsNull, 'Empty string should result in NULL');
 
   CheckEquals('', FEdit.Text, 'NULL should display as empty string');
+end;
+
+{ TestEditToOLDate }
+
+procedure TestEditToOLDate.SetUp;
+begin
+   FForm := TestForm.CreateNew(nil, 0);
+   FEdit := TEdit.Create(FForm);
+   FEdit.Parent := FForm;
+   FForm.FDate := OLDate.Today;
+   FEdit.Link(FForm.FDate);
+end;
+
+procedure TestEditToOLDate.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestEditToOLDate.TestEditToValueSync;
+var
+  NewDate: TDate;
+begin
+  NewDate := IncDay(Date, 5);
+  FEdit.Text := DateToStr(NewDate);
+
+  CheckEquals(NewDate, TDate(FForm.FDate), 'Value should be synced from Edit');
+end;
+
+procedure TestEditToOLDate.TestValueToEditSync;
+var
+  NewDate: TDate;
+begin
+  NewDate := IncDay(Date, 10);
+  FForm.FDate := NewDate;
+  WaitForTimers();
+
+  CheckEquals(DateToStr(NewDate), FEdit.Text, 'Edit should display new value');
+end;
+
+procedure TestEditToOLDate.TestNullHandling;
+begin
+  FEdit.Text := DateToStr(Date);
+  FEdit.Text := '';
+  WaitForTimers();
+
+  CheckTrue(FForm.FDate.IsNull, 'Empty string should set value to NULL');
 end;
 
 { TestEditToOLString }
@@ -1012,6 +1105,105 @@ end;
 
 
 {$IF CompilerVersion >= 34.0}
+
+{ TestEditToOLDateValidation }
+
+function TestEditToOLDateValidation.MustBeFutureDate(d: OLDate): TOLValidationResult;
+begin
+  if d > Date then
+    Result := TOLValidationResult.Ok
+  else
+    Result := TOLValidationResult.Error('Must be future', clWebRed);
+end;
+
+procedure TestEditToOLDateValidation.SetUp;
+begin
+   FForm := TestForm.CreateNew(nil, 0);
+   FEdit := TEdit.Create(FForm);
+   FEdit.Parent := FForm;
+   FForm.FDate := OLDate.Today;
+end;
+
+procedure TestEditToOLDateValidation.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+end;
+
+procedure TestEditToOLDateValidation.TestAfterValidator;
+begin
+  // Link with After(Today) validator
+  FEdit.Link(FForm.FDate).After(OLDate.Today());
+
+  // Test Today (Should Fail as it must be AFTER today)
+  FEdit.Text := OLDate.Today().ToString();
+  CheckFalse(FEdit.IsValid(), 'After(Today) - Today should fail');
+
+  // Test Tomorrow (Should Pass)
+  FEdit.Text := OLDate.Tomorrow.ToString();
+  CheckTrue(FEdit.IsValid(), 'After(Today) - Tomorrow should pass');
+end;
+
+procedure TestEditToOLDateValidation.TestMinValidator;
+begin
+  // Link with Min(Today) validator
+  FEdit.Link(FForm.FDate).Min(OLDate.Today());
+
+  // Test Yesterday (Should Fail)
+  FEdit.Text := OLDate.Yesterday.ToString();
+  CheckFalse(FEdit.IsValid(), 'Min(Today) - Yesterday should fail');
+
+  // Test Today (Should Pass)
+  FEdit.Text := OLDate.Today().ToString();
+  CheckTrue(FEdit.IsValid(), 'Min(Today) - Today should pass');
+end;
+
+procedure TestEditToOLDateValidation.TestBeforeValidator;
+begin
+  // Link with Before(Today) validator
+  FEdit.Link(FForm.FDate).Before(OLDate.Today());
+
+  // Test Today (Should Fail)
+  FEdit.Text := OLDate.Today().ToString();
+  CheckFalse(FEdit.IsValid(), 'Before(Today) - Today should fail');
+
+  // Test Yesterday (Should Pass)
+  FEdit.Text := OLDate.Yesterday.ToString();
+  CheckTrue(FEdit.IsValid(), 'Before(Today) - Yesterday should pass');
+end;
+
+procedure TestEditToOLDateValidation.TestMaxValidator;
+begin
+  // Link with Max(Today) validator
+  FEdit.Link(FForm.FDate).Max(OLDate.Today());
+  
+  // Test Today (Should Pass)
+  FEdit.Text := OLDate.Today().ToString();
+  CheckTrue(FEdit.IsValid(), 'Max(Today) - Today should pass');
+
+  // Test Tomorrow (Should Fail)
+  FEdit.Text := OLDate.Tomorrow.ToString();
+  CheckFalse(FEdit.IsValid(), 'Max(Today) - Tomorrow should fail');
+end;
+
+procedure TestEditToOLDateValidation.TestInvalidUpdate;
+var
+  Target: TDate;
+begin
+  // Set Max Date as Today
+  Target := Date;
+  FEdit.Link(FForm.FDate).Max(Target);
+  
+  // Type Tomorrow (Invalid)
+  FEdit.Text := DateToStr(Target + 1);
+  
+  // Verify Value IS Updated despite validation error
+  CheckEquals(Target + 1, TDate(FForm.FDate), 'Invalid date should still update value');
+  
+  // Verify validation state via Control
+  CheckFalse(FEdit.IsValid(), 'Validation should define it as invalid');
+end;
+
 { TestDateTimePickerToOLDateValidation }
 
 function TestDateTimePickerToOLDateValidation.MustBeFutureDate(d: OLDate): TOLValidationResult;
@@ -2394,6 +2586,61 @@ begin
   CheckEquals('Only 42 is allowed', FEdit.Hint, 'Should show the new error');
 end;
 
+{ TestDoubleLinkPrevention }
+
+procedure TestDoubleLinkPrevention.SetUp;
+begin
+  inherited;
+  FForm := TestForm.CreateNew(nil, 0);
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FCheckBox := TCheckBox.Create(FForm);
+  FCheckBox.Parent := FForm;
+end;
+
+procedure TestDoubleLinkPrevention.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+  inherited;
+end;
+
+procedure TestDoubleLinkPrevention.TestDoubleLinkEditToInteger;
+begin
+  Links.Link(FEdit, FForm.FInt);
+  try
+    Links.Link(FEdit, FForm.FInt);
+    Fail('Should raise exception when linking already linked control (same type)');
+  except
+    on E: EControlAlreadyLinked do
+      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
+  end;
+end;
+
+procedure TestDoubleLinkPrevention.TestDoubleLinkEditToString;
+begin
+  Links.Link(FEdit, FForm.FInt);
+  try
+    Links.Link(FEdit, FForm.FString);
+    Fail('Should raise exception when linking already linked control (different type)');
+  except
+    on E: EControlAlreadyLinked do
+      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
+  end;
+end;
+
+procedure TestDoubleLinkPrevention.TestDoubleLinkCheckBox;
+begin
+  Links.Link(FCheckBox, FForm.FBoolean);
+  try
+    Links.Link(FCheckBox, FForm.FBoolean);
+    Fail('Should raise exception when linking already linked checkbox');
+  except
+    on E: EControlAlreadyLinked do
+      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
+  end;
+end;
+
 { TestDateTimePickerLinkingPrecedence }
 
 procedure TestDateTimePickerLinkingPrecedence.SetUp;
@@ -2516,6 +2763,7 @@ end;
 
  initialization
   RegisterTest(TestEditToOLInteger.Suite);
+  RegisterTest(TestEditToOLDate.Suite);
   RegisterTest(TestEditToOLString.Suite);
   RegisterTest(TestEditToOLDouble.Suite);
   RegisterTest(TestEditToOLCurrency.Suite);
@@ -2523,8 +2771,10 @@ end;
   RegisterTest(TestDateTimePickerToOLDate.Suite);
   RegisterTest(TestDateTimePickerToOLDateTime.Suite);
   RegisterTest(TestCheckBoxToOLBoolean.Suite);
+  RegisterTest(TestDoubleLinkPrevention.Suite);
   {$IF CompilerVersion >= 34.0}
   RegisterTest(TestCheckBoxToOLBooleanValidation.Suite);
+  RegisterTest(TestEditToOLDateValidation.Suite);
   RegisterTest(TestDateTimePickerToOLDateValidation.Suite);
   RegisterTest(TestDateTimePickerToOLDateTimeValidation.Suite);
   RegisterTest(TestOLIntegerToLabelValidation.Suite);

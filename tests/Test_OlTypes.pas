@@ -2503,25 +2503,17 @@ begin
   Check(s.TrySmartStrToDate());
   Check(s.SmartStrToDate() = OLDate.Today());
 
-  s := 'td';
-  Check(s.TrySmartStrToDate());
-  Check(s.SmartStrToDate() = OLDate.Today());
-
   s := 't';
   Check(s.TrySmartStrToDate());
   Check(s.SmartStrToDate() = OLDate.Today());
 
+  s := 'n';
+  Check(s.TrySmartStrToDate());
+  Check(s.SmartStrToDate() = OLDate.Tomorrow());
+
   s := 'y';
   Check(s.TrySmartStrToDate());
   Check(s.SmartStrToDate() = OLDate.Yesterday());
-
-  s := 'yd';
-  Check(s.TrySmartStrToDate());
-  Check(s.SmartStrToDate() = OLDate.Yesterday());
-
-  s := 'tm';
-  Check(s.TrySmartStrToDate());
-  Check(s.SmartStrToDate() = OLDate.Tomorrow());
 
   s := 'sy'; // Beginning of the year
   Check(s.TrySmartStrToDate());
@@ -3515,10 +3507,10 @@ begin
   d := 47123.5;
   Check(d = EncodeDate(2029,1,5));
 
-  d := 'td'; //SmartStrToDate - Today
+  d := 't'; //SmartStrToDate - Today
   Check(d = Today());
 
-  d := 'yd'; //SmartStrToDate - Yesterday
+  d := 'y'; //SmartStrToDate - Yesterday
   Check(d = Yesterday());
 
   d := '2017-05-19';
