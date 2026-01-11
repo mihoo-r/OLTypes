@@ -1166,37 +1166,126 @@ type
     procedure SetFromSecondCount(const Count: Integer; const StartingYear: Integer = 2017);
 
     /// <summary>
-    ///   Returns the number of years between the date/time and the specified date/time.
+    ///   Returns the number of complete years between the date/time and the specified date/time.
     /// </summary>
-    function YearsBetween(const AThen: TDateTime): Integer;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function YearsBetween(const Date: TDateTime): Integer;
     /// <summary>
-    ///   Returns the number of months between the date/time and the specified date/time.
+    ///   Returns the number of complete months between the date/time and the specified date/time.
     /// </summary>
-    function MonthsBetween(const AThen: TDateTime): Integer;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function MonthsBetween(const Date: TDateTime): Integer;
     /// <summary>
-    ///   Returns the number of weeks between the date/time and the specified date/time.
+    ///   Returns the number of complete weeks between the date/time and the specified date/time.
     /// </summary>
-    function WeeksBetween(const AThen: TDateTime): Integer;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function WeeksBetween(const Date: TDateTime): Integer;
     /// <summary>
-    ///   Returns the number of days between the date/time and the specified date/time.
+    ///   Returns the number of complete days between the date/time and the specified date/time.
     /// </summary>
-    function DaysBetween(const AThen: TDateTime): Integer;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function DaysBetween(const Date: TDateTime): Integer;
     /// <summary>
-    ///   Returns the number of hours between the date/time and the specified date/time.
+    ///   Returns the number of complete hours between the date/time and the specified date/time.
     /// </summary>
-    function HoursBetween(const AThen: TDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function HoursBetween(const Date: TDateTime): Int64;
     /// <summary>
-    ///   Returns the number of minutes between the date/time and the specified date/time.
+    ///   Returns the number of complete minutes between the date/time and the specified date/time.
     /// </summary>
-    function MinutesBetween(const AThen: TDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function MinutesBetween(const Date: TDateTime): Int64;
     /// <summary>
-    ///   Returns the number of seconds between the date/time and the specified date/time.
+    ///   Returns the number of complete seconds between the date/time and the specified date/time.
     /// </summary>
-    function SecondsBetween(const AThen: TDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function SecondsBetween(const Date: TDateTime): Int64;
     /// <summary>
-    ///   Returns the number of milliseconds between the date/time and the specified date/time.
+    ///   Returns the number of complete milliseconds between the date/time and the specified date/time.
     /// </summary>
-    function MilliSecondsBetween(const AThen: TDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function MilliSecondsBetween(const Date: TDateTime): Int64;
+
+    /// <summary>
+    ///   Returns the number of complete years from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function YearsFrom(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete years from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function YearsTo(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete months from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function MonthsFrom(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete months from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function MonthsTo(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete weeks from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function WeeksFrom(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete weeks from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function WeeksTo(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete days from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function DaysFrom(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete days from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function DaysTo(const Date: TDateTime): Integer;
+    /// <summary>
+    ///   Returns the number of complete hours from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function HoursFrom(const Date: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete hours from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function HoursTo(const Date: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete minutes from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function MinutesFrom(const Date: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete minutes from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function MinutesTo(const Date: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete seconds from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function SecondsFrom(const Date: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete seconds from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function SecondsTo(const Date: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete milliseconds from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function MilliSecondsFrom(const Date: TDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete milliseconds from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function MilliSecondsTo(const Date: TDateTime): Int64;
 
     /// <summary>
     ///   Checks if the date/time is within the specified range.
@@ -1210,35 +1299,35 @@ type
     /// <summary>
     ///   Returns the number of years as a double between the date/time and the specified date/time.
     /// </summary>
-    function YearSpan(const AThen: TDateTime): Double;
+    function YearSpan(const Date: TDateTime): Double;
     /// <summary>
     ///   Returns the number of months as a double between the date/time and the specified date/time.
     /// </summary>
-    function MonthSpan(const AThen: TDateTime): Double;
+    function MonthSpan(const Date: TDateTime): Double;
     /// <summary>
     ///   Returns the number of weeks as a double between the date/time and the specified date/time.
     /// </summary>
-    function WeekSpan(const AThen: TDateTime): Double;
+    function WeekSpan(const Date: TDateTime): Double;
     /// <summary>
     ///   Returns the number of days as a double between the date/time and the specified date/time.
     /// </summary>
-    function DaySpan(const AThen: TDateTime): Double;
+    function DaySpan(const Date: TDateTime): Double;
     /// <summary>
     ///   Returns the number of hours as a double between the date/time and the specified date/time.
     /// </summary>
-    function HourSpan(const AThen: TDateTime): Double;
+    function HourSpan(const Date: TDateTime): Double;
     /// <summary>
     ///   Returns the number of minutes as a double between the date/time and the specified date/time.
     /// </summary>
-    function MinuteSpan(const AThen: TDateTime): Double;
+    function MinuteSpan(const Date: TDateTime): Double;
     /// <summary>
     ///   Returns the number of seconds as a double between the date/time and the specified date/time.
     /// </summary>
-    function SecondSpan(const AThen: TDateTime): Double;
+    function SecondSpan(const Date: TDateTime): Double;
     /// <summary>
     ///   Returns the number of milliseconds as a double between the date/time and the specified date/time.
     /// </summary>
-    function MilliSecondSpan(const AThen: TDateTime): Double;
+    function MilliSecondSpan(const Date: TDateTime): Double;
 
     /// <summary>
     ///   Returns the date/time incremented by the specified number of years.
@@ -1500,21 +1589,66 @@ type
      function DayOfTheWeek(): Integer;
 
      /// <summary>
-     ///   Returns the number of years between the date and the specified date.
+     ///   Returns the number of complete years between the date and the specified date.
      /// </summary>
-     function YearsBetween(const AThen: TDate): Integer;
+     /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+     function YearsBetween(const Date: TDate): Integer;
      /// <summary>
-     ///   Returns the number of months between the date and the specified date.
+     ///   Returns the number of complete months between the date and the specified date.
      /// </summary>
-     function MonthsBetween(const AThen: TDate): Integer;
+     /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+     function MonthsBetween(const Date: TDate): Integer;
      /// <summary>
-     ///   Returns the number of weeks between the date and the specified date.
+     ///   Returns the number of complete weeks between the date and the specified date.
      /// </summary>
-     function WeeksBetween(const AThen: TDate): Integer;
+     /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+     function WeeksBetween(const Date: TDate): Integer;
      /// <summary>
-     ///   Returns the number of days between the date and the specified date.
+     ///   Returns the number of complete days between the date and the specified date.
      /// </summary>
-     function DaysBetween(const AThen: TDate): Integer;
+     /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+     function DaysBetween(const Date: TDate): Integer;
+
+     /// <summary>
+     ///   Returns the number of complete years from the specified date to this date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+     function YearsFrom(const Date: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of complete years from this date to the specified date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+     function YearsTo(const Date: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of complete months from the specified date to this date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+     function MonthsFrom(const Date: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of complete months from this date to the specified date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+     function MonthsTo(const Date: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of complete weeks from the specified date to this date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+     function WeeksFrom(const Date: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of complete weeks from this date to the specified date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+     function WeeksTo(const Date: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of complete days from the specified date to this date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+     function DaysFrom(const Date: TDate): Integer;
+     /// <summary>
+     ///   Returns the number of complete days from this date to the specified date.
+     /// </summary>
+     /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+     function DaysTo(const Date: TDate): Integer;
 
      /// <summary>
      ///   Checks if the date is within the specified date range.
@@ -1524,15 +1658,15 @@ type
      /// <summary>
      ///   Returns the number of years as a double between the date and the specified date.
      /// </summary>
-     function YearSpan(const AThen: TDate): Double;
+     function YearSpan(const Date: TDate): Double;
      /// <summary>
      ///   Returns the number of months as a double between the date and the specified date.
      /// </summary>
-     function MonthSpan(const AThen: TDate): Double;
+     function MonthSpan(const Date: TDate): Double;
      /// <summary>
      ///   Returns the number of weeks as a double between the date and the specified date.
      /// </summary>
-     function WeekSpan(const AThen: TDate): Double;
+     function WeekSpan(const Date: TDate): Double;
      /// <summary>
      ///   Returns the date incremented by the specified number of years.
      /// </summary>
@@ -5973,68 +6107,196 @@ begin
   Self := ol;
 end;
 
-function TOLDateTimeHelper.YearsBetween(const AThen: TDateTime): Integer;
+function TOLDateTimeHelper.YearsBetween(const Date: TDateTime): Integer;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.YearsBetween(AThen);
+  Result := ol.YearsBetween(Date);
 end;
 
-function TOLDateTimeHelper.MonthsBetween(const AThen: TDateTime): Integer;
+function TOLDateTimeHelper.MonthsBetween(const Date: TDateTime): Integer;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.MonthsBetween(AThen);
+  Result := ol.MonthsBetween(Date);
 end;
 
-function TOLDateTimeHelper.WeeksBetween(const AThen: TDateTime): Integer;
+function TOLDateTimeHelper.WeeksBetween(const Date: TDateTime): Integer;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.WeeksBetween(AThen);
+  Result := ol.WeeksBetween(Date);
 end;
 
-function TOLDateTimeHelper.DaysBetween(const AThen: TDateTime): Integer;
+function TOLDateTimeHelper.DaysBetween(const Date: TDateTime): Integer;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.DaysBetween(AThen);
+  Result := ol.DaysBetween(Date);
 end;
 
-function TOLDateTimeHelper.HoursBetween(const AThen: TDateTime): Int64;
+function TOLDateTimeHelper.HoursBetween(const Date: TDateTime): Int64;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.HoursBetween(AThen);
+  Result := ol.HoursBetween(Date);
 end;
 
-function TOLDateTimeHelper.MinutesBetween(const AThen: TDateTime): Int64;
+function TOLDateTimeHelper.MinutesBetween(const Date: TDateTime): Int64;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.MinutesBetween(AThen);
+  Result := ol.MinutesBetween(Date);
 end;
 
-function TOLDateTimeHelper.SecondsBetween(const AThen: TDateTime): Int64;
+function TOLDateTimeHelper.SecondsBetween(const Date: TDateTime): Int64;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.SecondsBetween(AThen);
+  Result := ol.SecondsBetween(Date);
 end;
 
-function TOLDateTimeHelper.MilliSecondsBetween(const AThen: TDateTime): Int64;
+function TOLDateTimeHelper.MilliSecondsBetween(const Date: TDateTime): Int64;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.MilliSecondsBetween(AThen);
+  Result := ol.MilliSecondsBetween(Date);
+end;
+
+function TOLDateTimeHelper.YearsFrom(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.YearsFrom(Date);
+end;
+
+function TOLDateTimeHelper.YearsTo(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.YearsTo(Date);
+end;
+
+function TOLDateTimeHelper.MonthsFrom(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MonthsFrom(Date);
+end;
+
+function TOLDateTimeHelper.MonthsTo(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MonthsTo(Date);
+end;
+
+function TOLDateTimeHelper.WeeksFrom(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.WeeksFrom(Date);
+end;
+
+function TOLDateTimeHelper.WeeksTo(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.WeeksTo(Date);
+end;
+
+function TOLDateTimeHelper.DaysFrom(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DaysFrom(Date);
+end;
+
+function TOLDateTimeHelper.DaysTo(const Date: TDateTime): Integer;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.DaysTo(Date);
+end;
+
+function TOLDateTimeHelper.HoursFrom(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.HoursFrom(Date);
+end;
+
+function TOLDateTimeHelper.HoursTo(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.HoursTo(Date);
+end;
+
+function TOLDateTimeHelper.MinutesFrom(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinutesFrom(Date);
+end;
+
+function TOLDateTimeHelper.MinutesTo(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MinutesTo(Date);
+end;
+
+function TOLDateTimeHelper.SecondsFrom(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondsFrom(Date);
+end;
+
+function TOLDateTimeHelper.SecondsTo(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.SecondsTo(Date);
+end;
+
+function TOLDateTimeHelper.MilliSecondsFrom(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondsFrom(Date);
+end;
+
+function TOLDateTimeHelper.MilliSecondsTo(const Date: TDateTime): Int64;
+var
+  ol: OLDateTime;
+begin
+  ol := Self;
+  Result := ol.MilliSecondsTo(Date);
 end;
 
 function TOLDateTimeHelper.InRange(const AStartDateTime, AEndDateTime: TDateTime; const aInclusive: Boolean): Boolean;
@@ -6053,68 +6315,68 @@ begin
   Result := ol.InDateRange(AStartDateTime, AEndDateTime, aInclusive);
 end;
 
-function TOLDateTimeHelper.YearSpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.YearSpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.YearSpan(AThen);
+  Result := ol.YearSpan(Date);
 end;
 
-function TOLDateTimeHelper.MonthSpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.MonthSpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.MonthSpan(AThen);
+  Result := ol.MonthSpan(Date);
 end;
 
-function TOLDateTimeHelper.WeekSpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.WeekSpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.WeekSpan(AThen);
+  Result := ol.WeekSpan(Date);
 end;
 
-function TOLDateTimeHelper.DaySpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.DaySpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.DaySpan(AThen);
+  Result := ol.DaySpan(Date);
 end;
 
-function TOLDateTimeHelper.HourSpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.HourSpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.HourSpan(AThen);
+  Result := ol.HourSpan(Date);
 end;
 
-function TOLDateTimeHelper.MinuteSpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.MinuteSpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.MinuteSpan(AThen);
+  Result := ol.MinuteSpan(Date);
 end;
 
-function TOLDateTimeHelper.SecondSpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.SecondSpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.SecondSpan(AThen);
+  Result := ol.SecondSpan(Date);
 end;
 
-function TOLDateTimeHelper.MilliSecondSpan(const AThen: TDateTime): Double;
+function TOLDateTimeHelper.MilliSecondSpan(const Date: TDateTime): Double;
 var
   ol: OLDateTime;
 begin
   ol := Self;
-  Result := ol.MilliSecondSpan(AThen);
+  Result := ol.MilliSecondSpan(Date);
 end;
 
 function TOLDateTimeHelper.IncYear(const ANumberOfYears: Integer): TDateTime;
@@ -6599,36 +6861,100 @@ begin
   Result := ol.DayOfTheWeek();
 end;
 
-function TOLDateHelper.YearsBetween(const AThen: TDate): Integer;
+function TOLDateHelper.YearsBetween(const Date: TDate): Integer;
 var
   ol: OLDate;
 begin
   ol := Self;
-  Result := ol.YearsBetween(AThen);
+  Result := ol.YearsBetween(Date);
 end;
 
-function TOLDateHelper.MonthsBetween(const AThen: TDate): Integer;
+function TOLDateHelper.MonthsBetween(const Date: TDate): Integer;
 var
   ol: OLDate;
 begin
   ol := Self;
-  Result := ol.MonthsBetween(AThen);
+  Result := ol.MonthsBetween(Date);
 end;
 
-function TOLDateHelper.WeeksBetween(const AThen: TDate): Integer;
+function TOLDateHelper.WeeksBetween(const Date: TDate): Integer;
 var
   ol: OLDate;
 begin
   ol := Self;
-  Result := ol.WeeksBetween(AThen);
+  Result := ol.WeeksBetween(Date);
 end;
 
-function TOLDateHelper.DaysBetween(const AThen: TDate): Integer;
+function TOLDateHelper.DaysBetween(const Date: TDate): Integer;
 var
   ol: OLDate;
 begin
   ol := Self;
-  Result := ol.DaysBetween(AThen);
+  Result := ol.DaysBetween(Date);
+end;
+
+function TOLDateHelper.YearsFrom(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.YearsFrom(Date);
+end;
+
+function TOLDateHelper.YearsTo(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.YearsTo(Date);
+end;
+
+function TOLDateHelper.MonthsFrom(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.MonthsFrom(Date);
+end;
+
+function TOLDateHelper.MonthsTo(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.MonthsTo(Date);
+end;
+
+function TOLDateHelper.WeeksFrom(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.WeeksFrom(Date);
+end;
+
+function TOLDateHelper.WeeksTo(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.WeeksTo(Date);
+end;
+
+function TOLDateHelper.DaysFrom(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.DaysFrom(Date);
+end;
+
+function TOLDateHelper.DaysTo(const Date: TDate): Integer;
+var
+  ol: OLDate;
+begin
+  ol := Self;
+  Result := ol.DaysTo(Date);
 end;
 
 function TOLDateHelper.InRange(const AStartDateTime, AEndDateTime: TDate; const aInclusive: Boolean): Boolean;
@@ -6639,28 +6965,28 @@ begin
   Result := ol.InRange(AStartDateTime, AEndDateTime, aInclusive);
 end;
 
-function TOLDateHelper.YearSpan(const AThen: TDate): Double;
+function TOLDateHelper.YearSpan(const Date: TDate): Double;
 var
   ol: OLDate;
 begin
   ol := Self;
-  Result := ol.YearSpan(AThen);
+  Result := ol.YearSpan(Date);
 end;
 
-function TOLDateHelper.MonthSpan(const AThen: TDate): Double;
+function TOLDateHelper.MonthSpan(const Date: TDate): Double;
 var
   ol: OLDate;
 begin
   ol := Self;
-  Result := ol.MonthSpan(AThen);
+  Result := ol.MonthSpan(Date);
 end;
 
-function TOLDateHelper.WeekSpan(const AThen: TDate): Double;
+function TOLDateHelper.WeekSpan(const Date: TDate): Double;
 var
   ol: OLDate;
 begin
   ol := Self;
-  Result := ol.WeekSpan(AThen);
+  Result := ol.WeekSpan(Date);
 end;
 
 function TOLDateHelper.IncYear(const ANumberOfYears: Integer): TDate;

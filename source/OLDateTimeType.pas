@@ -373,43 +373,124 @@ type
     /// <summary>
     ///   Returns the number of complete years between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function YearsBetween(const AThen: OLDateTime): OLInteger;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function YearsBetween(const Date: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete months between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MonthsBetween(const AThen: OLDateTime): OLInteger;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function MonthsBetween(const Date: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete weeks between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function WeeksBetween(const AThen: OLDateTime): OLInteger;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function WeeksBetween(const Date: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete days between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function DaysBetween(const AThen: OLDateTime): OLInteger;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function DaysBetween(const Date: OLDateTime): OLInteger;
     /// <summary>
     ///   Returns the number of complete hours between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function HoursBetween(const AThen: OLDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function HoursBetween(const Date: OLDateTime): Int64;
     /// <summary>
     ///   Returns the number of complete minutes between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MinutesBetween(const AThen: OLDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function MinutesBetween(const Date: OLDateTime): Int64;
     /// <summary>
     ///   Returns the number of complete seconds between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function SecondsBetween(const AThen: OLDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function SecondsBetween(const Date: OLDateTime): Int64;
     /// <summary>
     ///   Returns the number of complete milliseconds between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MilliSecondsBetween(const AThen: OLDateTime): Int64;
+    /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
+    function MilliSecondsBetween(const Date: OLDateTime): Int64;
+
+    /// <summary>
+    ///   Returns the number of complete years from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function YearsFrom(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete years from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function YearsTo(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete months from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function MonthsFrom(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete months from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function MonthsTo(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete weeks from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function WeeksFrom(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete weeks from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function WeeksTo(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete days from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function DaysFrom(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete days from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function DaysTo(const Date: OLDateTime): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete hours from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function HoursFrom(const Date: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete hours from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function HoursTo(const Date: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete minutes from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function MinutesFrom(const Date: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete minutes from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function MinutesTo(const Date: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete seconds from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function SecondsFrom(const Date: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete seconds from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function SecondsTo(const Date: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete milliseconds from the specified datetime to this datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
+    function MilliSecondsFrom(const Date: OLDateTime): Int64;
+    /// <summary>
+    ///   Returns the number of complete milliseconds from this datetime to the specified datetime.
+    /// </summary>
+    /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
+    function MilliSecondsTo(const Date: OLDateTime): Int64;
 
     /// <summary>
     ///   Checks if the datetime is within the specified range.
@@ -423,43 +504,43 @@ type
     /// <summary>
     ///   Returns the approximate number of years between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function YearSpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function YearSpan(const Date: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of months between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MonthSpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function MonthSpan(const Date: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of weeks between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function WeekSpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function WeekSpan(const Date: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of days between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function DaySpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function DaySpan(const Date: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of hours between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function HourSpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function HourSpan(const Date: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of minutes between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MinuteSpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function MinuteSpan(const Date: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of seconds between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function SecondSpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function SecondSpan(const Date: OLDateTime): OLDouble;
     /// <summary>
     ///   Returns the approximate number of milliseconds between this datetime and the specified datetime.
     /// </summary>
-    /// <param name="AThen">The datetime to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MilliSecondSpan(const AThen: OLDateTime): OLDouble;
+    /// <param name="Date">The datetime to compare with. If Date is less than Self, the result is a non-negative number.</param>
+    function MilliSecondSpan(const Date: OLDateTime): OLDouble;
 
 
     /// <summary>
@@ -656,12 +737,12 @@ begin
   Result := DateUtils.DayOfTheYear(Self);
 end;
 
-function OLDateTime.DaysBetween(const AThen: OLDateTime): OLInteger;
+function OLDateTime.DaysBetween(const Date: OLDateTime): OLInteger;
 begin
-  if IsNull or AThen.IsNull then
+  if IsNull or Date.IsNull then
     exit(null);
 
-  Result := Round(Self.FValue - AThen.FValue);
+  Result := Abs(Round(Self.FValue - Date.FValue));
 end;
 
 function OLDateTime.DaysInMonth(): OLInteger;
@@ -674,9 +755,9 @@ begin
   Result := DateUtils.DaysInYear(Self);
 end;
 
-function OLDateTime.DaySpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.DaySpan(const Date: OLDateTime): OLDouble;
 begin
-  Result := DateUtils.DaySpan(Self, AThen);
+  Result := DateUtils.DaySpan(Self, Date);
 end;
 
 procedure OLDateTime.DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute,
@@ -814,18 +895,16 @@ begin
   Result := DateUtils.HourOfTheYear(Self);
 end;
 
-function OLDateTime.HoursBetween(const AThen: OLDateTime): Int64;
+function OLDateTime.HoursBetween(const Date: OLDateTime): Int64;
 var
   MinusSign: OLBoolean;
 begin
-  MinusSign := (AThen > Self);
-
-  Result := DateUtils.HoursBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
+  Result := DateUtils.HoursBetween(Self, Date);
 end;
 
-function OLDateTime.HourSpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.HourSpan(const Date: OLDateTime): OLDouble;
 begin
-  Result := DateUtils.HourSpan(Self, AThen);
+  Result := DateUtils.HourSpan(Self, Date);
 end;
 
 function OLDateTime.IfNull(b: OLDateTime): OLDateTime;
@@ -1021,18 +1100,142 @@ begin
   Result := DateUtils.MilliSecondOfTheYear(Self);
 end;
 
-function OLDateTime.MilliSecondsBetween(const AThen: OLDateTime): Int64;
-var
-  MinusSign: OLBoolean;
+function OLDateTime.MilliSecondsBetween(const Date: OLDateTime): Int64;
 begin
-  MinusSign := (AThen > Self);
-
-  Result := DateUtils.MilliSecondsBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
+  Result := DateUtils.MilliSecondsBetween(Self, Date);
 end;
 
-function OLDateTime.MilliSecondSpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.YearsFrom(const Date: OLDateTime): OLInteger;
 begin
-  Result := DateUtils.MilliSecondSpan(Self, AThen);
+  if Date > Self then
+    Result := -YearsBetween(Date)
+  else
+    Result := YearsBetween(Date);
+end;
+
+function OLDateTime.YearsTo(const Date: OLDateTime): OLInteger;
+begin
+  if Date < Self then
+    Result := -YearsBetween(Date)
+  else
+    Result := YearsBetween(Date);
+end;
+
+function OLDateTime.MonthsFrom(const Date: OLDateTime): OLInteger;
+begin
+  if Date > Self then
+    Result := -MonthsBetween(Date)
+  else
+    Result := MonthsBetween(Date);
+end;
+
+function OLDateTime.MonthsTo(const Date: OLDateTime): OLInteger;
+begin
+  if Date < Self then
+    Result := -MonthsBetween(Date)
+  else
+    Result := MonthsBetween(Date);
+end;
+
+function OLDateTime.WeeksFrom(const Date: OLDateTime): OLInteger;
+begin
+  if Date > Self then
+    Result := -WeeksBetween(Date)
+  else
+    Result := WeeksBetween(Date);
+end;
+
+function OLDateTime.WeeksTo(const Date: OLDateTime): OLInteger;
+begin
+  if Date < Self then
+    Result := -WeeksBetween(Date)
+  else
+    Result := WeeksBetween(Date);
+end;
+
+function OLDateTime.DaysFrom(const Date: OLDateTime): OLInteger;
+begin
+  if Date > Self then
+    Result := -DaysBetween(Date)
+  else
+    Result := DaysBetween(Date);
+end;
+
+function OLDateTime.DaysTo(const Date: OLDateTime): OLInteger;
+begin
+  if Date < Self then
+    Result := -DaysBetween(Date)
+  else
+    Result := DaysBetween(Date);
+end;
+
+function OLDateTime.HoursFrom(const Date: OLDateTime): Int64;
+begin
+  if Date > Self then
+    Result := -HoursBetween(Date)
+  else
+    Result := HoursBetween(Date);
+end;
+
+function OLDateTime.HoursTo(const Date: OLDateTime): Int64;
+begin
+  if Date < Self then
+    Result := -HoursBetween(Date)
+  else
+    Result := HoursBetween(Date);
+end;
+
+function OLDateTime.MinutesFrom(const Date: OLDateTime): Int64;
+begin
+  if Date > Self then
+    Result := -MinutesBetween(Date)
+  else
+    Result := MinutesBetween(Date);
+end;
+
+function OLDateTime.MinutesTo(const Date: OLDateTime): Int64;
+begin
+  if Date < Self then
+    Result := -MinutesBetween(Date)
+  else
+    Result := MinutesBetween(Date);
+end;
+
+function OLDateTime.SecondsFrom(const Date: OLDateTime): Int64;
+begin
+  if Date > Self then
+    Result := -SecondsBetween(Date)
+  else
+    Result := SecondsBetween(Date);
+end;
+
+function OLDateTime.SecondsTo(const Date: OLDateTime): Int64;
+begin
+  if Date < Self then
+    Result := -SecondsBetween(Date)
+  else
+    Result := SecondsBetween(Date);
+end;
+
+function OLDateTime.MilliSecondsFrom(const Date: OLDateTime): Int64;
+begin
+  if Date > Self then
+    Result := -MilliSecondsBetween(Date)
+  else
+    Result := MilliSecondsBetween(Date);
+end;
+
+function OLDateTime.MilliSecondsTo(const Date: OLDateTime): Int64;
+begin
+  if Date < Self then
+    Result := -MilliSecondsBetween(Date)
+  else
+    Result := MilliSecondsBetween(Date);
+end;
+
+function OLDateTime.MilliSecondSpan(const Date: OLDateTime): OLDouble;
+begin
+  Result := DateUtils.MilliSecondSpan(Self, Date);
 end;
 
 function OLDateTime.Min(const CompareDate: OLDateTime): OLDateTime;
@@ -1077,18 +1280,14 @@ begin
   Result := DateUtils.MinuteOfTheYear(Self);
 end;
 
-function OLDateTime.MinutesBetween(const AThen: OLDateTime): Int64;
-var
-  MinusSign: OLBoolean;
+function OLDateTime.MinutesBetween(const Date: OLDateTime): Int64;
 begin
-  MinusSign := (AThen > Self);
-
-  Result := DateUtils.MinutesBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
+  Result := DateUtils.MinutesBetween(Self, Date);
 end;
 
-function OLDateTime.MinuteSpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.MinuteSpan(const Date: OLDateTime): OLDouble;
 begin
-  Result := DateUtils.MinuteSpan(Self, AThen);
+  Result := DateUtils.MinuteSpan(Self, Date);
 end;
 
 function OLDateTime.MonthOf: OLInteger;
@@ -1096,21 +1295,18 @@ begin
   Result := DateUtils.MonthOf(Self);
 end;
 
-function OLDateTime.MonthsBetween(const AThen: OLDateTime): OLInteger;
+function OLDateTime.MonthsBetween(const Date: OLDateTime): OLInteger;
 var
   Y1, Y2, M1, M2, D1, D2: Integer;
   FullMonth: OLBoolean;
-  MinusSign: OLBoolean;
 begin
-//Result := Self.Value.MonthsBetween(AThen); //Useless - returns "approximate" number of months based on avg days in month (30.4375 days)
+//Result := Self.Value.MonthsBetween(Date); //Useless - returns "approximate" number of months based on avg days in month (30.4375 days)
 
-  if AThen > Self then
+  if Date > Self then
   begin
-    MinusSign := True;
-
-    Y2 := AThen.Year;
-    M2 := AThen.Month;
-    D2 := AThen.Day;
+    Y2 := Date.Year;
+    M2 := Date.Month;
+    D2 := Date.Day;
 
     Y1 := Self.Year;
     M1 := Self.Month;
@@ -1118,11 +1314,9 @@ begin
   end
   else
   begin
-    MinusSign := False;
-
-    Y1 := AThen.Year;
-    M1 := AThen.Month;
-    D1 := AThen.Day;
+    Y1 := Date.Year;
+    M1 := Date.Month;
+    D1 := Date.Day;
 
     Y2 := Self.Year;
     M2 := Self.Month;
@@ -1132,13 +1326,12 @@ begin
   FullMonth := (D2 >= D1) or (D2 = DaysInAMonth(Y2, M2));
 
   //Decrease when comparing for example '2020-01-10' and '2020-02-09' - not a full month so result is 0
-  //Revert the sign when AThen DateTime larger than Self
-  Result := ((12 * (Y2 - Y1) + (M2 - M1) + FullMonth.IfThen(0, -1))) * MinusSign.IfThen(-1, 1);
+  Result := 12 * (Y2 - Y1) + (M2 - M1) + FullMonth.IfThen(0, -1);
 end;
 
-function OLDateTime.MonthSpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.MonthSpan(const Date: OLDateTime): OLDouble;
 begin
-  Result := DateUtils.MonthSpan(Self, AThen);
+  Result := DateUtils.MonthSpan(Self, Date);
 end;
 
 class operator OLDateTime.NotEqual(const a, b: OLDateTime): Boolean;
@@ -1221,18 +1414,14 @@ begin
   Result := DateUtils.SecondOfTheYear(Self);
 end;
 
-function OLDateTime.SecondsBetween(const AThen: OLDateTime): Int64;
-var
-  MinusSign: OLBoolean;
+function OLDateTime.SecondsBetween(const Date: OLDateTime): Int64;
 begin
-  MinusSign := (AThen > Self);
-
-  Result := DateUtils.SecondsBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
+  Result := DateUtils.SecondsBetween(Self, Date);
 end;
 
-function OLDateTime.SecondSpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.SecondSpan(const Date: OLDateTime): OLDouble;
 begin
-  Result := DateUtils.SecondSpan(Self, AThen);
+  Result := DateUtils.SecondSpan(Self, Date);
 end;
 
 procedure OLDateTime.SetDay(const Value: OLInteger);
@@ -1525,13 +1714,9 @@ begin
 end;
 
 
-function OLDateTime.WeeksBetween(const AThen: OLDateTime): OLInteger;
-var
-  MinusSign: OLBoolean;
+function OLDateTime.WeeksBetween(const Date: OLDateTime): OLInteger;
 begin
-  MinusSign := (AThen > Self);
-
-  Result := DateUtils.WeeksBetween(Self, AThen) * MinusSign.IfThen(-1, 1);
+  Result := DateUtils.WeeksBetween(Self, Date);
 end;
 
 function OLDateTime.WeeksInYear: OLInteger;
@@ -1539,9 +1724,9 @@ begin
   Result := DateUtils.WeeksInYear(Self);
 end;
 
-function OLDateTime.WeekSpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.WeekSpan(const Date: OLDateTime): OLDouble;
 begin
-  Result := DateUtils.WeekSpan(Self, AThen);
+  Result := DateUtils.WeekSpan(Self, Date);
 end;
 
 function OLDateTime.YearOf: OLInteger;
@@ -1549,20 +1734,17 @@ begin
   Result := DateUtils.YearOf(Self);
 end;
 
-function OLDateTime.YearsBetween(const AThen: OLDateTime): OLInteger;
+function OLDateTime.YearsBetween(const Date: OLDateTime): OLInteger;
 var
   Y1, Y2, M1, M2, D1, D2: Integer;
   FullYear: OLBoolean;
-  MinusSign: OLBoolean;
 begin
-  // Result := DateUtils.YearsBetween(Self, AThen); // Replaced to maintain consistency with MonthsBetween logic
-  if AThen > Self then
+  // Result := DateUtils.YearsBetween(Self, Date); // Replaced to maintain consistency with MonthsBetween logic
+  if Date > Self then
   begin
-    MinusSign := True;
-
-    Y2 := AThen.Year;
-    M2 := AThen.Month;
-    D2 := AThen.Day;
+    Y2 := Date.Year;
+    M2 := Date.Month;
+    D2 := Date.Day;
 
     Y1 := Self.Year;
     M1 := Self.Month;
@@ -1570,11 +1752,9 @@ begin
   end
   else
   begin
-    MinusSign := False;
-
-    Y1 := AThen.Year;
-    M1 := AThen.Month;
-    D1 := AThen.Day;
+    Y1 := Date.Year;
+    M1 := Date.Month;
+    D1 := Date.Day;
 
     Y2 := Self.Year;
     M2 := Self.Month;
@@ -1591,13 +1771,12 @@ begin
     FullYear := (D2 >= D1) or (D2 = DaysInAMonth(Y2, M2));
 
   // Calculate year difference and decrease by 1 if the current date hasn't reached the start date's Month/Day yet
-  //Revert the sign when AThen DateTime larger than Self
-  Result := ((Y2 - Y1) + FullYear.IfThen(0, -1)) * MinusSign.IfThen(-1, 1);
+  Result := (Y2 - Y1) + FullYear.IfThen(0, -1);
 end;
 
-function OLDateTime.YearSpan(const AThen: OLDateTime): OLDouble;
+function OLDateTime.YearSpan(const Date: OLDateTime): OLDouble;
 begin
-  Result := DateUtils.YearSpan(Self, AThen);
+  Result := DateUtils.YearSpan(Self, Date);
 end;
 
 class function OLDateTime.Yesterday: OLDateTime;

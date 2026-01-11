@@ -211,27 +211,68 @@ type
     /// <summary>
     ///   Returns the number of complete years between this date and the specified date.
     /// </summary>
-    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function YearsBetween(const AThen: OLDate): OLInteger;
+    /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+    function YearsBetween(const Date: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete months between this date and the specified date.
     /// </summary>
-    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MonthsBetween(const AThen: OLDate): OLInteger;
+    /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+    function MonthsBetween(const Date: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete weeks between this date and the specified date.
     /// </summary>
-    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function WeeksBetween(const AThen: OLDate): OLInteger;
+    /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+    function WeeksBetween(const Date: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete days between this date and the specified date.
     /// </summary>
-    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function DaysBetween(const AThen: OLDate): OLInteger;
+    /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+    function DaysBetween(const Date: OLDate): OLInteger;
     /// <summary>
     ///   Returns the number of complete days between this date and the begining of 1900.
     /// </summary>
     function DaysSince1900: OLInteger;
+
+    /// <summary>
+    ///   Returns the number of complete years from the specified date to this date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+    function YearsFrom(const Date: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete years from this date to the specified date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+    function YearsTo(const Date: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete months from the specified date to this date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+    function MonthsFrom(const Date: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete months from this date to the specified date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+    function MonthsTo(const Date: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete weeks from the specified date to this date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+    function WeeksFrom(const Date: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete weeks from this date to the specified date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+    function WeeksTo(const Date: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete days from the specified date to this date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date > Self.</param>
+    function DaysFrom(const Date: OLDate): OLInteger;
+    /// <summary>
+    ///   Returns the number of complete days from this date to the specified date.
+    /// </summary>
+    /// <param name="Date">The date to compare with. Returns negative if Date < Self.</param>
+    function DaysTo(const Date: OLDate): OLInteger;
 
     /// <summary>
     ///   Checks if the date is within the specified range.
@@ -241,18 +282,18 @@ type
     /// <summary>
     ///   Returns the approximate number of years between this date and the specified date.
     /// </summary>
-    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function YearSpan(const AThen: OLDate): OLDouble;
+    /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+    function YearSpan(const Date: OLDate): OLDouble;
     /// <summary>
     ///   Returns the approximate number of months between this date and the specified date.
     /// </summary>
-    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function MonthSpan(const AThen: OLDate): OLDouble;
+    /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+    function MonthSpan(const Date: OLDate): OLDouble;
     /// <summary>
     ///   Returns the approximate number of weeks between this date and the specified date.
     /// </summary>
-    /// <param name="AThen">The date to compare with. If AThen is less than Self, the result is a non-negative number.</param>
-    function WeekSpan(const AThen: OLDate): OLDouble;
+    /// <param name="Date">The date to compare with. The result is always a non-negative number.</param>
+    function WeekSpan(const Date: OLDate): OLDouble;
 
     /// <summary>
     ///   Returns the date incremented by the specified number of years.
@@ -357,9 +398,49 @@ begin
   Result := Self.FValue.DayOfTheYear();
 end;
 
-function OLDate.DaysBetween(const AThen: OLDate): OLInteger;
+function OLDate.DaysBetween(const Date: OLDate): OLInteger;
 begin
-  Result := Self.FValue.DaysBetween(AThen);
+  Result := Self.FValue.DaysBetween(Date);
+end;
+
+function OLDate.YearsFrom(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.YearsFrom(Date);
+end;
+
+function OLDate.YearsTo(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.YearsTo(Date);
+end;
+
+function OLDate.MonthsFrom(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.MonthsFrom(Date);
+end;
+
+function OLDate.MonthsTo(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.MonthsTo(Date);
+end;
+
+function OLDate.WeeksFrom(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.WeeksFrom(Date);
+end;
+
+function OLDate.WeeksTo(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.WeeksTo(Date);
+end;
+
+function OLDate.DaysFrom(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.DaysFrom(Date);
+end;
+
+function OLDate.DaysTo(const Date: OLDate): OLInteger;
+begin
+  Result := Self.FValue.DaysTo(Date);
 end;
 
 function OLDate.DaysInMonth: OLInteger;
@@ -638,30 +719,14 @@ begin
   Result := Self.FValue.Min(CompareDate);
 end;
 
-function OLDate.MonthsBetween(const AThen: OLDate): OLInteger;
-var
-  Y1, Y2, M1, M2, D1, D2: Integer;
-  FullMonth: OLBoolean;
+function OLDate.MonthsBetween(const Date: OLDate): OLInteger;
 begin
-//Result := Self.Value.MonthsBetween(AThen); //Useless - returns "approximate" number of months based on avg days in month (30.4375 days)
-
-  Y1 := AThen.Year;
-  M1 := AThen.Month;
-  D1 := AThen.Day;
-
-  Y2 := Self.Year;
-  M2 := Self.Month;
-  D2 := Self.Day;
-
-  FullMonth := (D2 >= D1) or (D2 = DaysInAMonth(Y2, M2));
-
-  //Decrease when comparing for example '2020-01-10' and '2020-02-09' - not a full month so result is 0
-  Result := 12 * (Y2 - Y1) + (M2 - M1) + FullMonth.IfThen(0, -1);
+  Result := Self.FValue.MonthsBetween(Date);
 end;
 
-function OLDate.MonthSpan(const AThen: OLDate): OLDouble;
+function OLDate.MonthSpan(const Date: OLDate): OLDouble;
 begin
-  Result := Self.FValue.MonthSpan(AThen);
+  Result := Self.FValue.MonthSpan(Date);
 end;
 
 class operator OLDate.NotEqual(const a, b: OLDate): Boolean;
@@ -871,9 +936,9 @@ begin
   Result := OutPut;
 end;
 
-function OLDate.WeeksBetween(const AThen: OLDate): OLInteger;
+function OLDate.WeeksBetween(const Date: OLDate): OLInteger;
 begin
-  Result := Self.FValue.WeeksBetween(AThen);
+  Result := Self.FValue.WeeksBetween(Date);
 end;
 
 function OLDate.WeeksInYear: OLInteger;
@@ -881,19 +946,19 @@ begin
   Result := Self.FValue.WeeksInYear();
 end;
 
-function OLDate.WeekSpan(const AThen: OLDate): OLDouble;
+function OLDate.WeekSpan(const Date: OLDate): OLDouble;
 begin
-  Result := Self.FValue.WeekSpan(AThen);
+  Result := Self.FValue.WeekSpan(Date);
 end;
 
-function OLDate.YearsBetween(const AThen: OLDate): OLInteger;
+function OLDate.YearsBetween(const Date: OLDate): OLInteger;
 begin
-  Result := Self.FValue.YearsBetween(AThen);
+  Result := Self.FValue.YearsBetween(Date);
 end;
 
-function OLDate.YearSpan(const AThen: OLDate): OLDouble;
+function OLDate.YearSpan(const Date: OLDate): OLDouble;
 begin
-  Result := Self.FValue.YearSpan(AThen);
+  Result := Self.FValue.YearSpan(Date);
 end;
 
 class function OLDate.Yesterday: OLDate;
