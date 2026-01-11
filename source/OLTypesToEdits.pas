@@ -4773,6 +4773,8 @@ begin
 end;
 
 destructor TCheckBoxToOLBoolean.Destroy;
+var
+  Method: TMethod;
 begin
   // Note: We don't set FOLPointer^.OnChange := nil here because when using
   // observer pattern (multiple controls to one value), the OnChange points to
@@ -4782,7 +4784,6 @@ begin
   begin
     if Assigned(FEditOnClick) then
     begin
-      var Method: TMethod;
       Method := TMethod(FEdit.OnClick);
       if (Method.Code = @TCheckBoxToOLBoolean.NewOnClick) and (Method.Data = Pointer(Self)) then
         FEdit.OnClick := FEditOnClick;
