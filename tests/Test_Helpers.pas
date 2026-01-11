@@ -1171,9 +1171,9 @@ var
 begin
   dt1 := EncodeDate(2023, 1, 1);
   dt2 := EncodeDate(2024, 1, 1);
-  CheckEquals(-1, dt1.YearsBetween(dt2));
-  CheckEquals(-12, dt1.MonthsBetween(dt2));
-  CheckEquals(-365, dt1.DaysBetween(dt2));
+  CheckEquals(1, dt1.YearsBetween(dt2));
+  CheckEquals(12, dt1.MonthsBetween(dt2));
+  CheckEquals(365, dt1.DaysBetween(dt2));
 end;
 
 procedure TestDateTimeHelper.TestSpan;

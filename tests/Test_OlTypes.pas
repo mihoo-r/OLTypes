@@ -165,6 +165,8 @@ type
     procedure SameTimeDateTime;
     procedure DateTimePartsDateTime;
 
+    procedure BetweenDateTime;
+
     // NULL Handling Tests
     procedure NullHandlingDateTime;
   end;
@@ -198,6 +200,8 @@ type
     procedure IncDate;
     procedure RecodingDate;
     procedure DateTimePartsDate;
+
+    procedure BetweenDate;
 
     // NULL Handling Tests
     procedure NullHandlingDate;
@@ -5214,6 +5218,159 @@ begin
   CheckEquals(11.5, od);
   Dec(od);
   CheckEquals(10.5, od.AsDouble);
+end;
+
+procedure OLDateTimeTest.BetweenDateTime;
+var
+  dt1, dt2: OLDateTime;
+begin
+  // Use simple dates for easy verification
+  // dt1 = 2020-01-01 00:00:00, dt2 = 2023-01-01 12:00:00
+  // Difference: exactly 3 years, 36 months, 1096 days (2020 is leap year), 12 hours
+  dt1 := EncodeDateTime(2020, 1, 1, 0, 0, 0, 0);
+  dt2 := EncodeDateTime(2023, 1, 1, 12, 0, 0, 0);
+
+  // YearsBetween - always positive
+  Check(dt1.YearsBetween(dt2) = 3, 'YearsBetween should be 3');
+  Check(dt2.YearsBetween(dt1) = 3, 'YearsBetween reversed should also be 3');
+
+  // YearsFrom - negative if AThen > Self
+  Check(dt1.YearsFrom(dt2) = -3, 'dt1.YearsFrom(dt2) should be -3');
+  Check(dt2.YearsFrom(dt1) = 3, 'dt2.YearsFrom(dt1) should be 3');
+
+  // YearsTo - negative if AThen < Self
+  Check(dt1.YearsTo(dt2) = 3, 'dt1.YearsTo(dt2) should be 3');
+  Check(dt2.YearsTo(dt1) = -3, 'dt2.YearsTo(dt1) should be -3');
+
+  // MonthsBetween - always positive (36 months = 3 years)
+  Check(dt1.MonthsBetween(dt2) = 36, 'MonthsBetween should be 36');
+  Check(dt2.MonthsBetween(dt1) = 36, 'MonthsBetween reversed should also be 36');
+
+  // MonthsFrom/To
+  Check(dt1.MonthsFrom(dt2) = -36, 'dt1.MonthsFrom(dt2) should be -36');
+  Check(dt2.MonthsFrom(dt1) = 36, 'dt2.MonthsFrom(dt1) should be 36');
+  Check(dt1.MonthsTo(dt2) = 36, 'dt1.MonthsTo(dt2) should be 36');
+  Check(dt2.MonthsTo(dt1) = -36, 'dt2.MonthsTo(dt1) should be -36');
+
+  // DaysBetween - 366 (2020 leap) + 365 (2021) + 365 (2022) = 1096
+  Check(dt1.DaysBetween(dt2) = 1096, 'DaysBetween should be 1096');
+  Check(dt2.DaysBetween(dt1) = 1096, 'DaysBetween reversed should also be 1096');
+
+  // DaysFrom/To
+  Check(dt1.DaysFrom(dt2) = -1096, 'dt1.DaysFrom(dt2) should be -1096');
+  Check(dt2.DaysFrom(dt1) = 1096, 'dt2.DaysFrom(dt1) should be 1096');
+  Check(dt1.DaysTo(dt2) = 1096, 'dt1.DaysTo(dt2) should be 1096');
+  Check(dt2.DaysTo(dt1) = -1096, 'dt2.DaysTo(dt1) should be -1096');
+
+  // WeeksBetween - 1096 div 7 = 156
+  Check(dt1.WeeksBetween(dt2) = 156, 'WeeksBetween should be 156');
+  Check(dt2.WeeksBetween(dt1) = 156, 'WeeksBetween reversed should also be 156');
+
+  // WeeksFrom/To
+  Check(dt1.WeeksFrom(dt2) = -156, 'dt1.WeeksFrom(dt2) should be -156');
+  Check(dt2.WeeksFrom(dt1) = 156, 'dt2.WeeksFrom(dt1) should be 156');
+
+  // HoursBetween - 1096 * 24 + 12 = 26316
+  Check(dt1.HoursBetween(dt2) = 26316, 'HoursBetween should be 26316');
+  Check(dt2.HoursBetween(dt1) = 26316, 'HoursBetween reversed should also be 26316');
+
+  // HoursFrom/To
+  Check(dt1.HoursFrom(dt2) = -26316, 'dt1.HoursFrom(dt2) should be -26316');
+  Check(dt2.HoursFrom(dt1) = 26316, 'dt2.HoursFrom(dt1) should be 26316');
+
+  // MinutesBetween - 26316 * 60 = 1578960
+  Check(dt1.MinutesBetween(dt2) = 1578960, 'MinutesBetween should be 1578960');
+  Check(dt2.MinutesBetween(dt1) = 1578960, 'MinutesBetween reversed should also be 1578960');
+
+  // MinutesFrom/To
+  Check(dt1.MinutesFrom(dt2) = -1578960, 'dt1.MinutesFrom(dt2) should be -1578960');
+  Check(dt2.MinutesFrom(dt1) = 1578960, 'dt2.MinutesFrom(dt1) should be 1578960');
+
+  // SecondsBetween - 1578960 * 60 = 94737600
+  Check(dt1.SecondsBetween(dt2) = 94737600, 'SecondsBetween should be 94737600');
+  Check(dt2.SecondsBetween(dt1) = 94737600, 'SecondsBetween reversed should also be 94737600');
+
+  // SecondsFrom/To
+  Check(dt1.SecondsFrom(dt2) = -94737600, 'dt1.SecondsFrom(dt2) should be -94737600');
+  Check(dt2.SecondsFrom(dt1) = 94737600, 'dt2.SecondsFrom(dt1) should be 94737600');
+
+  // MilliSecondsBetween - 94737600 * 1000 = 94737600000
+  Check(dt1.MilliSecondsBetween(dt2) = 94737600000, 'MilliSecondsBetween should be 94737600000');
+  Check(dt2.MilliSecondsBetween(dt1) = 94737600000, 'MilliSecondsBetween reversed should also be 94737600000');
+
+  // MilliSecondsFrom/To
+  Check(dt1.MilliSecondsFrom(dt2) = -94737600000, 'dt1.MilliSecondsFrom(dt2) should be -94737600000');
+  Check(dt2.MilliSecondsFrom(dt1) = 94737600000, 'dt2.MilliSecondsFrom(dt1) should be 94737600000');
+
+  // Test equal dates
+  dt2 := dt1;
+  Check(dt1.YearsBetween(dt2) = 0, 'YearsBetween equal dates should be 0');
+  Check(dt1.YearsFrom(dt2) = 0, 'YearsFrom equal dates should be 0');
+  Check(dt1.YearsTo(dt2) = 0, 'YearsTo equal dates should be 0');
+  Check(dt1.DaysBetween(dt2) = 0, 'DaysBetween equal dates should be 0');
+  Check(dt1.MilliSecondsBetween(dt2) = 0, 'MilliSecondsBetween equal dates should be 0');
+end;
+
+procedure OLDateTest.BetweenDate;
+var
+  d1, d2: OLDate;
+begin
+  // Use simple dates for easy verification
+  // d1 = 2020-01-01, d2 = 2023-01-01
+  // Difference: exactly 3 years, 36 months, 1096 days (2020 is leap year)
+  d1 := EncodeDate(2020, 1, 1);
+  d2 := EncodeDate(2023, 1, 1);
+
+  // YearsBetween - always positive
+  Check(d1.YearsBetween(d2) = 3, 'YearsBetween should be 3');
+  Check(d2.YearsBetween(d1) = 3, 'YearsBetween reversed should also be 3');
+
+  // YearsFrom - negative if AThen > Self
+  Check(d1.YearsFrom(d2) = -3, 'd1.YearsFrom(d2) should be -3');
+  Check(d2.YearsFrom(d1) = 3, 'd2.YearsFrom(d1) should be 3');
+
+  // YearsTo - negative if AThen < Self
+  Check(d1.YearsTo(d2) = 3, 'd1.YearsTo(d2) should be 3');
+  Check(d2.YearsTo(d1) = -3, 'd2.YearsTo(d1) should be -3');
+
+  // MonthsBetween - always positive (36 months = 3 years)
+  Check(d1.MonthsBetween(d2) = 36, 'MonthsBetween should be 36');
+  Check(d2.MonthsBetween(d1) = 36, 'MonthsBetween reversed should also be 36');
+
+  // MonthsFrom/To
+  Check(d1.MonthsFrom(d2) = -36, 'd1.MonthsFrom(d2) should be -36');
+  Check(d2.MonthsFrom(d1) = 36, 'd2.MonthsFrom(d1) should be 36');
+  Check(d1.MonthsTo(d2) = 36, 'd1.MonthsTo(d2) should be 36');
+  Check(d2.MonthsTo(d1) = -36, 'd2.MonthsTo(d1) should be -36');
+
+  // DaysBetween - 366 (2020 leap) + 365 (2021) + 365 (2022) = 1096
+  Check(d1.DaysBetween(d2) = 1096, 'DaysBetween should be 1096');
+  Check(d2.DaysBetween(d1) = 1096, 'DaysBetween reversed should also be 1096');
+
+  // DaysFrom/To
+  Check(d1.DaysFrom(d2) = -1096, 'd1.DaysFrom(d2) should be -1096');
+  Check(d2.DaysFrom(d1) = 1096, 'd2.DaysFrom(d1) should be 1096');
+  Check(d1.DaysTo(d2) = 1096, 'd1.DaysTo(d2) should be 1096');
+  Check(d2.DaysTo(d1) = -1096, 'd2.DaysTo(d1) should be -1096');
+
+  // WeeksBetween - 1096 div 7 = 156
+  Check(d1.WeeksBetween(d2) = 156, 'WeeksBetween should be 156');
+  Check(d2.WeeksBetween(d1) = 156, 'WeeksBetween reversed should also be 156');
+
+  // WeeksFrom/To
+  Check(d1.WeeksFrom(d2) = -156, 'd1.WeeksFrom(d2) should be -156');
+  Check(d2.WeeksFrom(d1) = 156, 'd2.WeeksFrom(d1) should be 156');
+  Check(d1.WeeksTo(d2) = 156, 'd1.WeeksTo(d2) should be 156');
+  Check(d2.WeeksTo(d1) = -156, 'd2.WeeksTo(d1) should be -156');
+
+  // Test equal dates
+  d2 := d1;
+  Check(d1.YearsBetween(d2) = 0, 'YearsBetween equal dates should be 0');
+  Check(d1.YearsFrom(d2) = 0, 'YearsFrom equal dates should be 0');
+  Check(d1.YearsTo(d2) = 0, 'YearsTo equal dates should be 0');
+  Check(d1.MonthsBetween(d2) = 0, 'MonthsBetween equal dates should be 0');
+  Check(d1.DaysBetween(d2) = 0, 'DaysBetween equal dates should be 0');
+  Check(d1.WeeksBetween(d2) = 0, 'WeeksBetween equal dates should be 0');
 end;
 
 initialization
