@@ -152,7 +152,23 @@ type
     procedure TestNullHandling;
   end;
 
+  // Test class for preventing double linking
+  TestDoubleLinkPrevention = class(TTestCase)
+  private
+    FEdit: TEdit;
+    FCheckBox: TCheckBox;
+    FForm: TestForm;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestDoubleLinkEditToInteger;
+    procedure TestDoubleLinkEditToString;
+    procedure TestDoubleLinkCheckBox;
+  end;
+
   {$IF CompilerVersion >= 34.0}
+
   // Test class for TEditToOLDate validation
   TestEditToOLDateValidation = class(TTestCase)
   private
@@ -200,20 +216,6 @@ type
     procedure TestValueNotUpdatedOnFail;
   end;
 
-  // Test class for preventing double linking
-  TestDoubleLinkPrevention = class(TTestCase)
-  private
-    FEdit: TEdit;
-    FCheckBox: TCheckBox;
-    FForm: TestForm;
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure TestDoubleLinkEditToInteger;
-    procedure TestDoubleLinkEditToString;
-    procedure TestDoubleLinkCheckBox;
-  end;
 
   // Test class for TOLDateToLabel validation
   TestOLDateToLabelValidation = class(TTestCase)
@@ -2586,60 +2588,6 @@ begin
   CheckEquals('Only 42 is allowed', FEdit.Hint, 'Should show the new error');
 end;
 
-{ TestDoubleLinkPrevention }
-
-procedure TestDoubleLinkPrevention.SetUp;
-begin
-  inherited;
-  FForm := TestForm.CreateNew(nil, 0);
-  FEdit := TEdit.Create(FForm);
-  FEdit.Parent := FForm;
-  FCheckBox := TCheckBox.Create(FForm);
-  FCheckBox.Parent := FForm;
-end;
-
-procedure TestDoubleLinkPrevention.TearDown;
-begin
-  Links.RemoveLinks(FForm);
-  FForm.Free;
-  inherited;
-end;
-
-procedure TestDoubleLinkPrevention.TestDoubleLinkEditToInteger;
-begin
-  Links.Link(FEdit, FForm.FInt);
-  try
-    Links.Link(FEdit, FForm.FInt);
-    Fail('Should raise exception when linking already linked control (same type)');
-  except
-    on E: EControlAlreadyLinked do
-      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
-  end;
-end;
-
-procedure TestDoubleLinkPrevention.TestDoubleLinkEditToString;
-begin
-  Links.Link(FEdit, FForm.FInt);
-  try
-    Links.Link(FEdit, FForm.FString);
-    Fail('Should raise exception when linking already linked control (different type)');
-  except
-    on E: EControlAlreadyLinked do
-      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
-  end;
-end;
-
-procedure TestDoubleLinkPrevention.TestDoubleLinkCheckBox;
-begin
-  Links.Link(FCheckBox, FForm.FBoolean);
-  try
-    Links.Link(FCheckBox, FForm.FBoolean);
-    Fail('Should raise exception when linking already linked checkbox');
-  except
-    on E: EControlAlreadyLinked do
-      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
-  end;
-end;
 
 { TestDateTimePickerLinkingPrecedence }
 
@@ -2760,6 +2708,62 @@ begin
 end;
 
 {$IFEND}
+
+{ TestDoubleLinkPrevention }
+
+procedure TestDoubleLinkPrevention.SetUp;
+begin
+  inherited;
+  FForm := TestForm.CreateNew(nil, 0);
+  FEdit := TEdit.Create(FForm);
+  FEdit.Parent := FForm;
+  FCheckBox := TCheckBox.Create(FForm);
+  FCheckBox.Parent := FForm;
+end;
+
+procedure TestDoubleLinkPrevention.TearDown;
+begin
+  Links.RemoveLinks(FForm);
+  FForm.Free;
+  inherited;
+end;
+
+procedure TestDoubleLinkPrevention.TestDoubleLinkEditToInteger;
+begin
+  Links.Link(FEdit, FForm.FInt);
+  try
+    Links.Link(FEdit, FForm.FInt);
+    Fail('Should raise exception when linking already linked control (same type)');
+  except
+    on E: EControlAlreadyLinked do
+      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
+  end;
+end;
+
+procedure TestDoubleLinkPrevention.TestDoubleLinkEditToString;
+begin
+  Links.Link(FEdit, FForm.FInt);
+  try
+    Links.Link(FEdit, FForm.FString);
+    Fail('Should raise exception when linking already linked control (different type)');
+  except
+    on E: EControlAlreadyLinked do
+      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
+  end;
+end;
+
+procedure TestDoubleLinkPrevention.TestDoubleLinkCheckBox;
+begin
+  Links.Link(FCheckBox, FForm.FBoolean);
+  try
+    Links.Link(FCheckBox, FForm.FBoolean);
+    Fail('Should raise exception when linking already linked checkbox');
+  except
+    on E: EControlAlreadyLinked do
+      Check(Pos('already linked', E.Message) > 0, 'Wrong exception message: ' + E.Message);
+  end;
+end;
+
 
  initialization
   RegisterTest(TestEditToOLInteger.Suite);
