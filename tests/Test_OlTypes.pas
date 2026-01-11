@@ -35,6 +35,7 @@ type
     procedure NotBoolean;
     procedure XorBoolean;
     procedure IfThenBoolean;
+    procedure AsBooleanBoolean;
 
     // NULL Handling Tests
     procedure NullHandlingBoolean;
@@ -60,6 +61,8 @@ type
     procedure MinInteger;
     procedure AbsInteger;
     procedure IfNullInteger;
+    procedure AsIntegerInteger;
+    procedure AsInt64Integer;
     procedure RoundInteger;
     procedure ForLoopInteger;
     procedure IsPrimeInteger;
@@ -77,6 +80,7 @@ type
     procedure GreaterCurrency;
     procedure GreaterEqualCurrency;
     procedure IfNullCurrency;
+    procedure AsCurrencyCurrency;
     procedure IsNullCurrency;
     procedure LessCurrency;
     procedure LessEqualCurrency;
@@ -103,6 +107,7 @@ type
     procedure GreaterDouble;
     procedure GreaterEqualDouble;
     procedure IfNullDouble;
+    procedure AsDoubleDouble;
     procedure IsNullDouble;
     procedure LessDouble;
     procedure LessEqualDouble;
@@ -166,6 +171,7 @@ type
     procedure DateTimePartsDateTime;
 
     procedure BetweenDateTime;
+    procedure AsDateTimeDateTime;
 
     // NULL Handling Tests
     procedure NullHandlingDateTime;
@@ -202,6 +208,7 @@ type
     procedure DateTimePartsDate;
 
     procedure BetweenDate;
+    procedure AsDateDate;
 
     // NULL Handling Tests
     procedure NullHandlingDate;
@@ -315,6 +322,7 @@ type
     procedure ToSQLStringString;
     procedure ToPWideCharString;
     procedure LineEndAtString;
+    procedure AsStringString;
 
     // NULL Handling Tests
     procedure NullHandlingString;
@@ -5371,6 +5379,93 @@ begin
   Check(d1.MonthsBetween(d2) = 0, 'MonthsBetween equal dates should be 0');
   Check(d1.DaysBetween(d2) = 0, 'DaysBetween equal dates should be 0');
   Check(d1.WeeksBetween(d2) = 0, 'WeeksBetween equal dates should be 0');
+end;
+
+procedure OLBooleanTest.AsBooleanBoolean;
+var
+  b: OLBoolean;
+begin
+  b := Null;
+  CheckTrue(b.AsBoolean(True));
+  CheckFalse(b.AsBoolean(False));
+  b := True;
+  CheckTrue(b.AsBoolean(False));
+  b := False;
+  CheckFalse(b.AsBoolean(True));
+end;
+
+procedure OLIntegerTest.AsIntegerInteger;
+var
+  i: OLInteger;
+begin
+  i := Null;
+  Check(i.AsInteger(10) = 10);
+  i := 5;
+  Check(i.AsInteger(10) = 5);
+end;
+
+procedure OLIntegerTest.AsInt64Integer;
+var
+  i: OLInteger;
+begin
+  i := Null;
+  Check(i.AsInt64(100) = 100);
+  i := 50;
+  Check(i.AsInt64(100) = 50);
+end;
+
+procedure OLCurrencyTest.AsCurrencyCurrency;
+var
+  c: OLCurrency;
+begin
+  c := Null;
+  CheckEquals(1.23, c.AsCurrency(1.23));
+  c := 4.56;
+  CheckEquals(4.56, c.AsCurrency(1.23));
+end;
+
+procedure OLDoubleTest.AsDoubleDouble;
+var
+  d: OLDouble;
+begin
+  d := Null;
+  CheckEquals(3.14, d.AsDouble(3.14), 0.00001);
+  d := 2.71;
+  CheckEquals(2.71, d.AsDouble(3.14), 0.00001);
+end;
+
+procedure OLDateTimeTest.AsDateTimeDateTime;
+var
+  dt: OLDateTime;
+  nowVal: TDateTime;
+begin
+  dt := Null;
+  CheckEquals(42.0, dt.AsDateTime(42.0), 0.00001);
+  nowVal := Now;
+  dt := nowVal;
+  CheckEquals(nowVal, dt.AsDateTime(0), 0.00001);
+end;
+
+procedure OLDateTest.AsDateDate;
+var
+  d: OLDate;
+  todayVal: TDate;
+begin
+  d := Null;
+  CheckEquals(42.0, d.AsDate(42.0), 0.00001);
+  todayVal := Date;
+  d := todayVal;
+  CheckEquals(todayVal, d.AsDate(0), 0.00001);
+end;
+
+procedure OLStringTest.AsStringString;
+var
+  s: OLString;
+begin
+  s := Null;
+  Check(s.AsString('Replacement') = 'Replacement');
+  s := 'Original';
+  Check(s.AsString('Replacement') = 'Original');
 end;
 
 initialization
