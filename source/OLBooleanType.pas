@@ -47,6 +47,10 @@ type
     /// </summary>
     function HasValue(): OLBoolean;
     /// <summary>
+    ///   Returns the Boolean value, or a replacement Boolean if null.
+    /// </summary>
+    function AsBoolean(const NullReplacement: Boolean = False): Boolean;
+    /// <summary>
     ///   Returns ATrue if the boolean is true, otherwise returns AFalse.
     /// </summary>
     function IfThen(const ATrue: string; const AFalse: string = ''): string; overload;
@@ -154,6 +158,11 @@ begin
     Output := b;
 
   Result := Output;
+end;
+
+function OLBoolean.AsBoolean(const NullReplacement: Boolean = False): Boolean;
+begin
+  Result := IfNull(NullReplacement);
 end;
 
 function OLBoolean.IfThen(const ATrue: Currency; const AFalse: Currency):

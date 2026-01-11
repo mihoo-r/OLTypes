@@ -46,6 +46,10 @@ type
     /// </summary>
     function HasValue(): OLBoolean;
     /// <summary>
+    ///   Returns the TDate value, or a replacement TDate if null.
+    /// </summary>
+    function AsDate(const NullReplacement: TDate = 0): TDate;
+    /// <summary>
     ///   Converts the date to a string.
     /// </summary>
     function ToString(): string; overload;
@@ -529,6 +533,11 @@ end;
 function OLDate.IfNull(const b: OLDate): OLDate;
 begin
   Result := Self.FValue.IfNull(b);
+end;
+
+function OLDate.AsDate(const NullReplacement: TDate = 0): TDate;
+begin
+  Result := IfNull(NullReplacement);
 end;
 
 class operator OLDate.Implicit(const a: OLDate): Variant;

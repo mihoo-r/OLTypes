@@ -105,6 +105,10 @@ type
     /// </summary>
     function IsNull(): OLBoolean;
     /// <summary>
+    ///   Returns the string value, or a replacement string if null.
+    /// </summary>
+    function AsString(const NullReplacement: string = ''): string;
+    /// <summary>
     ///   Checks if the string has a value (is not null).
     /// </summary>
     function HasValue(): OLBoolean;
@@ -1758,6 +1762,11 @@ begin
     OutPut := Self.Value;
 
   Result := OutPut;
+end;
+
+function OLString.AsString(const NullReplacement: string): string;
+begin
+  Result := IfNull(NullReplacement);
 end;
 
 function OLString.IfNullOrEmpty(const s: OLString): OLString;

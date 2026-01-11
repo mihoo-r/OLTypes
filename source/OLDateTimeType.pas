@@ -88,6 +88,10 @@ type
     /// </summary>
     function HasValue(): OLBoolean;
     /// <summary>
+    ///   Returns the TDateTime value, or a replacement TDateTime if null.
+    /// </summary>
+    function AsDateTime(const NullReplacement: TDateTime = 0): TDateTime;
+    /// <summary>
     ///   Converts the datetime to a string.
     /// </summary>
     function ToString(): string; overload;
@@ -917,6 +921,11 @@ begin
     OutPut := b;
 
   Result := OutPut;
+end;
+
+function OLDateTime.AsDateTime(const NullReplacement: TDateTime = 0): TDateTime;
+begin
+  Result := IfNull(NullReplacement);
 end;
 
 class operator OLDateTime.Implicit(const a: OLDateTime): Variant;
