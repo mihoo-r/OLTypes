@@ -305,6 +305,7 @@ type
 
     // Parameter & JSON Operations
     procedure ParamsString;
+    procedure ParamsCaseInsensitivity;
     {$IF CompilerVersion >= 27.0}
     procedure JSONString;
     {$IFEND}
@@ -5468,6 +5469,31 @@ begin
   Check(s.AsString('Replacement') = 'Original');
 end;
 
+procedure OLStringTest.ParamsCaseInsensitivity;
+var
+  s: OLString;
+begin
+  s := 'Test :ID, :id, :Id';
+
+  // 1. Basic case-insensitivity set/get
+  s.Params['id'] := 'val';
+  Check(s.Params['ID'] = 'val', 'Failed to retrieve param using uppercase key');
+  Check(s.Params['id'] = 'val', 'Failed to retrieve param using lowercase key');
+
+  // 2. Replacement verification
+  s := 'Test :ID, :id, :Id';
+  s.Params['ID'] := 'VAL';
+  Check(s.ToString() = 'Test VAL, VAL, VAL', 'Failed to replace all case variants. Result: ' + s.ToString());
+
+  // 3. Overwrite verification
+  s := ':Param';
+  s.Params['param'] := '1';
+  s.Params['PARAM'] := '2';
+  Check(s.ToString() = '2', 'Failed to overwrite existing param with different case key');
+  
+  // Verify we didn't add duplicate params internally (though internal structure isn't directly exposed, behavior implies it)
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(OLBooleanTest.Suite);
@@ -5480,4 +5506,5 @@ initialization
   RegisterTest(OLInteroperabilityTest.Suite);
 
 end.
+
 
