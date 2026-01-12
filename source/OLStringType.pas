@@ -1412,7 +1412,7 @@ begin
 
   for i := 0 to System.Length(Parameters) - 1 do
   begin
-    if Parameters[i].ParamName = ParamName then
+    if SysUtils.SameText(Parameters[i].ParamName, ParamName) then
     begin
       OutPut := Parameters[i].ParamValue;
       Break;
@@ -3452,7 +3452,7 @@ var
 begin
   for i := 0 to System.Length(Self.Parameters) - 1 do
   begin
-    if Self.Parameters[i].ParamName = ParamName then
+    if SysUtils.SameText(Self.Parameters[i].ParamName, ParamName) then
     begin
       output := i;
       Break;
@@ -3538,7 +3538,7 @@ begin
 
   for i := 0 to System.Length(Self.Parameters) - 1 do
   begin
-    Self.FValue := Self.Replaced(':' + Self.Parameters[i].ParamName, Self.Parameters[i].ParamValue)
+    Self.FValue := Self.ReplacedText(':' + Self.Parameters[i].ParamName, Self.Parameters[i].ParamValue)
   end;
 end;
 
