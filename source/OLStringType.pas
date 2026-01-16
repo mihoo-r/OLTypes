@@ -1493,7 +1493,8 @@ var
   JSONValue: TJSONValue;
   JSONObject: TJSONObject;
   OutPut: OLString;
-  sOutPut: string;
+  sOutPut, sRepaired: string;
+  Bytes: TBytes;
 begin
   if IsNull then
     Exit(Null);
@@ -1507,7 +1508,21 @@ begin
       JSONObject := JSONValue as TJSONObject;
 
       if JSONObject.TryGetValue<string>(JsonFieldName, sOutPut) then
+      begin
         OutPut := sOutPut;
+
+        // Code added to fix issue where JSON strings are loaded as ANSI but contain UTF-8 bytes (Mojibake)
+        // This attempts to reverse the incorrect encoding if the result looks like valid UTF-8.
+        try
+          Bytes := TEncoding.Default.GetBytes(sOutPut);
+          sRepaired := TEncoding.UTF8.GetString(Bytes);
+          // Check if repair changed anything AND didn't produce replacement characters (invalid UTF-8 indicators)
+          if (sRepaired <> sOutPut) and (System.Pos(Char($FFFD), sRepaired) = 0) then
+             OutPut := sRepaired;
+        except
+          // On any error during encoding checks, keep original value
+        end;
+      end;
     end;
   finally
     JSONValue.Free;
