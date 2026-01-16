@@ -20,6 +20,7 @@ type
     procedure TestWriteAttribute;
     procedure TestWriteNumeric;
     procedure TestFormat;
+    procedure TestNamespaceAgnostic;
   end;
 {$IFEND}
 
@@ -145,6 +146,30 @@ begin
   s.XML['root/item'] := 'test';
   // Check if it contains multiple lines (pretty print)
   Check(s.LineCount > 1, 'XML should be pretty printed with multiple lines');
+end;
+
+procedure OLStringXMLTest.TestNamespaceAgnostic;
+var
+  s: OLString;
+begin
+  // XML with namespace prefix 'ns7'
+  s := '<ns7:message xmlns:ns7="http://example.com/ns7" id="123">' +
+       '  <ns7:status-info>' +
+       '    <ns7:order-status status="P" />' +
+       '  </ns7:status-info>' +
+       '</ns7:message>';
+
+  // 1. Strict match with prefix (should still work)
+  CheckEqualsString('P', s.XML['ns7:message/ns7:status-info/ns7:order-status/@status'], 'Strict match failed');
+
+  // 2. Agnostic match without prefix (should now work)
+  CheckEqualsString('P', s.XML['message/status-info/order-status/@status'], 'Agnostic match failed');
+  
+  // 3. Mixed matching (some with prefix, some without)
+  CheckEqualsString('P', s.XML['ns7:message/status-info/ns7:order-status/@status'], 'Mixed match failed');
+  
+  // 4. Attribute agnostic matching (attributes usually don't have prefix in this context, but check access)
+  CheckEqualsString('123', s.XML['message/@id'], 'Attribute agnostic match failed');
 end;
 
 initialization
