@@ -1958,8 +1958,10 @@ type
   TOLStringHelper = record helper for string
   private
     function GetLines(const Index: Integer): OLString;
-    function GetCSV(const Index: Integer): OLString;
-    procedure SetCSV(const Index: Integer; const Value: OLString);
+    function GetCSV(const Index: Integer): OLString; overload;
+    function GetCSV(const ColIndex, RowIndex: Integer): OLString; overload;
+    procedure SetCSV(const Index: Integer; const Value: OLString); overload;
+    procedure SetCSV(const ColIndex, RowIndex: Integer; const Value: OLString); overload;
     procedure SetLines(const Index: Integer; const Value: OLString);
     procedure SetParams(const ParamName: string; const Value: OLString);
     function GetHtmlUnicodeText: string;
@@ -2591,6 +2593,10 @@ type
      ///   Gets or sets the XML value for the specified XPath.
      /// </summary>
      property XML[const XPath: string]: OLString read GetXML write SetXML;
+      /// <summary>
+      ///   Gets or sets the CSV value for the specified column and row.
+      /// </summary>
+      property CSVCell[const ColIndex, RowIndex: Integer]: OLString read GetCSV write SetCSV;
      {$IFEND}
 
      const Empty = '';
@@ -8452,6 +8458,23 @@ var
 begin
   ol := Self;
   ol.CSV[Index] := Value;
+  Self := ol;
+end;
+
+function TOLStringHelper.GetCSV(const ColIndex, RowIndex: Integer): OLString;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.CSVCell[ColIndex, RowIndex];
+end;
+
+procedure TOLStringHelper.SetCSV(const ColIndex, RowIndex: Integer; const Value: OLString);
+var
+  ol: OLString;
+begin
+  ol := Self;
+  ol.CSVCell[ColIndex, RowIndex] := Value;
   Self := ol;
 end;
 
