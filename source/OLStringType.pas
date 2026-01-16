@@ -61,8 +61,8 @@ type
     function IBANChangeAlpha(const input: string): string;
     function GetValue: string;
     procedure SetValue(const Value: string);
-    function GetCSV(const Index: integer): OLString;
-    procedure SetCSV(const Index: integer; const Value: OLString);
+    function GetCSV(const Index: integer): OLString; overload;
+    procedure SetCSV(const Index: integer; const Value: OLString); overload;
     function ParamIndex(const ParamName: string): OLInteger;
     procedure AppendParam(const ParamName: string; const ParamValue: OLString);
     procedure UpdateParam(const ParamIndex: integer; const ParamValue: OLString);
@@ -160,6 +160,10 @@ type
     /// </summary>
     function CSVFieldValue(const FieldIndex: integer; const Delimiter: Char = ';'): OLString;
     /// <summary>
+    ///   Gets the value of a CSV field at the specified column and row index.
+    /// </summary>
+    function GetCSV(const ColIndex, RowIndex: integer): OLString; overload;
+    /// <summary>
     ///   Gets the number of CSV fields.
     /// </summary>
     function CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
@@ -167,6 +171,10 @@ type
     ///   Sets the value of a CSV field at the specified index.
     /// </summary>
     procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
+    /// <summary>
+    ///   Sets the value of a CSV field at the specified column and row index.
+    /// </summary>
+    procedure SetCSV(const ColIndex, RowIndex: integer; const Value: OLString); overload;
     /// <summary>
     ///   Returns the length of the string.
     /// </summary>
@@ -808,6 +816,10 @@ type
     /// </summary>
     property CSV[const Index: integer]: OLString read GetCSV write SetCSV;
     /// <summary>
+    ///   Gets or sets the CSV field at the specified column and row index.
+    /// </summary>
+    property CSVCell[const ColIndex, RowIndex: integer]: OLString read GetCSV write SetCSV;
+    /// <summary>
     ///   Gets or sets the parameter value by name.
     /// </summary>
     property Params[const ParamName: string]: OLString read GetParam write SetParam;
@@ -1161,6 +1173,14 @@ begin
     Exit(Null);
 
   Result := Self.CSVFieldValue(Index);
+end;
+
+function OLString.GetCSV(const ColIndex, RowIndex: integer): OLString;
+begin
+  if IsNull then
+    Exit(Null);
+
+  Result := Self.Lines[RowIndex].CSV[ColIndex];
 end;
 
 ////http://www.scalabium.com/faq/dct0080.htm
@@ -4368,6 +4388,18 @@ begin
     Exit(Null);
 
   Result := Self.Lines[0].CSV[index];
+end;
+
+procedure OLString.SetCSV(const ColIndex, RowIndex: integer; const Value: OLString);
+var
+  L: OLString;
+begin
+  if IsNull then
+    Exit;
+
+  L := Self.Lines[RowIndex];
+  L.CSV[ColIndex] := Value;
+  Self.Lines[RowIndex] := L;
 end;
 
 function OLString.CSVFieldValue(const FieldIndex: integer; const Delimiter:
