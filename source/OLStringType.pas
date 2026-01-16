@@ -137,6 +137,12 @@ type
     ///   Checks if the string contains JSON.
     /// </summary>
     function IsJSON: OLBoolean;
+    {$IF CompilerVersion >= 27.0}
+    /// <summary>
+    ///   Returns a list of JSON strings from the specified path.
+    /// </summary>
+    function GetJsonCollection(const JsonPath: string): TArray<string>;
+    {$IFEND}
     /// <summary>
     ///   Checks if the string contains XML.
     /// </summary>
@@ -1529,6 +1535,35 @@ begin
   end;
 
   Result := OutPut;
+end;
+
+function OLString.GetJsonCollection(const JsonPath: string): TArray<string>;
+var
+  JSONValue, PathValue: TJSONValue;
+  JSONArray: TJSONArray;
+  i: Integer;
+begin
+  if IsNull then
+    Exit(nil);
+
+  Result := nil;
+
+  JSONValue := TJSONObject.ParseJSONValue(self.FValue);
+  if JSONValue = nil then
+    Exit;
+
+  try
+    PathValue := JSONValue.FindValue(JsonPath);
+    if (PathValue <> nil) and (PathValue is TJSONArray) then
+    begin
+      JSONArray := PathValue as TJSONArray;
+      SetLength(Result, JSONArray.Count);
+      for i := 0 to JSONArray.Count - 1 do
+        Result[i] := JSONArray.Items[i].ToJSON;
+    end;
+  finally
+    JSONValue.Free;
+  end;
 end;
 
 function OLString.GetXML(const XPath: string): OLString;
