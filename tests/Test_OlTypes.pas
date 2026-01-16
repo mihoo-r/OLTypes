@@ -310,6 +310,7 @@ type
     procedure ParamsCaseInsensitivity;
     {$IF CompilerVersion >= 27.0}
     procedure JSONString;
+    procedure GetJsonCollectionString;
     {$IFEND}
 
     // Static Methods
@@ -5563,6 +5564,45 @@ begin
   CheckEquals('A2', s.CSVCell[0, 1]); // Others unchanged
 end;
 
+{$IF CompilerVersion >= 27.0}
+procedure OLStringTest.GetJsonCollectionString;
+var
+  s: OLString;
+  Results: TArray<string>;
+  Found: Boolean;
+  Item: string;
+begin
+  // Sample JSON with results array
+  s := '{"results": [{"Name": "A"}, {"Name": "B"}]}';
+
+  // 1. Valid path
+  Results := s.GetJsonCollection('results');
+  Check(Length(Results) = 2, 'Should find 2 items');
+
+  // Verify content
+  Found := False;
+  for Item in Results do
+  begin
+    if Item.Pos('"Name":"A"') > 0 then Found := True;
+  end;
+  Check(Found, 'Should contain item A');
+
+  // 2. Invalid path
+  Results := s.GetJsonCollection('invalid_path');
+  Check(Length(Results) = 0, 'Should find 0 items for invalid path');
+
+  // 3. Path exists but not an array
+  s := '{"results": "not an array"}';
+  Results := s.GetJsonCollection('results');
+  Check(Length(Results) = 0, 'Should find 0 items if target is not an array');
+  
+  // 4. Nested path test
+  s := '{"data": {"items": [1, 2, 3]}}';
+  Results := s.GetJsonCollection('data.items');
+  Check(Length(Results) = 3, 'Should find 3 items in nested array');
+end;
+{$IFEND}
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(OLBooleanTest.Suite);
@@ -5573,6 +5613,8 @@ initialization
   RegisterTest(OLDateTest.Suite);
   RegisterTest(OLStringTest.Suite);
   RegisterTest(OLInteroperabilityTest.Suite);
+
+
 
 end.
 
