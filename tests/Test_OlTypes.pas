@@ -300,6 +300,7 @@ type
 
     // CSV Operations Advanced
     procedure CSVIndexString;
+    procedure CSV2DPropertyString;
     procedure CSVFieldNameString;
     procedure CSVFieldByNameString;
 
@@ -5492,6 +5493,49 @@ begin
   Check(s.ToString() = '2', 'Failed to overwrite existing param with different case key');
   
   // Verify we didn't add duplicate params internally (though internal structure isn't directly exposed, behavior implies it)
+end;
+
+procedure OLStringTest.CSV2DPropertyString;
+var
+  s: OLString;
+begin
+  s := 'a;b;c' + sLineBreak +
+       '1;2;3' + sLineBreak +
+       'x;y;z';
+
+  Check(s.CSVCell[0, 0] = 'a');
+  Check(s.CSVCell[1, 0] = 'b');
+  Check(s.CSVCell[2, 0] = 'c');
+
+  Check(s.CSVCell[0, 1] = '1');
+  Check(s.CSVCell[1, 1] = '2');
+  Check(s.CSVCell[2, 1] = '3');
+
+  Check(s.CSVCell[0, 2] = 'x');
+  Check(s.CSVCell[1, 2] = 'y');
+  Check(s.CSVCell[2, 2] = 'z');
+
+  s.CSVCell[1, 1] := '99';
+  Check(s.CSVCell[1, 1] = '99');
+
+  // Verify surrounding values unchanged
+  Check(s.CSVCell[0, 1] = '1');
+  Check(s.CSVCell[2, 1] = '3');
+
+  // Verify other rows unchanged
+  Check(s.CSVCell[1, 0] = 'b');
+  Check(s.CSVCell[1, 2] = 'y');
+
+  // Test changing a value expands the string if necessary (assuming implementation dependent)
+  s.CSVCell[2, 2] := 'modified';
+  Check(s.CSVCell[2, 2] = 'modified');
+
+  // Null handling
+  s := Null;
+  Check(s.CSVCell[0, 0].IsNull);
+
+  s.CSVCell[0, 0] := 'test';
+  Check(s.IsNull); // Setting on null should do nothing
 end;
 
 initialization
