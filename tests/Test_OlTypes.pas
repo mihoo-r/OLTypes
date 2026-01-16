@@ -301,6 +301,7 @@ type
     // CSV Operations Advanced
     procedure CSVIndexString;
     procedure CSV2DPropertyString;
+    procedure CSV2DPropertyStringHelper;
     procedure CSVFieldNameString;
     procedure CSVFieldByNameString;
 
@@ -5536,6 +5537,30 @@ begin
 
   s.CSVCell[0, 0] := 'test';
   Check(s.IsNull); // Setting on null should do nothing
+end;
+
+procedure OLStringTest.CSV2DPropertyStringHelper;
+var
+  s: string;
+begin
+  s :=
+    'A1;B1' + sLineBreak +
+    'A2;B2';
+
+  // Test reading
+  CheckEquals('A1', s.CSVCell[0, 0], '0,0 should be A1');
+  CheckEquals('B1', s.CSVCell[1, 0], '1,0 should be B1');
+  CheckEquals('A2', s.CSVCell[0, 1], '0,1 should be A2');
+  CheckEquals('B2', s.CSVCell[1, 1], '1,1 should be B2');
+
+  // Test writing
+  s.CSVCell[0, 0] := 'NewA1';
+  CheckEquals('NewA1', s.CSVCell[0, 0]);
+  CheckEquals('B1', s.CSVCell[1, 0]); // Others unchanged
+
+  s.CSVCell[1, 1] := 'NewB2';
+  CheckEquals('NewB2', s.CSVCell[1, 1]);
+  CheckEquals('A2', s.CSVCell[0, 1]); // Others unchanged
 end;
 
 initialization
