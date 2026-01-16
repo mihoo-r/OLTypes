@@ -1550,12 +1550,25 @@ begin
       if i = 0 then
       begin
         // Root element
-        if (XMLDoc.DocumentElement <> nil) and (XMLDoc.DocumentElement.NodeName = NodeName) then
+        if (XMLDoc.DocumentElement <> nil) then
         begin
-          if Index = 0 then
-            CurrNode := XMLDoc.DocumentElement
-          else
-            Exit(Null);
+           if (System.Pos(':', NodeName) > 0) then
+           begin
+              // Strict match
+              if XMLDoc.DocumentElement.NodeName <> NodeName then
+                 Exit(Null);
+           end
+           else
+           begin
+              // Permissive match
+              if XMLDoc.DocumentElement.LocalName <> NodeName then
+                 Exit(Null);
+           end;
+
+           if Index = 0 then
+             CurrNode := XMLDoc.DocumentElement
+           else
+             Exit(Null);
         end
         else
           Exit(Null);
@@ -1567,14 +1580,31 @@ begin
         ChildNode := nil;
         for j := 0 to CurrNode.ChildNodes.Count - 1 do
         begin
-          if CurrNode.ChildNodes[j].NodeName = NodeName then
+          if (System.Pos(':', NodeName) > 0) then
           begin
-            if MatchCount = Index then
-            begin
-              ChildNode := CurrNode.ChildNodes[j];
-              Break;
-            end;
-            Inc(MatchCount);
+             // Prefix provided, strict matching expected
+             if CurrNode.ChildNodes[j].NodeName = NodeName then
+             begin
+               if MatchCount = Index then
+               begin
+                 ChildNode := CurrNode.ChildNodes[j];
+                 Break;
+               end;
+               Inc(MatchCount);
+             end;
+          end
+          else
+          begin
+             // No prefix, permissive matching on LocalName
+             if (CurrNode.ChildNodes[j].LocalName = NodeName) then
+             begin
+               if MatchCount = Index then
+               begin
+                 ChildNode := CurrNode.ChildNodes[j];
+                 Break;
+               end;
+               Inc(MatchCount);
+             end;
           end;
         end;
 
@@ -3109,14 +3139,31 @@ var
     count := 0;
     for k := 0 to Parent.ChildNodes.Count - 1 do
     begin
-      if Parent.ChildNodes[k].NodeName = Name then
+      if (System.Pos(':', Name) > 0) then
       begin
-        if count = TargetIndex then
+        // Strict match if prefix provided
+        if Parent.ChildNodes[k].NodeName = Name then
         begin
-          Result := Parent.ChildNodes[k];
-          Exit;
+          if count = TargetIndex then
+          begin
+            Result := Parent.ChildNodes[k];
+            Exit;
+          end;
+          Inc(count);
         end;
-        Inc(count);
+      end
+      else
+      begin
+        // Permissive match on LocalName
+        if Parent.ChildNodes[k].LocalName = Name then
+        begin
+          if count = TargetIndex then
+          begin
+            Result := Parent.ChildNodes[k];
+            Exit;
+          end;
+          Inc(count);
+        end;
       end;
     end;
 
@@ -3182,13 +3229,35 @@ begin
     if i = 0 then
     begin
       if XMLDoc.DocumentElement = nil then
-        CurrNode := XMLDoc.AddChild(NodeName)
-      else if XMLDoc.DocumentElement.NodeName = NodeName then
-        CurrNode := XMLDoc.DocumentElement
+      begin
+        // Create new root (name as is)
+        CurrNode := XMLDoc.AddChild(NodeName);
+      end
       else
       begin
-        XMLDoc.ChildNodes.Clear;
-        CurrNode := XMLDoc.AddChild(NodeName);
+        // Check existing root
+        if (System.Pos(':', NodeName) > 0) then
+        begin
+          if XMLDoc.DocumentElement.NodeName = NodeName then
+            CurrNode := XMLDoc.DocumentElement
+          else
+          begin
+             // Replace root if mismatch
+             XMLDoc.ChildNodes.Clear;
+             CurrNode := XMLDoc.AddChild(NodeName);
+          end;
+        end
+        else
+        begin
+          if XMLDoc.DocumentElement.LocalName = NodeName then
+            CurrNode := XMLDoc.DocumentElement
+          else
+          begin
+             // Replace root if mismatch
+             XMLDoc.ChildNodes.Clear;
+             CurrNode := XMLDoc.AddChild(NodeName);
+          end;
+        end;
       end;
     end
     else
