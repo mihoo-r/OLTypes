@@ -21,6 +21,7 @@ type
     procedure TestWriteNumeric;
     procedure TestFormat;
     procedure TestNamespaceAgnostic;
+    procedure TestGetXmlCollection;
   end;
 {$IFEND}
 
@@ -170,6 +171,38 @@ begin
   
   // 4. Attribute agnostic matching (attributes usually don't have prefix in this context, but check access)
   CheckEqualsString('123', s.XML['message/@id'], 'Attribute agnostic match failed');
+end;
+
+
+procedure OLStringXMLTest.TestGetXmlCollection;
+var
+  s: OLString;
+  items: TArray<string>;
+begin
+  s := '<root>' +
+       '  <items>' +
+       '    <item id="1">A</item>' +
+       '    <item id="2">B</item>' +
+       '  </items>' +
+       '  <empty_list></empty_list>' +
+       '</root>';
+
+  // 1. Valid collection
+  items := s.GetXmlCollection('root/items');
+  Check(Length(items) = 2, 'Should find 2 items');
+  Check(Pos('>A<', items[0]) > 0, 'Item 1 should contain A');
+  Check(Pos('>B<', items[1]) > 0, 'Item 2 should contain B');
+
+  Check(items[0].XML['item'] = 'A');
+  Check(items[1].XML['item'] = 'B');
+
+  // 2. Empty collection
+  items := s.GetXmlCollection('root/empty_list');
+  Check(Length(items) = 0, 'Should find 0 items for empty list');
+
+  // 3. Invalid path
+  items := s.GetXmlCollection('root/invalid');
+  Check(Length(items) = 0, 'Should find 0 items for invalid path');
 end;
 
 initialization
