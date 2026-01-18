@@ -2593,6 +2593,14 @@ type
      ///   Gets or sets the XML value for the specified XPath.
      /// </summary>
      property XML[const XPath: string]: OLString read GetXML write SetXML;
+     /// <summary>
+     ///   Returns a list of JSON strings from the specified path.
+     /// </summary>
+     function GetJsonCollection(const JsonPath: string): TArray<string>;
+     /// <summary>
+     ///   Returns a list of XML strings from the child nodes of the specified path.
+     /// </summary>
+     function GetXmlCollection(const XPath: string): TArray<string>;
       /// <summary>
       ///   Gets or sets the CSV value for the specified column and row.
       /// </summary>
@@ -8969,6 +8977,22 @@ begin
   ol := Self;
   ol.XML[XPath] := Value;
   Self := ol;
+end;
+
+function TOLStringHelper.GetJsonCollection(const JsonPath: string): TArray<string>;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.GetJsonCollection(JsonPath);
+end;
+
+function TOLStringHelper.GetXmlCollection(const XPath: string): TArray<string>;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.GetXmlCollection(XPath);
 end;
 
 function TOLStringHelper.IndexOf(Value: Char): Integer;
