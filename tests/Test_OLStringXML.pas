@@ -4,7 +4,7 @@ interface
 
 {$IF CompilerVersion >= 27.0}
 uses
-  TestFramework, OLTypes, SysUtils, Variants;
+  TestFramework, SysUtils, Variants, OLTypes;
 
 type
   OLStringXMLTest = class(TTestCase)

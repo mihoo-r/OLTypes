@@ -40,6 +40,7 @@ uses
   Test_OLValidation in 'Test_OLValidation.pas',
   Test_FluentValidation in 'Test_FluentValidation.pas',
   Test_OLStringXML in 'Test_OLStringXML.pas',
+  Test_StringHelperXML in 'Test_StringHelperXML.pas',
   Test_PrettyPrint in 'Test_PrettyPrint.pas',
   TestOLDictionaryWrapper in 'TestOLDictionaryWrapper.pas',
   OLDictionaries in '..\source\OLDictionaries.pas',
