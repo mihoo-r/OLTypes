@@ -147,6 +147,12 @@ type
     ///   Checks if the string contains XML.
     /// </summary>
     function IsXML: OLBoolean;
+    {$IF CompilerVersion >= 27.0}
+    /// <summary>
+    ///   Returns a list of XML strings from the child nodes of the specified path.
+    /// </summary>
+    function GetXmlCollection(const XPath: string): TArray<string>;
+    {$IFEND}
     /// <summary>
     ///   Returns the string in a formatted (indented) way if it is JSON or XML.
     /// </summary>
@@ -1563,6 +1569,134 @@ begin
     end;
   finally
     JSONValue.Free;
+  end;
+end;
+
+function OLString.GetXmlCollection(const XPath: string): TArray<string>;
+var
+  XMLDoc: IXMLDocument;
+  Parts: TArray<string>;
+  CurrNode, ChildNode: IXMLNode;
+  i, j, Index, MatchCount: Integer;
+  Part, NodeName, AttrName: string;
+  Match: TMatch;
+begin
+  if IsNull then
+    Exit(nil);
+
+  Result := nil;
+  try
+    XMLDoc := NewXMLDocument;
+    XMLDoc.LoadFromXML(Self.FValue);
+    XMLDoc.Active := True;
+
+    CurrNode := nil;
+    if XPath.StartsWith('/') then
+      Parts := XPath.Substring(1).Split(['/'])
+    else
+      Parts := XPath.Split(['/']);
+
+    for i := 0 to High(Parts) do
+    begin
+      Part := Parts[i];
+      if Part = '' then Continue;
+
+      // Attribute check - Collections of attributes not supported directly via this path logic
+      // as we expect to return child elements of a node.
+      if Part.StartsWith('@') then
+         Exit(nil);
+
+      // Extract Name and Index
+      NodeName := Part;
+      Index := 0;
+      Match := TRegEx.Match(Part, '^(.+)\[(\d+)\]$');
+      if Match.Success then
+      begin
+        NodeName := Match.Groups[1].Value;
+        Index := Match.Groups[2].Value.ToInteger;
+      end;
+
+      if i = 0 then
+      begin
+        // Root element checking
+        if (XMLDoc.DocumentElement <> nil) then
+        begin
+           if (System.Pos(':', NodeName) > 0) then
+           begin
+              if XMLDoc.DocumentElement.NodeName <> NodeName then Exit(nil);
+           end
+           else
+           begin
+              if XMLDoc.DocumentElement.LocalName <> NodeName then Exit(nil);
+           end;
+
+           if Index = 0 then
+             CurrNode := XMLDoc.DocumentElement
+           else
+             Exit(nil);
+        end
+        else
+          Exit(nil);
+      end
+      else
+      begin
+        // Child elements traversal
+        MatchCount := 0;
+        ChildNode := nil;
+        for j := 0 to CurrNode.ChildNodes.Count - 1 do
+        begin
+           // Skip non-element nodes for traversal finding
+           if CurrNode.ChildNodes[j].NodeType <> ntElement then Continue;
+
+           if (System.Pos(':', NodeName) > 0) then
+           begin
+              if CurrNode.ChildNodes[j].NodeName = NodeName then
+              begin
+                if MatchCount = Index then
+                begin
+                  ChildNode := CurrNode.ChildNodes[j];
+                  Break;
+                end;
+                Inc(MatchCount);
+              end;
+           end
+           else
+           begin
+              if (CurrNode.ChildNodes[j].LocalName = NodeName) then
+              begin
+                if MatchCount = Index then
+                begin
+                  ChildNode := CurrNode.ChildNodes[j];
+                  Break;
+                end;
+                Inc(MatchCount);
+              end;
+           end;
+        end;
+
+        if Assigned(ChildNode) then
+          CurrNode := ChildNode
+        else
+          Exit(nil);
+      end;
+    end;
+
+    // Found the node at XPath. Now collect its children.
+    if Assigned(CurrNode) then
+    begin
+      SetLength(Result, 0);
+      for j := 0 to CurrNode.ChildNodes.Count - 1 do
+      begin
+        if CurrNode.ChildNodes[j].NodeType = ntElement then
+        begin
+          SetLength(Result, System.Length(Result) + 1);
+          Result[High(Result)] := CurrNode.ChildNodes[j].XML;
+        end;
+      end;
+    end;
+
+  except
+    Result := nil;
   end;
 end;
 
