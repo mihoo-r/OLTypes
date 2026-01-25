@@ -1971,6 +1971,45 @@ type
     function GetBase64: string;
     procedure SetBase64(const Value: string);
 
+    {$IFNDEF OL_MUTABLE}
+    /// <summary>
+    ///   Encodes the file content to Base64 and assigns it to the string.
+    /// </summary>
+    procedure EndcodeBase64FromFile(const FileName: string);
+    /// <summary>
+    ///   Downloads content from the specified URL.
+    /// </summary>
+    procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
+    /// <summary>
+    ///   Adds a new line to the string.
+    /// </summary>
+    procedure LineAdd(const NewLine: string);
+    /// <summary>
+    ///   Deletes the line at the specified index.
+    /// </summary>
+    procedure LineDelete(const LineIndex: integer);
+    /// <summary>
+    ///   Inserts a line at the specified index.
+    /// </summary>
+    procedure LineInsertAt(const LineIndex: integer; const s: string);
+    /// <summary>
+    ///   Loads the string content from a file.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string); overload;
+    /// <summary>
+    ///   Loads the string content from a file using the specified encoding.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
+    /// <summary>
+    ///   Pastes the string from the clipboard.
+    /// </summary>
+    procedure PasteFromClipboard();
+    /// <summary>
+    ///   Sets the value of a CSV field at the specified index.
+    /// </summary>
+    procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
+    {$ENDIF}
+
    Public
      // Basic properties
      /// <summary>
@@ -2086,14 +2125,6 @@ type
      /// </summary>
      function ExtractedFilePath(): string;
      /// <summary>
-     ///   Loads the string from the specified file.
-     /// </summary>
-     procedure LoadFromFile(const FileName: string); overload;
-     /// <summary>
-     ///   Loads the string from the specified file with the specified encoding.
-     /// </summary>
-     procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
-     /// <summary>
      ///   Saves the string to the specified file.
      /// </summary>
      procedure SaveToFile(const FileName: string); overload;
@@ -2101,10 +2132,6 @@ type
      ///   Saves the string to the specified file with the specified encoding.
      /// </summary>
      procedure SaveToFile(const FileName: string; Encoding: TEncoding); overload;
-     /// <summary>
-     ///   Encodes the file content to Base64 and sets it to the string.
-     /// </summary>
-     procedure EndcodeBase64FromFile(const FileName: string);
      /// <summary>
      ///   Decodes the Base64 string and saves it to the specified file.
      /// </summary>
@@ -2149,18 +2176,6 @@ type
      ///   Returns the index of the last line in the string.
      /// </summary>
      function LastLineIndex(): Integer;
-     /// <summary>
-     ///   Adds a new line to the string.
-     /// </summary>
-     procedure LineAdd(const NewLine: string);
-     /// <summary>
-     ///   Deletes the line at the specified index.
-     /// </summary>
-     procedure LineDelete(const LineIndex: Integer);
-     /// <summary>
-     ///   Inserts a string at the specified line index.
-     /// </summary>
-     procedure LineInsertAt(const LineIndex: Integer; const s: string);
      /// <summary>
      ///   Returns the index of the line that matches the specified string.
      /// </summary>
@@ -2377,15 +2392,15 @@ type
      /// <summary>
      ///   Gets or sets the parameter value by name.
      /// </summary>
-     property Params[const ParamName: string]: OLString write SetParams;
+     {$IFDEF OL_MUTABLE}property Params[const ParamName: string]: OLString  write SetParams ;{$ENDIF}
      /// <summary>
      ///   Gets or sets the line at the specified index.
      /// </summary>
-     property Lines[const Index: Integer]: OLString read GetLines write SetLines;
+     property Lines[const Index: Integer]: OLString read GetLines {$IFDEF OL_MUTABLE} write SetLines {$ENDIF};
      /// <summary>
      ///   Gets or sets the CSV field at the specified index.
      /// </summary>
-     property CSV[const Index: Integer]: OLString read GetCSV write SetCSV;
+     property CSV[const Index: Integer]: OLString read GetCSV  {$IFDEF OL_MUTABLE} write SetCSV {$ENDIF};
      /// <summary>
      ///   Replaces the first occurrence of the specified text with another text.
      /// </summary>
@@ -2430,10 +2445,6 @@ type
      ///   Returns the number of CSV fields in the string.
      /// </summary>
      function CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
-     /// <summary>
-     ///   Sets the value of the CSV field at the specified index.
-     /// </summary>
-     procedure SetCSVFieldValue(const FieldIndex: Integer; const Value: OLString; const Delimiter: Char = ';');
      /// <summary>
      ///   Returns the name of the CSV field at the specified index.
      /// </summary>
@@ -2545,29 +2556,26 @@ type
      /// </summary>
      procedure CopyToClipboard();
      /// <summary>
-     ///   Pastes the string from the clipboard.
-     /// </summary>
-     procedure PasteFromClipboard();
-     /// <summary>
-     ///   Loads the string from the specified URL.
-     /// </summary>
-     procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
-     /// <summary>
      ///   Returns a random string from the specified array of values.
      /// </summary>
      class function RandomFrom(const AValues: array of string): string; static;
      /// <summary>
      ///   Gets or sets the HTML Unicode text representation of the string.
      /// </summary>
-     property HtmlUnicodeText: string read GetHtmlUnicodeText write SetHtmlUnicodeText;
+     property HtmlUnicodeText: string read GetHtmlUnicodeText  {$IFDEF OL_MUTABLE} write SetHtmlUnicodeText {$ENDIF};
      /// <summary>
      ///   Gets or sets the URL-encoded text representation of the string.
      /// </summary>
-     property UrlEncodedText: string read GetUrlEncodedText write SetUrlEncodedText;
+     property UrlEncodedText: string read GetUrlEncodedText  {$IFDEF OL_MUTABLE} write SetUrlEncodedText {$ENDIF};
      /// <summary>
      ///   Gets or sets the Base64 representation of the string.
      /// </summary>
-     property Base64: string read GetBase64 write SetBase64;
+     property Base64: string read GetBase64  {$IFDEF OL_MUTABLE} write SetBase64 {$ENDIF};
+      /// <summary>
+      ///   Gets or sets the CSV value for the specified column and row.
+      /// </summary>
+      property CSVCell[const ColIndex, RowIndex: Integer]: OLString read GetCSV  {$IFDEF OL_MUTABLE} write SetCSV {$ENDIF};
+
      {$IF CompilerVersion >= 27.0}
      /// <summary>
      ///   Gets the JSON value for the specified field name.
@@ -2588,11 +2596,11 @@ type
      /// <summary>
      ///   Gets or sets the JSON value for the specified field name.
      /// </summary>
-     property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
+     property JSON[const JsonFieldName: string]: OLString read GetJSON  {$IFDEF OL_MUTABLE} write SetJSON {$ENDIF};
      /// <summary>
      ///   Gets or sets the XML value for the specified XPath.
      /// </summary>
-     property XML[const XPath: string]: OLString read GetXML write SetXML;
+     property XML[const XPath: string]: OLString read GetXML  {$IFDEF OL_MUTABLE} write SetXML {$ENDIF};
      /// <summary>
      ///   Returns a list of JSON strings from the specified path.
      /// </summary>
@@ -2601,11 +2609,47 @@ type
      ///   Returns a list of XML strings from the child nodes of the specified path.
      /// </summary>
      function GetXmlCollection(const XPath: string): TArray<string>;
-      /// <summary>
-      ///   Gets or sets the CSV value for the specified column and row.
-      /// </summary>
-      property CSVCell[const ColIndex, RowIndex: Integer]: OLString read GetCSV write SetCSV;
      {$IFEND}
+
+     //the same list of private methods when OL_MUTABLE defined
+    {$IFDEF OL_MUTABLE}
+    /// <summary>
+    ///   Encodes the file content to Base64 and assigns it to the string.
+    /// </summary>
+    procedure EndcodeBase64FromFile(const FileName: string);
+    /// <summary>
+    ///   Downloads content from the specified URL.
+    /// </summary>
+    procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
+    /// <summary>
+    ///   Adds a new line to the string.
+    /// </summary>
+    procedure LineAdd(const NewLine: string);
+    /// <summary>
+    ///   Deletes the line at the specified index.
+    /// </summary>
+    procedure LineDelete(const LineIndex: integer);
+    /// <summary>
+    ///   Inserts a line at the specified index.
+    /// </summary>
+    procedure LineInsertAt(const LineIndex: integer; const s: string);
+    /// <summary>
+    ///   Loads the string content from a file.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string); overload;
+    /// <summary>
+    ///   Loads the string content from a file using the specified encoding.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
+    /// <summary>
+    ///   Pastes the string from the clipboard.
+    /// </summary>
+    procedure PasteFromClipboard();
+    /// <summary>
+    ///   Sets the value of a CSV field at the specified index.
+    /// </summary>
+    procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
+    {$ENDIF}
 
     // Immutable "From..." methods (static factories)
 
@@ -2627,7 +2671,7 @@ type
     /// <summary>
     ///  Creates a new string by reading a file and encoding its content to Base64.
     /// </summary>
-    class function FromBase64File(const FileName: string): string; static;
+    class function Base64FromFile(const FileName: string): string; static;
 
     /// <summary>
     ///  Creates a new string by downloading content from the specified URL.
@@ -2664,7 +2708,8 @@ type
     /// <summary>
     ///  Returns a new string with the specified CSV field value updated.
     /// </summary>
-    function WithCSV(const Index: Integer; const Value: string): string;
+    function WithCSV(const Index: Integer; const Value: string; Delimiter: char =
+        ';'): string;
 
     /// <summary>
     ///  Returns a new string with the CSV cell at the specified column and row updated.
@@ -7782,21 +7827,13 @@ begin
 end;
 
 procedure TOLStringHelper.LoadFromFile(const FileName: string);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.LoadFromFile(FileName);
-  Self := ol;
+  Self := OLString.FromFile(FileName);
 end;
 
 procedure TOLStringHelper.LoadFromFile(const FileName: string; Encoding: TEncoding);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.LoadFromFile(FileName, Encoding);
-  Self := ol;
+  Self := OLString.FromFile(FileName, Encoding);
 end;
 
 procedure TOLStringHelper.SaveToFile(const FileName: string);
@@ -7816,12 +7853,8 @@ begin
 end;
 
 procedure TOLStringHelper.EndcodeBase64FromFile(const FileName: string);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.EndcodeBase64FromFile(FileName);
-  Self := ol;
+  Self := OLString.Base64FromFile(FileName);
 end;
 
 procedure TOLStringHelper.DecodeBase64ToFile(const FileName: string);
@@ -7913,30 +7946,18 @@ begin
 end;
 
 procedure TOLStringHelper.LineAdd(const NewLine: string);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.LineAdd(NewLine);
-  Self := ol;
+  Self := Self.WithLineAdded(NewLine);
 end;
 
 procedure TOLStringHelper.LineDelete(const LineIndex: Integer);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.LineDelete(LineIndex);
-  Self := ol;
+  Self := self.WithLineDeleted(LineIndex);
 end;
 
 procedure TOLStringHelper.LineInsertAt(const LineIndex: Integer; const s: string);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.LineInsertAt(LineIndex, s);
-  Self := ol;
+  Self := Self.WithLineInserted(LineIndex, s);
 end;
 
 function TOLStringHelper.LineIndexOf(const s: string): OLInteger;
@@ -8542,12 +8563,8 @@ begin
 end;
 
 procedure TOLStringHelper.SetCSV(const Index: Integer; const Value: OLString);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.CSV[Index] := Value;
-  Self := ol;
+  Self := OLString(Self).WithCSV(Index, Value);
 end;
 
 function TOLStringHelper.GetCSV(const ColIndex, RowIndex: Integer): OLString;
@@ -8559,21 +8576,13 @@ begin
 end;
 
 procedure TOLStringHelper.SetCSV(const ColIndex, RowIndex: Integer; const Value: OLString);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.CSVCell[ColIndex, RowIndex] := Value;
-  Self := ol;
+  Self := self.WithCSVCell(ColIndex, RowIndex, Value);
 end;
 
 procedure TOLStringHelper.SetLines(const Index: Integer; const Value: OLString);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.Lines[Index] := Value;
-  Self := ol;
+  Self := OLString(Self).WithLineChanged(Index, Value);
 end;
 
 function TOLStringHelper.ReplacedFirst(const AFromText, AToText: string): string;
@@ -8666,12 +8675,8 @@ begin
 end;
 
 procedure TOLStringHelper.SetCSVFieldValue(const FieldIndex: Integer; const Value: OLString; const Delimiter: Char);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.SetCSVFieldValue(FieldIndex, Value, Delimiter);
-  Self := ol;
+  Self := Self.WithCSV(FieldIndex, Value, Delimiter);
 end;
 
 function TOLStringHelper.CSVFieldName(const index: Integer): string;
@@ -8883,12 +8888,8 @@ begin
 end;
 
 procedure TOLStringHelper.SetHtmlUnicodeText(const Value: string);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.HtmlUnicodeText := Value;
-  Self := ol;
+  Self := OLString.FromHtmlUnicodeText(Value);
 end;
 
 function TOLStringHelper.GetUrlEncodedText: string;
@@ -8900,12 +8901,8 @@ begin
 end;
 
 procedure TOLStringHelper.SetUrlEncodedText(const Value: string);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.UrlEncodedText := Value;
-  Self := ol;
+  Self := OLString.FromUrlEncodedText(Value);
 end;
 
 function TOLStringHelper.GetBase64: string;
@@ -8917,12 +8914,8 @@ begin
 end;
 
 procedure TOLStringHelper.SetBase64(const Value: string);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.Base64 := Value;
-  Self := ol;
+  Self := OLString.FromBase64(Value);
 end;
 
 procedure TOLStringHelper.CopyToClipboard();
@@ -8998,21 +8991,13 @@ begin
 end;
 
 procedure TOLStringHelper.PasteFromClipboard();
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.PasteFromClipboard();
-  Self := ol;
+  Self := OLString.FromClipboard();
 end;
 
 procedure TOLStringHelper.GetFromUrl(const URL: string; Timeout: LongWord);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.GetFromUrl(URL, Timeout);
-  Self := ol;
+  Self := OLString.FromUrl(URL);
 end;
 
 function TOLStringHelper.GetHashCode: Integer;
@@ -9035,12 +9020,8 @@ begin
 end;
 
 procedure TOLStringHelper.SetJSON(const JsonFieldName: string; const Value: OLString);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.JSON[JsonFieldName] := Value;
-  Self := ol;
+  Self := OLString(Self).WithJSON(JsonFieldName, Value);
 end;
 
 function TOLStringHelper.GetXML(const XPath: string): OLString;
@@ -9052,12 +9033,8 @@ begin
 end;
 
 procedure TOLStringHelper.SetXML(const XPath: string; const Value: OLString);
-var
-  ol: OLString;
 begin
-  ol := Self;
-  ol.XML[XPath] := Value;
-  Self := ol;
+  Self := OLString(Self).WithXML(XPath, Value);
 end;
 
 function TOLStringHelper.GetJsonCollection(const JsonPath: string): TArray<string>;
@@ -9708,108 +9685,71 @@ end;
 {$IFEND}
 
 
-// TOLStringHelper Immutable "With..." methods
 
-// TOLStringHelper Immutable "From..." methods (static factories)
-
-
-
+{$IF CompilerVersion >= 24.0}
 class function TOLStringHelper.FromHtmlUnicodeText(const Value: string): string;
-var
-  OutPut: OLString;
 begin
-  OutPut.HtmlUnicodeText := Value;
-  Result := OutPut;
+  Result := OLString.FromHtmlUnicodeText(Value);
 end;
 
 class function TOLStringHelper.FromUrlEncodedText(const Value: string): string;
-var
-  OutPut: OLString;
 begin
-  OutPut.UrlEncodedText := Value;
-  Result := OutPut;
+  Result := OLString.FromUrlEncodedText(Value);
 end;
 
 class function TOLStringHelper.FromBase64(const Value: string): string;
-var
-  OutPut: OLString;
 begin
-  OutPut.Base64 := Value;
-  Result := OutPut;
+  Result := OLString.FromBase64(Value);
 end;
 
-class function TOLStringHelper.FromBase64File(const FileName: string): string;
-var
-  OutPut: OLString;
+class function TOLStringHelper.Base64FromFile(const FileName: string): string;
 begin
-  OutPut.EndcodeBase64FromFile(FileName);
-  Result := OutPut;
+  Result := OLString.Base64FromFile(FileName);
 end;
 
 class function TOLStringHelper.FromUrl(const URL: string): string;
 var
   OutPut: OLString;
 begin
-  OutPut.GetFromUrl(URL);
-  Result := OutPut;
+  Result := OLString.FromUrl(URL);
 end;
 
 class function TOLStringHelper.FromClipboard: string;
-var
-  OutPut: OLString;
 begin
-  OutPut.PasteFromClipboard;
-  Result := OutPut;
+  Result := OLString.FromClipboard();
 end;
 
 // TOLStringHelper Immutable "With..." methods (instance modifiers)
 
 function TOLStringHelper.WithLineAdded(const Line: string): string;
-var
-  OutPut: OLString;
 begin
-  OutPut := Self;
-  OutPut.LineAdd(Line);
-  Result := OutPut;
+  Result := OLString(Self).WithLineAdded(Line);
 end;
 
 function TOLStringHelper.WithLineChanged(const Index: Integer; const Line: string): string;
-var
-  OutPut: OLString;
 begin
-  OutPut := Self;
-  OutPut.Lines[Index] := Line;
-  Result := OutPut;
+  Result := OLString(Self).WithLineChanged(Index, Line);
 end;
 
 function TOLStringHelper.WithLineDeleted(const Index: Integer): string;
-var
-  OutPut: OLString;
 begin
-  OutPut := Self;
-  OutPut.LineDelete(Index);
-  Result := OutPut;
+  Result := OLString(Self).WithLineDeleted(Index);
 end;
 
 function TOLStringHelper.WithLineInserted(const Index: Integer; const Line: string): string;
-var
-  OutPut: OLString;
 begin
-  OutPut := Self;
-  OutPut.LineInsertAt(Index, Line);
-  Result := OutPut;
+  Result := OLString(Self).WithLineInserted(Index, Line);
 end;
 
-function TOLStringHelper.WithCSV(const Index: Integer; const Value: string): string;
+function TOLStringHelper.WithCSV(const Index: Integer; const Value: string;
+    Delimiter: char = ';'): string;
 begin
-  Result := Self;
-  Result.SetCSV(Index, Value);
+  Result := OLString(Self).WithCSV(Index, Value, Delimiter);
 end;
 
 function TOLStringHelper.WithCSVCell(const ColIndex, RowIndex: Integer; const Value: string): string;
 begin
-  Result := Self;
-  Result.SetCSV(ColIndex, RowIndex, Value);
+  Result := OLString(Self).WithCSVCell(ColIndex, RowIndex, Value);
 end;
 
 function TOLStringHelper.WithParam(const ParamName: string; const Value: string): string;
@@ -9830,6 +9770,7 @@ begin
   Result := Self;
   Result.SetXML(XPath, Value);
 end;
-{$IFEND}
+{$IFEND} // ver 27+
+{$IFEND} // ver 24+
 
 end.

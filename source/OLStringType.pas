@@ -84,6 +84,50 @@ type
     function GetUrlEncodedText: OLString;
     procedure SetUrlEncodedText(const Value: OLString);
     function Utf8Code(const c: Char): OLString;
+
+   {$IFNDEF OL_MUTABLE}
+    /// <summary>
+    ///   Encodes the file content to Base64 and assigns it to the string.
+    /// </summary>
+    procedure EndcodeBase64FromFile(const FileName: string);
+    /// <summary>
+    ///   Downloads content from the specified URL.
+    /// </summary>
+    procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
+    /// <summary>
+    ///   Adds a new line to the string.
+    /// </summary>
+    procedure LineAdd(const NewLine: string);
+    /// <summary>
+    ///   Deletes the line at the specified index.
+    /// </summary>
+    procedure LineDelete(const LineIndex: integer);
+    /// <summary>
+    ///   Inserts a line at the specified index.
+    /// </summary>
+    procedure LineInsertAt(const LineIndex: integer; const s: string);
+    /// <summary>
+    ///   Loads the string content from a file.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string); overload;
+    /// <summary>
+    ///   Loads the string content from a file using the specified encoding.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
+    /// <summary>
+    ///   Pastes the string from the clipboard.
+    /// </summary>
+    procedure PasteFromClipboard();
+    /// <summary>
+    ///   Sets the value of a CSV field at the specified column and row index.
+    /// </summary>
+    procedure SetCSV(const ColIndex, RowIndex: integer; const Value: OLString); overload;
+    /// <summary>
+    ///   Sets the value of a CSV field at the specified index.
+    /// </summary>
+    procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
+    {$ENDIF}
+
     /// <summary>
     ///   Gets or sets whether the string has a value (is not null).
     /// </summary>
@@ -179,14 +223,48 @@ type
     ///   Gets the number of CSV fields.
     /// </summary>
     function CSVFieldCount(const Delimiter: Char = ';'): OLInteger;
+    {$IFDEF OL_MUTABLE}
     /// <summary>
-    ///   Sets the value of a CSV field at the specified index.
+    ///   Encodes the file content to Base64 and assigns it to the string.
     /// </summary>
-    procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
+    procedure EndcodeBase64FromFile(const FileName: string);
+    /// <summary>
+    ///   Downloads content from the specified URL.
+    /// </summary>
+    procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
+    /// <summary>
+    ///   Adds a new line to the string.
+    /// </summary>
+    procedure LineAdd(const NewLine: string);
+    /// <summary>
+    ///   Deletes the line at the specified index.
+    /// </summary>
+    procedure LineDelete(const LineIndex: integer);
+    /// <summary>
+    ///   Inserts a line at the specified index.
+    /// </summary>
+    procedure LineInsertAt(const LineIndex: integer; const s: string);
+    /// <summary>
+    ///   Loads the string content from a file.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string); overload;
+    /// <summary>
+    ///   Loads the string content from a file using the specified encoding.
+    /// </summary>
+    procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
+    /// <summary>
+    ///   Pastes the string from the clipboard.
+    /// </summary>
+    procedure PasteFromClipboard();
     /// <summary>
     ///   Sets the value of a CSV field at the specified column and row index.
     /// </summary>
     procedure SetCSV(const ColIndex, RowIndex: integer; const Value: OLString); overload;
+    /// <summary>
+    ///   Sets the value of a CSV field at the specified index.
+    /// </summary>
+    procedure SetCSVFieldValue(const FieldIndex: integer; const Value: OLString; const Delimiter: Char = ';');
+    {$ENDIF}
     /// <summary>
     ///   Returns the length of the string.
     /// </summary>
@@ -586,13 +664,6 @@ type
     function SmartStrToDate(): OLDate;
 
     /// <summary>
-    ///   Encodes the file content to Base64 and assigns it to the string.
-    /// </summary>
-    procedure EndcodeBase64FromFile(const FileName: string);
-
-    // Immutable "From..." methods (static factories)
-
-    /// <summary>
     ///  Creates a new OLString from HTML Unicode encoded text.
     /// </summary>
     class function FromHtmlUnicodeText(const Value: string): OLString; static;
@@ -610,7 +681,7 @@ type
     /// <summary>
     ///  Creates a new OLString by reading a file and encoding its content to Base64.
     /// </summary>
-    class function FromBase64File(const FileName: string): OLString; static;
+    class function Base64FromFile(const FileName: string): OLString; static;
 
     /// <summary>
     ///  Creates a new OLString by downloading content from the specified URL.
@@ -621,11 +692,6 @@ type
     ///  Creates a new OLString from the current clipboard text content.
     /// </summary>
     class function FromClipboard: OLString; static;
-
-    /// <summary>
-    ///  Creates a new OLString by loading the content of a file.
-    /// </summary>
-    class function FromFile(const FileName: string): OLString; static;
 
     // Immutable "With..." methods (instance modifiers)
 
@@ -672,7 +738,8 @@ type
     /// <summary>
     ///  Returns a new OLString with the specified CSV field value updated.
     /// </summary>
-    function WithCSV(const Index: Integer; const Value: OLString): OLString;
+    function WithCSV(const Index: Integer; const Value: OLString; Delimiter: char =
+        ';'): OLString;
 
     /// <summary>
     ///  Returns a new OLString with the CSV cell at the specified column and row updated.
@@ -776,18 +843,6 @@ type
     /// </summary>
     function LastLineIndex(): Integer;
     /// <summary>
-    ///   Adds a new line to the string.
-    /// </summary>
-    procedure LineAdd(const NewLine: string);
-    /// <summary>
-    ///   Deletes the line at the specified index.
-    /// </summary>
-    procedure LineDelete(const LineIndex: integer);
-    /// <summary>
-    ///   Inserts a line at the specified index.
-    /// </summary>
-    procedure LineInsertAt(const LineIndex: integer; const s: string);
-    /// <summary>
     ///   Returns the index of the line matching the specified string.
     /// </summary>
     function LineIndexOf(const s: string): OLInteger;
@@ -799,14 +854,6 @@ type
     ///   Returns the lines of the string sorted.
     /// </summary>
     function LinesSorted(): OLString;
-    /// <summary>
-    ///   Loads the string content from a file.
-    /// </summary>
-    procedure LoadFromFile(const FileName: string); overload;
-    /// <summary>
-    ///   Loads the string content from a file using the specified encoding.
-    /// </summary>
-    procedure LoadFromFile(const FileName: string; Encoding: TEncoding); overload;
     /// <summary>
     ///   Saves the string content to a file.
     /// </summary>
@@ -829,11 +876,6 @@ type
     /// </summary>
     procedure CopyToClipboard();
     /// <summary>
-    ///   Pastes the string from the clipboard.
-    /// </summary>
-    procedure PasteFromClipboard();
-
-    /// <summary>
     ///   Calculates the hash of the string.
     /// </summary>
     function Hash(const Salt: string = ''): cardinal;
@@ -842,10 +884,6 @@ type
     /// </summary>
     function HashStr(const Salt: string = ''): OLString;
 
-    /// <summary>
-    ///   Downloads content from the specified URL.
-    /// </summary>
-    procedure GetFromUrl(const URL: string; Timeout: LongWord = 0);
     /// <summary>
     ///   Checks if the string is a valid IBAN.
     /// </summary>
@@ -903,50 +941,56 @@ type
     /// <summary>
     ///   Gets or sets the Base64 encoded representation of the string.
     /// </summary>
-    property Base64: OLString read GetBase64 write SetBase64;
+    property Base64: OLString read GetBase64  {$IFDEF OL_MUTABLE} write SetBase64 {$ENDIF};
     /// <summary>
     ///   Gets or sets the character at the specified index.
     /// </summary>
-    property Chars[const Index: integer]: Char read GetCharAtIndex write SetCharAtIndex; default;
+    property Chars[const Index: integer]: Char read GetCharAtIndex  {$IFDEF OL_MUTABLE} write SetCharAtIndex {$ENDIF}; default;
     /// <summary>
     ///   Gets or sets the line at the specified index.
     /// </summary>
-    property Lines[const Index: integer]: OLString read GetLine write SetLine;
+    property Lines[const Index: integer]: OLString read GetLine  {$IFDEF OL_MUTABLE} write SetLine {$ENDIF};
     /// <summary>
     ///   Gets or sets the CSV field at the specified index.
     /// </summary>
-    property CSV[const Index: integer]: OLString read GetCSV write SetCSV;
+    property CSV[const Index: integer]: OLString read GetCSV  {$IFDEF OL_MUTABLE} write SetCSV {$ENDIF};
     /// <summary>
     ///   Gets or sets the CSV field at the specified column and row index.
     /// </summary>
-    property CSVCell[const ColIndex, RowIndex: integer]: OLString read GetCSV write SetCSV;
+    property CSVCell[const ColIndex, RowIndex: integer]: OLString read GetCSV  {$IFDEF OL_MUTABLE} write SetCSV {$ENDIF};
     /// <summary>
     ///   Gets or sets the parameter value by name.
     /// </summary>
-    property Params[const ParamName: string]: OLString read GetParam write SetParam;
+    property Params[const ParamName: string]: OLString read GetParam {$IFDEF OL_MUTABLE} write SetParam {$ENDIF};
     {$IF CompilerVersion >= 27.0}
     /// <summary> Gets or sets the JSON field value by name.
     /// </summary>
     /// <example>
     ///   s := '{"name":"John","age":30,"city":"NYC"}';
     ///   if s.JSON['name'] = 'John' then Showmessage('OK');
-    ///
-    ///   s := '{"User":{"name":"John","age":30,"city":"NYC"}}';
-    ///   s.JSON['User.name'] := 'Jane';
-    ///   if s.JSON['User.name'] = 'Jane' then Showmessage('OK');
     /// </example>
-    property JSON[const JsonFieldName: string]: OLString read GetJSON write SetJSON;
-    property XML[const XPath: string]: OLString read GetXML write SetXML;
+    property JSON[const JsonFieldName: string]: OLString read GetJSON {$IFDEF OL_MUTABLE} write SetJSON {$ENDIF};
+    property XML[const XPath: string]: OLString read GetXML {$IFDEF OL_MUTABLE} write SetXML {$ENDIF};
     {$IFEND}
 
     /// <summary>
     ///   Gets or sets the HTML Unicode encoded text.
     /// </summary>
-    property HtmlUnicodeText: OLString read GetHtmlUnicodeText write SetHtmlUnicodeText;
+    property HtmlUnicodeText: OLString read GetHtmlUnicodeText {$IFDEF OL_MUTABLE} write SetHtmlUnicodeText {$ENDIF};
     /// <summary>
     ///   Gets or sets the URL encoded text.
     /// </summary>
-    property UrlEncodedText: OLString read GetUrlEncodedText write SetUrlEncodedText;
+    property UrlEncodedText: OLString read GetUrlEncodedText  {$IFDEF OL_MUTABLE} write SetUrlEncodedText {$ENDIF};
+
+    /// <summary>
+    ///   Loads the string content from a file using the specified encoding.
+    /// </summary>
+    class function FromFile(const FileName: string; Encoding: TEncoding): OLString;
+        overload; static;
+    /// <summary>
+    ///  Creates a new OLString by loading the content of a file.
+    /// </summary>
+    class function FromFile(const FileName: string): OLString; overload; static;
 
     {$IF CompilerVersion >= 34.0}
     class operator Initialize(out Dest: OLString);
@@ -1011,25 +1055,6 @@ begin
   returnrec.Value := a.Value + b.Value;
   returnrec.ValuePresent := a.ValuePresent and b.ValuePresent;
   Result := returnrec;
-end;
-
-procedure OLString.EndcodeBase64FromFile(const FileName: string);
-var
-  InputStream: TFileStream;
-  OutputStream: TStringStream;
-begin
-  InputStream := TFileStream.Create(FileName, fmOpenRead);
-  try
-    OutputStream := TStringStream.Create;
-    try
-      EncodeStream(InputStream, OutputStream);
-      Self := OutputStream.DataString;
-    finally
-      OutputStream.Free;
-    end;
-  finally
-    InputStream.Free;
-  end;
 end;
 
 function OLString.EndsStr(const ASubString: OLString): OLBoolean;
@@ -1282,120 +1307,6 @@ begin
     Exit(Null);
 
   Result := Self.Lines[RowIndex].CSV[ColIndex];
-end;
-
-////http://www.scalabium.com/faq/dct0080.htm
-procedure OLString.GetFromUrl(const URL: string; Timeout: LongWord = 0);
-var
-  NetHandle: HINTERNET;
-  UrlHandle: HINTERNET;
-  Buffer: array[0..4095] of Byte;
-  BytesRead: dWord;
-  RawData: TBytes;
-  TotalBytes: Integer;
-  dwTimeOut: DWORD;
-  szContentType: array[0..255] of Char;
-  dwBufLen: DWORD;
-  CharsetName: string;
-  Encoding: TEncoding;
-
-  function ExtractCharset(const Text: string): string;
-  var
-    P: Integer;
-    LTxt: string;
-  begin
-    Result := '';
-    LTxt := SysUtils.LowerCase(Text);
-    P := System.Pos('charset=', LTxt);
-    if P > 0 then
-    begin
-      Result := Copy(Text, P + 8, MaxInt);
-      // Clean up string from common HTML/HTTP delimiters
-      P := System.Pos(';', Result); if P > 0 then Delete(Result, P, MaxInt);
-      P := System.Pos('"', Result); if P > 0 then Delete(Result, P, MaxInt);
-      P := System.Pos('''', Result); if P > 0 then Delete(Result, P, MaxInt);
-      P := System.Pos('>', Result); if P > 0 then Delete(Result, P, MaxInt);
-      P := System.Pos(' ', Result); if P > 0 then Delete(Result, P, MaxInt);
-      Result := Trim(Result);
-    end;
-  end;
-
-begin
-  TotalBytes := 0;
-  SetLength(RawData, 0);
-  Encoding := nil;
-  CharsetName := '';
-
-  NetHandle := InternetOpen('OLString', INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
-  if Timeout > 0 then
-  begin
-    dwTimeOut := Timeout;
-    InternetSetOption(NetHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @dwTimeOut, SizeOf(dwTimeOut));
-  end;
-
-  if Assigned(NetHandle) then
-  try
-    UrlHandle := InternetOpenUrl(NetHandle, PChar(URL), nil, 0, INTERNET_FLAG_RELOAD, 0);
-    if Assigned(UrlHandle) then
-    try
-      // 1. Try to get charset from HTTP Header
-      dwBufLen := SizeOf(szContentType);
-      if HttpQueryInfo(UrlHandle, HTTP_QUERY_CONTENT_TYPE, @szContentType, dwBufLen, dwBufLen) then
-        CharsetName := ExtractCharset(szContentType);
-
-      // 2. Download all bytes
-      repeat
-        if InternetReadFile(UrlHandle, @Buffer, SizeOf(Buffer), BytesRead) and (BytesRead > 0) then
-        begin
-          SetLength(RawData, TotalBytes + BytesRead);
-          Move(Buffer[0], RawData[TotalBytes], BytesRead);
-          Inc(TotalBytes, BytesRead);
-        end;
-      until BytesRead = 0;
-
-      if TotalBytes > 0 then
-      begin
-        // 3. Check for UTF-8 BOM (EF BB BF)
-        if (TotalBytes >= 3) and (RawData[0] = $EF) and (RawData[1] = $BB) and (RawData[2] = $BF) then
-        begin
-          Encoding := TEncoding.UTF8;
-          // Result string without the 3 BOM bytes
-          Self := Encoding.GetString(RawData, 3, TotalBytes - 3);
-          Exit;
-        end;
-
-        // 4. If no header, search in HTML body (first 2KB)
-        if CharsetName = '' then
-        {$IF CompilerVersion >= 24.0} // Delphi XE3+
-          CharsetName := ExtractCharset(TEncoding.ANSI.GetString(RawData, 0, Min(TotalBytes, 2048)));
-        {$ELSE} // Versions older than Delphi XE3
-          CharsetName := ExtractCharset(TEncoding.Default.GetString(RawData, 0, Min(TotalBytes, 2048)));
-        {$IFEND}
-
-        // 5. Apply encoding
-        if CharsetName <> '' then
-        try
-          Encoding := TEncoding.GetEncoding(CharsetName);
-        except
-          Encoding := TEncoding.UTF8;
-        end;
-
-        if Encoding = nil then
-          Encoding := TEncoding.UTF8; // Final fallback
-
-        Self := Encoding.GetString(RawData);
-      end
-      else
-        Self := '';
-
-    finally
-      InternetCloseHandle(UrlHandle);
-    end
-    else
-      raise Exception.CreateFmt('Cannot open URL %s', [URL]);
-  finally
-    InternetCloseHandle(NetHandle);
-  end;
 end;
 
 
@@ -2192,14 +2103,14 @@ begin
   OutPut := Self;
 
   if OutPut.Length > 0 then
-    OutPut[1] := UpCase(OutPut[1]);
+    OutPut := OutPut.WithChar(1, UpCase(OutPut[1]));
 
   for i := 2 to OutPut.Length do
   begin
     if OutPut[i - 1] = ' ' then
-      OutPut[i] := UpCase(OutPut[i])
+      OutPut := OutPut.WithChar(i, UpCase(OutPut[i]))
     else
-      OutPut[i] := SysUtils.LowerCase(OutPut[i])[1];
+      OutPut := OutPut.WithChar(i, SysUtils.LowerCase(OutPut[i])[1]);
   end;
 
   Result := OutPut;
@@ -2369,7 +2280,7 @@ begin
             for j := 1 to Segment.Length do
             begin
                if (Segment[j] = '_') then
-                 s[p + j - 1] := '_';
+                 s := s.WithChar(p + j - 1, '_');
             end;
 
             s := s.Replaced(Segment, Segment.Replaced('_', ''));
@@ -2402,6 +2313,139 @@ begin
     OutPut := False;
 
   Result := OutPut;
+end;
+
+procedure OLString.EndcodeBase64FromFile(const FileName: string);
+var
+  InputStream: TFileStream;
+  OutputStream: TStringStream;
+begin
+  InputStream := TFileStream.Create(FileName, fmOpenRead);
+  try
+    OutputStream := TStringStream.Create;
+    try
+      EncodeStream(InputStream, OutputStream);
+      Self := OutputStream.DataString;
+    finally
+      OutputStream.Free;
+    end;
+  finally
+    InputStream.Free;
+  end;
+end;
+
+////http://www.scalabium.com/faq/dct0080.htm
+procedure OLString.GetFromUrl(const URL: string; Timeout: LongWord = 0);
+var
+  NetHandle: HINTERNET;
+  UrlHandle: HINTERNET;
+  Buffer: array[0..4095] of Byte;
+  BytesRead: dWord;
+  RawData: TBytes;
+  TotalBytes: Integer;
+  dwTimeOut: DWORD;
+  szContentType: array[0..255] of Char;
+  dwBufLen: DWORD;
+  CharsetName: string;
+  Encoding: TEncoding;
+
+  function ExtractCharset(const Text: string): string;
+  var
+    P: Integer;
+    LTxt: string;
+  begin
+    Result := '';
+    LTxt := SysUtils.LowerCase(Text);
+    P := System.Pos('charset=', LTxt);
+    if P > 0 then
+    begin
+      Result := Copy(Text, P + 8, MaxInt);
+      // Clean up string from common HTML/HTTP delimiters
+      P := System.Pos(';', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos('"', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos('''', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos('>', Result); if P > 0 then Delete(Result, P, MaxInt);
+      P := System.Pos(' ', Result); if P > 0 then Delete(Result, P, MaxInt);
+      Result := Trim(Result);
+    end;
+  end;
+
+begin
+  TotalBytes := 0;
+  SetLength(RawData, 0);
+  Encoding := nil;
+  CharsetName := '';
+
+  NetHandle := InternetOpen('OLString', INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+  if Timeout > 0 then
+  begin
+    dwTimeOut := Timeout;
+    InternetSetOption(NetHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @dwTimeOut, SizeOf(dwTimeOut));
+  end;
+
+  if Assigned(NetHandle) then
+  try
+    UrlHandle := InternetOpenUrl(NetHandle, PChar(URL), nil, 0, INTERNET_FLAG_RELOAD, 0);
+    if Assigned(UrlHandle) then
+    try
+      // 1. Try to get charset from HTTP Header
+      dwBufLen := SizeOf(szContentType);
+      if HttpQueryInfo(UrlHandle, HTTP_QUERY_CONTENT_TYPE, @szContentType, dwBufLen, dwBufLen) then
+        CharsetName := ExtractCharset(szContentType);
+
+      // 2. Download all bytes
+      repeat
+        if InternetReadFile(UrlHandle, @Buffer, SizeOf(Buffer), BytesRead) and (BytesRead > 0) then
+        begin
+          SetLength(RawData, TotalBytes + BytesRead);
+          Move(Buffer[0], RawData[TotalBytes], BytesRead);
+          Inc(TotalBytes, BytesRead);
+        end;
+      until BytesRead = 0;
+
+      if TotalBytes > 0 then
+      begin
+        // 3. Check for UTF-8 BOM (EF BB BF)
+        if (TotalBytes >= 3) and (RawData[0] = $EF) and (RawData[1] = $BB) and (RawData[2] = $BF) then
+        begin
+          Encoding := TEncoding.UTF8;
+          // Result string without the 3 BOM bytes
+          Self := Encoding.GetString(RawData, 3, TotalBytes - 3);
+          Exit;
+        end;
+
+        // 4. If no header, search in HTML body (first 2KB)
+        if CharsetName = '' then
+        {$IF CompilerVersion >= 24.0} // Delphi XE3+
+          CharsetName := ExtractCharset(TEncoding.ANSI.GetString(RawData, 0, Min(TotalBytes, 2048)));
+        {$ELSE} // Versions older than Delphi XE3
+          CharsetName := ExtractCharset(TEncoding.Default.GetString(RawData, 0, Min(TotalBytes, 2048)));
+        {$IFEND}
+
+        // 5. Apply encoding
+        if CharsetName <> '' then
+        try
+          Encoding := TEncoding.GetEncoding(CharsetName);
+        except
+          Encoding := TEncoding.UTF8;
+        end;
+
+        if Encoding = nil then
+          Encoding := TEncoding.UTF8; // Final fallback
+
+        Self := Encoding.GetString(RawData);
+      end
+      else
+        Self := '';
+
+    finally
+      InternetCloseHandle(UrlHandle);
+    end
+    else
+      raise Exception.CreateFmt('Cannot open URL %s', [URL]);
+  finally
+    InternetCloseHandle(NetHandle);
+  end;
 end;
 
 procedure OLString.LineAdd(const NewLine: string);
@@ -4671,8 +4715,8 @@ begin
     Exit;
 
   L := Self.Lines[RowIndex];
-  L.CSV[ColIndex] := Value;
-  Self.Lines[RowIndex] := L;
+  L := L.withCSV(ColIndex, Value);
+  Self := Self.WithLineChanged(RowIndex, L);
 end;
 
 function OLString.CSVFieldValue(const FieldIndex: integer; const Delimiter:
@@ -5063,7 +5107,7 @@ class function OLString.FromHtmlUnicodeText(const Value: string): OLString;
 var
   OutPut: OLString;
 begin
-  OutPut.HtmlUnicodeText := Value;
+  OutPut.SetHtmlUnicodeText(Value);
   Result := OutPut;
 end;
 
@@ -5071,7 +5115,7 @@ class function OLString.FromUrlEncodedText(const Value: string): OLString;
 var
   OutPut: OLString;
 begin
-  OutPut.UrlEncodedText := Value;
+  OutPut.SetUrlEncodedText(Value);
   Result := OutPut;
 end;
 
@@ -5079,11 +5123,11 @@ class function OLString.FromBase64(const Value: string): OLString;
 var
   OutPut: OLString;
 begin
-  OutPut.Base64 := Value;
+  OutPut.SetBase64(Value);
   Result := OutPut;
 end;
 
-class function OLString.FromBase64File(const FileName: string): OLString;
+class function OLString.Base64FromFile(const FileName: string): OLString;
 var
   OutPut: OLString;
 begin
@@ -5115,12 +5159,21 @@ begin
   Result := OutPut;
 end;
 
+class function OLString.FromFile(const FileName: string; Encoding: TEncoding):
+    OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.LoadFromFile(FileName, Encoding);
+  Result := OutPut;
+end;
+
 function OLString.WithChar(const Index: Integer; const Value: Char): OLString;
 var
   OutPut: OLString;
 begin
   OutPut := Self;
-  OutPut[Index] := Value;
+  OutPut.SetCharAtIndex(Index, Value);
   Result := OutPut;
 end;
 
@@ -5138,7 +5191,7 @@ var
   OutPut: OLString;
 begin
   OutPut := Self;
-  OutPut.Lines[Index] := Line;
+  OutPut.SetLine(Index, Line);
   Result := OutPut;
 end;
 
@@ -5166,7 +5219,7 @@ var
 begin
   OutPut := Self;
   {$IF CompilerVersion >= 27.0}
-  OutPut.JSON[Field] := Value;
+  OutPut.SetJSON(Field, Value);
   {$IFEND}
   Result := OutPut;
 end;
@@ -5177,7 +5230,7 @@ var
 begin
   OutPut := Self;
   {$IF CompilerVersion >= 27.0}
-  OutPut.XML[XPath] := Value;
+  OutPut.SetXML(XPath, Value);
   {$IFEND}
   Result := OutPut;
 end;
@@ -5187,16 +5240,17 @@ var
   OutPut: OLString;
 begin
   OutPut := Self;
-  OutPut.Params[Name] := Value;
+  OutPut.SetParam(Name, Value);
   Result := OutPut;
 end;
 
-function OLString.WithCSV(const Index: Integer; const Value: OLString): OLString;
+function OLString.WithCSV(const Index: Integer; const Value: OLString;
+    Delimiter: char = ';'): OLString;
 var
   OutPut: OLString;
 begin
   OutPut := Self;
-  OutPut.CSV[Index] := Value;
+  OutPut.SetCSVFieldValue(Index, Value, Delimiter);
   Result := OutPut;
 end;
 
@@ -5205,9 +5259,7 @@ var
   OutPut: OLString;
 begin
   OutPut := Self;
-  {$IF CompilerVersion >= 27.0}
-  OutPut.CSVCell[ColIndex, RowIndex] := Value;
-  {$IFEND}
+  OutPut.SetCSV(ColIndex, RowIndex, Value);
   Result := OutPut;
 end;
 

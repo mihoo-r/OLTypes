@@ -2,7 +2,7 @@ unit OLRegistry;
 
 interface
 
-uses Registry, OLTypes, OLStringType;
+uses {$IF CompilerVersion >= 23.0} Win.Registry {$ELSE} Registry {$IFEND}, OLTypes, OLStringType;
 
 type
   TOLRegistry = class
