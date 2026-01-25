@@ -87,11 +87,13 @@ var
   s: OLString;
 begin
   s := Null;
+  {$IFDEF OL_MUTABLE}
   s.XML['person/name'] := 'Jan';
   s.XML['person/age'] := '30';
   
   CheckEqualsString('Jan', s.XML['person/name']);
   CheckEqualsString('30', s.XML['person/age']);
+  {$ENDIF}
 end;
 
 procedure OLStringXMLTest.TestWriteIndices;
@@ -99,11 +101,13 @@ var
   s: OLString;
 begin
   s := Null;
+  {$IFDEF OL_MUTABLE}
   s.XML['users/user[0]/name'] := 'Jan';
   s.XML['users/user[1]/name'] := 'Anna';
   
   CheckEqualsString('Jan', s.XML['users/user[0]/name']);
   CheckEqualsString('Anna', s.XML['users/user[1]/name']);
+  {$ENDIF}
 end;
 
 procedure OLStringXMLTest.TestWriteAttribute;
@@ -111,11 +115,13 @@ var
   s: OLString;
 begin
   s := Null;
+  {$IFDEF OL_MUTABLE}
   s.XML['user/name'] := 'John';
   s.XML['user/@id'] := '555';
   
   CheckEqualsString('John', s.XML['user/name']);
   CheckEqualsString('555', s.XML['user/@id']);
+  {$ENDIF}
 end;
 
 procedure OLStringXMLTest.TestWriteNumeric;
@@ -123,6 +129,7 @@ var
   s: OLString;
 begin
   s := Null;
+  {$IFDEF OL_MUTABLE}
   s.XML['config/@id'] := '123';
   s.XML['config/value'] := '45.67';
   s.XML['config/active'] := 'True';
@@ -131,6 +138,7 @@ begin
   CheckEqualsString('123', s.XML['config/@id']);
   CheckEqualsString('45.67', s.XML['config/value']);
   CheckEqualsString('true', s.XML['config/active']);
+  {$ENDIF}
   
   // Verify numeric nature by checking no quotes in raw XML for attributes (simplified check)
   // or by verifying it doesn't fail basic XML operations.
@@ -144,9 +152,11 @@ var
   s: OLString;
 begin
   s := Null;
+  {$IFDEF OL_MUTABLE}
   s.XML['root/item'] := 'test';
   // Check if it contains multiple lines (pretty print)
   Check(s.LineCount > 1, 'XML should be pretty printed with multiple lines');
+  {$ENDIF}
 end;
 
 procedure OLStringXMLTest.TestNamespaceAgnostic;

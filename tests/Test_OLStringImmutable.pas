@@ -8,7 +8,7 @@ uses
 type
   TTestOLStringImmutable = class(TTestCase)
   private
-    FTempFile: string;
+    FTempFile: OLString;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -26,10 +26,12 @@ type
     procedure TestFromBase64File;
     procedure TestFromClipboard;
     procedure TestFromFile;
-    
+
+    {$IF CompilerVersion >= 24.0}
     // Helper tests
     procedure TestHelperWithLine;
     procedure TestHelperWithParam;
+    {$IFEND}
   end;
 
 implementation
@@ -112,11 +114,15 @@ var
   s1, s2: OLString;
 begin
   s1 := 'Hello :Name';
+  {$IFDEF OL_MUTABLE}
   s1.Params['Name'] := 'World';
+  {$ENDIF}
   
   s2 := s1.WithParam('Name', 'Universe');
   
+  {$IFDEF OL_MUTABLE}
   CheckEquals('Hello World', s1, 'Original string parameters applied state might be tricky, checking raw behavior? Param property modifies internal state.');
+  {$ENDIF}
   // Wait, Params logic in OLString is complex. Setting a param updates the internal string if ApplyParams is called or auto-applied?
   // Let's assume standard behavior:
   // s1 has Value "Hello :Name" and parameter Name="World" (or applied "Hello World").
@@ -170,7 +176,7 @@ begin
     sl.Free;
   end;
   
-  s2 := OLString.FromBase64File(FTempFile);
+  s2 := OLString.Base64FromFile(FTempFile);
   
   // EndcodeBase64FromFile sets the value to the Base64 string of the file content.
   CheckNotEquals('', s2);
@@ -202,13 +208,15 @@ begin
   CheckEquals('File Content' + sLineBreak, s); // SaveToFile adds linebreak
 end;
 
+
+ {$IF CompilerVersion >= 24.0}
 procedure TTestOLStringImmutable.TestHelperWithLine;
 var
   s1, s2: string;
 begin
   s1 := 'Line1';
   s2 := s1.WithLineAdded('Line2');
-  
+
   CheckEquals('Line1', s1);
   CheckEquals('Line1' + sLineBreak + 'Line2', s2);
 end;
@@ -221,6 +229,7 @@ begin
   // String helper SetParams logic might differ, need to verify.
   // Assuming it works.
 end;
+{$IFEND}
 
 initialization
   RegisterTest(TTestOLStringImmutable.Suite);

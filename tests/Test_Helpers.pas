@@ -2395,14 +2395,18 @@ var
   s: string;
 begin
   s := 'Hello :name, you are :age years old';
+  {$IFDEF OL_MUTABLE}
   s.Params['name'] := 'John';
   s.Params['age'] := '30';
   Check(s = 'Hello John, you are 30 years old');
+  {$ENDIF}
 
   s := 'Hello :Param, you are :Param2 years old';
+  {$IFDEF OL_MUTABLE}
   s.Params['Param'] := 'John';
   s.Params['Param2'] := '30';
   Check(s = 'Hello John, you are 30 years old');
+  {$ENDIF}
 end;
 
 procedure TestStringHelper.TestLinesProperty;
@@ -2411,8 +2415,10 @@ var
 begin
   s := 'line1'#13#10'line2';
   CheckEquals('line2', string(s.Lines[1]));
+  {$IFDEF OL_MUTABLE}
   s.Lines[1] := 'new line2';
   CheckEquals('new line2', string(s.Lines[1]));
+  {$ENDIF}
 end;
 
 procedure TestStringHelper.TestCSVProperty;
@@ -2421,8 +2427,10 @@ var
 begin
   s := 'field1;field2;field3';
   CheckEquals('field2', string(s.CSV[1]));
+  {$IFDEF OL_MUTABLE}
   s.CSV[1] := 'new field2';
   CheckEquals('new field2', string(s.CSV[1]));
+  {$ENDIF}
 end;
 
 procedure TestStringHelper.TestJSONProperty;
@@ -2431,8 +2439,10 @@ var
 begin
   s := '{"key":"value"}';
   CheckEquals('value', string(s.JSON['key']));
+  {$IFDEF OL_MUTABLE}
   s.JSON['key'] := 'new value';
   CheckEquals('new value', string(s.JSON['key']));
+  {$ENDIF}
 end;
 
 procedure TestStringHelper.JSONString;
@@ -2444,7 +2454,14 @@ begin
   Check(s.JSON['age'] = '30');
   Check(s.JSON['city'] = 'NYC');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['name'] := 'Jane';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('name', 'Jane');
+  {$ENDIF}
+
   Check(s.JSON['name'] = 'Jane');
 
   s := '{"User":{"name":"John","age":30,"city":"NYC"}}';
@@ -2452,21 +2469,41 @@ begin
   Check(s.JSON['User.age'] = '30');
   Check(s.JSON['User.city'] = 'NYC');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['User.name'] := 'Jane';
-  Check(s.JSON['User.name'] = 'Jane');
+  {$ENDIF}
 
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('User.name', 'Jane');
+  {$ENDIF}
+
+  Check(s.JSON['User.name'] = 'Jane');
 
   s :='{"People":[{"name":"John"},{"name":"Anna"},{"name":"Nick"}]}';
   Check(s.JSON['People[0].name'] = 'John');
   Check(s.JSON['People[1].name'] = 'Anna');
   Check(s.JSON['People[2].name'] = 'Nick');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['People[1].name'] := 'Joanna';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('People[1].name', 'Joanna');
+  {$ENDIF}
+
   Check(s.JSON['People[1].name'] = 'Joanna');
   Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"}]}');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['People[3].name'] := 'Kate';
   s.JSON['People[3].age'] := 15;
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('People[3].name', 'Kate')
+        .WithJSON('People[3].age', '15');
+  {$ENDIF}
 
   Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"},{"name":"Kate","age":15}]}');
 end;
@@ -2489,11 +2526,25 @@ begin
   CheckEquals('Line1', s.GetLine(0), 'GetLine(0)');
   CheckEquals('Line2', s.GetLine(1), 'GetLine(1)');
 
+  {$IFDEF OL_MUTABLE}
   s.LineAdd('Line3');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineAdded('Line3');
+  {$ENDIF}
+
   CheckEquals(3, s.LineCount, 'LineAdd');
   CheckEquals('Line3', s.GetLine(2), 'LineAdd content');
 
+  {$IFDEF OL_MUTABLE}
   s.LineDelete(1); // Deletes 'Line2'
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineDeleted(1);
+  {$ENDIF}
+
   CheckEquals(2, s.LineCount, 'LineDelete');
   CheckEquals('Line3', s.GetLine(1), 'LineDelete content shift');
 end;
@@ -2507,9 +2558,11 @@ begin
   CheckEquals('Val1', s.CSVFieldValue(0), 'CSVFieldValue(1)');
   CheckEquals('Val2', s.CSVFieldValue(1), 'CSVFieldValue(2)');
 
+  {$IFDEF OL_MUTABLE}
   s.SetCSVFieldValue(1, 'NewVal2');
   CheckEquals('NewVal2', s.CSVFieldValue(1), 'SetCSVFieldValue');
   CheckEquals('Val1;NewVal2;Val3', s, 'CSV string update');
+  {$ENDIF}
 end;
 
 procedure TestStringHelper.TestSearchAndMatching;
@@ -2552,14 +2605,18 @@ var
   s: string;
 begin
   s := '';
+  {$IFDEF OL_MUTABLE}
   s.Base64 := 'SGVsbG8='; // "Hello" in Base64
   CheckEquals('SGVsbG8=', s.Base64, 'Base64 Property Read');
+  {$ENDIF}
 
   s := 'Hello';
   CheckEquals('SGVsbG8=', s.Base64, 'GetBase64 from "Hello"');
 
+  {$IFDEF OL_MUTABLE}
   s.Base64 := 'SGVsbG8=';
   CheckEquals('Hello', s, 'SetBase64 updates Value');
+  {$ENDIF}
 end;
 
 procedure TestStringHelper.TestCaseConversion;

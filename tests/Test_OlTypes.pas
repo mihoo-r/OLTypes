@@ -1799,7 +1799,14 @@ begin
 
     sl.SaveToFile(TempFileName);
 
+    {$IFDEF OL_MUTABLE}
     s.EndcodeBase64FromFile(TempFileName);
+    {$ENDIF}
+
+    {$IFNDEF OL_MUTABLE}
+    s := OLString.Base64FromFile(TempFileName);
+    {$ENDIF}
+
     Check(s = 'VGVzdDENClRlc3QyDQo=');
 
     s.DecodeBase64ToFile(TempFileName2);
@@ -1862,12 +1869,14 @@ begin
   Check(s.CSVFieldValue(1) = 'Last Name');
   Check(s.CSVFieldValue(2) = 'City');
 
+  {$IFDEF OL_MUTABLE}
   s.SetCSVFieldValue(2,'Town');
   Check(s.CSVFieldValue(2) = 'Town');
   Check(s.CSV[2] = 'Town');
 
   s.CSV[3] := 'Email address';
   Check(s.CSVFieldValue(3) = 'Email address');
+  {$ENDIF}
 
 
   s :='First Name|Last Name|City|Date';
@@ -1877,9 +1886,11 @@ begin
   Check(s.CSVFieldValue(2, '|') = 'City');
   Check(s.CSVFieldValue(3, '|') = 'Date');
 
+  {$IFDEF OL_MUTABLE}
   s.SetCSVFieldValue(5, 'Email address', '|');
   Check(s.CSVFieldValue(4, '|') = '');
   Check(s.CSVFieldValue(5, '|') = 'Email address');
+  {$ENDIF}
 end;
 
 procedure OLStringTest.DigitsOnlyNoSpacesString;
@@ -2080,7 +2091,14 @@ var
 begin
   if ConnectedToInternet() then
   begin
+    {$IFDEF OL_MUTABLE}
     s.GetFromUrl('https://www.google.com');
+    {$ENDIF}
+
+    {$IFNDEF OL_MUTABLE}
+    s := OLString.FromUrl('https://www.google.com');
+    {$ENDIF}
+
     Check(s.FindPatternStr('title').ContainsText('google'));
   end
   else
@@ -2092,8 +2110,15 @@ var
   s: OLString;
 begin
   s :='';
+  {$IFDEF OL_MUTABLE}
   s.LineAdd('12345');
   s.LineAdd('890123');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineAdded('12345');
+  s := s.WithLineAdded('890123');
+  {$ENDIF}
 
   Check(s.GetLineStartPosition(0) = 1);
   Check(s.GetLineStartPosition(1) = 8);
@@ -2157,50 +2182,107 @@ var
 begin
   Check(s.LineCount = 1); //Empty string
 
+  {$IFDEF OL_MUTABLE}
   s.LineAdd('First line');
   s.LineAdd('Some line');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineAdded('First line');
+  s := s.WithLineAdded('Some line');
+  {$ENDIF}
+
   Check(s.LineCount = 2);
 
   Check(s.Lines[1] = 'Some line');
 
+  {$IFDEF OL_MUTABLE}
   s.LineInsertAt(1, 'Second line');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineInserted(1, 'Second line');
+  {$ENDIF}
 
   Check(s.Lines[0] = 'First line');
   Check(s.Lines[1] = 'Second line');
   Check(s.Lines[2] = 'Some line');
 
+  {$IFDEF OL_MUTABLE}
   s.Lines[2] := 'Third line';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineChanged(2, 'Third line');
+  {$ENDIF}
 
   Check(s.Lines[2] = 'Third line');
 
   Check(s.LineIndexOf('Second line') = 1);
 
+  {$IFDEF OL_MUTABLE}
   s.LineDelete(1);
-  Check(s.LineIndexOf('Second line') = -1);
+  {$ENDIF}
 
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineDeleted(1);
+  {$ENDIF}
+
+  Check(s.LineIndexOf('Second line') = -1);
 
   TestFileName := GetTemp() + 'test.txt';
   s.SaveToFile(TestFileName);
 
   s := '';
 
+  {$IFDEF OL_MUTABLE}
   s.LoadFromFile(TestFileName);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := OLString.FromFile(TestFileName);
+  {$ENDIF}
+
   DeleteFile(TestFileName); //Clean up
 
   Check(s.Lines[1] = 'Third line');
 
   s := '';
+  {$IFDEF OL_MUTABLE}
   s.LineAdd('');
   s.LineAdd('Second line');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineAdded('')
+        .WithLineAdded('Second line');
+  {$ENDIF}
+
   Check(s.Lines[1] = 'Second line');
 
   s := '';
+
+  {$IFDEF OL_MUTABLE}
   s.LineAdd('');
   s.LineAdd('');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineAdded('')
+        .WithLineAdded('');
+  {$ENDIF}
+
   Check(s.Lines[0] = '');
   Check(s.Lines[1] = '');
 
+  {$IFDEF OL_MUTABLE}
   s.LineAdd('Third line');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithLineAdded('Third line');
+  {$ENDIF}
+
   Check(s.Lines[1] = '');
   Check(s.Lines[2] = 'Third line');
 
@@ -2209,12 +2291,27 @@ begin
          .LineAdded('Sixth line');
   Check(s2.Lines[5] = 'Sixth line');
 
+  {$IFDEF OL_MUTABLE}
   s2.LineDelete(2);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s2 := s2.WithLineDeleted(2);
+  {$ENDIF}
+
   Check(s2.Lines[2] = 'Fourth line');
 
+  {$IFDEF OL_MUTABLE}
   s2.LineInsertAt(2, 'New third line');
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s2 := s2.WithLineInserted(2, 'New third line');
+  {$ENDIF}
+
   Check(s2.Lines[2] = 'New third line');
   Check(s2.Lines[3] = 'Fourth line');
+
 
   s := Null;
   Check(s.LineCount.IsNull());
@@ -2492,8 +2589,10 @@ begin
   Check(s = str);
 
   //Change a char in a string using index
+  {$IFDEF OL_MUTABLE}
   s[1] := 'P'; // Hanna -> Panna
   Check(s = 'Panna');
+  {$ENDIF}
 
   str := 'Kasia';
   s := str;
@@ -3818,8 +3917,10 @@ var
   s: OLString;
 begin
   s := 'Hello%20World';
+  {$IFDEF OL_MUTABLE}
   s.UrlEncodedText := s;
   Check(s = 'Hello World');
+  {$ENDIF}
 
   s := '"Hello World!"';
   Check(s.UrlEncodedText = '%22Hello%20World%21%22');
@@ -3925,17 +4026,34 @@ var
   s: OLString;
 begin
   s := 'Hello :name, you are :age years old';
+
+  {$IFDEF OL_MUTABLE}
   s.Params['name'] := 'John';
   s.Params['age'] := '30';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithParam('name', 'John')
+        .WithParam('age', '30');
+  {$ENDIF}
+
   Check(s = 'Hello John, you are 30 years old');
 
   Check(s.Params['name'] = 'John');
   Check(s.Params['age'] = '30');
 
-
   s := 'Hello :Param, you are :Param2 years old';
+
+  {$IFDEF OL_MUTABLE}
   s.Params['Param'] := 'John';
   s.Params['Param2'] := '30';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithParam('Param', 'John')
+        .WithParam('Param2', '30');
+  {$ENDIF}
+
   Check(s = 'Hello John, you are 30 years old');
 end;
 
@@ -3949,7 +4067,14 @@ begin
   Check(s.JSON['age'] = '30');
   Check(s.JSON['city'] = 'NYC');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['name'] := 'Jane';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('name', 'Jane');
+  {$ENDIF}
+
   Check(s.JSON['name'] = 'Jane');
 
   s := '{"User":{"name":"John","age":30,"city":"NYC"}}';
@@ -3957,21 +4082,41 @@ begin
   Check(s.JSON['User.age'] = '30');
   Check(s.JSON['User.city'] = 'NYC');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['User.name'] := 'Jane';
-  Check(s.JSON['User.name'] = 'Jane');
+  {$ENDIF}
 
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('User.name', 'Jane');
+  {$ENDIF}
+
+  Check(s.JSON['User.name'] = 'Jane');
 
   s :='{"People":[{"name":"John"},{"name":"Anna"},{"name":"Nick"}]}';
   Check(s.JSON['People[0].name'] = 'John');
   Check(s.JSON['People[1].name'] = 'Anna');
   Check(s.JSON['People[2].name'] = 'Nick');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['People[1].name'] := 'Joanna';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('People[1].name', 'Joanna');
+  {$ENDIF}
+
   Check(s.JSON['People[1].name'] = 'Joanna');
   Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"}]}');
 
+  {$IFDEF OL_MUTABLE}
   s.JSON['People[3].name'] := 'Kate';
   s.JSON['People[3].age'] := 15;
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  s := s.WithJSON('People[3].name', 'Kate')
+        .WithJSON('People[3].age', '15');
+  {$ENDIF}
 
   Check(s = '{"People":[{"name":"John"},{"name":"Joanna"},{"name":"Nick"},{"name":"Kate","age":15}]}');
 end;
@@ -5479,20 +5624,26 @@ begin
   s := 'Test :ID, :id, :Id';
 
   // 1. Basic case-insensitivity set/get
+  {$IFDEF OL_MUTABLE}
   s.Params['id'] := 'val';
   Check(s.Params['ID'] = 'val', 'Failed to retrieve param using uppercase key');
   Check(s.Params['id'] = 'val', 'Failed to retrieve param using lowercase key');
+  {$ENDIF}
 
   // 2. Replacement verification
   s := 'Test :ID, :id, :Id';
+  {$IFDEF OL_MUTABLE}
   s.Params['ID'] := 'VAL';
   Check(s.ToString() = 'Test VAL, VAL, VAL', 'Failed to replace all case variants. Result: ' + s.ToString());
+  {$ENDIF}
 
   // 3. Overwrite verification
   s := ':Param';
+  {$IFDEF OL_MUTABLE}
   s.Params['param'] := '1';
   s.Params['PARAM'] := '2';
   Check(s.ToString() = '2', 'Failed to overwrite existing param with different case key');
+  {$ENDIF}
   
   // Verify we didn't add duplicate params internally (though internal structure isn't directly exposed, behavior implies it)
 end;
@@ -5517,6 +5668,7 @@ begin
   Check(s.CSVCell[1, 2] = 'y');
   Check(s.CSVCell[2, 2] = 'z');
 
+  {$IFDEF OL_MUTABLE}
   s.CSVCell[1, 1] := '99';
   Check(s.CSVCell[1, 1] = '99');
 
@@ -5531,18 +5683,21 @@ begin
   // Test changing a value expands the string if necessary (assuming implementation dependent)
   s.CSVCell[2, 2] := 'modified';
   Check(s.CSVCell[2, 2] = 'modified');
+  {$ENDIF}
 
   // Null handling
   s := Null;
   Check(s.CSVCell[0, 0].IsNull);
 
+  {$IFDEF OL_MUTABLE}
   s.CSVCell[0, 0] := 'test';
   Check(s.IsNull); // Setting on null should do nothing
+  {$ENDIF}
 end;
 
 procedure OLStringTest.CSV2DPropertyStringHelper;
 var
-  s: string;
+  s: OLString;
 begin
   s :=
     'A1;B1' + sLineBreak +
@@ -5555,6 +5710,7 @@ begin
   CheckEquals('B2', s.CSVCell[1, 1], '1,1 should be B2');
 
   // Test writing
+  {$IFDEF OL_MUTABLE}
   s.CSVCell[0, 0] := 'NewA1';
   CheckEquals('NewA1', s.CSVCell[0, 0]);
   CheckEquals('B1', s.CSVCell[1, 0]); // Others unchanged
@@ -5562,6 +5718,7 @@ begin
   s.CSVCell[1, 1] := 'NewB2';
   CheckEquals('NewB2', s.CSVCell[1, 1]);
   CheckEquals('A2', s.CSVCell[0, 1]); // Others unchanged
+  {$ENDIF}
 end;
 
 {$IF CompilerVersion >= 27.0}
