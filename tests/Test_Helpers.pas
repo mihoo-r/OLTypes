@@ -245,7 +245,14 @@ var
   i: Integer;
 begin
   i := 10;
+  {$IFDEF OL_MUTABLE}
   i.Binary := '1010';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  i := OLInteger.FromBinary('1010');
+  {$ENDIF}
+
   CheckEquals(10, i);
 end;
 
@@ -254,7 +261,14 @@ var
   i: Integer;
 begin
   i := 8;
+  {$IFDEF OL_MUTABLE}
   i.Octal := '10';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  i := OLInteger.FromOctal('10');
+  {$ENDIF}
+
   CheckEquals(8, i);
 end;
 
@@ -263,7 +277,14 @@ var
   i: Integer;
 begin
   i := 16;
+  {$IFDEF OL_MUTABLE}
   i.Hexidecimal := '10';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  i := OLInteger.FromHexidecimal('10');
+  {$ENDIF}
+
   CheckEquals(16, i);
 end;
 
@@ -272,7 +293,14 @@ var
   i: Integer;
 begin
   i := 32;
+  {$IFDEF OL_MUTABLE}
   i.NumeralSystem32 := '10';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  i := OLInteger.FromNumeralSystem32('10');
+  {$ENDIF}
+
   CheckEquals(32, i);
 end;
 
@@ -281,18 +309,29 @@ var
   i: Integer;
 begin
   i := 64;
+  {$IFDEF OL_MUTABLE}
   i.NumeralSystem64 := '10';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  i := OLInteger.FromNumeralSystem64('10');
+  {$ENDIF}
+
   CheckEquals(64, i);
 end;
 
 procedure TestIntegerHelper.TestForLoop;
+{$IFDEF OL_MUTABLE}
 var
   Sum, i: Integer;
+{$ENDIF}
 begin
+{$IFDEF OL_MUTABLE}
   Sum := 0;
   i := 5;
   i.ForLoop(1, 3, procedure begin Inc(Sum); end);
   CheckEquals(3, Sum);
+{$ENDIF}
 end;
 
 procedure TestIntegerHelper.TestRandom;
@@ -317,7 +356,11 @@ var
   i: Integer;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetRandom(1, 10);
+  {$ELSE}
+  i := OLInteger.Random(1, 10);
+  {$ENDIF}
   CheckTrue((i >= 1) and (i <= 10));
 end;
 
@@ -326,7 +369,11 @@ var
   i: Integer;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetRandomPrime(2, 10);
+  {$ELSE}
+  i := OLInteger.RandomPrime(2, 10);
+  {$ENDIF}
   CheckTrue(i.IsPrime());
 end;
 
@@ -352,7 +399,13 @@ var
   i: Integer;
 begin
   i := 10;
+  {$IFDEF OL_MUTABLE}
   i.Binary := '1011';
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  i := OLInteger.FromBinary('1011');
+  {$ENDIF}
 
   CheckEquals(11, i, 'Binary setter');
   CheckEquals('1011', i.Binary, 'Binary getter');
@@ -1677,9 +1730,18 @@ var
   i: Int64;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetBinary('1010');
+  {$ELSE}
+  i := OLInt64.FromBinary('1010');
+  {$ENDIF}
   CheckEquals(10, i);
+
+  {$IFDEF OL_MUTABLE}
   i.SetBinary('11111111');
+  {$ELSE}
+  i := OLInt64.FromBinary('11111111');
+  {$ENDIF}
   CheckEquals(255, i);
 end;
 
@@ -1688,9 +1750,18 @@ var
   i: Int64;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetOctal('12');
+  {$ELSE}
+  i := OLInt64.FromOctal('12');
+  {$ENDIF}
   CheckEquals(10, i);
+
+  {$IFDEF OL_MUTABLE}
   i.SetOctal('377');
+  {$ELSE}
+  i := OLInt64.FromOctal('377');
+  {$ENDIF}
   CheckEquals(255, i);
 end;
 
@@ -1699,9 +1770,18 @@ var
   i: Int64;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetHexidecimal('A');
+  {$ELSE}
+  i := OLInt64.FromHexidecimal('A');
+  {$ENDIF}
   CheckEquals(10, i);
+
+  {$IFDEF OL_MUTABLE}
   i.SetHexidecimal('FF');
+  {$ELSE}
+  i := OLInt64.FromHexidecimal('FF');
+  {$ENDIF}
   CheckEquals(255, i);
 end;
 
@@ -1710,7 +1790,11 @@ var
   i: Int64;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetNumeralSystem32('10');
+  {$ELSE}
+  i := OLInt64.FromNumeralSystem32('10');
+  {$ENDIF}
   CheckEquals(32, i);
 end;
 
@@ -1719,15 +1803,22 @@ var
   i: Int64;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetNumeralSystem64('10');
+  {$ELSE}
+  i := OLInt64.FromNumeralSystem64('10');
+  {$ENDIF}
   CheckEquals(64, i);
 end;
 
 procedure TestInt64Helper.TestForLoop;
+{$IFDEF OL_MUTABLE}
 var
   i: Int64;
   Sum: Int64;
+{$ENDIF}
 begin
+{$IFDEF OL_MUTABLE}
   i := 0;
   Sum := 0;
   i.ForLoop(1, 5, procedure begin Inc(Sum); end);
@@ -1736,6 +1827,7 @@ begin
   Sum := 0;
   i.ForLoop(1, 10, procedure begin Inc(Sum); end);
   CheckEquals(10, Sum);
+{$ENDIF}
 end;
 
 procedure TestInt64Helper.TestRandomPrime;
@@ -1757,11 +1849,19 @@ var
   i: Int64;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetRandom(100);
+  {$ELSE}
+  i := OLInt64.Random(100);
+  {$ENDIF}
   CheckTrue(i <= 100);
 
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetRandom(50, 100);
+  {$ELSE}
+  i := OLInt64.Random(50, 100);
+  {$ENDIF}
   CheckTrue(i >= 50);
   CheckTrue(i <= 100);
 end;
@@ -1771,12 +1871,20 @@ var
   i: Int64;
 begin
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetRandomPrime(100);
+  {$ELSE}
+  i := OLInt64.RandomPrime(100);
+  {$ENDIF}
   CheckTrue(i.IsPrime);
   CheckTrue(i <= 100);
 
   i := 0;
+  {$IFDEF OL_MUTABLE}
   i.SetRandomPrime(10, 50);
+  {$ELSE}
+  i := OLInt64.RandomPrime(10, 50);
+  {$ENDIF}
   CheckTrue(i.IsPrime);
   CheckTrue(i >= 10);
   CheckTrue(i <= 50);

@@ -3,7 +3,7 @@
         <ProjectGuid>{AF88F11E-1095-43B8-BBA8-CAE135ADD7F0}</ProjectGuid>
         <ProjectVersion>20.1</ProjectVersion>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug_IMMUTABLE</Config>
+        <Config Condition="'$(Config)'==''">Debug_MUTABLE</Config>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
@@ -91,16 +91,6 @@
         <DCCReference Include="TestOLArrays.pas"/>
         <DCCReference Include="Test_OLTypesToEdits.pas"/>
         <DCCReference Include="Test_RecordLink.pas"/>
-        <DCCReference Include="..\source\OLBooleanType.pas"/>
-        <DCCReference Include="..\source\OLCurrencyType.pas"/>
-        <DCCReference Include="..\source\OLDateTimeType.pas"/>
-        <DCCReference Include="..\source\OLDateType.pas"/>
-        <DCCReference Include="..\source\OLDoubleType.pas"/>
-        <DCCReference Include="..\source\OLIntegerType.pas"/>
-        <DCCReference Include="..\source\OLStringType.pas"/>
-        <DCCReference Include="..\source\OLTypes.pas"/>
-        <DCCReference Include="..\source\OLTypesToEdits.pas"/>
-        <DCCReference Include="..\source\SmartToDate.pas"/>
         <DCCReference Include="TestOLDictionaries.pas"/>
         <DCCReference Include="Test_OLValidation.pas"/>
         <DCCReference Include="Test_FluentValidation.pas"/>
@@ -108,10 +98,34 @@
         <DCCReference Include="Test_StringHelperXML.pas"/>
         <DCCReference Include="Test_PrettyPrint.pas"/>
         <DCCReference Include="TestOLDictionaryWrapper.pas"/>
-        <DCCReference Include="..\source\OLDictionaries.pas"/>
-        <DCCReference Include="..\source\OLArrays.pas"/>
-        <DCCReference Include="..\source\OLRegistry.pas"/>
         <DCCReference Include="Test_OLStringImmutable.pas"/>
+        <DCCReference Include="..\source\StringHelperFunctions.pas"/>
+        <DCCReference Include="..\source\SmartToDate.pas"/>
+        <DCCReference Include="..\source\OLValidationTypes.pas"/>
+        <DCCReference Include="..\source\OLValidationLocalization.pas"/>
+        <DCCReference Include="..\source\OLValidation.pas"/>
+        <DCCReference Include="..\source\OLTypesToEdits.pas"/>
+        <DCCReference Include="..\source\OLTypes.pas"/>
+        <DCCReference Include="..\source\OLThreadRunner.pas"/>
+        <DCCReference Include="..\source\OLStringType.pas"/>
+        <DCCReference Include="..\source\OLRegistry.pas"/>
+        <DCCReference Include="..\source\OLIntegerType.pas"/>
+        <DCCReference Include="..\source\OLIntegerArray.pas"/>
+        <DCCReference Include="..\source\OLFormHelper.pas"/>
+        <DCCReference Include="..\source\OLDoubleType.pas"/>
+        <DCCReference Include="..\source\OLDictionaries.pas"/>
+        <DCCReference Include="..\source\OLDateType.pas"/>
+        <DCCReference Include="..\source\OLDateTimeType.pas"/>
+        <DCCReference Include="..\source\OLCurrencyType.pas"/>
+        <DCCReference Include="..\source\OLColorType.pas"/>
+        <DCCReference Include="..\source\OLBooleanType.pas"/>
+        <DCCReference Include="..\source\OLArrays.pas"/>
+        <DCCReference Include="..\source\NumeralSystemConvert.pas"/>
+        <DCCReference Include="..\source\IntegerHelperFunctions.pas"/>
+        <DCCReference Include="..\source\Int64HelperFunctions.pas"/>
+        <DCCReference Include="..\source\DoubleHelperFunctions.pas"/>
+        <DCCReference Include="..\source\CurrencyHelperFunctions.pas"/>
+        <DCCReference Include="..\source\BooleanHelperFunctions.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -183,6 +197,12 @@
             </UnitTesting>
             <Deployment Version="4">
                 <DeployFile LocalName="OlTypesTest.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>OlTypesTest.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="OlTypesTest.exe" Configuration="Debug_IMMUTABLE" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>OlTypesTest.exe</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1139,6 +1159,7 @@
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64x" Name="$(PROJECTNAME)"/>
             </Deployment>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

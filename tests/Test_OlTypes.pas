@@ -64,9 +64,13 @@ type
     procedure AsIntegerInteger;
     procedure AsInt64Integer;
     procedure RoundInteger;
+    {$IFDEF OL_MUTABLE}
     procedure ForLoopInteger;
+    {$ENDIF}
     procedure IsPrimeInteger;
+    {$IFDEF OL_MUTABLE}
     procedure SetRandomPrimeInteger;
+    {$ENDIF}
     procedure MathOperatorsInteger;
 
     // NULL Propagation Tests
@@ -1997,6 +2001,7 @@ begin
   Check(d.Floor() = -124);
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure OLIntegerTest.ForLoopInteger;
 var
   i: OLInteger;
@@ -2018,6 +2023,7 @@ begin
 
   Check((i2 = 0) and (i = -5));
 end;
+{$ENDIF}
 
 procedure OLIntegerTest.GreaterInteger;
 var
@@ -2556,6 +2562,7 @@ begin
   Check(i = -100);
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure OLIntegerTest.SetRandomPrimeInteger;
 var
   i: OLInteger;
@@ -2566,6 +2573,7 @@ begin
   i.SetRandomPrime(5000);
   Check(i.IsPrime() and (i <= 5000), i.ToString());
 end;
+{$ENDIF}
 
 procedure OLStringTest.SameString;
 var
