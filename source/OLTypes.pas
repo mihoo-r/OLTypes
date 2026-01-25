@@ -2607,6 +2607,87 @@ type
       property CSVCell[const ColIndex, RowIndex: Integer]: OLString read GetCSV write SetCSV;
      {$IFEND}
 
+    // Immutable "From..." methods (static factories)
+
+    /// <summary>
+    ///  Creates a new string from HTML Unicode encoded text.
+    /// </summary>
+    class function FromHtmlUnicodeText(const Value: string): string; static;
+
+    /// <summary>
+    ///  Creates a new string from URL encoded text.
+    /// </summary>
+    class function FromUrlEncodedText(const Value: string): string; static;
+
+    /// <summary>
+    ///  Creates a new string from a Base64 encoded string.
+    /// </summary>
+    class function FromBase64(const Value: string): string; static;
+
+    /// <summary>
+    ///  Creates a new string by reading a file and encoding its content to Base64.
+    /// </summary>
+    class function FromBase64File(const FileName: string): string; static;
+
+    /// <summary>
+    ///  Creates a new string by downloading content from the specified URL.
+    /// </summary>
+    class function FromUrl(const URL: string): string; static;
+
+    /// <summary>
+    ///  Creates a new string from the current clipboard text content.
+    /// </summary>
+    class function FromClipboard: string; static;
+
+    // Immutable "With..." methods (instance modifiers)
+
+    /// <summary>
+    ///  Returns a new string with a new line added at the end.
+    /// </summary>
+    function WithLineAdded(const Line: string): string;
+
+    /// <summary>
+    ///  Returns a new string with the content of the specified line changed.
+    /// </summary>
+    function WithLineChanged(const Index: Integer; const Line: string): string;
+
+    /// <summary>
+    ///  Returns a new string with the line at the specified index removed.
+    /// </summary>
+    function WithLineDeleted(const Index: Integer): string;
+
+    /// <summary>
+    ///  Returns a new string with a new line inserted at the specified index.
+    /// </summary>
+    function WithLineInserted(const Index: Integer; const Line: string): string;
+
+    /// <summary>
+    ///  Returns a new string with the specified CSV field value updated.
+    /// </summary>
+    function WithCSV(const Index: Integer; const Value: string): string;
+
+    /// <summary>
+    ///  Returns a new string with the CSV cell at the specified column and row updated.
+    /// </summary>
+    function WithCSVCell(const ColIndex, RowIndex: Integer; const Value: string): string;
+
+    /// <summary>
+    ///  Returns a new string with the value of the specified parameter updated.
+    /// </summary>
+    function WithParam(const ParamName: string; const Value: string): string;
+
+    {$IF CompilerVersion >= 27.0}
+    /// <summary>
+    ///  Returns a new string with the specified JSON field value updated.
+    /// </summary>
+    function WithJSON(const Field: string; const Value: string): string;
+
+    /// <summary>
+    ///  Returns a new string with the content at the specified XPath updated.
+    /// </summary>
+    function WithXML(const XPath: string; const Value: string): string;
+    {$IFEND}
+
      const Empty = '';
       // Methods
       class function Create(C: Char; Count: Integer): string; overload; static;
@@ -9623,6 +9704,131 @@ end;
 function OLDictionary<K, V>.GetKeys: TArray<K>;
 begin
   Result := FEngine.Keys;
+end;
+{$IFEND}
+
+
+// TOLStringHelper Immutable "With..." methods
+
+// TOLStringHelper Immutable "From..." methods (static factories)
+
+
+
+class function TOLStringHelper.FromHtmlUnicodeText(const Value: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut.HtmlUnicodeText := Value;
+  Result := OutPut;
+end;
+
+class function TOLStringHelper.FromUrlEncodedText(const Value: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut.UrlEncodedText := Value;
+  Result := OutPut;
+end;
+
+class function TOLStringHelper.FromBase64(const Value: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut.Base64 := Value;
+  Result := OutPut;
+end;
+
+class function TOLStringHelper.FromBase64File(const FileName: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut.EndcodeBase64FromFile(FileName);
+  Result := OutPut;
+end;
+
+class function TOLStringHelper.FromUrl(const URL: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut.GetFromUrl(URL);
+  Result := OutPut;
+end;
+
+class function TOLStringHelper.FromClipboard: string;
+var
+  OutPut: OLString;
+begin
+  OutPut.PasteFromClipboard;
+  Result := OutPut;
+end;
+
+// TOLStringHelper Immutable "With..." methods (instance modifiers)
+
+function TOLStringHelper.WithLineAdded(const Line: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.LineAdd(Line);
+  Result := OutPut;
+end;
+
+function TOLStringHelper.WithLineChanged(const Index: Integer; const Line: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.Lines[Index] := Line;
+  Result := OutPut;
+end;
+
+function TOLStringHelper.WithLineDeleted(const Index: Integer): string;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.LineDelete(Index);
+  Result := OutPut;
+end;
+
+function TOLStringHelper.WithLineInserted(const Index: Integer; const Line: string): string;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.LineInsertAt(Index, Line);
+  Result := OutPut;
+end;
+
+function TOLStringHelper.WithCSV(const Index: Integer; const Value: string): string;
+begin
+  Result := Self;
+  Result.SetCSV(Index, Value);
+end;
+
+function TOLStringHelper.WithCSVCell(const ColIndex, RowIndex: Integer; const Value: string): string;
+begin
+  Result := Self;
+  Result.SetCSV(ColIndex, RowIndex, Value);
+end;
+
+function TOLStringHelper.WithParam(const ParamName: string; const Value: string): string;
+begin
+  Result := Self;
+  Result.SetParams(ParamName, Value);
+end;
+
+{$IF CompilerVersion >= 27.0}
+function TOLStringHelper.WithJSON(const Field: string; const Value: string): string;
+begin
+  Result := Self;
+  Result.SetJSON(Field, Value);
+end;
+
+function TOLStringHelper.WithXML(const XPath: string; const Value: string): string;
+begin
+  Result := Self;
+  Result.SetXML(XPath, Value);
 end;
 {$IFEND}
 

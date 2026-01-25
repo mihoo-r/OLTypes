@@ -589,6 +589,95 @@ type
     ///   Encodes the file content to Base64 and assigns it to the string.
     /// </summary>
     procedure EndcodeBase64FromFile(const FileName: string);
+
+    // Immutable "From..." methods (static factories)
+
+    /// <summary>
+    ///  Creates a new OLString from HTML Unicode encoded text.
+    /// </summary>
+    class function FromHtmlUnicodeText(const Value: string): OLString; static;
+
+    /// <summary>
+    ///  Creates a new OLString from URL encoded text.
+    /// </summary>
+    class function FromUrlEncodedText(const Value: string): OLString; static;
+
+    /// <summary>
+    ///  Creates a new OLString from a Base64 encoded string.
+    /// </summary>
+    class function FromBase64(const Value: string): OLString; static;
+
+    /// <summary>
+    ///  Creates a new OLString by reading a file and encoding its content to Base64.
+    /// </summary>
+    class function FromBase64File(const FileName: string): OLString; static;
+
+    /// <summary>
+    ///  Creates a new OLString by downloading content from the specified URL.
+    /// </summary>
+    class function FromUrl(const URL: string): OLString; static;
+
+    /// <summary>
+    ///  Creates a new OLString from the current clipboard text content.
+    /// </summary>
+    class function FromClipboard: OLString; static;
+
+    /// <summary>
+    ///  Creates a new OLString by loading the content of a file.
+    /// </summary>
+    class function FromFile(const FileName: string): OLString; static;
+
+    // Immutable "With..." methods (instance modifiers)
+
+    /// <summary>
+    ///  Returns a new OLString with the character at the specified index changed.
+    /// </summary>
+    function WithChar(const Index: Integer; const Value: Char): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with a new line added at the end.
+    /// </summary>
+    function WithLineAdded(const Line: string): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with the content of the specified line changed.
+    /// </summary>
+    function WithLineChanged(const Index: Integer; const Line: string): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with the line at the specified index removed.
+    /// </summary>
+    function WithLineDeleted(const Index: Integer): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with a new line inserted at the specified index.
+    /// </summary>
+    function WithLineInserted(const Index: Integer; const Line: string): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with the specified JSON field value updated.
+    /// </summary>
+    function WithJSON(const Field: string; const Value: OLString): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with the content at the specified XPath updated.
+    /// </summary>
+    function WithXML(const XPath: string; const Value: OLString): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with the value of the specified parameter updated.
+    /// </summary>
+    function WithParam(const Name: string; const Value: OLString): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with the specified CSV field value updated.
+    /// </summary>
+    function WithCSV(const Index: Integer; const Value: OLString): OLString;
+
+    /// <summary>
+    ///  Returns a new OLString with the CSV cell at the specified column and row updated.
+    /// </summary>
+    function WithCSVCell(const ColIndex, RowIndex: Integer; const Value: OLString): OLString;
     /// <summary>
     ///   Decodes the Base64 string content to a file.
     /// </summary>
@@ -4969,6 +5058,160 @@ end;
 
 
 
+
+class function OLString.FromHtmlUnicodeText(const Value: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.HtmlUnicodeText := Value;
+  Result := OutPut;
+end;
+
+class function OLString.FromUrlEncodedText(const Value: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.UrlEncodedText := Value;
+  Result := OutPut;
+end;
+
+class function OLString.FromBase64(const Value: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.Base64 := Value;
+  Result := OutPut;
+end;
+
+class function OLString.FromBase64File(const FileName: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.EndcodeBase64FromFile(FileName);
+  Result := OutPut;
+end;
+
+class function OLString.FromUrl(const URL: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.GetFromUrl(URL);
+  Result := OutPut;
+end;
+
+class function OLString.FromClipboard: OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.PasteFromClipboard;
+  Result := OutPut;
+end;
+
+class function OLString.FromFile(const FileName: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut.LoadFromFile(FileName);
+  Result := OutPut;
+end;
+
+function OLString.WithChar(const Index: Integer; const Value: Char): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut[Index] := Value;
+  Result := OutPut;
+end;
+
+function OLString.WithLineAdded(const Line: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.LineAdd(Line);
+  Result := OutPut;
+end;
+
+function OLString.WithLineChanged(const Index: Integer; const Line: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.Lines[Index] := Line;
+  Result := OutPut;
+end;
+
+function OLString.WithLineDeleted(const Index: Integer): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.LineDelete(Index);
+  Result := OutPut;
+end;
+
+function OLString.WithLineInserted(const Index: Integer; const Line: string): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.LineInsertAt(Index, Line);
+  Result := OutPut;
+end;
+
+function OLString.WithJSON(const Field: string; const Value: OLString): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  {$IF CompilerVersion >= 27.0}
+  OutPut.JSON[Field] := Value;
+  {$IFEND}
+  Result := OutPut;
+end;
+
+function OLString.WithXML(const XPath: string; const Value: OLString): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  {$IF CompilerVersion >= 27.0}
+  OutPut.XML[XPath] := Value;
+  {$IFEND}
+  Result := OutPut;
+end;
+
+function OLString.WithParam(const Name: string; const Value: OLString): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.Params[Name] := Value;
+  Result := OutPut;
+end;
+
+function OLString.WithCSV(const Index: Integer; const Value: OLString): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  OutPut.CSV[Index] := Value;
+  Result := OutPut;
+end;
+
+function OLString.WithCSVCell(const ColIndex, RowIndex: Integer; const Value: OLString): OLString;
+var
+  OutPut: OLString;
+begin
+  OutPut := Self;
+  {$IF CompilerVersion >= 27.0}
+  OutPut.CSVCell[ColIndex, RowIndex] := Value;
+  {$IFEND}
+  Result := OutPut;
+end;
+
+
 initialization
 
   HtmlUnicodeTranslation[0].UnicodeChar := '≠';	HtmlUnicodeTranslation[0].NumericalCode := '&#8800;';	HtmlUnicodeTranslation[0].LiteralCode := '&ne;';
@@ -5481,4 +5724,5 @@ initialization
   UrlTranslation[157].UnicodeChar := 'ý'; UrlTranslation[157].Translation := '%C3%BD';
   UrlTranslation[158].UnicodeChar := 'þ'; UrlTranslation[158].Translation := '%C3%BE';
   UrlTranslation[159].UnicodeChar := 'ÿ'; UrlTranslation[159].Translation := '%C3%BF';
+
 end.
