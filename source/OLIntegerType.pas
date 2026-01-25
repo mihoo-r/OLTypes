@@ -141,10 +141,29 @@ type
     /// </summary>
     function ToNumeralSystem(const Base: Integer): string;
 
+    {$IFNDEF OL_MUTABLE}
     /// <summary>
     ///   Executes a procedure for each value from InitialValue to ToValue.
     /// </summary>
     procedure ForLoop(const InitialValue: Int64; const ToValue: Int64; const Proc: TProc);
+    /// <summary>
+    ///   Sets the integer to a random value between MinValue and MaxValue.
+    /// </summary>
+    procedure SetRandom(const MinValue: Int64; const MaxValue: Int64); overload;
+    /// <summary>
+    ///   Sets the integer to a random value up to MaxValue.
+    /// </summary>
+    procedure SetRandom(const MaxValue: Int64 = MaxInt); overload;
+
+    /// <summary>
+    ///   Sets the integer to a random prime value between MinValue and MaxValue.
+    /// </summary>
+    procedure SetRandomPrime(const MinValue: Int64; const MaxValue: Int64); overload;
+    /// <summary>
+    ///   Sets the integer to a random prime value up to MaxValue.
+    /// </summary>
+    procedure SetRandomPrime(const MaxValue: Int64 = MaxInt); overload;
+    {$ENDIF}
     /// <summary>
     ///   Checks if the integer is a prime number.
     /// </summary>
@@ -167,6 +186,11 @@ type
     /// </summary>
     class function RandomPrime(const MaxValue: Int64 = MaxInt): OLInteger; overload; static;
 
+    {$IFDEF OL_MUTABLE}
+    /// <summary>
+    ///   Executes a procedure for each value from InitialValue to ToValue.
+    /// </summary>
+    procedure ForLoop(const InitialValue: Int64; const ToValue: Int64; const Proc: TProc);
     /// <summary>
     ///   Sets the integer to a random value between MinValue and MaxValue.
     /// </summary>
@@ -184,6 +208,7 @@ type
     ///   Sets the integer to a random prime value up to MaxValue.
     /// </summary>
     procedure SetRandomPrime(const MaxValue: Int64 = MaxInt); overload;
+    {$ENDIF}
 
     class operator Add(const a, b: OLInteger): OLInteger; inline;
     class operator Add(const a: Int64; const b: OLInteger): OLInteger; inline;
@@ -263,25 +288,46 @@ type
     {$IFEND}
 
     /// <summary>
-    ///   Gets or sets the binary string representation of the integer.
+    ///   Gets the binary string representation of the integer.
     /// </summary>
-    property Binary: string read GetBinary write SetBinary;
+    property Binary: string read GetBinary  {$IFDEF OL_MUTABLE} write SetBinary {$ENDIF};
     /// <summary>
-    ///   Gets or sets the octal string representation of the integer.
+    ///   Gets the octal string representation of the integer.
     /// </summary>
-    property Octal: string read GetOctal write SetOctal;
+    property Octal: string read GetOctal  {$IFDEF OL_MUTABLE} write SetOctal {$ENDIF};
     /// <summary>
-    ///   Gets or sets the hexadecimal string representation of the integer.
+    ///   Gets the hexadecimal string representation of the integer.
     /// </summary>
-    property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
+    property Hexidecimal: string read GetHexidecimal  {$IFDEF OL_MUTABLE} write SetHexidecimal {$ENDIF};
     /// <summary>
-    ///   Gets or sets the base-32 string representation of the integer.
+    ///   Gets the base-32 string representation of the integer.
     /// </summary>
-    property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
+    property NumeralSystem32: string read GetNumeralSystem32  {$IFDEF OL_MUTABLE} write SetNumeralSystem32 {$ENDIF};
     /// <summary>
-    ///   Gets or sets the base-64 string representation of the integer.
+    ///   Gets the base-64 string representation of the integer.
     /// </summary>
-    property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
+    property NumeralSystem64: string read GetNumeralSystem64  {$IFDEF OL_MUTABLE} write SetNumeralSystem64 {$ENDIF};
+
+    /// <summary>
+    ///  Creates a new OLInteger from a binary string.
+    /// </summary>
+    class function FromBinary(const Value: string): OLInteger; static;
+    /// <summary>
+    ///  Creates a new OLInteger from an octal string.
+    /// </summary>
+    class function FromOctal(const Value: string): OLInteger; static;
+    /// <summary>
+    ///  Creates a new OLInteger from a hexadecimal string.
+    /// </summary>
+    class function FromHexidecimal(const Value: string): OLInteger; static;
+    /// <summary>
+    ///  Creates a new OLInteger from a base-32 numeral system string.
+    /// </summary>
+    class function FromNumeralSystem32(const Value: string): OLInteger; static;
+    /// <summary>
+    ///  Creates a new OLInteger from a base-64 numeral system string.
+    /// </summary>
+    class function FromNumeralSystem64(const Value: string): OLInteger; static;
   end;
 
   POLInteger = ^OLInteger;
@@ -1283,6 +1329,31 @@ begin
     OutPut := a.FValue - b;
 
   Result := OutPut;
+end;
+
+class function OLInteger.FromBinary(const Value: string): OLInteger;
+begin
+  Result.SetBinary(Value);
+end;
+
+class function OLInteger.FromHexidecimal(const Value: string): OLInteger;
+begin
+  Result.SetHexidecimal(Value);
+end;
+
+class function OLInteger.FromNumeralSystem32(const Value: string): OLInteger;
+begin
+  Result.SetNumeralSystem32(Value);
+end;
+
+class function OLInteger.FromNumeralSystem64(const Value: string): OLInteger;
+begin
+  Result.SetNumeralSystem64(Value);
+end;
+
+class function OLInteger.FromOctal(const Value: string): OLInteger;
+begin
+  Result.SetOctal(Value);
 end;
 
 initialization

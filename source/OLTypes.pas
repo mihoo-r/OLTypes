@@ -278,6 +278,7 @@ type
     ///   Returns the base-64 numeral system representation of the integer.
     /// </summary>
     function GetNumeralSystem64: string;
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the integer from a binary string.
     /// </summary>
@@ -298,33 +299,36 @@ type
     ///   Sets the integer from a base-64 numeral system string.
     /// </summary>
     procedure SetNumeralSystem64(const Value: string);
+    {$ENDIF}
 
     /// <summary>
     ///   Gets or sets the binary representation of the integer.
     /// </summary>
-    property Binary: string read GetBinary write SetBinary;
+    property Binary: string read GetBinary {$IFDEF OL_MUTABLE} write SetBinary {$ENDIF};
     /// <summary>
     ///   Gets or sets the octal representation of the integer.
     /// </summary>
-    property Octal: string read GetOctal write SetOctal;
+    property Octal: string read GetOctal {$IFDEF OL_MUTABLE} write SetOctal {$ENDIF};
     /// <summary>
     ///   Gets or sets the hexadecimal representation of the integer.
     /// </summary>
-    property Hexidecimal: string read GetHexidecimal write SetHexidecimal;
+    property Hexidecimal: string read GetHexidecimal {$IFDEF OL_MUTABLE} write SetHexidecimal {$ENDIF};
     /// <summary>
     ///   Gets or sets the base-32 numeral system representation of the integer.
     /// </summary>
-    property NumeralSystem32: string read GetNumeralSystem32 write SetNumeralSystem32;
+    property NumeralSystem32: string read GetNumeralSystem32 {$IFDEF OL_MUTABLE} write SetNumeralSystem32 {$ENDIF};
     /// <summary>
     ///   Gets or sets the base-64 numeral system representation of the integer.
     /// </summary>
-    property NumeralSystem64: string read GetNumeralSystem64 write SetNumeralSystem64;
+    property NumeralSystem64: string read GetNumeralSystem64 {$IFDEF OL_MUTABLE} write SetNumeralSystem64 {$ENDIF};
 
+    {$IFDEF OL_MUTABLE}
     // Loop utility
     /// <summary>
     ///   Executes a procedure for each value in the specified range.
     /// </summary>
     procedure ForLoop(const InitialValue: Integer; const ToValue: Integer; const Proc: TProc);
+    {$ENDIF}
 
     // Random generation
     /// <summary>
@@ -343,6 +347,7 @@ type
     ///   Returns a random prime integer up to the specified maximum value.
     /// </summary>
     class function RandomPrime(const MaxValue: Integer = MaxInt): Integer; overload; static;
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the integer to a random value between the specified minimum and maximum values.
     /// </summary>
@@ -359,6 +364,7 @@ type
     ///   Sets the integer to a random prime value up to the specified maximum value.
     /// </summary>
     procedure SetRandomPrime(const MaxValue: Integer = MaxInt); overload;
+    {$ENDIF}
 
     const
       MaxValue = 2147483647;
@@ -4829,6 +4835,7 @@ begin
   Result := ol.NumeralSystem64;
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure TOLIntegerHelper.SetBinary(const Value: string);
 var
   ol: OLInteger;
@@ -4881,6 +4888,7 @@ begin
   for i := InitialValue to ToValue do
     Proc();
 end;
+{$ENDIF}
 
 class function TOLIntegerHelper.Parse(const S: string): Integer;
 begin
@@ -4907,6 +4915,7 @@ begin
   Result := OLInteger.RandomPrime(MaxValue);
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure TOLIntegerHelper.SetRandom(const MinValue, MaxValue: Integer);
 var
   ol: OLInteger;
@@ -4942,6 +4951,7 @@ begin
   ol.SetRandomPrime(MaxValue);
   Self := ol;
 end;
+{$ENDIF}
 
 class function TOLIntegerHelper.Size: Integer;
 begin
@@ -7460,43 +7470,28 @@ begin
 end;
 
 procedure TOLInt64Helper.SetBinary(const Value: string);
-var
-  ol: OLInt64;
 begin
-  ol.Binary := Value;
-  Self := ol;
+  Self := OLInt64.FromBinary(Value);
 end;
 
 procedure TOLInt64Helper.SetOctal(const Value: string);
-var
-  ol: OLInt64;
 begin
-  ol.Octal := Value;
-  Self := ol;
+  Self := OLInt64.FromOctal(Value);
 end;
 
 procedure TOLInt64Helper.SetHexidecimal(const Value: string);
-var
-  ol: OLInt64;
 begin
-  ol.Hexidecimal := Value;
-  Self := ol;
+  Self := OLInt64.FromHexidecimal(Value);
 end;
 
 procedure TOLInt64Helper.SetNumeralSystem32(const Value: string);
-var
-  ol: OLInt64;
 begin
-  ol.NumeralSystem32 := Value;
-  Self := ol;
+  Self := OLInt64.FromNumeralSystem32(Value);
 end;
 
 procedure TOLInt64Helper.SetNumeralSystem64(const Value: string);
-var
-  ol: OLInt64;
 begin
-  ol.NumeralSystem64 := Value;
-  Self := ol;
+  Self := OLInt64.FromNumeralSystem64(Value);
 end;
 
 procedure TOLInt64Helper.ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
