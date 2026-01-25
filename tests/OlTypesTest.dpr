@@ -45,7 +45,8 @@ uses
   TestOLDictionaryWrapper in 'TestOLDictionaryWrapper.pas',
   OLDictionaries in '..\source\OLDictionaries.pas',
   OLArrays in '..\source\OLArrays.pas',
-  OLRegistry in '..\source\OLRegistry.pas';
+  OLRegistry in '..\source\OLRegistry.pas',
+  Test_OLStringImmutable in 'Test_OLStringImmutable.pas';
 
 {$R *.RES}
 
