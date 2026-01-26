@@ -465,7 +465,13 @@ procedure OLDateTest.CountDate;
 var
   d: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.SetToday();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.Today();
+  {$ENDIF}
 
   Check(d.DayOfTheYear() = DayOfTheYear(d));
   Check(d.DayOfTheWeek() = DayOfTheWeek(d));
@@ -476,7 +482,13 @@ var
   dt, dt2: OLDateTime;
   i: OLInteger;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.SetNow();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Now();
+  {$ENDIF}
 
   Check(dt.DayOfTheYear() = DayOfTheYear(dt));
   Check(dt.HourOfTheYear() = HourOfTheYear(dt));
@@ -504,8 +516,15 @@ begin
 
   Check(dt.MilliSecondOfTheMinute() = MilliSecondOfTheMinute(dt));
 
+  {$IFDEF OL_MUTABLE}
   dt.SetNow();
   dt := dt.RecodedMilliSecond(0);
+  {$ENDIF}
+  
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Now().RecodedMilliSecond(0);
+  {$ENDIF}
+
   i := OLDateTime.SecondCount();
   dt2 := OLDateTime.DateTimeFromSecondCount(i);
   Check(dt2 = dt);
@@ -535,54 +554,92 @@ procedure OLDateTest.DateTimePartsDate;
 var
   d, d2: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.SetToday;
-
   d2.SetToday;
-  d2.Year := 2000 ;
+  d2.Year := 2000;
   Check(d.RecodedYear(2000) = d2);
 
   d2.SetToday;
-  d2.Month := 12 ;
+  d2.Month := 12;
   Check(d.RecodedMonth(12) = d2);
 
   d2.SetToday;
-  d2.Day := 6 ;
+  d2.Day := 6;
   Check(d.RecodedDay(6) = d2);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.Today;
+  d2 := OLDate.Today.WithYear(2000);
+  Check(d.WithYear(2000) = d2);
+
+  d2 := OLDate.Today.WithMonth(12);
+  Check(d.WithMonth(12) = d2);
+
+  d2 := OLDate.Today.WithDay(6);
+  Check(d.WithDay(6) = d2);
+  {$ENDIF}
 end;
 
 procedure OLDateTimeTest.DateTimePartsDateTime;
 var
   dt, dt2: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.SetToday;
-
   dt2.SetToday;
-  dt2.Year := 2000 ;
+  dt2.Year := 2000;
   Check(dt.RecodedYear(2000) = dt2);
 
   dt2.SetToday;
-  dt2.Month := 12 ;
+  dt2.Month := 12;
   Check(dt.RecodedMonth(12) = dt2);
 
   dt2.SetToday;
-  dt2.Day := 6 ;
+  dt2.Day := 6;
   Check(dt.RecodedDay(6) = dt2);
 
   dt2.SetToday;
-  dt2.Hour := 6 ;
+  dt2.Hour := 6;
   Check(dt.RecodedHour(6) = dt2);
 
   dt2.SetToday;
-  dt2.Minute := 15 ;
+  dt2.Minute := 15;
   Check(dt.RecodedMinute(15) = dt2);
 
   dt2.SetToday;
-  dt2.Second := 52 ;
+  dt2.Second := 52;
   Check(dt.RecodedSecond(52) = dt2);
 
   dt2.SetToday;
-  dt2.MilliSecond := 572 ;
+  dt2.MilliSecond := 572;
   Check(dt.RecodedMilliSecond(572) = dt2);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Today;
+  dt2 := OLDateTime.Today.WithYear(2000);
+  Check(dt.WithYear(2000) = dt2);
+
+  dt2 := OLDateTime.Today.WithMonth(12);
+  Check(dt.WithMonth(12) = dt2);
+
+  dt2 := OLDateTime.Today.WithDay(6);
+  Check(dt.WithDay(6) = dt2);
+
+  dt2 := OLDateTime.Today.WithHour(6);
+  Check(dt.WithHour(6) = dt2);
+
+  dt2 := OLDateTime.Today.WithMinute(15);
+  Check(dt.WithMinute(15) = dt2);
+
+  dt2 := OLDateTime.Today.WithSecond(52);
+  Check(dt.WithSecond(52) = dt2);
+
+  dt2 := OLDateTime.Today.WithMilliSecond(572);
+  Check(dt.WithMilliSecond(572) = dt2);
+  {$ENDIF}
 end;
 
 procedure OLDateTimeTest.DateTimePartsOfDateTime;
@@ -803,18 +860,47 @@ procedure OLDateTest.IncDate;
 var
   d, d2: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.EncodeDate(2000, 1,2);
-
   d2.EncodeDate(2000, 1,8);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.Create(2000, 1,2);
+  d2 := OLDate.Create(2000, 1,8);
+  {$ENDIF}
+
+
   Check(d.IncDay(6) = d2);
 
+  {$IFDEF OL_MUTABLE}
   d2.EncodeDate(2000, 1,16);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d2 := OLDate.Create(2000, 1,16);
+  {$ENDIF}
+
   Check(d.IncWeek(2) = d2);
 
-  d2.EncodeDate(2000, 3,2);
+  {$IFDEF OL_MUTABLE}
+    d2.EncodeDate(2000, 3,2);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d2 := OLDate.Create(2000, 3,2);
+  {$ENDIF}
+
   Check(d.IncMonth(2) = d2);
 
+  {$IFDEF OL_MUTABLE}
   d2.EncodeDate(2004, 1,2);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d2 := OLDate.Create(2004, 1, 2);
+  {$ENDIF}
+
   Check(d.IncYear(4) = d2);
 end;
 
@@ -822,30 +908,86 @@ procedure OLDateTimeTest.IncDateTime;
 var
   dt, dt2: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.EncodeDateTime(2000, 1,2,3,45,25,400);
-
   dt2.EncodeDateTime(2000, 1,2,3,45,25,500);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Create(2000, 1,2,3,45,25,400);
+  dt2 := OLDateTime.Create(2000, 1,2,3,45,25,500);
+  {$ENDIF}
+
   Check(dt.IncMilliSecond(100) = dt2);
 
+  {$IFDEF OL_MUTABLE}
   dt2.EncodeDateTime(2000, 1,2,3,45,55,400);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt2 := OLDateTime.Create(2000, 1,2,3,45,55,400);
+  {$ENDIF}
+
   Check(dt.IncSecond(30) = dt2);
 
+  {$IFDEF OL_MUTABLE}
   dt2.EncodeDateTime(2000, 1,2,3,40,25,400);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt2 := OLDateTime.Create(2000, 1,2,3,40,25,400);
+  {$ENDIF}
+
   Check(dt.IncMinute(-5) = dt2);
 
+  {$IFDEF OL_MUTABLE}
   dt2.EncodeDateTime(2000, 1,2,16,45,25,400);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt2 := OLDateTime.Create(2000, 1,2,16,45,25,400);
+  {$ENDIF}
+
   Check(dt.IncHour(13) = dt2);
 
+  {$IFDEF OL_MUTABLE}
   dt2.EncodeDateTime(2000, 1,8,3,45,25,400);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt2 := OLDateTime.Create(2000, 1,8,3,45,25,400);
+  {$ENDIF}
+
   Check(dt.IncDay(6) = dt2);
 
+  {$IFDEF OL_MUTABLE}
   dt2.EncodeDateTime(2000, 1,16,3,45,25,400);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt2 := OLDateTime.Create(2000, 1,16,3,45,25,400);
+  {$ENDIF}
+
   Check(dt.IncWeek(2) = dt2);
 
+  {$IFDEF OL_MUTABLE}
   dt2.EncodeDateTime(2000, 3,2,3,45,25,400);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt2 := OLDateTime.Create(2000, 3,2,3,45,25,400);
+  {$ENDIF}
+
   Check(dt.IncMonth(2) = dt2);
 
+  {$IFDEF OL_MUTABLE}
   dt2.EncodeDateTime(2004, 1,2,3,45,25,400);
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt2 := OLDateTime.Create(2004, 1,2,3,45,25,400);
+  {$ENDIF}
+
   Check(dt.IncYear(4) = dt2);
 end;
 
@@ -1134,7 +1276,13 @@ procedure OLDateTest.MathOperatorsDate;
 var
   d, d2: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.SetToday();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.Today();
+  {$ENDIF}
   d2 := d;
 
   d := d + 1;
@@ -1150,7 +1298,13 @@ procedure OLDateTimeTest.MathOperatorsDateTime;
 var
   dt, dt2: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.SetNow;
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Now();
+  {$ENDIF}
   dt2 := dt;
 
   dt := dt + 1;
@@ -1626,7 +1780,13 @@ procedure OLDateTest.SpanDate;
 var
   d, d2: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.EncodeDate(2000, 1,2);
+  {$ENDIF}
+  
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.EncodedDate(2000, 1, 2);
+  {$ENDIF}
   d2 := d.RecodedYear(2004).RecodedMonth(7);
 
   Check(d2.DaysBetween(d) = DateUtils.DaysBetween(d2, d));
@@ -1644,7 +1804,13 @@ procedure OLDateTimeTest.SpanDateTime;
 var
   dt, dt2: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.EncodeDateTime(2000, 1,2,3,45,25,400);
+  {$ENDIF}
+  
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Create(2000, 1,2,3,45,25,400);
+  {$ENDIF}
   dt2 := dt.RecodedYear(2004).RecodedMonth(7);
 
   Check(dt2.MilliSecondsBetween(dt) = DateUtils.MilliSecondsBetween(dt2, dt));
@@ -1743,7 +1909,13 @@ procedure OLDateTest.YesterdayDate;
 var
   d: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.SetYesterday();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.Yesterday();
+  {$ENDIF}
   Check(d = Yesterday());
 
   Check(OLDate.Yesterday() = Yesterday());
@@ -1753,7 +1925,13 @@ procedure OLDateTimeTest.YesterdayDateTime;
 var
   dt: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.SetYesterday();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Yesterday();
+  {$ENDIF}
   Check(dt = Yesterday());
 
   Check(OLDateTime.Yesterday = Yesterday());
@@ -2543,7 +2721,13 @@ procedure OLDateTimeTest.NowDateTime;
 var
   dt: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.SetNow();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Now();
+  {$ENDIF}
 
   Check(dt = Now());
 end;
@@ -2760,7 +2944,13 @@ procedure OLDateTest.TodayDate;
 var
   d: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.SetToday();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.Today();
+  {$ENDIF}
   Check(d = Today());
 
   Check(OLDate.Today = Today());
@@ -2770,7 +2960,13 @@ procedure OLDateTimeTest.TodayDateTime;
 var
   dt: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.SetToday();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Today();
+  {$ENDIF}
   Check(dt = Today());
 
   Check(OLDateTime.Today = Today());
@@ -2780,7 +2976,13 @@ procedure OLDateTest.TomorrowDate;
 var
   d: OLDate;
 begin
+  {$IFDEF OL_MUTABLE}
   d.SetTomorrow();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDate.Tomorrow();
+  {$ENDIF}
   Check(d = Tomorrow());
 
   Check(OLDate.Tomorrow = Tomorrow());
@@ -2790,7 +2992,13 @@ procedure OLDateTimeTest.TomorrowDateTime;
 var
   dt: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   dt.SetTomorrow();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  dt := OLDateTime.Tomorrow();
+  {$ENDIF}
   Check(dt = Tomorrow());
 
   Check(OLDateTime.Tomorrow = Tomorrow());

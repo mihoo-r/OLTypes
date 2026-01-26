@@ -1330,7 +1330,14 @@ begin
   CheckEquals(10, d.Month);
   CheckEquals(27, d.Day);
 
+  {$IFDEF OL_MUTABLE}
   d.Year := 2024;
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := d.WithYear(2024);
+  {$ENDIF}
+
   CheckEquals(2024, d.Year);
 end;
 
