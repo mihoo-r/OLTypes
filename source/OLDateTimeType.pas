@@ -29,6 +29,7 @@ type
     function GetMonth: OLInteger;
     function GetSecond: OLInteger;
     function GetYear: OLInteger;
+   {$IFDEF OL_MUTABLE}
     procedure SetHour(const Value: OLInteger);
     procedure SetMilliSecond(const Value: OLInteger);
     procedure SetMinute(const Value: OLInteger);
@@ -36,6 +37,7 @@ type
     procedure SetSecond(const Value: OLInteger);
     procedure SetYear(const Value: OLInteger);
     procedure SetDay(const Value: OLInteger);
+    {$ENDIF}
     /// <summary>
     ///   Gets or sets whether the datetime has a value (is not null).
     /// </summary>
@@ -53,31 +55,31 @@ type
     /// <summary>
     ///   Gets or sets the year component.
     /// </summary>
-    property Year: OLInteger read GetYear write SetYear;
+    property Year: OLInteger read GetYear {$IFDEF OL_MUTABLE} write SetYear {$ENDIF};
     /// <summary>
     ///   Gets or sets the month component.
     /// </summary>
-    property Month: OLInteger read GetMonth write SetMonth;
+    property Month: OLInteger read GetMonth {$IFDEF OL_MUTABLE} write SetMonth {$ENDIF};
     /// <summary>
     ///   Gets or sets the day component.
     /// </summary>
-    property Day: OLInteger read GetDay write SetDay;
+    property Day: OLInteger read GetDay {$IFDEF OL_MUTABLE} write SetDay {$ENDIF};
     /// <summary>
     ///   Gets or sets the hour component.
     /// </summary>
-    property Hour: OLInteger read GetHour write SetHour;
+    property Hour: OLInteger read GetHour {$IFDEF OL_MUTABLE} write SetHour {$ENDIF};
     /// <summary>
     ///   Gets or sets the minute component.
     /// </summary>
-    property Minute: OLInteger read GetMinute write SetMinute;
+    property Minute: OLInteger read GetMinute {$IFDEF OL_MUTABLE} write SetMinute {$ENDIF};
     /// <summary>
     ///   Gets or sets the second component.
     /// </summary>
-    property Second: OLInteger read GetSecond write SetSecond;
+    property Second: OLInteger read GetSecond {$IFDEF OL_MUTABLE} write SetSecond {$ENDIF};
     /// <summary>
     ///   Gets or sets the millisecond component.
     /// </summary>
-    property MilliSecond: OLInteger read GetMilliSecond write SetMilliSecond;
+    property MilliSecond: OLInteger read GetMilliSecond {$IFDEF OL_MUTABLE} write SetMilliSecond {$ENDIF};
 
     /// <summary>
     ///   Checks if the datetime is null (has no value).
@@ -179,6 +181,7 @@ type
     /// </summary>
     class function Now(): OLDateTime; static;
 
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the datetime to the current date and time.
     /// </summary>
@@ -195,6 +198,7 @@ type
     ///   Sets the datetime to yesterday's date.
     /// </summary>
     procedure SetYesterday();
+    {$ENDIF}
 
     /// <summary>
     ///   Checks if the datetime is today.
@@ -222,6 +226,7 @@ type
     /// </summary>
     class function EndOfAYear(const AYear: Word): OLDateTime; static;
 
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the datetime to the start of the specified year.
     /// </summary>
@@ -230,6 +235,7 @@ type
     ///   Sets the datetime to the end of the specified year.
     /// </summary>
     procedure SetEndOfAYear(const AYear: Word);
+    {$ENDIF}
 
     /// <summary>
     ///   Returns the start of the current month.
@@ -247,6 +253,7 @@ type
     ///   Returns the end of the specified month.
     /// </summary>
     class function EndOfAMonth(const AYear, AMonth: Word): OLDateTime; static;
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the datetime to the start of the specified month.
     /// </summary>
@@ -255,6 +262,7 @@ type
     ///   Sets the datetime to the end of the specified month.
     /// </summary>
     procedure SetEndOfAMonth(const AYear, AMonth: Word);
+    {$ENDIF}
 
     /// <summary>
     ///   Returns the start of the current week (ISO 8601).
@@ -369,10 +377,12 @@ type
     ///   Creates a datetime from a second count since the start of the specified year.
     /// </summary>
     class function DateTimeFromSecondCount(const Count: integer; const StartingYear: Integer = 2017): OLDateTime; static;
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the datetime from a second count since the start of the specified year.
     /// </summary>
     procedure SetFromSecondCount(const Count: integer; const StartingYear: Integer = 2017);
+    {$ENDIF}
 
     /// <summary>
     ///   Returns the number of complete years between this datetime and the specified datetime.
@@ -584,11 +594,45 @@ type
     ///   Decodes the datetime into its component parts.
     /// </summary>
     procedure DecodeDateTime(out AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word);
+    class function Create(const AYear, AMonth, ADay: Word; const AHour: Word = 0;
+        const AMinute: Word = 0; const ASecond: Word = 0; const AMilliSecond: Word
+        = 0): OLDateTime; static;
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Encodes the datetime from component parts.
     /// </summary>
     procedure EncodeDateTime(const AYear, AMonth, ADay: Word; const AHour: Word = 0; const AMinute: Word = 0;
       const ASecond: Word = 0; const AMilliSecond: Word = 0);
+    {$ENDIF}
+
+    /// <summary>
+    ///   Returns the datetime with the year component changed.
+    /// </summary>
+    function WithYear(const AYear: OLInteger): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the month component changed.
+    /// </summary>
+    function WithMonth(const AMonth: OLInteger): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the day component changed.
+    /// </summary>
+    function WithDay(const ADay: OLInteger): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the hour component changed.
+    /// </summary>
+    function WithHour(const AHour: OLInteger): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the minute component changed.
+    /// </summary>
+    function WithMinute(const AMinute: OLInteger): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the second component changed.
+    /// </summary>
+    function WithSecond(const ASecond: OLInteger): OLDateTime;
+    /// <summary>
+    ///   Returns the datetime with the millisecond component changed.
+    /// </summary>
+    function WithMilliSecond(const AMilliSecond: OLInteger): OLDateTime;
 
     /// <summary>
     ///   Returns the datetime with the year component changed.
@@ -770,11 +814,20 @@ begin
   DateUtils.DecodeDateTime(Self, AYear, AMonth, ADay, AHour, AMinute, ASecond,  AMilliSecond);
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.EncodeDateTime(const AYear, AMonth, ADay: Word; const
     AHour: Word = 0; const AMinute: Word = 0; const ASecond: Word = 0; const
     AMilliSecond: Word = 0);
 begin
   self := DateUtils.EncodeDateTime(AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond);
+end;
+{$ENDIF}
+
+class function OLDateTime.Create(const AYear, AMonth, ADay: Word; const AHour:
+    Word = 0; const AMinute: Word = 0; const ASecond: Word = 0; const
+    AMilliSecond: Word = 0): OLDateTime;
+begin
+  Result := DateUtils.EncodeDateTime(AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond);
 end;
 
 class function OLDateTime.EndOfAMonth(const AYear, AMonth: Word): OLDateTime;
@@ -860,7 +913,14 @@ class function OLDateTime.SecondCount(const StartingYear: Integer): OLInteger;
 var
   d: OLDateTime;
 begin
+  {$IFDEF OL_MUTABLE}
   d.SetNow();
+  {$ENDIF}
+
+  {$IFNDEF OL_MUTABLE}
+  d := OLDateTime.Now();
+  {$ENDIF}
+
   Result := d.SecondsBetween(OLDateTime.StartOfAYear(StartingYear));
 end;
 
@@ -1433,6 +1493,7 @@ begin
   Result := DateUtils.SecondSpan(Self, Date);
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetDay(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeDay(Self, Value);
@@ -1441,7 +1502,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetEndOfAMonth(const AYear, AMonth: Word);
 begin
   Self := OLDateTime.EndOfAMonth(AYear, AMonth);
@@ -1459,6 +1522,7 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
 procedure OLDateTime.SetHasValue(const Value: OLBoolean);
 begin
@@ -1488,11 +1552,14 @@ begin
 end;
 {$IFEND}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetHour(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeHour(Self, Value);
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetMilliSecond(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeMilliSecond(Self, Value);
@@ -1501,7 +1568,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetMinute(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeMinute(Self, Value);
@@ -1510,7 +1579,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetMonth(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeMonth(Self, Value);
@@ -1519,7 +1590,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetNow;
 begin
   Self := SysUtils.Now();
@@ -1528,7 +1601,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetFromSecondCount(const Count: integer; const StartingYear: Integer);
 begin
   Self := OLDateTime.DateTimeFromSecondCount(Count, StartingYear);
@@ -1537,7 +1612,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetSecond(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeSecond(Self, Value);
@@ -1546,7 +1623,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetStartOfAMonth(const AYear, AMonth: Word);
 begin
   Self := OLDateTime.StartOfAMonth(AYear, AMonth);
@@ -1555,7 +1634,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetStartOfAYear(const AYear: Word);
 begin
   Self := OLDateTime.StartOfAYear(AYear);
@@ -1564,7 +1645,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetToday;
 begin
   Self := OLDateTime.Today();
@@ -1573,7 +1656,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetTomorrow;
 begin
   Self := OLDateTime.Tomorrow();
@@ -1582,7 +1667,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetYear(const Value: OLInteger);
 begin
   Self := DateUtils.RecodeYear(Self, Value);
@@ -1591,7 +1678,9 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDateTime.SetYesterday;
 begin
   Self := OLDateTime.Yesterday();
@@ -1600,6 +1689,7 @@ begin
     FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
 function OLDateTime.ShortDayName: string;
 begin
@@ -1869,6 +1959,48 @@ end;
 function OLDateTime.IncYear(const ANumberOfYears: Integer): OLDateTime;
 begin
   Result := DateUtils.IncYear(Self, ANumberOfYears);
+end;
+
+function OLDateTime.WithYear(const AYear: OLInteger): OLDateTime;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeYear(Result, AYear);
+end;
+
+function OLDateTime.WithMonth(const AMonth: OLInteger): OLDateTime;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeMonth(Result, AMonth);
+end;
+
+function OLDateTime.WithDay(const ADay: OLInteger): OLDateTime;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeDay(Result, ADay);
+end;
+
+function OLDateTime.WithHour(const AHour: OLInteger): OLDateTime;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeHour(Result, AHour);
+end;
+
+function OLDateTime.WithMinute(const AMinute: OLInteger): OLDateTime;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeMinute(Result, AMinute);
+end;
+
+function OLDateTime.WithSecond(const ASecond: OLInteger): OLDateTime;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeSecond(Result, ASecond);
+end;
+
+function OLDateTime.WithMilliSecond(const AMilliSecond: OLInteger): OLDateTime;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeMilliSecond(Result, AMilliSecond);
 end;
 
 class operator OLDateTime.Implicit(const a: string): OLDateTime;

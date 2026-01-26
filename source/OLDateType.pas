@@ -19,23 +19,25 @@ type
     function GetDay: OLInteger;
     function GetMonth: OLInteger;
     function GetYear: OLInteger;
+    {$IFDEF OL_MUTABLE}
     procedure SetDay(const Value: OLInteger);
     procedure SetMonth(const Value: OLInteger);
     procedure SetYear(const Value: OLInteger);
+    {$ENDIF}
 
   public
     /// <summary>
     ///   Gets or sets the year component.
     /// </summary>
-    property Year: OLInteger read GetYear write SetYear;
+    property Year: OLInteger read GetYear {$IFDEF OL_MUTABLE} write SetYear {$ENDIF};
     /// <summary>
     ///   Gets or sets the month component.
     /// </summary>
-    property Month: OLInteger read GetMonth write SetMonth;
+    property Month: OLInteger read GetMonth {$IFDEF OL_MUTABLE} write SetMonth {$ENDIF};
     /// <summary>
     ///   Gets or sets the day component.
     /// </summary>
-    property Day: OLInteger read GetDay write SetDay;
+    property Day: OLInteger read GetDay {$IFDEF OL_MUTABLE} write SetDay {$ENDIF};
 
     /// <summary>
     ///   Checks if the date is null (has no value).
@@ -49,6 +51,7 @@ type
     ///   Returns the TDate value, or a replacement TDate if null.
     /// </summary>
     function AsDate(const NullReplacement: TDate = 0): TDate;
+    class function Create(const AYear, AMonth, ADay: Word): OLDate; static;
     /// <summary>
     ///   Converts the date to a string.
     /// </summary>
@@ -119,6 +122,7 @@ type
     /// </summary>
     class function Tomorrow: OLDate; static;
 
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the date to today.
     /// </summary>
@@ -131,6 +135,7 @@ type
     ///   Sets the date to yesterday.
     /// </summary>
     procedure SetYesterday();
+    {$ENDIF}
 
     /// <summary>
     ///   Checks if the date is today.
@@ -158,6 +163,7 @@ type
     /// </summary>
     class function EndOfAYear(const AYear: Word): OLDate; static;
 
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the date to the start of the specified year.
     /// </summary>
@@ -166,6 +172,7 @@ type
     ///   Sets the date to the end of the specified year.
     /// </summary>
     procedure SetEndOfAYear(const AYear: Word);
+    {$ENDIF}
 
     /// <summary>
     ///   Returns the start of the current month.
@@ -183,6 +190,7 @@ type
     ///   Returns the end of the specified month.
     /// </summary>
     class function EndOfAMonth(const AYear, AMonth: Word): OLDate; static;
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Sets the date to the start of the specified month.
     /// </summary>
@@ -191,6 +199,7 @@ type
     ///   Sets the date to the end of the specified month.
     /// </summary>
     procedure SetEndOfAMonth(const AYear, AMonth: Word);
+    {$ENDIF}
 
     /// <summary>
     ///   Returns the start of the current week (ISO 8601).
@@ -320,10 +329,27 @@ type
     ///   Decodes the date into its component parts.
     /// </summary>
     procedure DecodeDate(out AYear, AMonth, ADay: Word);
+    {$IFDEF OL_MUTABLE}
     /// <summary>
     ///   Encodes the date from component parts.
     /// </summary>
     procedure EncodeDate(const AYear, AMonth, ADay: Word);
+    {$ENDIF}
+
+    class function EncodedDate(const AYear, AMonth, ADay: Word): OLDate; static;
+
+    /// <summary>
+    ///   Returns the date with the year component changed.
+    /// </summary>
+    function WithYear(const AYear: OLInteger): OLDate;
+    /// <summary>
+    ///   Returns the date with the month component changed.
+    /// </summary>
+    function WithMonth(const AMonth: OLInteger): OLDate;
+    /// <summary>
+    ///   Returns the date with the day component changed.
+    /// </summary>
+    function WithDay(const ADay: OLInteger): OLDate;
 
     /// <summary>
     ///   Returns the date with the year component changed.
@@ -465,9 +491,21 @@ begin
     AHour, AMinute, ASecond, AMilliSecond);
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.EncodeDate(const AYear, AMonth, ADay: Word);
 begin
   Self.FValue.EncodeDateTime(AYear, AMonth, ADay);
+end;
+{$ENDIF}
+
+class function OLDate.Create(const AYear, AMonth, ADay: Word): OLDate;
+begin
+  Result := OLDateTime.Create(AYear, AMonth, ADay);
+end;
+
+class function OLDate.EncodedDate(const AYear, AMonth, ADay: Word): OLDate;
+begin
+  Result.FValue := DateUtils.EncodeDateTime(AYear, AMonth, ADay, 0, 0, 0, 0);
 end;
 
 class function OLDate.EndOfAMonth(const AYear, AMonth: Word): OLDate;
@@ -763,6 +801,7 @@ begin
   Result := Self.FValue.SameDay(DateToCompare);
 end;
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetDay(const Value: OLInteger);
 begin
   Self.FValue.Day := Value;
@@ -782,7 +821,9 @@ begin
 
   Self.FValue := dt;
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetEndOfAYear(const AYear: Word);
 var
   dt: OLDateTime;
@@ -794,7 +835,9 @@ begin
 
   Self.FValue := dt;
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetMonth(const Value: OLInteger);
 begin
   Self.FValue.Month := Value;
@@ -802,7 +845,9 @@ begin
   if Assigned(FOnChange) then FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetStartOfAMonth(const AYear, AMonth: Word);
 var
   dt: OLDateTime;
@@ -814,7 +859,9 @@ begin
 
   Self.FValue := dt;
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetStartOfAYear(const AYear: Word);
 var
   dt: OLDateTime;
@@ -826,7 +873,9 @@ begin
 
   Self.FValue := dt;
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetToday;
 begin
   Self.FValue := OLDateTime.Today().DateOf();
@@ -834,7 +883,9 @@ begin
   if Assigned(FOnChange) then FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetTomorrow;
 begin
   Self.FValue := OLDateTime.Tomorrow().DateOf();
@@ -842,7 +893,9 @@ begin
   if Assigned(FOnChange) then FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetYear(const Value: OLInteger);
 begin
   Self.FValue.Year := Value;
@@ -850,7 +903,9 @@ begin
   if Assigned(FOnChange) then FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
+{$IFDEF OL_MUTABLE}
 procedure OLDate.SetYesterday;
 begin
   Self.FValue := OLDateTime.Yesterday().DateOf();
@@ -858,6 +913,7 @@ begin
   if Assigned(FOnChange) then FOnChange(nil);
   {$IFEND}
 end;
+{$ENDIF}
 
 function OLDate.ShortDayName: string;
 begin
@@ -989,5 +1045,23 @@ begin
     Dest.FOnChange(nil);
 end;
 {$IFEND}
+
+function OLDate.WithYear(const AYear: OLInteger): OLDate;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeYear(Result.FValue, AYear);
+end;
+
+function OLDate.WithMonth(const AMonth: OLInteger): OLDate;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeMonth(Result.FValue, AMonth);
+end;
+
+function OLDate.WithDay(const ADay: OLInteger): OLDate;
+begin
+  Result := Self;
+  Result := DateUtils.RecodeDay(Result.FValue, ADay);
+end;
 
 end.
