@@ -31,6 +31,31 @@ type
     procedure SetNumeralSystem32(const Value: string);
     procedure SetNumeralSystem64(const Value: string);
     procedure SetOctal(const Value: string);
+
+    {$IFNDEF OL_MUTABLE}
+    /// <summary>
+    ///   Executes a procedure for each value from InitialValue to ToValue.
+    /// </summary>
+    procedure ForLoop(const InitialValue: Int64; const ToValue: Int64; const Proc: TProc);
+    /// <summary>
+    ///   Sets the integer to a random value between MinValue and MaxValue.
+    /// </summary>
+    procedure SetRandom(const MinValue: Int64; const MaxValue: Int64); overload;
+    /// <summary>
+    ///   Sets the integer to a random value up to MaxValue.
+    /// </summary>
+    procedure SetRandom(const MaxValue: Int64 = MaxInt); overload;
+
+    /// <summary>
+    ///   Sets the integer to a random prime value between MinValue and MaxValue.
+    /// </summary>
+    procedure SetRandomPrime(const MinValue: Int64; const MaxValue: Int64); overload;
+    /// <summary>
+    ///   Sets the integer to a random prime value up to MaxValue.
+    /// </summary>
+    procedure SetRandomPrime(const MaxValue: Int64 = MaxInt); overload;
+    {$ENDIF}
+
     /// <summary>
     ///   Gets or sets whether the integer has a value (is not null).
     /// </summary>
@@ -141,29 +166,6 @@ type
     /// </summary>
     function ToNumeralSystem(const Base: Integer): string;
 
-    {$IFNDEF OL_MUTABLE}
-    /// <summary>
-    ///   Executes a procedure for each value from InitialValue to ToValue.
-    /// </summary>
-    procedure ForLoop(const InitialValue: Int64; const ToValue: Int64; const Proc: TProc);
-    /// <summary>
-    ///   Sets the integer to a random value between MinValue and MaxValue.
-    /// </summary>
-    procedure SetRandom(const MinValue: Int64; const MaxValue: Int64); overload;
-    /// <summary>
-    ///   Sets the integer to a random value up to MaxValue.
-    /// </summary>
-    procedure SetRandom(const MaxValue: Int64 = MaxInt); overload;
-
-    /// <summary>
-    ///   Sets the integer to a random prime value between MinValue and MaxValue.
-    /// </summary>
-    procedure SetRandomPrime(const MinValue: Int64; const MaxValue: Int64); overload;
-    /// <summary>
-    ///   Sets the integer to a random prime value up to MaxValue.
-    /// </summary>
-    procedure SetRandomPrime(const MaxValue: Int64 = MaxInt); overload;
-    {$ENDIF}
     /// <summary>
     ///   Checks if the integer is a prime number.
     /// </summary>

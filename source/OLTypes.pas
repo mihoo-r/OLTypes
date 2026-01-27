@@ -1897,11 +1897,6 @@ type
      ///   Sets the value from a base-64 numeral system string.
      /// </summary>
      procedure SetNumeralSystem64(const Value: string);
-
-     /// <summary>
-     ///   Executes a procedure for each value in the range.
-     /// </summary>
-     procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
      /// <summary>
      ///   Checks if the value is a prime number.
      /// </summary>
@@ -1924,6 +1919,11 @@ type
      /// </summary>
      class function RandomPrime(MaxValue: Int64 = MaxInt): Int64; overload; static;
 
+     {$IFDEF OL_MUTABLE}
+     /// <summary>
+     ///   Executes a procedure for each value in the range.
+     /// </summary>
+     procedure ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
      /// <summary>
      ///   Sets the value to a random integer between the specified minimum and maximum values.
      /// </summary>
@@ -1940,7 +1940,7 @@ type
      ///   Sets the value to a random prime integer up to the specified maximum value.
      /// </summary>
      procedure SetRandomPrime(MaxValue: Int64 = MaxInt); overload;
-
+     {$ENDIF}
     const
       MaxValue = 9223372036854775807;
       MinValue = -9223372036854775808;
@@ -7519,15 +7519,6 @@ begin
   Self := OLInt64.FromNumeralSystem64(Value);
 end;
 
-procedure TOLInt64Helper.ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
-var
-  ol: OLInt64;
-begin
-  ol := Self;
-  ol.ForLoop(InitialValue, ToValue, Proc);
-  Self := ol;
-end;
-
 function TOLInt64Helper.IsPrime(): Boolean;
 var
   ol: OLInt64;
@@ -7554,6 +7545,16 @@ end;
 class function TOLInt64Helper.RandomPrime(MaxValue: Int64): Int64;
 begin
   Result := OLInt64.RandomPrime(MaxValue);
+end;
+
+ {$IFDEF OL_MUTABLE}
+procedure TOLInt64Helper.ForLoop(InitialValue: Int64; ToValue: Int64; Proc: TProc);
+var
+  ol: OLInt64;
+begin
+  ol := Self;
+  ol.ForLoop(InitialValue, ToValue, Proc);
+  Self := ol;
 end;
 
 procedure TOLInt64Helper.SetRandom(MinValue: Int64; MaxValue: Int64);
@@ -7591,6 +7592,7 @@ begin
   ol.SetRandomPrime(MaxValue);
   Self := ol;
 end;
+{$ENDIF}
 
 function TOLInt64Helper.ToBoolean: Boolean;
 begin
