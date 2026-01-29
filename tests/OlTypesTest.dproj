@@ -3,7 +3,7 @@
         <ProjectGuid>{AF88F11E-1095-43B8-BBA8-CAE135ADD7F0}</ProjectGuid>
         <ProjectVersion>20.1</ProjectVersion>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug_MUTABLE</Config>
+        <Config Condition="'$(Config)'==''">Debug_IMMUTABLE</Config>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>

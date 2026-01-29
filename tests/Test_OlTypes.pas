@@ -13,7 +13,10 @@ interface
 
 uses
   TestFramework, Windows, Forms, Dialogs, Controls, Classes, SysUtils, Variants, Graphics,
-        Messages, OLTypes;
+  Messages,
+  {$IF CompilerVersion = 22.0} RegularExpressions, {$IFEND} //XE
+  {$IF CompilerVersion >= 23.0} System.RegularExpressions, {$IFEND} //XE2 +
+  OLTypes;
 
 type
   OLBooleanTest = class(TTestCase)
@@ -281,6 +284,7 @@ type
     procedure NoDigitsString;
     procedure RepeatedStringString;
     procedure LikeString;
+    procedure MatchesString;
 
     // String Pattern Finding
     procedure FindTagStrString;
@@ -4028,6 +4032,29 @@ begin
 
   s := Null;
   Check(s.Like('%').IsNull());
+end;
+
+procedure OLStringTest.MatchesString;
+var
+  s: OLString;
+begin
+  s := '12345';
+  Check(s.Matches('^[0-9]+$'), 'Should match digits only');
+  CheckFalse(s.Matches('^[a-z]+$'), 'Should not match letters');
+
+  s := 'HelloWorld';
+  Check(s.Matches('^[A-Za-z]+$'), 'Should match letters');
+  Check(s.Matches('^helloworld$', [roIgnoreCase]), 'Should match case-insensitive with roIgnoreCase');
+
+  s := '123-456-789';
+  Check(s.Matches('^\d{3}-\d{3}-\d{3}$'), 'Should match phone pattern');
+
+  s := '';
+  CheckTrue(s.Matches('^$'), 'Empty string should match empty pattern with roSingleLine');
+  CheckFalse(s.Matches('^.+$'), 'Empty string should not match non-empty pattern');
+
+  s := Null;
+  Check(s.Matches('.*').IsNull(), 'NULL should return NULL');
 end;
 
 // String Pattern Finding
