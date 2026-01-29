@@ -10,7 +10,7 @@ Welcome to the documentation for the OLTypes library. This library enhances stan
 These types are interchangeable with native Delphi types but can safely store a `Null` value.
 
 - [OLString](OLString.md) - Enhanced text with JSON, XML, File I/O, and Null support.
-- [OLInteger](OLInteger.md) / [OLInt64](OLInt64.md) - Integers with math operations and numeral system support.
+- [OLInteger](OLInteger.md) - Integers with math operations and numeral system support.
 - [OLBoolean](OLBoolean.md) - Logical type with three-state logic (True, False, Null).
 - [OLDouble](OLDouble.md) - Floating-point numbers with precise epsilon-based comparison.
 - [OLCurrency / OLDecimal](OLCurrency.md) - Fixed-point types for financial calculations.

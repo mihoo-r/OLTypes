@@ -22,12 +22,6 @@ begin
     Writeln(i.ToString + ' is prime');
     
   Writeln(i.Binary); // '10001'
-  
-  // High-level looping directly on integer
-  i.ForLoop(1, 3, procedure
-    begin
-      Writeln('Instant Loop!');
-    end);
 end;
 ```
 
@@ -36,12 +30,12 @@ Extended methods and properties for the native `string` type.
 
 | Feature | Description | Requirement |
 | :--- | :--- | :--- |
-| `JSON[Path]` | Gets or sets JSON values by path (e.g. `user.id` or `Items[0].Name`). | Delphi XE6+ |
-| `XML[XPath]` | Gets or sets XML element/attribute values by XPath. | Delphi XE6+ |
-| `CSV[Index]` | Gets or sets the CSV field at the specified index. | Delphi XE3+ |
-| `Params[Name]` | Simple template engine: replaces `:Name` with a value. | Delphi XE3+ |
-| `Lines[Index]` | Gets or sets a line by index (handles line breaks automatically). | Delphi XE3+ |
-| `Base64` | Property to get/set Base64 representation of the string. | Delphi XE3+ |
+| `JSON[Path]` | Gets JSON values by path (e.g. `user.id` or `Items[0].Name`). Use `WithJSON` to set values. | Delphi XE6+ |
+| `XML[XPath]` | Gets XML element/attribute values by XPath. Use `WithXML` to set values. | Delphi XE6+ |
+| `CSV[Index]` | Gets the CSV field at the specified index. Use `WithCSV` to set values. | Delphi XE3+ |
+| `WithParam(Name, Value)` | Simple template engine: replaces `:Name` with a value. Use `WithParams` to set multiple values. | Delphi XE3+ |
+| `Lines[Index]` | Gets a line by index (handles line breaks automatically). Use `WithLines` to set values. | Delphi XE3+ |
+| `Base64` | Property to get Base64 representation of the string. | Delphi XE3+ |
 | `Compressed` | Returns a ZLib-compressed version of the string. | Delphi XE3+ |
 | `HashStr` | Returns a hex-encoded hash of the string. | Delphi XE3+ |
 
@@ -52,15 +46,15 @@ Extended methods and properties for the native `string` type.
 var
   s: string;
 begin
-  s.JSON['User.Name'] := 'Antigravity';
-  s.JSON['User.Roles[0]'] := 'Admin';
-  s.JSON['User.Roles[1]'] := 'Developer';
+  s := s.WithJSON('User.Name', 'Smith');
+  s := s.WithJSON('User.Roles[0]', 'Admin');
+  s := s.WithJSON('User.Roles[1]', 'Developer');
   
   Writeln(s); 
-  // Result: {"User":{"Name":"Antigravity","Roles":["Admin","Developer"]}}
+  // Result: {"User":{"Name":"Smith","Roles":["Admin","Developer"]}}
   
-  if s.JSON['User.Name'] = 'Antigravity' then
-    Writeln('Hello, Admin!');
+  if s.JSON['User.Name'] = 'Smith' then
+    Writeln('Hello, John!');
 end;
 ```
 
@@ -70,8 +64,8 @@ var
   sql: string;
 begin
   sql := 'SELECT * FROM users WHERE id = :id AND status = :status';
-  sql.Params['id'] := '100';
-  sql.Params['status'] := 'active';
+  sql := sql.WithParam('id', '100')
+            .WithParam('status', 'active');
   
   Writeln(sql); // 'SELECT * FROM users WHERE id = 100 AND status = active'
 end;
@@ -82,8 +76,8 @@ end;
 var
   imgData: string;
 begin
-  // Load file, encode to Base64, and save to another file in 3 lines
-  imgData.EndcodeBase64FromFile('photo.jpg');
+  // Load file, encode to Base64, and save to another file
+  imgData := OLString.Base64FromFile('photo.jpg');
   Writeln('Size in Base64: ' + imgData.Length.ToString);
   imgData.SaveToFile('photo.txt');
 end;
@@ -98,7 +92,7 @@ begin
   if s.Like('Invoice_2023_%.pdf') then
     Writeln('Matches 2023 pattern');
     
-  if s.MatchText(['.pdf', '.docx', '.xlsx']) then
+  if s.ExtractedFileExt().MatchText(['.pdf', '.docx', '.xlsx']) then
     Writeln('It is a document');
 end;
 ```
@@ -130,8 +124,8 @@ var
   dt: TDateTime;
 begin
   dt := Now;
-  dt.Year := 2025; // Directly modify parts of the date
-  dt.Month := 12;
+  dt := dt.RecodedYear(2025)
+          .RecodedMonth(12); // Immutable modification
   Writeln(dt.ToString('yyyy-mm-dd HH:NN')); 
 end;
 ```
@@ -139,7 +133,7 @@ end;
 ### Boolean Helper
 Extended methods for the native `Boolean` type.
 - **Logic**: `IfThen` (overloaded for string, integer, currency, etc.).
-- **Conversion**: `ToInteger` (0/1), `ToSQLString` ('1'/'0'), `ToString`.
+- **Conversion**: `ToInteger` (0/1), `ToSQLString` ('true'/'false'), `ToString`.
 
 ```delphi
 var

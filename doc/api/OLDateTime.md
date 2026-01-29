@@ -7,20 +7,13 @@
 ### Component Access
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `Year` | `OLInteger` | Gets or sets the year component. |
-| `Month` | `OLInteger` | Gets or sets the month component (1-12). |
-| `Day` | `OLInteger` | Gets or sets the day component (1-31). |
-| `Hour` | `OLInteger` | Gets or sets the hour component (0-23). |
-| `Minute` | `OLInteger` | Gets or sets the minute component (0-59). |
-| `Second` | `OLInteger` | Gets or sets the second component (0-59). |
-| `MilliSecond`| `OLInteger` | Gets or sets the millisecond component (0-999). |
-
-### Basic
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `OnChange` | `TNotifyEvent` | (Delphi 10.4+) Event triggered when the value changes. |
-
----
+| `Year` | `OLInteger` | Gets the year component. For updates use `WithYear`. |
+| `Month` | `OLInteger` | Gets the month component (1-12). For updates use `WithMonth`. |
+| `Day` | `OLInteger` | Gets the day component (1-31). For updates use `WithDay`. |
+| `Hour` | `OLInteger` | Gets the hour component (0-23). For updates use `WithHour`. |
+| `Minute` | `OLInteger` | Gets the minute component (0-59). For updates use `WithMinute`. |
+| `Second` | `OLInteger` | Gets the second component (0-59). For updates use `WithSecond`. |
+| `MilliSecond`| `OLInteger` | Gets the millisecond component (0-999). For updates use `WithMilliSecond`. |
 
 ## Methods
 
@@ -52,8 +45,8 @@
 ### Logic & Math
 | Method | Description |
 | :--- | :--- |
-| `YearsBetween()`, `MonthsBetween()`, etc. | Returns the number of complete units between two datetimes. If the parameter is earlier than `Self`, a non-negative number is returned. |
-| `YearSpan()`, `MonthSpan()`, etc. | Returns approximate fractional units (as Double). If the parameter is earlier than `Self`, a non-negative number is returned. |
+| `YearsBetween()`, `MonthsBetween()`, etc. | Returns the number of complete units between two datetimes. |
+| `YearSpan()`, `MonthSpan()`, etc. | Returns approximate fractional units (as Double). |
 | `Max(other)`, `Min(other)` | Returns the latest or earliest of two values. |
 | `IfNull(b)` | Returns `b` if the current value is `Null`. |
 
@@ -97,7 +90,7 @@ end;
 var
   check: OLDateTime;
 begin
-  check.SetToday;
+  check := OLDateTime.Today;
   if check.InRange('2023-01-01', '2023-12-31') then
     Writeln('Within year 2023');
 end;

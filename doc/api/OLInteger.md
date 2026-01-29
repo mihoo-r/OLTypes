@@ -1,6 +1,6 @@
-# OLInteger
+# OLInteger / OLInt64
 
-`OLInteger` is a value type representing a 32-bit integer with `Null` (empty) state support. It provides a rich set of mathematical operations, number system conversions, and random number generation capabilities.
+`OLInteger` (and `OLInt64`) is a value type representing integer with `Null` (empty) state support. It provide a rich set of mathematical operations, number system conversions, and random number generation capabilities.
 
 ## Properties
 
@@ -12,11 +12,11 @@
 ### Number Systems (String Representation)
 | Property | Description |
 | :--- | :--- |
-| `Binary` | Gets or sets the binary (base-2) string representation. |
-| `Octal` | Gets or sets the octal (base-8) string representation. |
-| `Hexidecimal` | Gets or sets the hexadecimal (base-16) string representation. |
-| `NumeralSystem32` | Gets or sets the base-32 string representation. |
-| `NumeralSystem64` | Gets or sets the base-64 string representation. |
+| `Binary` | Gets the binary (base-2) string representation. |
+| `Octal` | Gets the octal (base-8) string representation. |
+| `Hexidecimal` | Gets the hexadecimal (base-16) string representation. |
+| `NumeralSystem32` | Gets the base-32 string representation. |
+| `NumeralSystem64` | Gets the base-64 string representation. |
 
 ---
 
@@ -52,15 +52,12 @@
 | `ToNumeralSystem(Base)` | Converts to string in any base between 2 and 64. |
 | `IfNull(i)` | Returns `i` if the current value is `Null`. |
 | `AsInteger(Default)` | Returns the native `Integer` value, or `Default` if `Null`. |
-| `ForLoop(Start, End, Proc)`| Executes a procedure in a loop using the current value as iterator. |
 
 ### Random Generation
 | Method | Description |
 | :--- | :--- |
 | `Random(Min, Max)` | (Static) Returns a random `OLInteger` in range. |
 | `RandomPrime(Min, Max)` | (Static) Returns a random prime `OLInteger` in range. |
-| `SetRandom(Min, Max)` | (Instance) Sets the current value to a random value. |
-| `SetRandomPrime(Min, Max)`| (Instance) Sets the current value to a random prime. |
 
 ---
 
@@ -75,7 +72,7 @@ begin
   Writeln(count.HasValue.ToString);     // 'True'
   Writeln(count.Hexidecimal);           // '2A'
   
-  count.Binary := '101010';
+  count := OLInteger.FromBinary('101010');
   Writeln(count.ToString);              // '42'
 end;
 ```
@@ -115,18 +112,6 @@ begin
 end;
 ```
 
-#### ForLoop
-```delphi
-var
-  i: OLInteger;
-begin
-  i.ForLoop(1, 5, procedure
-    begin
-      Writeln('Iteration: ' + i.ToString);
-    end);
-end;
-```
-
 #### Random Generation
 ```delphi
 var
@@ -134,8 +119,8 @@ var
 begin
   lucky := OLInteger.Random(1, 100);
   
-  // Instance method to set to random prime
-  lucky.SetRandomPrime(50, 100); 
+  // Static method to create a random prime
+  lucky := OLInteger.RandomPrime(50, 100); 
   Writeln('Random Prime: ' + lucky.ToString);
 end;
 ```

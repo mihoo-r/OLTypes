@@ -23,7 +23,7 @@ begin
   SuperI := SuperI.IfNull(6);         // If Null, use 6
   b := SuperI.IsEven();               // Divisibility checks
   b := (SuperI >= 9);                 // Compare against native Integer
-  SuperI.SetRandom(100);              // Set random integer
+  SuperI := OLInteger.Random(100);    // Set random integer
   SuperI := SuperI.Max(200).Min(400); // Method chaining (Max returns OLInteger)
   s := IntToStr(SuperI) + '.';        // Casts implicitly to Integer for parameters
   b := SuperI.IsPrime();              // Prime number check
@@ -45,28 +45,29 @@ begin
 
   if SuperS.IsEmptyStr() then                   // Default value is empty string, not Null
     SuperS := s;                                // Assign a regular string
-  SuperS[1] := 't';                             // Direct character access (1-based)
+  SuperS := SuperS.WithChar(1, 't');            // Direct character access (1-based)
   SuperS := SuperS + ' !!! ';                   // Concatenation
   SuperS := Null;                               // Assign Null
   SuperS := SuperS.IfNull('New string');        // Fallback for Null
   SuperS.SaveToFile('c:\text.txt');             // Built-in File I/O
-  SuperS.LoadFromFile('c:\text.txt');           
-  SuperS.LineAdd('Second Line');                // StringList-like behavior
-  SuperS.Lines[1] := 'It is the 2. line.';      
+  SuperS := OLString.FromFile('c:\text.txt');   // Load from file
+  SuperS := SuperS.WithLineAdded('Second Line'); // StringList-like behavior
+  SuperS := SuperS.WithLineChanged(1, 'It is the 2. line.');
   SuperS := SuperS.Compressed();                // ZLib Compression
   SuperS := SuperS.Decompressed();              
   SuperS := SuperS.MidStr(11, 4);               // Substring extraction
   SuperS := OLType('Aa;Bb;Cc;Dd').LowerCase();  // Explicit casting with OLType helper
   SuperS := SuperS.CSV[1];                      // CSV Field access (second field: 'Bb')
-  SuperS.CSV[4] := 'ee';                        // Semi-colon based field management
+  SuperS := SuperS.WithCSV(4, 'ee');            // Semi-colon based field management
   SuperS.CopyToClipboard();                     // Windows Clipboard integration
   
   if SuperS.Like('%cc_dd%') then                // SQL-like pattern matching
     SuperS := 'Found matching pattern!';
 
   // JSON operations (Path-based)
-  SuperS.JSON['Name'] := 'Admin';               // Creates {"Name":"Admin"}
-  SuperS.JSON['Address.City'] := 'Pętkowo';     // {"Name":"Admin","Address":{"City":"Pętkowo"}}
+  SuperS := SuperS
+              .WithJSON('Name', 'Admin')            
+              .WithJSON('Address.City', 'Pętkowo'); // {"Name":"Admin","Address":{"City":"Pętkowo"}}
   
   s := SuperS;                                  // Implicit cast back to native string
 end;
@@ -88,7 +89,7 @@ begin
 
   if SuperD.IsNull() then             // Default state is Null
     SuperD := d;                      // Assign regular TDate
-  SuperD.Year := 2024;                // Direct property modification
+  SuperD := SuperD.WithYear(2024);    // Immutable year update
   SuperD := SuperD.IncMonth(5);       // Date math
   SuperD := '2024-05-12';             // Implicit assignment from ISO 8601 string
   

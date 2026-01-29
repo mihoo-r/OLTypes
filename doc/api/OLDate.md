@@ -7,9 +7,9 @@
 ### Component Access
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `Year` | `OLInteger` | Gets or sets the year component. |
-| `Month` | `OLInteger` | Gets or sets the month component (1-12). |
-| `Day` | `OLInteger` | Gets or sets the day component (1-31). |
+| `Year` | `OLInteger` | Gets the year component. For updates use `WithYear`. |
+| `Month` | `OLInteger` | Gets the month component (1-12). For updates use `WithMonth`. |
+| `Day` | `OLInteger` | Gets the day component (1-31). For updates use `WithDay`. |
 
 ### Basic
 | Property | Type | Description |
@@ -42,7 +42,6 @@
 | `IncYear()`, `IncMonth()`, `IncDay()`, `IncWeek()` | Increments the date. |
 | `RecodedYear()`, `RecodedMonth()`, `RecodedDay()`| Returns a new date with one changed component. |
 | `StartOfTheYear()`, `EndOfTheMonth()`, etc. | Returns boundary dates. |
-| `SetToday()`, `SetYesterday()`, `SetTomorrow()` | Sets the current value. |
 
 ### Logic & Math
 | Method | Description |
