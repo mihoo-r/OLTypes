@@ -3,7 +3,7 @@
 interface
 
 uses
-  variants, SysUtils, StrUtils, Types,
+  variants, SysUtils, StrUtils,
   {$IFDEF VCL}
   Vcl.Graphics,
   {$ENDIF}
@@ -12,7 +12,10 @@ uses
   {$ENDIF}
   OLBooleanType, OLCurrencyType,
   OLDateTimeType, OLDateType, OLDoubleType, OLIntegerType,
-  SmartToDate, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND};
+  SmartToDate, {$IF CompilerVersion >= 23.0} System.Classes {$ELSE} Classes {$IFEND},
+  {$IF CompilerVersion = 22.0} RegularExpressions, {$IFEND} //XE
+  {$IF CompilerVersion >= 23.0} System.RegularExpressions, {$IFEND} //XE2 +
+  Types;
 
 type
   TCaseSensitivity = (csCaseSensitive, csCaseInsensitive);
@@ -354,6 +357,11 @@ type
     ///   Checks if the string matches the specified pattern (supports wildcards like % and _).
     /// </summary>
     function Like(Pattern: OLString): OLBoolean;
+
+    /// <summary>
+    ///   Checks if the string matches the specified Regular Expression.
+    /// </summary>
+    function Matches(const RegularExpression: string; const Options: TRegExOptions = []): OLBoolean;
 
     /// <summary>
     ///   Returns the position of the first occurrence of SubStr.
@@ -1019,9 +1027,7 @@ uses
   {$IF CompilerVersion >= 23.0} System.ZLib, {$ELSE} ZLib, {$IFEND}
   IdHTTP,
   {$IF CompilerVersion >= 27.0} System.JSON, {$IFEND}
-  {$IF CompilerVersion >= 23.0} Xml.XMLDoc, Xml.XMLIntf, Xml.xmldom, {$ELSE} XMLDoc, XMLIntf, xmldom, {$IFEND}
-  {$IF CompilerVersion = 22.0} RegularExpressions; {$IFEND} //XE
-  {$IF CompilerVersion >= 23.0} System.RegularExpressions; {$IFEND} //XE2 +
+  {$IF CompilerVersion >= 23.0} Xml.XMLDoc, Xml.XMLIntf, Xml.xmldom; {$ELSE} XMLDoc, XMLIntf, xmldom; {$IFEND}
 
 
 { OLString }
@@ -1452,6 +1458,14 @@ begin
   end;
 
   Result := OutPut;
+end;
+
+function OLString.Matches(const RegularExpression: string; const Options: TRegExOptions): OLBoolean;
+begin
+  if IsNull then
+    Exit(Null);
+
+  Result := TRegEx.IsMatch(FValue, RegularExpression, Options);
 end;
 
 function OLString.IsJSON: OLBoolean;
