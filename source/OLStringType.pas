@@ -364,6 +364,11 @@ type
     function Matches(const RegularExpression: string; const Options: TRegExOptions = []): OLBoolean;
 
     /// <summary>
+    ///   Returns a collection of matches for the specified Regular Expression.
+    /// </summary>
+    function MatchCollection(const RegularExpression: string; const Options: TRegExOptions = []): TMatchCollection;
+
+    /// <summary>
     ///   Returns the position of the first occurrence of SubStr.
     /// </summary>
     function Pos(const SubStr: string; const CaseSensitivity: TCaseSensitivity = csCaseSensitive): OLInteger;
@@ -1466,6 +1471,14 @@ begin
     Exit(Null);
 
   Result := TRegEx.IsMatch(FValue, RegularExpression, Options);
+end;
+
+function OLString.MatchCollection(const RegularExpression: string; const Options: TRegExOptions): TMatchCollection;
+begin
+  if IsNull then
+    raise Exception.Create('Cannot get matches from null value.');
+
+  Result := TRegEx.Matches(FValue, RegularExpression, Options);
 end;
 
 function OLString.IsJSON: OLBoolean;

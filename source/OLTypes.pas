@@ -12,10 +12,13 @@ uses
   FMX.Graphics, FMX.TextLayout,
   {$ENDIF}
   {$IF CompilerVersion >= 23.0} System.SysUtils, System.Classes, System.Generics.Collections, System.Rtti,
-    Vcl.Forms, Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Controls
+    Vcl.Forms, Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Controls,
   {$ELSE} SysUtils, Classes, Generics.Collections, Rtti,
-    Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls
-  {$IFEND}, OLValidation, OLValidationTypes, OLTypesToEdits, OLColorType,
+    Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls,
+  {$ENDIF}
+  {$IF CompilerVersion = 22.0} RegularExpressions, {$IFEND} //XE
+  {$IF CompilerVersion >= 23.0} System.RegularExpressions, {$IFEND} //XE2 +
+  OLValidation, OLValidationTypes, OLTypesToEdits, OLColorType,
   OLThreadRunner, TypInfo;
 
 type
@@ -2079,6 +2082,16 @@ type
      ///   Checks if the string contains the specified substring.
      /// </summary>
      function ContainsStr(SubString: string): OLBoolean;
+
+     /// <summary>
+     ///   Checks if the string matches the specified Regular Expression.
+     /// </summary>
+     function Matches(const RegularExpression: string; const Options: TRegExOptions = []): OLBoolean;
+
+     /// <summary>
+     ///   Returns a collection of matches for the specified Regular Expression.
+     /// </summary>
+     function MatchCollection(const RegularExpression: string; const Options: TRegExOptions = []): TMatchCollection;
      /// <summary>
      ///   Returns the position of the specified substring in the string.
      /// </summary>
@@ -7996,6 +8009,22 @@ var
 begin
   ol := Self;
   Result := ol.LineIndexLike(s, StartingFrom);
+end;
+
+function TOLStringHelper.Matches(const RegularExpression: string; const Options: TRegExOptions): OLBoolean;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.Matches(RegularExpression, Options);
+end;
+
+function TOLStringHelper.MatchCollection(const RegularExpression: string; const Options: TRegExOptions): TMatchCollection;
+var
+  ol: OLString;
+begin
+  ol := Self;
+  Result := ol.MatchCollection(RegularExpression, Options);
 end;
 
 function TOLStringHelper.LinesSorted: string;
