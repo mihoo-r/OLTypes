@@ -285,6 +285,7 @@ type
     procedure RepeatedStringString;
     procedure LikeString;
     procedure MatchesString;
+    procedure MatchCollectionString;
 
     // String Pattern Finding
     procedure FindTagStrString;
@@ -4055,6 +4056,39 @@ begin
 
   s := Null;
   Check(s.Matches('.*').IsNull(), 'NULL should return NULL');
+end;
+
+procedure OLStringTest.MatchCollectionString;
+var
+  s: OLString;
+  mc: TMatchCollection;
+begin
+  s := '123-456-789';
+  mc := s.MatchCollection('\d+');
+  Check(mc.Count = 3, 'Should find 3 matches');
+  Check(mc[0].Value = '123');
+  Check(mc[1].Value = '456');
+  Check(mc[2].Value = '789');
+
+  s := 'The quick brown fox';
+  mc := s.MatchCollection('\w+');
+  Check(mc.Count = 4, 'Should find 4 matches');
+  Check(mc[0].Value = 'The');
+
+  // Test with TOLStringHelper
+  mc := string('abc-def').MatchCollection('\w+');
+  Check(mc.Count = 2, 'Helper: Should find 2 matches');
+  Check(mc[0].Value = 'abc');
+  Check(mc[1].Value = 'def');
+
+  try
+    s := Null;
+    s.MatchCollection('.*');
+    Fail('Should raise exception for NULL');
+  except
+    on E: Exception do
+      Check(E.Message = 'Cannot get matches from null value.');
+  end;
 end;
 
 // String Pattern Finding
