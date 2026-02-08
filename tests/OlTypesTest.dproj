@@ -126,6 +126,7 @@
         <DCCReference Include="..\source\DoubleHelperFunctions.pas"/>
         <DCCReference Include="..\source\CurrencyHelperFunctions.pas"/>
         <DCCReference Include="..\source\BooleanHelperFunctions.pas"/>
+        <DCCReference Include="..\source\OLRegExType.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

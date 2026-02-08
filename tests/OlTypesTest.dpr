@@ -60,7 +60,8 @@ uses
   Int64HelperFunctions in '..\source\Int64HelperFunctions.pas',
   DoubleHelperFunctions in '..\source\DoubleHelperFunctions.pas',
   CurrencyHelperFunctions in '..\source\CurrencyHelperFunctions.pas',
-  BooleanHelperFunctions in '..\source\BooleanHelperFunctions.pas';
+  BooleanHelperFunctions in '..\source\BooleanHelperFunctions.pas',
+  OLRegExType in '..\source\OLRegExType.pas';
 
 {$R *.RES}
 

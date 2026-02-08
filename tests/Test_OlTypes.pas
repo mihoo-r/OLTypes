@@ -16,7 +16,7 @@ uses
   Messages,
   {$IF CompilerVersion = 22.0} RegularExpressions, {$IFEND} //XE
   {$IF CompilerVersion >= 23.0} System.RegularExpressions, {$IFEND} //XE2 +
-  OLTypes;
+  OLTypes, OLRegExType;
 
 type
   OLBooleanTest = class(TTestCase)
@@ -339,6 +339,28 @@ type
 
     // NULL Handling Tests
     procedure NullHandlingString;
+  end;
+
+  OLRegExTest = class(TTestCase)
+  published
+    procedure TestSimplePattern;
+    procedure TestQuantifiers;
+    procedure TestGroups;
+    procedure TestLookahead;
+    procedure TestFlags;
+    procedure TestIntegrationWithOLString;
+    procedure TestAnchoringHelpers;
+    procedure TestAdvancedAnchorsAndFlags;
+    procedure TestMatchCollectionExamples;
+    procedure TestExplanation;
+    procedure TestNewTerminals;
+    procedure TestAnyOf;
+    procedure TestLookarounds;
+    procedure TestGroupNameValidation;
+    procedure TestEmptyArrayValidation;
+    procedure TestGroupIndexValidation;
+    procedure TestRange;
+    procedure TestCharSet;
   end;
 
   OLInteroperabilityTest = class(TTestCase)
@@ -6037,6 +6059,444 @@ begin
 end;
 {$IFEND}
 
+{ OLRegExTest }
+
+procedure OLRegExTest.TestSimplePattern;
+var
+  R: TOLRegEx;
+begin
+  R := OLRegEx.StartOfLine.Literal('A').Digit.EndOfLine;
+  CheckEquals('^A\d$', string(R));
+end;
+
+procedure OLRegExTest.TestNewTerminals;
+var
+  R: TOLRegEx;
+begin
+  CheckEquals('\D', string(OLRegEx.NonDigit));
+  CheckEquals('\W', string(OLRegEx.NonAlphanumeric));
+  CheckEquals('\S', string(OLRegEx.NonWhitespace));
+  CheckEquals('\t', string(OLRegEx.Tab));
+  CheckEquals('\b', string(OLRegEx.WordBoundary));
+  CheckEquals('\B', string(OLRegEx.NonWordBoundary));
+  CheckEquals('\p{L}', string(OLRegEx.Letter));
+  CheckEquals('\p{P}', string(OLRegEx.Punctuation));
+  CheckEquals('[0-9a-fA-F]', string(OLRegEx.HexDigit));
+
+  // Explanation check
+  R := OLRegEx.WordBoundary.Literal('kot').WordBoundary;
+  CheckEquals('a word boundary, then literal "kot", then a word boundary', R.Explanation);
+ end;
+ 
+procedure OLRegExTest.TestAnyOf;
+var
+  R: TOLRegEx;
+begin
+  R := OLRegEx.AnyOf([
+    OLRegEx.Digit.Exactly(4),
+    OLRegEx.Letter.Exactly(2).Digit.Exactly(3)
+  ]);
+  CheckEquals('(?:\d{4}|\p{L}{2}\d{3})', string(R));
+  CheckEquals('one of: (a digit (exactly 4 times)) or (any letter (exactly 2 times), then a digit (exactly 3 times))', R.Explanation);
+
+  // Mix with strings (via implicit conversion)
+  R := OLRegEx.AnyOf(['ABC\d+', OLRegEx.Whitespace.OneOrMore]);
+  CheckEquals('(?:ABC\d+|\s+)', string(R));
+end;
+
+procedure OLRegExTest.TestLookarounds;
+var
+  R: TOLRegEx;
+begin
+  // Lookbehind
+  R := OLRegEx.Lookbehind('A').Literal('B');
+  CheckEquals('(?<=A)B', string(R));
+  CheckEquals('preceded by (custom pattern "A"), then literal "B"', R.Explanation);
+
+  // Negative Lookbehind
+  R := OLRegEx.NegativeLookbehind('A').Literal('B');
+  CheckEquals('(?<!A)B', string(R));
+  CheckEquals('not preceded by (custom pattern "A"), then literal "B"', R.Explanation);
+
+  // Escape backslash fix verification (zarzut 7)
+  R := OLRegEx.Literal('\d');
+  CheckEquals('\\d', string(R));
+end;
+
+procedure OLRegExTest.TestGroupNameValidation;
+begin
+  // Valid names should not raise exceptions
+  OLRegEx.Capture('valid_name', OLRegEx.Digit);
+  OLRegEx.Capture('ValidName123', OLRegEx.Digit);
+
+  // Invalid: Empty
+  try
+    OLRegEx.Capture('', OLRegEx.Digit);
+    Fail('Should have raised EArgumentException for empty name');
+  except
+    on E: EArgumentException do ;
+  end;
+
+  // Invalid: Starts with digit
+  try
+    OLRegEx.Capture('1name', OLRegEx.Digit);
+    Fail('Should have raised EArgumentException for name starting with digit');
+  except
+    on E: EArgumentException do ;
+  end;
+
+  // Invalid: Contains space
+  try
+    OLRegEx.Capture('group name', OLRegEx.Digit);
+    Fail('Should have raised EArgumentException for name with space');
+  except
+    on E: EArgumentException do ;
+  end;
+
+  // Invalid: Contains special char
+  try
+    OLRegEx.Reference('group-name');
+    Fail('Should have raised EArgumentException for name with hyphen');
+  except
+    on E: EArgumentException do ;
+  end;
+end;
+
+procedure OLRegExTest.TestEmptyArrayValidation;
+begin
+  // Test Choice([])
+  try
+    OLRegEx.Choice([]);
+    Fail('Should have raised EArgumentException for Choice([])');
+  except
+    on E: EArgumentException do ;
+  end;
+
+  // Test AnyOf([])
+  try
+    OLRegEx.AnyOf([]);
+    Fail('Should have raised EArgumentException for AnyOf([])');
+  except
+    on E: EArgumentException do ;
+  end;
+end;
+
+procedure OLRegExTest.TestGroupIndexValidation;
+begin
+  // Valid index
+  OLRegEx.Reference(1);
+
+  // Invalid: Zero
+  try
+    OLRegEx.Reference(0);
+    Fail('Should have raised EArgumentException for Reference(0)');
+  except
+    on E: EArgumentException do ;
+  end;
+
+  // Invalid: Negative
+  try
+    OLRegEx.Reference(-1);
+    Fail('Should have raised EArgumentException for Reference(-1)');
+  except
+    on E: EArgumentException do ;
+  end;
+end;
+
+procedure OLRegExTest.TestRange;
+var
+  R: TOLRegEx;
+begin
+  // Basic range test
+  R := OLRegEx.Range('a', 'z');
+  CheckEquals('[a-z]', string(R));
+  Check(Pos('character in range "a" to "z"', R.Explanation) > 0);
+
+  // Digit range
+  R := OLRegEx.Range('0', '9');
+  CheckEquals('[0-9]', string(R));
+
+  // Range with special char that needs escaping: ]
+  R := OLRegEx.Range('A', ']');
+  CheckEquals('[A-\]]', string(R));
+
+  // Range with backslash
+  R := OLRegEx.Range('\', 'z');
+  CheckEquals('[\\-z]', string(R));
+
+  // Range with caret - should be escaped
+  R := OLRegEx.Range('^', 'z');
+  CheckEquals('[\^-z]', string(R));
+
+  // Range with hyphen at start - should be escaped
+  R := OLRegEx.Range('-', 'z');
+  CheckEquals('[\--z]', string(R));
+
+  // Invalid range: start > end
+  try
+    OLRegEx.Range('z', 'a');
+    Fail('Should have raised EArgumentException for Range(''z'', ''a'')');
+  except
+    on E: EArgumentException do ;
+  end;
+
+  // Valid range used in chained expression
+  R := OLRegEx.StartOfLine.Range('a', 'z').OneOrMore.EndOfLine;
+  CheckEquals('^[a-z]+$', string(R));
+end;
+
+procedure OLRegExTest.TestCharSet;
+var
+  R: TOLRegEx;
+begin
+  // Basic character set
+  R := OLRegEx.CharSet('abc');
+  CheckEquals('[abc]', string(R));
+  Check(Pos('any of "abc"', R.Explanation) > 0);
+
+  // Character set with range
+  R := OLRegEx.CharSet('a-z');
+  CheckEquals('[a-z]', string(R));
+
+  // Character set with multiple ranges
+  R := OLRegEx.CharSet('a-zA-Z0-9');
+  CheckEquals('[a-zA-Z0-9]', string(R));
+
+  // Character set with special chars that need escaping
+  R := OLRegEx.CharSet('abc]');
+  CheckEquals('[abc\]]', string(R));
+
+  // NotCharSet basic
+  R := OLRegEx.NotCharSet('abc');
+  CheckEquals('[^abc]', string(R));
+  Check(Pos('any character except "abc"', R.Explanation) > 0);
+
+  // NotCharSet with range
+  R := OLRegEx.NotCharSet('0-9');
+  CheckEquals('[^0-9]', string(R));
+
+  // CharSet in chained expression
+  R := OLRegEx.StartOfLine.CharSet('aeiou').OneOrMore.EndOfLine;
+  CheckEquals('^[aeiou]+$', string(R));
+
+  // Empty CharSet validation
+  try
+    OLRegEx.CharSet('');
+    Fail('Should have raised EArgumentException for CharSet('''')');
+  except
+    on E: EArgumentException do ;
+  end;
+
+  // Empty NotCharSet validation
+  try
+    OLRegEx.NotCharSet('');
+    Fail('Should have raised EArgumentException for NotCharSet('''')');
+  except
+    on E: EArgumentException do ;
+  end;
+end;
+
+ procedure OLRegExTest.TestQuantifiers;
+var
+  R: TOLRegEx;
+begin
+  R := OLRegEx.Digit.Exactly(3).Literal('-').Alphanumeric.Between(2, 4);
+  CheckEquals('\d{3}-\w{2,4}', string(R));
+
+  R := OLRegEx.Literal('A').Optional.Literal('B').OneOrMore.Literal('C').ZeroOrMore;
+  CheckEquals('A?B+C*', string(R));
+
+  // New variants
+  R := OLRegEx.Digit.OneOrMoreLazy;
+  CheckEquals('\d+?', string(R));
+
+  R := OLRegEx.Digit.ZeroOrMorePossessive;
+  CheckEquals('\d*+', string(R));
+
+  R := OLRegEx.Digit.BetweenLazy(2, 5);
+  CheckEquals('\d{2,5}?', string(R));
+
+  R := OLRegEx.Digit.ExactlyPossessive(3);
+  CheckEquals('\d{3}+', string(R));
+
+  // Validation tests
+  try
+    OLRegEx.Digit.Exactly(-1);
+    Fail('Should have raised ERangeError for negative count');
+  except
+    on E: ERangeError do ; // Expected
+  end;
+
+  try
+    OLRegEx.Digit.Between(5, 2);
+    Fail('Should have raised ERangeError for Max < Min');
+  except
+    on E: ERangeError do ; // Expected
+  end;
+end;
+
+procedure OLRegExTest.TestGroups;
+var
+  R: TOLRegEx;
+begin
+  R := OLRegEx.Group(OLRegEx.Literal('abc')).Exactly(2);
+  CheckEquals('(?:abc){2}', string(R));
+
+  R := OLRegEx.Capture(OLRegEx.Digit.Exactly(2)).Literal(':').Capture('val', OLRegEx.Digit.Exactly(2));
+  CheckEquals('(\d{2}):(?P<val>\d{2})', string(R));
+
+  R := R.Literal(' ').Reference('val').Literal(' ').Reference(1);
+  CheckEquals('(\d{2}):(?P<val>\d{2}) (?P=val) \1', string(R));
+end;
+
+procedure OLRegExTest.TestLookahead;
+var
+  R: TOLRegEx;
+begin
+  R := OLRegEx.Lookahead(OLRegEx.Digit).Literal('abc');
+  CheckEquals('(?=\d)abc', string(R));
+
+  R := OLRegEx.NegativeLookahead(OLRegEx.Alphanumeric).Literal('123');
+  CheckEquals('(?!\w)123', string(R));
+end;
+
+procedure OLRegExTest.TestFlags;
+var
+  R: TOLRegEx;
+begin
+  R := OLRegEx.CaseInsensitive(OLRegEx.Literal('abc')).Literal('DEF');
+  CheckEquals('(?i:abc)DEF', string(R));
+
+  R := OLRegEx.CaseSensitive(OLRegEx.Literal('abc'));
+  CheckEquals('(?-i:abc)', string(R));
+end;
+
+procedure OLRegExTest.TestIntegrationWithOLString;
+var
+  S: OLString;
+  R: TOLRegEx;
+begin
+  S := '2023-10-25';
+  R := OLRegEx.StartOfLine.Digit.Exactly(4).Literal('-').Digit.Exactly(2).Literal('-').Digit.Exactly(2).EndOfLine;
+
+  CheckTrue(S.Matches(R));
+  CheckFalse(S.Matches(OLRegEx.StartOfLine.Digit.Exactly(3).EndOfLine));
+end;
+
+procedure OLRegExTest.TestAnchoringHelpers;
+var
+  R: TOLRegEx;
+begin
+  // Standard anchoring
+  R := OLRegEx.Digit.Exactly(3).AsFullMatch;
+  CheckEquals('\A(?:\d{3})\z', string(R));
+
+  R := OLRegEx.Digit.Exactly(3).AsLeftMatch;
+  CheckEquals('\A(?:\d{3})', string(R));
+
+  // Safe anchoring for alternation
+  R := OLRegEx.Choice(['abc', 'def']).AsFullMatch;
+  CheckEquals('\A(?:(?:abc|def))\z', string(R));
+
+  // Behavior with existing anchors (nested)
+  R := OLRegEx.StartOfLine.Literal('A').AsFullMatch;
+  CheckEquals('\A(?:^A)\z', string(R));
+end;
+
+procedure OLRegExTest.TestAdvancedAnchorsAndFlags;
+var
+  R: TOLRegEx;
+begin
+  // Advanced anchors
+  R := OLRegEx.StartOfText.Literal('A').EndOfText;
+  CheckEquals('\AA\z', string(R));
+
+  // LineBreak
+  R := OLRegEx.Literal('A').LineBreak.Literal('B');
+  CheckEquals('A\RB', string(R));
+
+  // DotAll
+  R := OLRegEx.DotAll.AnyChar;
+  CheckEquals('(?s).', string(R));
+
+  // LineByLine
+  R := OLRegEx.LineByLine.StartOfLine.Literal('A');
+  CheckEquals('(?m)^A', string(R));
+
+  // Complex combination
+  R := OLRegEx.DotAll.LineByLine.StartOfText.AnyChar.OneOrMore.EndOfText;
+  CheckEquals('(?m)(?s)\A.+\z', string(R));
+end;
+
+procedure OLRegExTest.TestMatchCollectionExamples;
+var
+  R: TOLRegEx;
+begin
+  // Example 1: Extracting currency amounts (e.g., "12.50 zł", "100 EUR")
+  R := OLRegEx
+    .Capture(OLRegEx.Digit.OneOrMore.Group(OLRegEx.Literal('.').Digit.Exactly(2)).Optional)
+    .Whitespace
+    .Capture(OLRegEx.Alphanumeric.Between(2, 3));
+  CheckEquals('(\d+(?:\.\d{2})?)\s(\w{2,3})', string(R));
+
+  // Example 2: Parsing logs with named groups
+  R := OLRegEx
+    .Literal('[')
+    .Capture('timestamp', OLRegEx.Digit.Exactly(4).Literal('-').Digit.Exactly(2).Literal('-').Digit.Exactly(2))
+    .Literal('] ')
+    .Capture('level', OLRegEx.Choice(['INFO', 'ERROR', 'WARN']))
+    .Literal(': ')
+    .Capture('msg', OLRegEx.AnyChar.OneOrMore);
+  CheckEquals('\[(?P<timestamp>\d{4}-\d{2}-\d{2})\] (?P<level>(?:INFO|ERROR|WARN)): (?P<msg>.+)', string(R));
+
+  // Example 3: Searching for TODOs in multiline text
+  R := OLRegEx
+    .LineByLine
+    .StartOfLine
+    .Literal('TODO:')
+    .Whitespace
+    .Capture(OLRegEx.AnyChar.OneOrMore)
+    .EndOfLine;
+  CheckEquals('(?m)^TODO:\s(.+)$', string(R));
+end;
+
+procedure OLRegExTest.TestExplanation;
+var
+  R: TOLRegEx;
+begin
+  // Example from user request
+  R := OLRegEx
+    .LineByLine
+    .StartOfLine
+    .Choice(['kot', 'pies', 'świnia'])
+    .Alphanumeric.AtLeast(3);
+  CheckEquals('for each line: start of line, then one of: "kot", "pies" or "świnia", then an alphanumeric character (at least 3 times)', R.Explanation);
+
+  // Simple literal and digit
+  R := OLRegEx.Literal('ABC').Digit.Exactly(3);
+  CheckEquals('literal "ABC", then a digit (exactly 3 times)', R.Explanation);
+
+  // Quantifiers
+  R := OLRegEx.Literal('A').Optional.Literal('B').OneOrMore.Literal('C').ZeroOrMore;
+  CheckEquals('literal "A" (optional), then literal "B" (one or more times), then literal "C" (zero or more times)', R.Explanation);
+
+  // Groups and Captures
+  R := OLRegEx.Capture('name', OLRegEx.Digit.Exactly(2)).Group(OLRegEx.Literal('-')).Lookahead(OLRegEx.Alphanumeric);
+  CheckEquals('captured group named "name" containing (a digit (exactly 2 times)), then group containing (literal "-"), then followed by (an alphanumeric character)', R.Explanation);
+
+  // Anchors and Flags
+  R := OLRegEx.AsFullMatch.CaseInsensitive(OLRegEx.Literal('xyz'));
+  CheckEquals('entire text must match: case-insensitive: (literal "xyz")', R.Explanation);
+
+  // Between
+  R := OLRegEx.Digit.Between(2, 5);
+  CheckEquals('a digit (2 to 5 times)', R.Explanation);
+
+  // Between Lazy
+  R := OLRegEx.Digit.BetweenLazy(2, 5);
+  CheckEquals('a digit (2 to 5 times, lazy)', R.Explanation);
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(OLBooleanTest.Suite);
@@ -6046,10 +6506,6 @@ initialization
   RegisterTest(OLDateTimeTest.Suite);
   RegisterTest(OLDateTest.Suite);
   RegisterTest(OLStringTest.Suite);
+  RegisterTest(OLRegExTest.Suite);
   RegisterTest(OLInteroperabilityTest.Suite);
-
-
-
 end.
-
-
