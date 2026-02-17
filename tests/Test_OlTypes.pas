@@ -2497,9 +2497,9 @@ begin
   Check(s.Lines[1] = '');
   Check(s.Lines[2] = 'Third line');
 
-  s2 := s.LineAdded('Fourth line')
-         .LineAdded('Fifth line')
-         .LineAdded('Sixth line');
+  s2 := s.WithLineAdded('Fourth line')
+         .WithLineAdded('Fifth line')
+         .WithLineAdded('Sixth line');
   Check(s2.Lines[5] = 'Sixth line');
 
   {$IFDEF OL_MUTABLE}

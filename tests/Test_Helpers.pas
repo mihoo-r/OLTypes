@@ -2462,7 +2462,7 @@ var
   s: string;
 begin
   s := 'line1';
-  CheckEquals('line1'#13#10'line2', s.LineAdded('line2'));
+  CheckEquals('line1'#13#10'line2', s.WithLineAdded('line2'));
 end;
 
 procedure TestStringHelper.TestTrailingPathDelimiterIncluded;
