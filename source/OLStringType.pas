@@ -876,10 +876,6 @@ type
     /// </summary>
     procedure SaveToFile(const FileName: string; Encoding: TEncoding); overload;
     /// <summary>
-    ///   Returns a new string with the line added.
-    /// </summary>
-    function LineAdded(const NewLine: string): OLString;
-    /// <summary>
     ///   Returns the end position of the line at the specified index.
     /// </summary>
     function LineEndAt(const LineIndex: Integer): OLInteger;
@@ -1032,7 +1028,8 @@ uses
   {$IF CompilerVersion >= 23.0} System.ZLib, {$ELSE} ZLib, {$IFEND}
   IdHTTP,
   {$IF CompilerVersion >= 27.0} System.JSON, {$IFEND}
-  {$IF CompilerVersion >= 23.0} Xml.XMLDoc, Xml.XMLIntf, Xml.xmldom; {$ELSE} XMLDoc, XMLIntf, xmldom; {$IFEND}
+  {$IF CompilerVersion >= 23.0} Xml.XMLDoc, Xml.XMLIntf, Xml.xmldom, OLTypes;
+  {$ELSE} XMLDoc, XMLIntf, xmldom; {$IFEND}
 
 
 { OLString }
@@ -1760,7 +1757,7 @@ begin
       // Attribute check
       if Part.StartsWith('@') then
       begin
-        AttrName := Part.Substring(1);
+        AttrName := Part.LeadingCharExcluded('@');
         if Assigned(CurrNode) and CurrNode.HasAttribute(AttrName) then
           Result := VarToStr(CurrNode.Attributes[AttrName])
         else
@@ -2502,16 +2499,6 @@ begin
         Self := CurrentText + sLineBreak + NewLine;
     end;
   end;
-end;
-
-function OLString.LineAdded(const NewLine: string): OLString;
-var
-  OutPut: OLString;
-begin
-  OutPut := Self;
-  OutPut.LineAdd(NewLine);
-
-  Result := OutPut;
 end;
 
 function OLString.LineCount: OLInteger;

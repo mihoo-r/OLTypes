@@ -19,13 +19,15 @@ uses
   {$IF CompilerVersion = 22.0} RegularExpressions, {$IFEND} //XE
   {$IF CompilerVersion >= 23.0} System.RegularExpressions, {$IFEND} //XE2 +
   OLValidation, OLValidationTypes, OLTypesToEdits, OLColorType,
-  OLThreadRunner, TypInfo;
+  OLThreadRunner, TypInfo, OLRegExType;
 
 type
   TRttiFieldHack = class(TRttiField);
 
+  TOLRegEx = OLRegExType.TOLRegEx;
+  TMatchCollection = System.RegularExpressions.TMatchCollection;
+  TMatch = System.RegularExpressions.TMatch;
 
-type
   OLColor = OLColorType.OLColor;
   TOLThreadRuner = OLThreadRunner.TOLThreadRuner;
 
@@ -134,6 +136,8 @@ function OLType(d: System.Extended): OLDouble; overload;
 function OLType(i: System.Integer): OLInteger; overload;
 function OLType(i: System.Int64): OLInt64; overload;
 function OLType(s: System.string): OLString; overload;
+
+function OLRegEx: TOLRegEx;
 
 const
   // today, yesterday, tomorrow
@@ -2413,10 +2417,6 @@ type
      /// </summary>
      function RepeatedString(const ACount: Integer): string;
      /// <summary>
-     ///   Adds a new line to the string.
-     /// </summary>
-     function LineAdded(const NewLine: string): string;
-     /// <summary>
      ///   Includes a trailing path delimiter in the string.
      /// </summary>
      function TrailingPathDelimiterIncluded(): string;
@@ -3504,7 +3504,10 @@ begin
   Result := s;
 end;
 
-
+function OLRegEx: TOLRegEx;
+begin
+  Result := OLRegExType.OLRegEx();
+end;
 
 procedure TOLFormHelper.CollectAllControls(AControl: TControl; var
     Controls: TList<TControl>);
@@ -8512,14 +8515,6 @@ var
 begin
   ol := Self;
   Result := ol.RepeatedString(ACount);
-end;
-
-function TOLStringHelper.LineAdded(const NewLine: string): string;
-var
-  ol: OLString;
-begin
-  ol := Self;
-  Result := ol.LineAdded(NewLine);
 end;
 
 function TOLStringHelper.TrailingPathDelimiterIncluded(): string;

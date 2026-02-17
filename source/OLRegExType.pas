@@ -39,84 +39,341 @@ type
     procedure ValidateRange(const Min, Max: Integer);
     procedure ValidateGroupName(const Name: string);
   public
+    /// <summary>Converts TOLRegEx to its pattern string.</summary>
     class operator Implicit(const AValue: TOLRegEx): string;
+    /// <summary>Creates TOLRegEx from a raw pattern string.</summary>
+    /// <seealso cref="New"/>
     class operator Implicit(const AValue: string): TOLRegEx;
+    /// <summary>Creates a new empty regex builder.</summary>
+    /// <example>OLRegEx.New.Digit.OneOrMore  // Pattern: \d+</example>
+    /// <seealso cref="Literal"/>
+    /// <seealso cref="StartOfLine"/>
     class function New: TOLRegEx; static;
 
     // Anchors
+
+    /// <summary>Matches at the start of a line (or text in single-line mode).</summary>
+    /// <example>OLRegEx.StartOfLine.Digit  // Pattern: ^\d</example>
+    /// <seealso cref="EndOfLine"/>
+    /// <seealso cref="StartOfText"/>
+    /// <seealso cref="LineByLine"/>
     function StartOfLine: TOLRegEx;
+    /// <summary>Matches at the end of a line (or text in single-line mode).</summary>
+    /// <example>OLRegEx.Digit.EndOfLine  // Pattern: \d$</example>
+    /// <seealso cref="StartOfLine"/>
+    /// <seealso cref="EndOfText"/>
+    /// <seealso cref="LineByLine"/>
     function EndOfLine: TOLRegEx;
+    /// <summary>Matches only at the absolute start of text (ignores multiline mode).</summary>
+    /// <example>OLRegEx.StartOfText.Literal('BEGIN')  // Pattern: \ABEGIN</example>
+    /// <seealso cref="EndOfText"/>
+    /// <seealso cref="StartOfLine"/>
+    /// <seealso cref="AsLeftMatch"/>
     function StartOfText: TOLRegEx;
+    /// <summary>Matches only at the absolute end of text (ignores multiline mode).</summary>
+    /// <example>OLRegEx.Literal('END').EndOfText  // Pattern: END\z</example>
+    /// <seealso cref="StartOfText"/>
+    /// <seealso cref="EndOfLine"/>
+    /// <seealso cref="AsFullMatch"/>
     function EndOfText: TOLRegEx;
 
     // Terminals
+
+    /// <summary>Matches the exact literal string (special regex chars are escaped).</summary>
+    /// <example>OLRegEx.Literal('$100')  // Pattern: \$100</example>
+    /// <seealso cref="Choice"/>
+    /// <seealso cref="CaseInsensitive"/>
     function Literal(const S: string): TOLRegEx;
+    /// <summary>Matches a single digit (0-9).</summary>
+    /// <example>OLRegEx.Literal('ID:').Digit  // Pattern: ID:\d</example>
+    /// <seealso cref="NonDigit"/>
+    /// <seealso cref="HexDigit"/>
+    /// <seealso cref="Exactly"/>
+    /// <seealso cref="OneOrMore"/>
     function Digit: TOLRegEx;
+    /// <summary>Matches any character that is not a digit.</summary>
+    /// <example>OLRegEx.Digit.NonDigit  // Pattern: \d\D</example>
+    /// <seealso cref="Digit"/>
+    /// <seealso cref="NonAlphanumeric"/>
     function NonDigit: TOLRegEx;
+    /// <summary>Matches an alphanumeric character or underscore (a-z, A-Z, 0-9, _).</summary>
+    /// <example>OLRegEx.Alphanumeric.OneOrMore  // Pattern: \w+</example>
+    /// <seealso cref="NonAlphanumeric"/>
+    /// <seealso cref="Letter"/>
+    /// <seealso cref="WordBoundary"/>
     function Alphanumeric: TOLRegEx;
+    /// <summary>Matches any character that is not alphanumeric or underscore.</summary>
+    /// <example>OLRegEx.Alphanumeric.NonAlphanumeric  // Pattern: \w\W</example>
+    /// <seealso cref="Alphanumeric"/>
+    /// <seealso cref="Punctuation"/>
     function NonAlphanumeric: TOLRegEx;
+    /// <summary>Matches a whitespace character (space, tab, newline, etc.).</summary>
+    /// <example>OLRegEx.Whitespace.OneOrMore  // Pattern: \s+</example>
+    /// <seealso cref="NonWhitespace"/>
+    /// <seealso cref="Tab"/>
+    /// <seealso cref="LineBreak"/>
     function Whitespace: TOLRegEx;
+    /// <summary>Matches any non-whitespace character.</summary>
+    /// <example>OLRegEx.NonWhitespace.OneOrMore  // Pattern: \S+</example>
+    /// <seealso cref="Whitespace"/>
+    /// <seealso cref="Alphanumeric"/>
     function NonWhitespace: TOLRegEx;
+    /// <summary>Matches any single character (except newline, unless DotAll mode).</summary>
+    /// <example>OLRegEx.AnyChar.Exactly(3)  // Pattern: .{3}</example>
+    /// <seealso cref="DotAll"/>
+    /// <seealso cref="CharSet"/>
     function AnyChar: TOLRegEx;
+    /// <summary>Matches a tab character.</summary>
+    /// <example>OLRegEx.Tab.Literal('data')  // Pattern: \tdata</example>
+    /// <seealso cref="Whitespace"/>
+    /// <seealso cref="LineBreak"/>
     function Tab: TOLRegEx;
+    /// <summary>Matches at a word boundary (between \w and \W).</summary>
+    /// <example>OLRegEx.WordBoundary.Literal('cat').WordBoundary  // Pattern: \bcat\b</example>
+    /// <seealso cref="NonWordBoundary"/>
+    /// <seealso cref="Alphanumeric"/>
     function WordBoundary: TOLRegEx;
+    /// <summary>Matches at a position that is not a word boundary.</summary>
+    /// <example>OLRegEx.NonWordBoundary.Literal('cat')  // Pattern: \Bcat</example>
+    /// <seealso cref="WordBoundary"/>
     function NonWordBoundary: TOLRegEx;
+    /// <summary>Matches any Unicode letter (\p{L}).</summary>
+    /// <example>OLRegEx.Letter.OneOrMore  // Pattern: \p{L}+</example>
+    /// <seealso cref="Alphanumeric"/>
+    /// <seealso cref="Punctuation"/>
     function Letter: TOLRegEx;
+    /// <summary>Matches any Unicode punctuation character (\p{P}).</summary>
+    /// <example>OLRegEx.Punctuation.ZeroOrMore  // Pattern: \p{P}*</example>
+    /// <seealso cref="Letter"/>
+    /// <seealso cref="NonAlphanumeric"/>
     function Punctuation: TOLRegEx;
+    /// <summary>Matches a hexadecimal digit (0-9, a-f, A-F).</summary>
+    /// <example>OLRegEx.Literal('#').HexDigit.Exactly(6)  // Pattern: #[0-9a-fA-F]{6}</example>
+    /// <seealso cref="Digit"/>
+    /// <seealso cref="Range"/>
     function HexDigit: TOLRegEx;
+    /// <summary>Matches any line break (CR, LF, CRLF, or Unicode line separators).</summary>
+    /// <example>OLRegEx.LineBreak.OneOrMore  // Pattern: \R+</example>
+    /// <seealso cref="Whitespace"/>
+    /// <seealso cref="EndOfLine"/>
     function LineBreak: TOLRegEx;
 
     // Quantifiers - Greedy
+
+    /// <summary>Repeats the previous element exactly N times.</summary>
+    /// <example>OLRegEx.Digit.Exactly(4)  // Pattern: \d{4}</example>
+    /// <seealso cref="Between"/>
+    /// <seealso cref="AtLeast"/>
+    /// <seealso cref="ExactlyPossessive"/>
     function Exactly(const Count: Integer): TOLRegEx;
+    /// <summary>Repeats the previous element between Min and Max times (greedy).</summary>
+    /// <example>OLRegEx.Digit.Between(2, 4)  // Pattern: \d{2,4}</example>
+    /// <seealso cref="Exactly"/>
+    /// <seealso cref="AtLeast"/>
+    /// <seealso cref="BetweenLazy"/>
+    /// <seealso cref="BetweenPossessive"/>
     function Between(const Min, Max: Integer): TOLRegEx;
+    /// <summary>Repeats the previous element at least Min times (greedy, no upper limit).</summary>
+    /// <example>OLRegEx.Digit.AtLeast(3)  // Pattern: \d{3,}</example>
+    /// <seealso cref="Between"/>
+    /// <seealso cref="OneOrMore"/>
+    /// <seealso cref="AtLeastLazy"/>
+    /// <seealso cref="AtLeastPossessive"/>
     function AtLeast(const Min: Integer): TOLRegEx;
+    /// <summary>Makes the previous element optional (0 or 1 occurrence, greedy).</summary>
+    /// <example>OLRegEx.Literal('-').Optional.Digit  // Pattern: -?\d</example>
+    /// <seealso cref="ZeroOrMore"/>
+    /// <seealso cref="OptionalLazy"/>
+    /// <seealso cref="OptionalPossessive"/>
     function Optional: TOLRegEx;
+    /// <summary>Repeats the previous element one or more times (greedy).</summary>
+    /// <example>OLRegEx.Digit.OneOrMore  // Pattern: \d+</example>
+    /// <seealso cref="ZeroOrMore"/>
+    /// <seealso cref="AtLeast"/>
+    /// <seealso cref="OneOrMoreLazy"/>
+    /// <seealso cref="OneOrMorePossessive"/>
     function OneOrMore: TOLRegEx;
+    /// <summary>Repeats the previous element zero or more times (greedy).</summary>
+    /// <example>OLRegEx.Whitespace.ZeroOrMore  // Pattern: \s*</example>
+    /// <seealso cref="OneOrMore"/>
+    /// <seealso cref="Optional"/>
+    /// <seealso cref="ZeroOrMoreLazy"/>
+    /// <seealso cref="ZeroOrMorePossessive"/>
     function ZeroOrMore: TOLRegEx;
 
     // Quantifiers - Lazy
+
+    /// <summary>Repeats Min to Max times, matching as few as possible (lazy).</summary>
+    /// <example>OLRegEx.AnyChar.BetweenLazy(1, 10)  // Pattern: .{1,10}?</example>
+    /// <seealso cref="Between"/>
+    /// <seealso cref="BetweenPossessive"/>
     function BetweenLazy(const Min, Max: Integer): TOLRegEx;
+    /// <summary>Repeats at least Min times, matching as few as possible (lazy).</summary>
+    /// <example>OLRegEx.AnyChar.AtLeastLazy(1)  // Pattern: .{1,}?</example>
+    /// <seealso cref="AtLeast"/>
+    /// <seealso cref="AtLeastPossessive"/>
     function AtLeastLazy(const Min: Integer): TOLRegEx;
+    /// <summary>Makes the previous element optional, preferring not to match (lazy).</summary>
+    /// <example>OLRegEx.Literal('s').OptionalLazy  // Pattern: s??</example>
+    /// <seealso cref="Optional"/>
+    /// <seealso cref="OptionalPossessive"/>
     function OptionalLazy: TOLRegEx;
+    /// <summary>Repeats one or more times, matching as few as possible (lazy).</summary>
+    /// <example>OLRegEx.AnyChar.OneOrMoreLazy  // Pattern: .+?</example>
+    /// <seealso cref="OneOrMore"/>
+    /// <seealso cref="OneOrMorePossessive"/>
     function OneOrMoreLazy: TOLRegEx;
+    /// <summary>Repeats zero or more times, matching as few as possible (lazy).</summary>
+    /// <example>OLRegEx.AnyChar.ZeroOrMoreLazy  // Pattern: .*?</example>
+    /// <seealso cref="ZeroOrMore"/>
+    /// <seealso cref="ZeroOrMorePossessive"/>
     function ZeroOrMoreLazy: TOLRegEx;
 
     // Quantifiers - Possessive
+
+    /// <summary>Repeats exactly N times without backtracking (possessive).</summary>
+    /// <example>OLRegEx.Digit.ExactlyPossessive(4)  // Pattern: \d{4}+</example>
+    /// <seealso cref="Exactly"/>
     function ExactlyPossessive(const Count: Integer): TOLRegEx;
+    /// <summary>Repeats Min to Max times without backtracking (possessive).</summary>
+    /// <example>OLRegEx.Digit.BetweenPossessive(2, 4)  // Pattern: \d{2,4}+</example>
+    /// <seealso cref="Between"/>
+    /// <seealso cref="BetweenLazy"/>
     function BetweenPossessive(const Min, Max: Integer): TOLRegEx;
+    /// <summary>Repeats at least Min times without backtracking (possessive).</summary>
+    /// <example>OLRegEx.Digit.AtLeastPossessive(3)  // Pattern: \d{3,}+</example>
+    /// <seealso cref="AtLeast"/>
+    /// <seealso cref="AtLeastLazy"/>
     function AtLeastPossessive(const Min: Integer): TOLRegEx;
+    /// <summary>Optional without backtracking (possessive).</summary>
+    /// <example>OLRegEx.Literal('-').OptionalPossessive  // Pattern: -?+</example>
+    /// <seealso cref="Optional"/>
+    /// <seealso cref="OptionalLazy"/>
     function OptionalPossessive: TOLRegEx;
+    /// <summary>Repeats one or more times without backtracking (possessive).</summary>
+    /// <example>OLRegEx.Digit.OneOrMorePossessive  // Pattern: \d++</example>
+    /// <seealso cref="OneOrMore"/>
+    /// <seealso cref="OneOrMoreLazy"/>
     function OneOrMorePossessive: TOLRegEx;
+    /// <summary>Repeats zero or more times without backtracking (possessive).</summary>
+    /// <example>OLRegEx.AnyChar.ZeroOrMorePossessive  // Pattern: .*+</example>
+    /// <seealso cref="ZeroOrMore"/>
+    /// <seealso cref="ZeroOrMoreLazy"/>
     function ZeroOrMorePossessive: TOLRegEx;
 
     // Groups
+
+    /// <summary>Creates a non-capturing group for combining elements without capturing.</summary>
+    /// <example>OLRegEx.Group(OLRegEx.Digit.Literal('-')).Exactly(3)  // Pattern: (?:\d-){3}</example>
+    /// <seealso cref="Capture"/>
+    /// <seealso cref="AnyOf"/>
     function Group(const Sub: TOLRegEx): TOLRegEx;
+    /// <summary>Creates a capturing group, accessible by index in match results.</summary>
+    /// <example>OLRegEx.Capture(OLRegEx.Digit.OneOrMore)  // Pattern: (\d+)</example>
+    /// <seealso cref="Group"/>
+    /// <seealso cref="Reference"/>
     function Capture(const Sub: TOLRegEx): TOLRegEx; overload;
+    /// <summary>Creates a named capturing group, accessible by name in match results.</summary>
+    /// <example>OLRegEx.Capture('year', OLRegEx.Digit.Exactly(4))  // Pattern: (?P&lt;year&gt;\d{4})</example>
+    /// <seealso cref="Capture"/>
+    /// <seealso cref="Reference"/>
     function Capture(const Name: string; const Sub: TOLRegEx): TOLRegEx; overload;
+    /// <summary>References a previously captured named group (backreference).</summary>
+    /// <example>OLRegEx.Capture('tag', OLRegEx.Alphanumeric.OneOrMore).Literal('/').Reference('tag')  // Pattern: (?P&lt;tag&gt;\w+)/(?P=tag)</example>
+    /// <seealso cref="Capture"/>
     function Reference(const Name: string): TOLRegEx; overload;
+    /// <summary>References a previously captured group by index (backreference).</summary>
+    /// <example>OLRegEx.Capture(OLRegEx.Letter).Reference(1)  // Pattern: (\p{L})\1</example>
+    /// <seealso cref="Capture"/>
     function Reference(const Index: Integer): TOLRegEx; overload;
 
     // Logic
+
+    /// <summary>Matches one of the given literal strings (alternatives).</summary>
+    /// <example>OLRegEx.Choice(['cat', 'dog', 'fish'])  // Pattern: (?:cat|dog|fish)</example>
+    /// <seealso cref="AnyOf"/>
+    /// <seealso cref="CharSet"/>
     function Choice(const Options: array of string): TOLRegEx;
+    /// <summary>Matches one of the given regex patterns (complex alternatives).</summary>
+    /// <example>OLRegEx.AnyOf([OLRegEx.Digit.OneOrMore, OLRegEx.Letter.OneOrMore])  // Pattern: (?:\d+|\p{L}+)</example>
+    /// <seealso cref="Choice"/>
+    /// <seealso cref="Group"/>
     function AnyOf(const Options: array of TOLRegEx): TOLRegEx;
+    /// <summary>Matches a single character in the specified range.</summary>
+    /// <example>OLRegEx.Range('a', 'z')  // Pattern: [a-z]</example>
+    /// <seealso cref="CharSet"/>
+    /// <seealso cref="NotCharSet"/>
+    /// <seealso cref="HexDigit"/>
     function Range(const StartChar, EndChar: Char): TOLRegEx;
+    /// <summary>Matches any single character from the given set.</summary>
+    /// <example>OLRegEx.CharSet('aeiou')  // Pattern: [aeiou]</example>
+    /// <seealso cref="NotCharSet"/>
+    /// <seealso cref="Range"/>
+    /// <seealso cref="Choice"/>
     function CharSet(const Chars: string): TOLRegEx;
+    /// <summary>Matches any single character NOT in the given set.</summary>
+    /// <example>OLRegEx.NotCharSet('0-9')  // Pattern: [^0-9]</example>
+    /// <seealso cref="CharSet"/>
+    /// <seealso cref="Range"/>
     function NotCharSet(const Chars: string): TOLRegEx;
 
     // Lookarounds
+
+    /// <summary>Zero-width positive lookahead - asserts what follows matches.</summary>
+    /// <example>OLRegEx.Digit.OneOrMore.Lookahead(OLRegEx.Literal('px'))  // Pattern: \d+(?=px)</example>
+    /// <seealso cref="NegativeLookahead"/>
+    /// <seealso cref="Lookbehind"/>
     function Lookahead(const Sub: TOLRegEx): TOLRegEx;
+    /// <summary>Zero-width negative lookahead - asserts what follows does not match.</summary>
+    /// <example>OLRegEx.Alphanumeric.OneOrMore.NegativeLookahead(OLRegEx.Literal('@'))  // Pattern: \w+(?!@)</example>
+    /// <seealso cref="Lookahead"/>
+    /// <seealso cref="NegativeLookbehind"/>
     function NegativeLookahead(const Sub: TOLRegEx): TOLRegEx;
+    /// <summary>Zero-width positive lookbehind - asserts what precedes matches.</summary>
+    /// <example>OLRegEx.Lookbehind(OLRegEx.Literal('$')).Digit.OneOrMore  // Pattern: (?&lt;=\$)\d+</example>
+    /// <seealso cref="NegativeLookbehind"/>
+    /// <seealso cref="Lookahead"/>
     function Lookbehind(const Sub: TOLRegEx): TOLRegEx;
+    /// <summary>Zero-width negative lookbehind - asserts what precedes does not match.</summary>
+    /// <example>OLRegEx.NegativeLookbehind(OLRegEx.Literal('-')).Digit.OneOrMore  // Pattern: (?&lt;!-)\d+</example>
+    /// <seealso cref="Lookbehind"/>
+    /// <seealso cref="NegativeLookahead"/>
     function NegativeLookbehind(const Sub: TOLRegEx): TOLRegEx;
 
     // Engine Flags
+
+    /// <summary>Makes the given subpattern case-insensitive.</summary>
+    /// <example>OLRegEx.CaseInsensitive(OLRegEx.Literal('hello'))  // Pattern: (?i:hello)</example>
+    /// <seealso cref="CaseSensitive"/>
     function CaseInsensitive(const Sub: TOLRegEx): TOLRegEx;
+    /// <summary>Makes the given subpattern case-sensitive (explicit).</summary>
+    /// <example>OLRegEx.CaseSensitive(OLRegEx.Literal('ABC'))  // Pattern: (?-i:ABC)</example>
+    /// <seealso cref="CaseInsensitive"/>
     function CaseSensitive(const Sub: TOLRegEx): TOLRegEx;
+    /// <summary>Enables single-line mode where dot (.) matches newlines too.</summary>
+    /// <example>OLRegEx.AnyChar.OneOrMore.DotAll  // Pattern: (?s).+</example>
+    /// <seealso cref="LineByLine"/>
+    /// <seealso cref="AnyChar"/>
     function DotAll: TOLRegEx;
+    /// <summary>Enables multiline mode where ^ and $ match at line boundaries.</summary>
+    /// <example>OLRegEx.StartOfLine.Digit.OneOrMore.EndOfLine.LineByLine  // Pattern: (?m)^\d+$</example>
+    /// <seealso cref="DotAll"/>
+    /// <seealso cref="StartOfLine"/>
+    /// <seealso cref="EndOfLine"/>
     function LineByLine: TOLRegEx;
 
     // Validation Helpers
+
+    /// <summary>Wraps pattern to match from the beginning of text (prefix matching).</summary>
+    /// <example>OLRegEx.Digit.OneOrMore.AsLeftMatch  // Pattern: \A(?:\d+)</example>
+    /// <seealso cref="AsFullMatch"/>
+    /// <seealso cref="StartOfText"/>
     function AsLeftMatch: TOLRegEx;
+    /// <summary>Wraps pattern to match the entire text (full string validation).</summary>
+    /// <example>OLRegEx.Digit.Exactly(5).AsFullMatch  // Pattern: \A(?:\d{5})\z</example>
+    /// <seealso cref="AsLeftMatch"/>
+    /// <seealso cref="StartOfText"/>
+    /// <seealso cref="EndOfText"/>
     function AsFullMatch: TOLRegEx;
 
     property Pattern: string read FPattern;
