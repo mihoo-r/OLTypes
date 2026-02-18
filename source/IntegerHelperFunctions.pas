@@ -1,6 +1,7 @@
 unit IntegerHelperFunctions;
 
 interface
+{$IF CompilerVersion >= 24.0}
 
 function Instance_ToString(var i: integer): string;
 function Instance_ToBoolean(var i: integer): Boolean;
@@ -15,8 +16,10 @@ function Type_Size: Integer;
 function Type_ToString(const Value: Integer): string;
 function Type_Parse(const S: string): Integer;
 function Type_TryParse(const S: string; out Value: Integer): Boolean;
+{$IFEND} //XE3 +
 
 implementation
+{$IF CompilerVersion >= 24.0}
 
 uses
   System.SysUtils;
@@ -77,4 +80,5 @@ begin
   Result := integer.TryParse(s, Value);
 end;
 
+{$IFEND} //XE3 +
 end.

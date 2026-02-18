@@ -2,6 +2,7 @@ unit Int64HelperFunctions;
 
 interface
 
+{$IF CompilerVersion >= 24.0}
 uses
   System.SysUtils;
 
@@ -22,9 +23,11 @@ function Type_ToString(const Value: Int64): string; overload;
 function Type_Parse(const S: string): Int64;
 function Type_TryParse(const S: string; out Value: Int64): Boolean;
 
+{$IFEND} //XE3 +
 
 implementation
 
+{$IF CompilerVersion >= 24.0}
 function Instance_ToString(var i: Int64): string; overload;
 begin
   // Converts the 64-bit integer value to its string representation.
@@ -91,4 +94,5 @@ begin
   Result := Int64.TryParse(S, Value);
 end;
 
+{$IFEND} //XE3 +
 end.

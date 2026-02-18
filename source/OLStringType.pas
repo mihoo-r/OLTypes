@@ -1757,7 +1757,7 @@ begin
       // Attribute check
       if Part.StartsWith('@') then
       begin
-        AttrName := Part.LeadingCharExcluded('@');
+        AttrName := Part.Substring(2);
         if Assigned(CurrNode) and CurrNode.HasAttribute(AttrName) then
           Result := VarToStr(CurrNode.Attributes[AttrName])
         else
@@ -3550,7 +3550,7 @@ begin
     // Attribute check
     if Part.StartsWith('@') then
     begin
-      AttrName := Part.Substring(1);
+      AttrName := Part.LeadingCharExcluded('@');
       if Assigned(CurrNode) then
         if Value.IsNull then
           CurrNode.Attributes[AttrName] := Null

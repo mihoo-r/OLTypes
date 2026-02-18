@@ -2,6 +2,7 @@ unit StringHelperFunctions;
 
 interface
 
+{$IF CompilerVersion >= 24.0}
 uses
   System.Generics.Collections,
   System.SysUtils;
@@ -208,7 +209,10 @@ function Type_Join(const Separator: string; const Values: array of string; Start
 /// <summary>Determines whether the beginning of the text matches the string.</summary>
 function Type_StartsText(const ASubText, AText: string): Boolean;
 
+{$IFEND} //XE3 +
 implementation
+
+{$IF CompilerVersion >= 24.0}
 
 uses
   System.RTLConsts; // Needed for TStringHelper implementation details, e.g. TCompareOptions
@@ -887,5 +891,7 @@ function Type_StartsText(const ASubText, AText: string): Boolean;
 begin
   Result := string.StartsText(ASubText, AText);
 end;
+
+{$IFEND} //XE3 +
 
 end.

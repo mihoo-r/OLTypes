@@ -2,6 +2,8 @@ unit DoubleHelperFunctions;
 
 interface
 
+{$IF CompilerVersion >= 24.0}
+
 uses
   System.SysUtils;
 
@@ -49,7 +51,11 @@ function Type_IsNegativeInfinity(const Value: Double): Boolean; overload;
 function Type_IsPositiveInfinity(const Value: Double): Boolean; overload;
 function Type_Size: Integer;
 
+{$IFEND} //XE3 +
+
 implementation
+
+{$IF CompilerVersion >= 24.0}
 
 // --- Implementation of Instance Functions ---
 
@@ -272,5 +278,7 @@ begin
   // Returns the size of the Double type in bytes.
   Result := Double.Size;
 end;
+
+{$IFEND} //XE3 +
 
 end.

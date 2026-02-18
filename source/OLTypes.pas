@@ -15,7 +15,7 @@ uses
     Vcl.Forms, Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Controls,
   {$ELSE} SysUtils, Classes, Generics.Collections, Rtti,
     Forms, StdCtrls, Spin, ComCtrls, ExtCtrls, Controls,
-  {$ENDIF}
+  {$IFEND}
   {$IF CompilerVersion = 22.0} RegularExpressions, {$IFEND} //XE
   {$IF CompilerVersion >= 23.0} System.RegularExpressions, {$IFEND} //XE2 +
   OLValidation, OLValidationTypes, OLTypesToEdits, OLColorType,
@@ -25,8 +25,14 @@ type
   TRttiFieldHack = class(TRttiField);
 
   TOLRegEx = OLRegExType.TOLRegEx;
+  {$IF CompilerVersion = 22.0}
+  TMatchCollection = RegularExpressions.TMatchCollection;
+  TMatch = RegularExpressions.TMatch;
+  {$IFEND}
+  {$IF CompilerVersion >= 23.0}
   TMatchCollection = System.RegularExpressions.TMatchCollection;
   TMatch = System.RegularExpressions.TMatch;
+  {$IFEND}
 
   OLColor = OLColorType.OLColor;
   TOLThreadRuner = OLThreadRunner.TOLThreadRuner;

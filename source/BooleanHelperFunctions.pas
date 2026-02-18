@@ -2,6 +2,8 @@ unit BooleanHelperFunctions;
 
 interface
 
+{$IF CompilerVersion >= 24.0}
+
 uses
   System.SysUtils;
 
@@ -17,8 +19,11 @@ function Type_ToString(const Value: Boolean; UseBoolStrs: TUseBoolStrs = TUseBoo
 function Type_Parse(const S: string): Boolean;
 function Type_TryToParse(const S: string; out Value: Boolean): Boolean;
 
+{$IFEND} //XE3 +
 
 implementation
+
+{$IF CompilerVersion >= 24.0}
 
 function Instance_ToInteger(var b: Boolean): Integer;
 begin
@@ -55,5 +60,7 @@ begin
   // Attempts to convert a string representation to a Boolean value, returning True if successful.
   Result := Boolean.TryToParse(S, Value);
 end;
+
+{$IFEND} //XE3 +
 
 end.

@@ -2,6 +2,8 @@ unit CurrencyHelperFunctions;
 
 interface
 
+{$IF CompilerVersion >= 24.0}
+
 uses
   System.SysUtils;
 
@@ -25,8 +27,11 @@ function Type_Parse(const S: string): Currency; overload;
 function Type_TryParse(const S: string; out Value: Currency; const AFormatSettings: TFormatSettings): Boolean; overload;
 function Type_TryParse(const S: string; out Value: Currency): Boolean; overload;
 
+{$IFEND} //XE3 +
 
 implementation
+
+{$IF CompilerVersion >= 24.0}
 
 function Instance_ToString(var c: Currency; const AFormatSettings: TFormatSettings): string; overload;
 begin
@@ -105,5 +110,7 @@ begin
   // Attempts to convert a string to a Currency value using default formatting.
   Result := Currency.TryParse(S, Value);
 end;
+
+{$IFEND} //XE3 +
 
 end.
