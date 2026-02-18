@@ -293,15 +293,15 @@ type
     /// <summary>
     ///   Returns the minute number within the year.
     /// </summary>
-    function MinuteOfTheYear(): LongWord;
+    function MinuteOfTheYear(): OLInt64;
     /// <summary>
     ///   Returns the second number within the year.
     /// </summary>
-    function SecondOfTheYear(): LongWord;
+    function SecondOfTheYear(): OLInt64;
     /// <summary>
     ///   Returns the millisecond number within the year.
     /// </summary>
-    function MilliSecondOfTheYear(): Int64;
+    function MilliSecondOfTheYear(): OLInt64;
 
     /// <summary>
     ///   Returns the hour number within the month.
@@ -314,11 +314,11 @@ type
     /// <summary>
     ///   Returns the second number within the month.
     /// </summary>
-    function SecondOfTheMonth(): LongWord;
+    function SecondOfTheMonth(): OLInt64;
     /// <summary>
     ///   Returns the millisecond number within the month.
     /// </summary>
-    function MilliSecondOfTheMonth(): LongWord;
+    function MilliSecondOfTheMonth(): OLInt64;
 
     /// <summary>
     ///   Returns the day number within the week (ISO 8601).
@@ -336,11 +336,11 @@ type
     /// <summary>
     ///   Returns the second number within the week (ISO 8601).
     /// </summary>
-    function SecondOfTheWeek(): LongWord; { ISO 8601 }
+    function SecondOfTheWeek(): OLInt64; { ISO 8601 }
     /// <summary>
     ///   Returns the millisecond number within the week (ISO 8601).
     /// </summary>
-    function MilliSecondOfTheWeek(): LongWord; { ISO 8601 }
+    function MilliSecondOfTheWeek(): OLInt64; { ISO 8601 }
 
     /// <summary>
     ///   Returns the minute number within the day.
@@ -349,11 +349,11 @@ type
     /// <summary>
     ///   Returns the second number within the day.
     /// </summary>
-    function SecondOfTheDay(): LongWord;
+    function SecondOfTheDay(): OLInt64;
     /// <summary>
     ///   Returns the millisecond number within the day.
     /// </summary>
-    function MilliSecondOfTheDay(): LongWord;
+    function MilliSecondOfTheDay(): OLInt64;
 
     /// <summary>
     ///   Returns the second number within the hour.
@@ -362,12 +362,12 @@ type
     /// <summary>
     ///   Returns the millisecond number within the hour.
     /// </summary>
-    function MilliSecondOfTheHour(): LongWord;
+    function MilliSecondOfTheHour(): OLInt64;
 
     /// <summary>
     ///   Returns the millisecond number within the minute.
     /// </summary>
-    function MilliSecondOfTheMinute(): LongWord;
+    function MilliSecondOfTheMinute(): OLInt64;
 
     /// <summary>
     ///   Returns the number of seconds since the start of the specified year.
@@ -408,22 +408,22 @@ type
     ///   Returns the number of complete hours between this datetime and the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
-    function HoursBetween(const Date: OLDateTime): Int64;
+    function HoursBetween(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete minutes between this datetime and the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
-    function MinutesBetween(const Date: OLDateTime): Int64;
+    function MinutesBetween(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete seconds between this datetime and the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
-    function SecondsBetween(const Date: OLDateTime): Int64;
+    function SecondsBetween(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete milliseconds between this datetime and the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. The result is always a non-negative number.</param>
-    function MilliSecondsBetween(const Date: OLDateTime): Int64;
+    function MilliSecondsBetween(const Date: OLDateTime): OLInt64;
 
     /// <summary>
     ///   Returns the number of complete years from the specified datetime to this datetime.
@@ -469,42 +469,42 @@ type
     ///   Returns the number of complete hours from the specified datetime to this datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
-    function HoursFrom(const Date: OLDateTime): Int64;
+    function HoursFrom(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete hours from this datetime to the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
-    function HoursTo(const Date: OLDateTime): Int64;
+    function HoursTo(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete minutes from the specified datetime to this datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
-    function MinutesFrom(const Date: OLDateTime): Int64;
+    function MinutesFrom(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete minutes from this datetime to the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
-    function MinutesTo(const Date: OLDateTime): Int64;
+    function MinutesTo(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete seconds from the specified datetime to this datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
-    function SecondsFrom(const Date: OLDateTime): Int64;
+    function SecondsFrom(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete seconds from this datetime to the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
-    function SecondsTo(const Date: OLDateTime): Int64;
+    function SecondsTo(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete milliseconds from the specified datetime to this datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date > Self.</param>
-    function MilliSecondsFrom(const Date: OLDateTime): Int64;
+    function MilliSecondsFrom(const Date: OLDateTime): OLInt64;
     /// <summary>
     ///   Returns the number of complete milliseconds from this datetime to the specified datetime.
     /// </summary>
     /// <param name="Date">The datetime to compare with. Returns negative if Date < Self.</param>
-    function MilliSecondsTo(const Date: OLDateTime): Int64;
+    function MilliSecondsTo(const Date: OLDateTime): OLInt64;
 
     /// <summary>
     ///   Checks if the datetime is within the specified range.
@@ -772,16 +772,22 @@ end;
 
 function OLDateTime.DayOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.DayOf(Self);
 end;
 
 function OLDateTime.DayOfTheWeek: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.DayOfTheWeek(Self);
 end;
 
 function OLDateTime.DayOfTheYear: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.DayOfTheYear(Self);
 end;
 
@@ -795,16 +801,22 @@ end;
 
 function OLDateTime.DaysInMonth(): OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.DaysInMonth(Self);
 end;
 
 function OLDateTime.DaysInYear: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.DaysInYear(Self);
 end;
 
 function OLDateTime.DaySpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.DaySpan(Self, Date);
 end;
 
@@ -842,21 +854,29 @@ end;
 
 function OLDateTime.EndOfTheDay: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.EndOfTheDay(Self);
 end;
 
 function OLDateTime.EndOfTheMonth: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.EndOfTheMonth(Self);
 end;
 
 function OLDateTime.EndOfTheWeek: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.EndOfTheWeek(Self);
 end;
 
 function OLDateTime.EndOfTheYear: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.EndOfTheYear(Self);
 end;
 
@@ -941,33 +961,45 @@ end;
 
 function OLDateTime.HourOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.HourOf(Self);
 end;
 
 function OLDateTime.HourOfTheMonth: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.HourOfTheMonth(Self);
 end;
 
 function OLDateTime.HourOfTheWeek: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.HourOfTheWeek(Self);
 end;
 
 function OLDateTime.HourOfTheYear: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.HourOfTheYear(Self);
 end;
 
-function OLDateTime.HoursBetween(const Date: OLDateTime): Int64;
+function OLDateTime.HoursBetween(const Date: OLDateTime): OLInt64;
 var
   MinusSign: OLBoolean;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.HoursBetween(Self, Date);
 end;
 
 function OLDateTime.HourSpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.HourSpan(Self, Date);
 end;
 
@@ -1051,11 +1083,15 @@ end;
 
 function OLDateTime.IsAM: OLBoolean;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := not DateUtils.IsPM(Self);
 end;
 
 function OLDateTime.IsInLeapYear: OLBoolean;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IsInLeapYear(Self);
 end;
 
@@ -1066,17 +1102,22 @@ end;
 
 function OLDateTime.IsPM: OLBoolean;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IsPM(Self);
 end;
 
 function OLDateTime.SameDay(const DateTimeToCompare: OLDateTime): OLBoolean;
 begin
-  Result := (not Self.IsNull) and (not DateTimeToCompare.IsNull) and
-    DateUtils.IsSameDay(Self, DateTimeToCompare);
+  if not Self.ValuePresent or not DateTimeToCompare.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.IsSameDay(Self, DateTimeToCompare);
 end;
 
 function OLDateTime.IsToday: OLBoolean;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IsToday(Self);
 end;
 
@@ -1093,9 +1134,9 @@ end;
 function OLDateTime.LongDayName: string;
 begin
   {$if CompilerVersion > 22} // Delphi XE or later
-     Result := SysUtils.FormatSettings.LongDayNames[DayOfWeek(Self.FValue)];
+     Result := SysUtils.FormatSettings.LongDayNames[DayOfWeek(Self)];
   {$else}
-    Result := LongDayNames[DayOfWeek(Self.FValue)];
+    Result := LongDayNames[DayOfWeek(Self)];
   {$ifend}
 end;
 
@@ -1136,41 +1177,57 @@ end;
 
 function OLDateTime.MilliSecondOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondOf(Self);
 end;
 
-function OLDateTime.MilliSecondOfTheDay: LongWord;
+function OLDateTime.MilliSecondOfTheDay: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondOfTheDay(Self);
 end;
 
-function OLDateTime.MilliSecondOfTheHour: LongWord;
+function OLDateTime.MilliSecondOfTheHour: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondOfTheHour(Self);
 end;
 
-function OLDateTime.MilliSecondOfTheMinute: LongWord;
+function OLDateTime.MilliSecondOfTheMinute: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondOfTheMinute(Self);
 end;
 
-function OLDateTime.MilliSecondOfTheMonth: LongWord;
+function OLDateTime.MilliSecondOfTheMonth: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondOfTheMonth(Self);
 end;
 
-function OLDateTime.MilliSecondOfTheWeek: LongWord;
+function OLDateTime.MilliSecondOfTheWeek: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondOfTheWeek(Self);
 end;
 
-function OLDateTime.MilliSecondOfTheYear: Int64;
+function OLDateTime.MilliSecondOfTheYear: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondOfTheYear(Self);
 end;
 
-function OLDateTime.MilliSecondsBetween(const Date: OLDateTime): Int64;
+function OLDateTime.MilliSecondsBetween(const Date: OLDateTime): OLInt64;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondsBetween(Self, Date);
 end;
 
@@ -1238,7 +1295,7 @@ begin
     Result := DaysBetween(Date);
 end;
 
-function OLDateTime.HoursFrom(const Date: OLDateTime): Int64;
+function OLDateTime.HoursFrom(const Date: OLDateTime): OLInt64;
 begin
   if Date > Self then
     Result := -HoursBetween(Date)
@@ -1246,7 +1303,7 @@ begin
     Result := HoursBetween(Date);
 end;
 
-function OLDateTime.HoursTo(const Date: OLDateTime): Int64;
+function OLDateTime.HoursTo(const Date: OLDateTime): OLInt64;
 begin
   if Date < Self then
     Result := -HoursBetween(Date)
@@ -1254,7 +1311,7 @@ begin
     Result := HoursBetween(Date);
 end;
 
-function OLDateTime.MinutesFrom(const Date: OLDateTime): Int64;
+function OLDateTime.MinutesFrom(const Date: OLDateTime): OLInt64;
 begin
   if Date > Self then
     Result := -MinutesBetween(Date)
@@ -1262,7 +1319,7 @@ begin
     Result := MinutesBetween(Date);
 end;
 
-function OLDateTime.MinutesTo(const Date: OLDateTime): Int64;
+function OLDateTime.MinutesTo(const Date: OLDateTime): OLInt64;
 begin
   if Date < Self then
     Result := -MinutesBetween(Date)
@@ -1270,7 +1327,7 @@ begin
     Result := MinutesBetween(Date);
 end;
 
-function OLDateTime.SecondsFrom(const Date: OLDateTime): Int64;
+function OLDateTime.SecondsFrom(const Date: OLDateTime): OLInt64;
 begin
   if Date > Self then
     Result := -SecondsBetween(Date)
@@ -1278,7 +1335,7 @@ begin
     Result := SecondsBetween(Date);
 end;
 
-function OLDateTime.SecondsTo(const Date: OLDateTime): Int64;
+function OLDateTime.SecondsTo(const Date: OLDateTime): OLInt64;
 begin
   if Date < Self then
     Result := -SecondsBetween(Date)
@@ -1286,7 +1343,7 @@ begin
     Result := SecondsBetween(Date);
 end;
 
-function OLDateTime.MilliSecondsFrom(const Date: OLDateTime): Int64;
+function OLDateTime.MilliSecondsFrom(const Date: OLDateTime): OLInt64;
 begin
   if Date > Self then
     Result := -MilliSecondsBetween(Date)
@@ -1294,7 +1351,7 @@ begin
     Result := MilliSecondsBetween(Date);
 end;
 
-function OLDateTime.MilliSecondsTo(const Date: OLDateTime): Int64;
+function OLDateTime.MilliSecondsTo(const Date: OLDateTime): OLInt64;
 begin
   if Date < Self then
     Result := -MilliSecondsBetween(Date)
@@ -1304,6 +1361,8 @@ end;
 
 function OLDateTime.MilliSecondSpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MilliSecondSpan(Self, Date);
 end;
 
@@ -1326,41 +1385,57 @@ end;
 
 function OLDateTime.MinuteOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MinuteOf(Self);
 end;
 
 function OLDateTime.MinuteOfTheDay: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MinuteOfTheDay(Self);
 end;
 
 function OLDateTime.MinuteOfTheMonth: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MinuteOfTheMonth(Self);
 end;
 
 function OLDateTime.MinuteOfTheWeek: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MinuteOfTheWeek(Self);
 end;
 
-function OLDateTime.MinuteOfTheYear: LongWord;
+function OLDateTime.MinuteOfTheYear: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MinuteOfTheYear(Self);
 end;
 
-function OLDateTime.MinutesBetween(const Date: OLDateTime): Int64;
+function OLDateTime.MinutesBetween(const Date: OLDateTime): OLInt64;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MinutesBetween(Self, Date);
 end;
 
 function OLDateTime.MinuteSpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MinuteSpan(Self, Date);
 end;
 
 function OLDateTime.MonthOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MonthOf(Self);
 end;
 
@@ -1370,6 +1445,9 @@ var
   FullMonth: OLBoolean;
 begin
 //Result := Self.Value.MonthsBetween(Date); //Useless - returns "approximate" number of months based on avg days in month (30.4375 days)
+
+  if IsNull or Date.IsNull then
+    Exit(Null);
 
   if Date > Self then
   begin
@@ -1400,6 +1478,8 @@ end;
 
 function OLDateTime.MonthSpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.MonthSpan(Self, Date);
 end;
 
@@ -1415,81 +1495,113 @@ end;
 
 function OLDateTime.RecodedDay(const ADay: Word): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.RecodeDay(Self, ADay);
 end;
 
 function OLDateTime.RecodedHour(const AHour: Word): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.RecodeHour(Self, AHour);
 end;
 
 function OLDateTime.RecodedMilliSecond(const AMilliSecond: Word): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.RecodeMilliSecond(Self, AMilliSecond);
 end;
 
 function OLDateTime.RecodedMinute(const AMinute: Word): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.RecodeMinute(Self, AMinute);
 end;
 
 function OLDateTime.RecodedMonth(const AMonth: Word): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.RecodeMonth(Self, AMonth);
 end;
 
 function OLDateTime.RecodedSecond(const ASecond: Word): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.RecodeSecond(Self, ASecond);
 end;
 
 function OLDateTime.RecodedYear(const AYear: Word): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.RecodeYear(Self, AYear);
 end;
 
 function OLDateTime.SameTime(const DateTimeToCompare: OLDateTime): OLBoolean;
 begin
+  if not Self.ValuePresent or not DateTimeToCompare.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SameTime(Self, DateTimeToCompare);
 end;
 
 function OLDateTime.SecondOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondOf(Self);
 end;
 
-function OLDateTime.SecondOfTheDay: LongWord;
+function OLDateTime.SecondOfTheDay: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondOfTheDay(Self);
 end;
 
 function OLDateTime.SecondOfTheHour: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondOfTheHour(Self);
 end;
 
-function OLDateTime.SecondOfTheMonth: LongWord;
+function OLDateTime.SecondOfTheMonth: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondOfTheMonth(Self);
 end;
 
-function OLDateTime.SecondOfTheWeek: LongWord;
+function OLDateTime.SecondOfTheWeek: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondOfTheWeek(Self);
 end;
 
-function OLDateTime.SecondOfTheYear: LongWord;
+function OLDateTime.SecondOfTheYear: OLInt64;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondOfTheYear(Self);
 end;
 
-function OLDateTime.SecondsBetween(const Date: OLDateTime): Int64;
+function OLDateTime.SecondsBetween(const Date: OLDateTime): OLInt64;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondsBetween(Self, Date);
 end;
 
 function OLDateTime.SecondSpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.SecondSpan(Self, Date);
 end;
 
@@ -1713,21 +1825,29 @@ end;
 
 function OLDateTime.StartOfTheDay: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.StartOfTheDay(Self);
 end;
 
 function OLDateTime.StartOfTheMonth: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.StartOfTheMonth(Self);
 end;
 
 function OLDateTime.StartOfTheWeek: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.StartOfTheWeek(Self);
 end;
 
 function OLDateTime.StartOfTheYear: OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.StartOfTheYear(Self);
 end;
 
@@ -1809,27 +1929,37 @@ end;
 
 function OLDateTime.WeekOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.WeekOf(Self);
 end;
 
 
 function OLDateTime.WeeksBetween(const Date: OLDateTime): OLInteger;
 begin
+  if IsNull or Date.IsNull then
+    Exit(Null);
   Result := DateUtils.WeeksBetween(Self, Date);
 end;
 
 function OLDateTime.WeeksInYear: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.WeeksInYear(Self);
 end;
 
 function OLDateTime.WeekSpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.WeekSpan(Self, Date);
 end;
 
 function OLDateTime.YearOf: OLInteger;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.YearOf(Self);
 end;
 
@@ -1839,6 +1969,8 @@ var
   FullYear: OLBoolean;
 begin
   // Result := DateUtils.YearsBetween(Self, Date); // Replaced to maintain consistency with MonthsBetween logic
+  if IsNull or Date.IsNull then
+    Exit(Null);
   if Date > Self then
   begin
     Y2 := Date.Year;
@@ -1875,6 +2007,8 @@ end;
 
 function OLDateTime.YearSpan(const Date: OLDateTime): OLDouble;
 begin
+  if not Self.ValuePresent or not Date.ValuePresent then
+    Exit(Null);
   Result := DateUtils.YearSpan(Self, Date);
 end;
 
@@ -1897,22 +2031,30 @@ end;
 
 function OLDateTime.IncDay(const ANumberOfDays: Integer): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IncDay(Self, ANumberOfDays);
 end;
 
 function OLDateTime.IncHour(const ANumberOfHours: Int64): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IncHour(Self, ANumberOfHours);
 end;
 
 function OLDateTime.IncMilliSecond(
   const ANumberOfMilliSeconds: Int64): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IncMilliSecond(Self, ANumberOfMilliSeconds);
 end;
 
 function OLDateTime.IncMinute(const ANumberOfMinutes: Int64): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IncMinute(Self, ANumberOfMinutes);
 end;
 
@@ -1922,6 +2064,8 @@ var
   Month: Integer;
   Year: Integer;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Year := Self.YearOf();
   Month := Self.MonthOf();
   Inc(Month, ANumberOfMonths);
@@ -1948,59 +2092,72 @@ end;
 
 function OLDateTime.IncSecond(const ANumberOfSeconds: Int64): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IncSecond(Self, ANumberOfSeconds);
 end;
 
 function OLDateTime.IncWeek(const ANumberOfWeeks: Integer): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IncWeek(Self, ANumberOfWeeks);
 end;
 
 function OLDateTime.IncYear(const ANumberOfYears: Integer): OLDateTime;
 begin
+  if not Self.ValuePresent then
+    Exit(Null);
   Result := DateUtils.IncYear(Self, ANumberOfYears);
 end;
 
 function OLDateTime.WithYear(const AYear: OLInteger): OLDateTime;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeYear(Result, AYear);
+  if not Self.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.RecodeYear(Self, AYear);
 end;
 
 function OLDateTime.WithMonth(const AMonth: OLInteger): OLDateTime;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeMonth(Result, AMonth);
+  if not Self.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.RecodeMonth(Self, AMonth);
 end;
 
 function OLDateTime.WithDay(const ADay: OLInteger): OLDateTime;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeDay(Result, ADay);
+  if not Self.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.RecodeDay(Self, ADay);
 end;
 
 function OLDateTime.WithHour(const AHour: OLInteger): OLDateTime;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeHour(Result, AHour);
+  if not Self.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.RecodeHour(Self, AHour);
 end;
 
 function OLDateTime.WithMinute(const AMinute: OLInteger): OLDateTime;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeMinute(Result, AMinute);
+  if not Self.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.RecodeMinute(Self, AMinute);
 end;
 
 function OLDateTime.WithSecond(const ASecond: OLInteger): OLDateTime;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeSecond(Result, ASecond);
+  if not Self.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.RecodeSecond(Self, ASecond);
 end;
 
 function OLDateTime.WithMilliSecond(const AMilliSecond: OLInteger): OLDateTime;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeMilliSecond(Result, AMilliSecond);
+  if not Self.ValuePresent then
+    Exit(Null);
+  Result := DateUtils.RecodeMilliSecond(Self, AMilliSecond);
 end;
 
 class operator OLDateTime.Implicit(const a: string): OLDateTime;

@@ -1048,20 +1048,17 @@ end;
 
 function OLDate.WithYear(const AYear: OLInteger): OLDate;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeYear(Result.FValue, AYear);
+  Result := Self.FValue.WithYear(AYear);
 end;
 
 function OLDate.WithMonth(const AMonth: OLInteger): OLDate;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeMonth(Result.FValue, AMonth);
+  Result := Self.FValue.WithMonth(AMonth);
 end;
 
 function OLDate.WithDay(const ADay: OLInteger): OLDate;
 begin
-  Result := Self;
-  Result := DateUtils.RecodeDay(Result.FValue, ADay);
+  Result := Self.FValue.WithDay(ADay);
 end;
 
 end.
