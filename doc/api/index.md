@@ -30,6 +30,7 @@ Mechanisms to automate working with VCL forms.
 - [Native Type Helpers](NativeHelpers.md) - Extensions for standard Delphi types like `string`, `Integer`, etc.
 - [Utilities](Utils.md) - Rapid Registry access, background threading, and smart date parsing.
 - [OLColor](OLColor.md) - Advanced color manipulation (Saturation, Brightness, HSV).
+- [OLRegEx](OLRegEx.md) - Fluent regex builder for readable pattern construction.
 
 ---
 

@@ -8,12 +8,13 @@ It was tested with Delphi XE and Delphi 12.1. It will not work in Delphi 2005 an
 
 The library provides a comprehensive set of features, including:
 
-* **OLTypes (Nullable Primitive Types)**: The core library provides nullable types like OLString, OLDateTime, OLInteger, etc., which are interchangeable with standard Delphi types (String, TDateTime, Integer), but **allow storing Null values**.
-* **Primitive Type Helpers**: Extensions with many additional methods for basic types like Integer, String, etc. (Available from Delphi 2006+).
+* **OLTypes (Nullable Primitive Types)**: The core library provides nullable types like OLString, OLDateTime, OLInteger, etc., which are interchangeable with standard Delphi types (String, TDateTime, Integer), but **allow storing Null values**. **OLInteger** is now unified with **OLInt64** and supports full 64-bit precision.
+* **Primitive Type Helpers**: Extensions with many additional methods for basic types like Integer, String (e.g., **Join**, **IsNullOrEmpty**), etc. (Available from Delphi 2006+).
 * **DataBinding (OLTypesToEdits)**: Automatic binding of OL types to VCL controls for seamless UI synchronization and **data validation** (Available from Delphi XE2+).
 * **OLArrays** and **OLDictionaries**: Dynamic arrays and dictionaries with helper methods for OL types (Available from Delphi 2009+).
 * **OLRegistry**: Helper functions for Windows Registry operations (Available from Delphi 2006+).
 * **OLThreadRunner**: A tool for running tasks in separate threads (Available from Delphi 2009+).
+* **OLRegEx**: A fluent regex builder that lets you construct regular expression patterns step-by-step using readable method names instead of cryptic symbols.
 
 ### Compatibility ###
 
@@ -42,7 +43,7 @@ That will download the latest stable version of OLTypes and add its folder to yo
 
 #### Manual Installation
 * Download library and unpack it.
-* Add all units from the source folder directly to your project, **OR** add the path to the source folder to your project's **Search path** (Project -> Options -> Delphi Compiler -> Search path).
+* Add all units from the **source** folder directly to your project, OR add the path to the **source** folder to your project's **Search path** (Project -> Options -> Delphi Compiler -> Search path).
 * Add OLTypes to the uses section in your program
 
 If you wish for the library to be globally available for all new projects, you should add the source folder to your **Library path** instead.
@@ -51,7 +52,7 @@ If you wish for the library to be globally available for all new projects, you s
 
 **Feel free to open OLTypesTest.dpr to run the tests and see the new types in action before you start using them yourself.**
 
-You may also want to **[check the Wiki](https://github.com/mihoo-r/OLTypes/wiki)** or more detailed [documentation](https://github.com/mihoo-r/OLTypes/blob/master/doc/index.md)
+You may also want to **[check the Wiki](https://github.com/mihoo-r/OLTypes/wiki)**, read the **[FAQ](doc/faq.md)**, browse the **[DeepWiki](https://deepwiki.com/mihoo-r/OLTypes)**, or see more detailed [documentation](https://github.com/mihoo-r/OLTypes/blob/master/doc/index.md)
 
 ### Contribution guidelines ###
 

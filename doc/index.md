@@ -7,6 +7,9 @@ Welcome to the **OLTypes** documentation. This library is a comprehensive set of
 *   [**Getting Started**](getting-started.md) - Installation and basic usage.
 *   [**Comprehensive Examples**](examples.md) - See OLTypes in action with full code snippets.
 *   [**API Reference**](api/index.md) - Detailed documentation for every type and helper.
+*   [**Regular Expressions Tutorial**](RegExTutorial.md) - Learn how to build regex patterns with `TOLRegEx` using a fluent, readable API.
+*   [**FAQ**](faq.md) - Frequently Asked Questions about OLTypes.
+*   [**DeepWiki**](https://deepwiki.com/mihoo-r/OLTypes) - AI-generated documentation and code insights.
 
 ---
 
