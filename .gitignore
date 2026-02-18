@@ -6,3 +6,14 @@ __history
 *.res
 *.tvsconfig
 /tests/Debug/Win32
+/source/*.bak
+/tests/dunit.ini
+/tests/*.~dsk
+*.map
+*.exe
+*.dsv
+*.dsk
+*.drc
+/tests/*.bak
+*.mes
+*.skincfg
