@@ -4073,7 +4073,10 @@ begin
   Check(s.Matches('^\d{3}-\d{3}-\d{3}$'), 'Should match phone pattern');
 
   s := '';
-  CheckTrue(s.Matches('^$'), 'Empty string should match empty pattern with roSingleLine');
+  // TRegEx.IsMatch('', '^$') returns False(!) in Delphi XE
+  {$IF CompilerVersion >= 23.0}
+  CheckTrue(s.Matches('^$'), 'Empty string should match empty pattern');
+  {$IFEND}
   CheckFalse(s.Matches('^.+$'), 'Empty string should not match non-empty pattern');
 
   s := Null;
@@ -4098,7 +4101,7 @@ begin
   Check(mc[0].Value = 'The');
 
   // Test with TOLStringHelper
-  mc := string('abc-def').MatchCollection('\w+');
+  mc := OLType('abc-def').MatchCollection('\w+');
   Check(mc.Count = 2, 'Helper: Should find 2 matches');
   Check(mc[0].Value = 'abc');
   Check(mc[1].Value = 'def');
